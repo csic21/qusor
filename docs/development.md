@@ -22,6 +22,16 @@ cargo doc --workspace --no-deps --locked --offline
 
 Cargo.lock 已纳入工程。当前配置变更需要重新生成锁文件时使用 cargo generate-lockfile --offline；不要为了绕过 --locked 检查忽略锁文件。
 
+## 独立插件执行实验
+
+用户已授权的 [Wasm 实验](../experiments/extension-wasm/README.md) 使用独立执行器和作者 Workspace。先分别以 cargo fetch --manifest-path <对应 Cargo.toml> --locked 准备缓存，再在 WSL 从根目录运行：
+
+```sh
+python3 experiments/extension-wasm/validate.py --output /tmp/qusor-wasm-results.json
+```
+
+此命令在仓库外构建作者及全部样例，检查依赖、格式、测试和 Clippy，运行监督进程场景并保存 hash/结果。实际通过范围及限制见 [本机记录](../experiments/extension-wasm/RESULTS.md)。根 Core CI 不执行该实验，也不证明其原生/移动平台可用。
+
 ## 检查分别证明什么
 
 | 检查 | 证明 | 不证明 |

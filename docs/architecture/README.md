@@ -15,7 +15,7 @@ scripts/                 工程边界与文档检查
 .agents/skills/           项目协作工作流
 docs/product/            功能和体验设计
 docs/research/           固定版本研究证据
-experiments/             后续隔离技术验证约定
+experiments/             独立 Wasm 执行实验与验证记录
 ```
 
 learning-domain 保持独立核心边界；新增两个模块承接已授权的实际协议与策略职责，见 [无界面基座规格](../product/foundation.md) 与 [ADR 0004](adr/0004-headless-extension-policy.md)。不引入与原计划重叠的 qusor-core 大模块，也不一次创建全部空业务 crate。
@@ -71,10 +71,13 @@ Core保留数据与应用服务；Host保留平台、运行管理及通用恢复
 
 检查覆盖当前成员的全部直接声明与显式配置模块的已解析传递闭包，并包含间接引入受限模块的反例。未被当前 Cargo 特性组合解析的第三方可选分支、FFI 语义和运行时权限不由这个检查证明；新增适配器时继续按实际边界扩展规则。
 
+独立 Wasm 实验及其作者工具分别使用隔离 Workspace，依赖另列在相同策略文件的 experiments 表中，由 [实验验证脚本](../../experiments/extension-wasm/validate.py) 复用架构检查；根检查不代表实验已执行。实测范围见 [实验结果](../../experiments/extension-wasm/RESULTS.md)。
+
 当前策略实现没有真实知识读写，不创建假数据库、返回固定结果的 Agent、空导入方法、未验证的生产 renderer 或大量 todo!。协议许可与同步回调只证明宿主策略，不证明数据库提交、独立包执行或业务功能完成。
 
 ## 决策与研究的关系
 
+- [ADR 0005](adr/0005-wasm-runtime-probe.md)：独立 Wasm 实验及本机结果，不决定生产运行时。
 - [ADR 0004](adr/0004-headless-extension-policy.md)：推进无界面插件策略实现，保留独立包、隔离与平台发布门槛。
 - [ADR 0003](adr/0003-plugin-first-delivery.md)：第一阶段第三方开发/安装/分发，以及第一方功能插件化。
 - [ADR 0002](adr/0002-extension-boundary.md)：通用插件契约、来源所有权、执行与分发边界。

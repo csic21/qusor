@@ -2,7 +2,7 @@
 
 ## 当前阶段
 
-当前已从文档与工程骨架推进到无界面基座功能实现。可维护工程配置、架构边界、文档、技能和检查工具，并实现 [插件宿主策略基座](docs/product/foundation.md)；UI 研究并行。本轮不实现阅读器、知识库、Agent、画布或同步业务。后续用户明确推进新阶段时，以新指令为准，并更新范围记录。
+当前已从文档与工程骨架推进到无界面基座功能实现。可维护工程配置、架构边界、文档、技能和检查工具，并实现 [插件宿主策略基座](docs/product/foundation.md)；用户随后授权在独立 Workspace 开始 [Wasm 执行实验](experiments/extension-wasm/README.md)，实测证据见 [结果记录](experiments/extension-wasm/RESULTS.md)。UI 研究并行。本轮不实现阅读器、知识库、Agent、画布或同步业务。后续用户明确推进新阶段时，以新指令为准，并更新范围记录。
 
 先读 [项目入口](README.md)、[功能范围](docs/product/scope.md) 和 [架构边界](docs/architecture/README.md)。按任务再读取相关研究，避免每次加载所有报告。
 

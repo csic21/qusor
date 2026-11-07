@@ -1,0 +1,39 @@
+{
+  "manifest_version": 1,
+  "package_id": "org.example.selection-tools",
+  "publisher_id": "org.example",
+  "package_version": {
+    "major": 1,
+    "minor": 1,
+    "patch": 0
+  },
+  "host_api": {
+    "major": 0,
+    "min_minor": 1,
+    "max_minor": 1
+  },
+  "required_capabilities": [
+    "selection.read"
+  ],
+  "optional_capabilities": [
+    "capture.propose"
+  ],
+  "contributions": [
+    {
+      "id": "org.example.selection-tools.inspect",
+      "title": "Inspect selection",
+      "kind": "selection_action",
+      "required_capabilities": [
+        "selection.read"
+      ]
+    },
+    {
+      "id": "org.example.selection-tools.propose",
+      "title": "Propose capture",
+      "kind": "command",
+      "required_capabilities": [
+        "capture.propose"
+      ]
+    }
+  ]
+}

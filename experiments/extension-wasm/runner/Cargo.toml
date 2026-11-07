@@ -1,0 +1,18 @@
+[package]
+name = "qusor-wasm-probe"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+extension-api = { path = "../../../crates/extension-api" }
+extension-host = { path = "../../../crates/extension-host" }
+wasmi = { version = "=2.0.0", default-features = false, features = ["stable", "std", "validate", "portable-dispatch", "extra-checks"] }
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = "=1.0.149"
+sha2 = "=0.10.9"
+
+[lints]
+workspace = true

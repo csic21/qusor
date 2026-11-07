@@ -15,3 +15,31 @@ allowed_transitive_dependencies = ["serde", "serde_core", "serde_derive", "serde
 manifest = "crates/extension-host/Cargo.toml"
 allowed_dependencies = ["extension-api"]
 allowed_transitive_dependencies = ["extension-api", "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]
+
+# ADR 0005: isolated M-1 experiments. These are NOT production workspace members.
+# validate.py checks their normal/dev/build/target declarations and resolved closures
+# with the same validate_graph guard; scripts/check_architecture.py checks production only.
+[experiments.extension-wasm.packages.qusor-wasm-probe]
+manifest = "experiments/extension-wasm/runner/Cargo.toml"
+# Wasmi: validated interpreter and budgets; SHA-256: module byte consistency only;
+# Serde: bounded package/report formats; API/host: existing public policy boundary.
+allowed_dependencies = ["extension-api", "extension-host", "wasmi", "serde", "serde_json", "sha2"]
+allowed_transitive_dependencies = [
+  "extension-api", "extension-host", "wasmi", "wasmi_collections", "wasmi_core", "wasmi_ir",
+  "wasmparser", "spin", "libm", "bitflags", "indexmap", "equivalent", "hashbrown", "foldhash", "string-interner",
+  "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij",
+  "proc-macro2", "quote", "syn", "unicode-ident",
+  "sha2", "cfg-if", "cpufeatures", "libc", "digest", "block-buffer", "crypto-common", "generic-array", "typenum", "version_check",
+]
+
+[experiments.extension-wasm-author.packages.build-plugin]
+manifest = "experiments/extension-wasm/author/Cargo.toml"
+# WAT assembler and byte digest/JSON packaging only; no QUSOR path dependencies.
+allowed_dependencies = ["wat", "sha2", "serde_json"]
+allowed_transitive_dependencies = [
+  "wat", "wast", "wasm-encoder", "wasmparser", "bumpalo", "leb128fmt", "semver", "unicode-width",
+  "bitflags", "indexmap", "equivalent", "hashbrown",
+  "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij",
+  "proc-macro2", "quote", "syn", "unicode-ident",
+  "sha2", "cfg-if", "cpufeatures", "libc", "digest", "block-buffer", "crypto-common", "generic-array", "typenum", "version_check",
+]

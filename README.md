@@ -8,6 +8,7 @@ QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Cor
 |---|---|
 | 确认我们做什么、哪些尚未决定 | [功能范围与确认记录](docs/product/scope.md) |
 | 运行本轮无界面基座与查看验收范围 | [插件宿主策略规格](docs/product/foundation.md) |
+| 复现独立插件执行及权限/资源实验 | [Wasm 实验与结果](experiments/extension-wasm/README.md) |
 | 阅读与思考的交互设计原则 | [产品体验设计基线](docs/product/experience.md) |
 | 理解当前与未来模块边界 | [技术架构入口](docs/architecture/README.md) |
 | 新增插件能力与外部资料接入 | [插件扩展架构](docs/architecture/extensions.md) |
@@ -44,7 +45,7 @@ Windows 的 Python 命令通常是 python；WSL 项目应在 Linux 路径内调�
 
 长期愿景与工程不变量沿用已给出的产品说明。插件化已由用户明确为基座要求；第一阶段支持第三方开发/安装/分发，自己的功能也通过同一公开插件接口开发，见 [ADR 0003](docs/architecture/adr/0003-plugin-first-delivery.md)。RSS和微信读书选段用于检验通用架构，不代表具体插件已实现或确定首版交付。首版是否包含 Reader AI、画布、同步，以及云端默认行为仍需要用户回复，见范围记录；推荐项不会自动转成确认项。
 
-2026-11-07，用户明确推进基座功能实现。本轮交付无界面插件策略内核，见 [功能规格](docs/product/foundation.md) 与 [ADR 0004](docs/architecture/adr/0004-headless-extension-policy.md)；安装操作仅注册内存元数据，不校验包内容或执行插件代码。第三方独立包、运行隔离、持久化和 M-1 平台验收仍未通过，后续按真实证据更新。
+2026-11-07，用户明确推进基座功能实现。本轮交付无界面插件策略内核，见 [功能规格](docs/product/foundation.md) 与 [ADR 0004](docs/architecture/adr/0004-headless-extension-policy.md)；安装操作仅注册内存元数据，不校验包内容或执行插件代码。独立 Wasm 实验随后验证了本机包执行、权限与资源边界，见 [实验结果](experiments/extension-wasm/RESULTS.md)。生产运行时、完整安全安装、持久化和 M-1 平台/渠道验收仍未通过。
 
 ## 项目状态
 

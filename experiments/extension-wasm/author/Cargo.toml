@@ -1,0 +1,19 @@
+[workspace]
+resolver = "3"
+
+[package]
+name = "build-plugin"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97.1"
+publish = false
+license = "MIT"
+description = "Independent author-side package builder for the QUSOR Wasm experiment."
+
+[dependencies]
+wat = "=1.228.0"
+sha2 = "=0.10.9"
+serde_json = "=1.0.149"
+
+[lints.rust]
+unsafe_code = "forbid"
