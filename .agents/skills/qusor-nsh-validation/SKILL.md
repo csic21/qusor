@@ -11,7 +11,7 @@ description: 规划或执行 QUSOR 的 NSH 平台、桥接、输入和阅读 Sur
 
 按实验读取 [源码审查](../../../docs/research/01-nsh-gpui-audit.md)、[阅读与画布路线](../../../docs/research/02-reading-canvas-routes.md)、[M-1清单](../../../docs/research/06-milestones-risks.md) 和 [实验约定](../../../experiments/README.md)。
 
-已有证据未失效时不要重做广泛选型；需要最新事实时核对官方源码并固定提交。区分NSH原生TSX、Web target和内嵌WebView，不能从TSX语法推出浏览器DOM兼容。
+已有本机环境探针与 [结果](../../../experiments/nsh-reader/RESULTS.md)，复用其固定版本和失败证据；preflight 通过不等于窗口/阅读通过，WSLg 不代表 Windows 原生。已有证据未失效时不要重做广泛选型；需要最新事实时核对官方源码并固定提交。区分NSH原生TSX、Web target和内嵌WebView，不能从TSX语法推出浏览器DOM兼容。
 
 ## 定义实验
 

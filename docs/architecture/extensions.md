@@ -2,6 +2,8 @@
 
 日期：2026-11-07。状态：**插件化是用户已明确要求的基座能力；已推进 0.1 协议与无界面宿主策略实现，完整 SDK、包安装、运行隔离和具体插件仍未交付。** 插件与扩展在本文中同义。决策见 [ADR 0002](adr/0002-extension-boundary.md)，产品范围见 [功能矩阵](../product/scope.md)。用户后续已确认第一阶段开放第三方且第一方功能插件化，分期以 [ADR 0003](adr/0003-plugin-first-delivery.md) 及第12节为准。
 
+本阶段的代码目录、全部 Feature 的功能插件归属与依赖约束见 [目录架构](workspace-layout.md)；持久安装、授权恢复、升级/回滚与长驻宿主见 [包生命周期设计](plugin-lifecycle.md) 和 [验收规格](../product/plugin-lifecycle.md)。新授权及实施顺序见 [ADR 0006](adr/0006-plugin-workspace-layout.md)。
+
 ## 0 本轮实现与验证边界
 
 用户在前期材料收集后明确先实现基座，见 [功能规格](../product/foundation.md) 与 [ADR 0004](adr/0004-headless-extension-policy.md)。本轮新增 extension-api 与 extension-host：0.1 JSON 策略协议、manifest 策略投影、三项能力协商、内存安装元数据、资源范围授权、宿主会话、启停/撤权/升级/卸载及贡献查询。
@@ -280,7 +282,7 @@ MCP是工具/资源连接协议，可以作为某类扩展适配器；它不自�
 
 ## 10 可执行验证计划
 
-这些任务均为**未执行**。与现有 [M-1](../research/06-milestones-risks.md) 同样使用 [验证记录](../templates/validation-record.md)，在独立实验中执行，不提前加入主Workspace。
+下表是完整验收目标，尚未整体通过。EXT-P04/P06/P11 的本机子集已有 [Wasm 证据](../../experiments/extension-wasm/RESULTS.md)，不能据此将整项或平台矩阵勾为完成。与 [M-1](../research/06-milestones-risks.md) 同样使用 [验证记录](../templates/validation-record.md)，独立实验不提前加入生产 Workspace。
 
 | ID | 阶段/责任 | 输入与动作 | 通过标准 |
 |---|---|---|---|
@@ -310,7 +312,7 @@ EXT-P01–P08及第12节新增EXT-P11–P13共同验证第一阶段基座；所�
 - [Wasmtime安全](https://docs.wasmtime.dev/security.html)、[平台支持](https://docs.wasmtime.dev/stability-platform-support.html)、[资源限制](https://docs.wasmtime.dev/api/wasmtime/trait.ResourceLimiter.html)、[预编译加载](https://docs.wasmtime.dev/api/wasmtime/struct.Module.html#method.deserialize)：host imports、移动验证、宿主内存与编译缓存分别管理。当前在线API含开发版本，选型后必须固定发布版复核。
 - [QuickJS手册](https://bellard.org/quickjs/quickjs.html)：字节码版本绑定与不可信加载限制；内存/栈/interrupt机制不是完整OS沙箱。
 
-最初设计轮次未实现插件能力；随后用户授权的无界面基座策略实现见第 0 节。仍未创建插件运行时、未接入微信读书账号、未订阅 RSS、未运行任何第三方插件。
+最初设计轮次未实现插件能力；随后策略实现与独立 Wasm 包运行见第 0 节。生产运行时仍未集成，未接入微信读书账号或订阅 RSS；实验使用独立作者与合成输入，不代表真实服务接入。
 
 ## 12 第一阶段交付顺序与发布门槛
 

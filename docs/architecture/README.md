@@ -2,6 +2,8 @@
 
 状态：工程边界与无界面插件宿主策略内核已建立；完整 SDK、运行隔离、存储与业务协议仍须各自验证。详细模型以 [Core 数据与定位研究](../research/03-core-data-architecture.md) 为参考，不把其所有实体预生成成代码。
 
+[目录与插件职责](workspace-layout.md) 是代码位置、全部 Feature 归属及独立 Workspace 边界的入口；[ADR 0006](adr/0006-plugin-workspace-layout.md) 记录本阶段授权。包安装/恢复的详细设计见 [生命周期](plugin-lifecycle.md)，实施顺序见 [下一阶段](../product/next-phase.md)。
+
 ## 当前实际结构
 
 ```text
@@ -15,7 +17,9 @@ scripts/                 工程边界与文档检查
 .agents/skills/           项目协作工作流
 docs/product/            功能和体验设计
 docs/research/           固定版本研究证据
-experiments/             独立 Wasm 执行实验与验证记录
+apps/ adapters/          装配与技术适配入口（只有目录说明）
+plugins/ sdk/            独立功能包与 SDK 入口（尚无正式包/发行）
+experiments/             Wasm 执行证据、NSH 前置环境/构建记录
 ```
 
 learning-domain 保持独立核心边界；新增两个模块承接已授权的实际协议与策略职责，见 [无界面基座规格](../product/foundation.md) 与 [ADR 0004](adr/0004-headless-extension-policy.md)。不引入与原计划重叠的 qusor-core 大模块，也不一次创建全部空业务 crate。
@@ -76,6 +80,8 @@ Core保留数据与应用服务；Host保留平台、运行管理及通用恢复
 当前策略实现没有真实知识读写，不创建假数据库、返回固定结果的 Agent、空导入方法、未验证的生产 renderer 或大量 todo!。协议许可与同步回调只证明宿主策略，不证明数据库提交、独立包执行或业务功能完成。
 
 ## 决策与研究的关系
+
+- [ADR 0006](adr/0006-plugin-workspace-layout.md)：插件目录、功能归属与下一阶段边界。
 
 - [ADR 0005](adr/0005-wasm-runtime-probe.md)：独立 Wasm 实验及本机结果，不决定生产运行时。
 - [ADR 0004](adr/0004-headless-extension-policy.md)：推进无界面插件策略实现，保留独立包、隔离与平台发布门槛。

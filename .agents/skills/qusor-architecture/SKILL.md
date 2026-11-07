@@ -9,6 +9,8 @@ description: 设计或审查 QUSOR 的 Rust 模块边界、接口、持久化与
 
 ## 按问题读取
 
+- 目录、功能归属、独立插件 Workspace 与 SDK 来源：读 [目录架构](../../../docs/architecture/workspace-layout.md) 和 [ADR 0006](../../../docs/architecture/adr/0006-plugin-workspace-layout.md)；包安装/恢复读 [生命周期设计](../../../docs/architecture/plugin-lifecycle.md)。
+
 - 插件、外部来源、扩展UI、运行隔离与生命周期：读 [插件架构](../../../docs/architecture/extensions.md) 和 [ADR 0002](../../../docs/architecture/adr/0002-extension-boundary.md)、[ADR 0003](../../../docs/architecture/adr/0003-plugin-first-delivery.md)。
 - 模块、线程、Schema、定位和导出：读 [Core 设计](../../../docs/research/03-core-data-architecture.md) 的相关段落。
 - 工具调用、引用、审批：读 [Agent 设计](../../../docs/research/04-agent-retrieval.md)。
@@ -27,7 +29,7 @@ Core不依赖NSH/GPUI/DOM或平台view。来源锚点独立于渲染位置；loc
 
 第一阶段开放第三方已确认，官方功能必须通过相同公开SDK实现。区分Core不变量、Host原生服务与功能插件；不能用内置特权或私有直连填补SDK缺口。独立包构建/安装/更新及隔离是M0功能前置，移动未验不能自动降级为仅内置或缩减平台。
 
-当前基座只有learning-domain文档空壳。新增模块需有具体职责；不生成全套空crate、假后端、无效接口或todo!业务方法。
+当前有无业务类型的 learning-domain、已实现的 extension-api/extension-host 策略内核及独立实验；具体完成状态查入口与结果记录。新增模块须有真实职责，不生成全套空 crate、假后端或占位业务方法。
 
 新增依赖或成员时更新 [依赖策略](../../../config/architecture.toml)，写明用途和验证范围；不能通过放宽检查掩盖架构倒置。架构决定记录在 [ADR目录](../../../docs/architecture/adr/)。
 

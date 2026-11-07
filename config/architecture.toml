@@ -1,3 +1,18 @@
+# Directory inventory keeps independent code out of the production Workspace.
+# Hidden directories (including .cache and .local) are always skipped; symlinked
+# source directories/manifests are rejected, never followed outside the checkout.
+# Package registrations below do not replace each independent runner's graph check.
+[layout]
+managed_roots = ["apps", "crates", "adapters", "plugins", "sdk", "experiments"]
+production_roots = ["apps", "crates", "adapters"]
+excluded_directories = ["target", "node_modules", "__pycache__", "build", "dist"]
+# Register every explicit [workspace], including combined package/workspace files.
+workspace_manifests = [
+  "Cargo.toml",
+  "experiments/extension-wasm/Cargo.toml",
+  "experiments/extension-wasm/author/Cargo.toml",
+]
+
 # See ADR 0004: the policy kernel does not execute plugins or write knowledge.
 [packages.learning-domain]
 manifest = "crates/learning-domain/Cargo.toml"

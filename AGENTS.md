@@ -2,7 +2,9 @@
 
 ## 当前阶段
 
-当前已从文档与工程骨架推进到无界面基座功能实现。可维护工程配置、架构边界、文档、技能和检查工具，并实现 [插件宿主策略基座](docs/product/foundation.md)；用户随后授权在独立 Workspace 开始 [Wasm 执行实验](experiments/extension-wasm/README.md)，实测证据见 [结果记录](experiments/extension-wasm/RESULTS.md)。UI 研究并行。本轮不实现阅读器、知识库、Agent、画布或同步业务。后续用户明确推进新阶段时，以新指令为准，并更新范围记录。
+当前已有 [无界面插件策略基座](docs/product/foundation.md) 与 [Wasm 本机实验](experiments/extension-wasm/RESULTS.md)。用户随后同意按最小本地阅读闭环推进，并明确阅读及其他核心用户功能全部插件化、目录/架构清晰。当前落实 [目录边界](docs/architecture/workspace-layout.md)、[包生命周期](docs/architecture/plugin-lifecycle.md) 与 [NSH 前置实验](experiments/nsh-reader/README.md)，阶段顺序见 [下一阶段计划](docs/product/next-phase.md)。
+
+已授权的目录设计、前置实验及按相应技术门槛推进的本地闭环无需重复审批；当前没有正式阅读/知识业务实现。首版 AI/画布/同步范围、云默认行为和首发平台仍待确定，不因功能归属规划而自动全部开工。后续明确指令优先，并更新范围记录。
 
 先读 [项目入口](README.md)、[功能范围](docs/product/scope.md) 和 [架构边界](docs/architecture/README.md)。按任务再读取相关研究，避免每次加载所有报告。
 
@@ -26,6 +28,8 @@
 修改行为前关联 Feature ID 和验收场景。架构变更更新相关 ADR；普通实现细节自行处理，不把所有文件变动变成确认流程。缺少会影响产品行为的信息时，询问具体选择，同时推进不依赖答案的工作。
 
 ## 工程与验证
+
+- apps 只装配，crates 保留 Core/协议/策略，adapters 实现基础设施，plugins 放独立功能包，sdk 从公开契约发行，experiments 留存隔离验证；详情以 [目录架构](docs/architecture/workspace-layout.md) 为准。功能插件不加入生产根 Workspace、不依赖内部源码；普通身份与仓库外构建须实测。
 
 - 当前 learning-domain 仍无业务实现、零外部依赖；extension-api/extension-host 承担协议与宿主策略实际职责。继续按职责拆分，不提前创建所有空业务 crate。
 - 新依赖或 Workspace member 必须更新 [依赖策略](config/architecture.toml) 并说明理由。检查覆盖 normal/dev/build 和目标平台声明。

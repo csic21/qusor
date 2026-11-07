@@ -2,6 +2,8 @@
 
 QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Core。当前交付包含可检查的工程基座与无界面插件宿主策略内核；尚无阅读器、知识库等产品业务实现。
 
+本阶段已获用户同意：按清晰目录落实全部核心用户功能插件化，推进 NSH 最小阅读宿主与包安装/恢复前置工作，再按门槛实施真实本地阅读闭环。见 [下一阶段计划](docs/product/next-phase.md) 与 [目录架构](docs/architecture/workspace-layout.md)。
+
 ## 从这里开始
 
 | 目的 | 文档 |
@@ -11,6 +13,10 @@ QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Cor
 | 复现独立插件执行及权限/资源实验 | [Wasm 实验与结果](experiments/extension-wasm/README.md) |
 | 阅读与思考的交互设计原则 | [产品体验设计基线](docs/product/experience.md) |
 | 理解当前与未来模块边界 | [技术架构入口](docs/architecture/README.md) |
+| 查代码放哪、每项功能属于哪个插件 | [目录与插件职责](docs/architecture/workspace-layout.md) |
+| 推进下一阶段与验收 | [本地阅读闭环计划](docs/product/next-phase.md) |
+| 复现 NSH 环境与构建检查 | [阅读宿主实验](experiments/nsh-reader/README.md) |
+| 设计持久安装、授权恢复和升级回滚 | [包生命周期](docs/architecture/plugin-lifecycle.md) |
 | 新增插件能力与外部资料接入 | [插件扩展架构](docs/architecture/extensions.md) |
 | 本地构建、检查与 CI 的实际范围 | [开发指南](docs/development.md) |
 | 项目技能、协作规则 | [AGENTS.md](AGENTS.md) |
@@ -25,6 +31,7 @@ QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Cor
 - serde/serde_json 用于协议与示例输入；没有 NSH/SQLite/运行时/模型/云服务连接。
 - 依赖边界检查及反例测试、本地 Markdown 链接检查。
 - 三桌面 Core CI 配置；是否在远端运行以真实流水线结果为准。
+- apps/adapters/plugins/sdk 已建立职责入口，尚无对应生产模块；[NSH 前置实验](experiments/nsh-reader/RESULTS.md) 已固定源码并检查环境，构建被系统开发依赖和离线缓存阻断。
 
 本地检查需要 Rust 工具链和 Python 3.11+。首次准备依赖缓存运行 cargo fetch --locked，之后从仓库根目录离线检查：
 

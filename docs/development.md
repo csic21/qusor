@@ -32,6 +32,23 @@ python3 experiments/extension-wasm/validate.py --output /tmp/qusor-wasm-results.
 
 此命令在仓库外构建作者及全部样例，检查依赖、格式、测试和 Clippy，运行监督进程场景并保存 hash/结果。实际通过范围及限制见 [本机记录](../experiments/extension-wasm/RESULTS.md)。根 Core CI 不执行该实验，也不证明其原生/移动平台可用。
 
+## 目录登记与独立包边界
+
+[目录架构](architecture/workspace-layout.md) 规定 apps/crates/adapters 为生产源码范围，plugins/sdk/experiments 独立。新增 Cargo package 和独立 Workspace 都必须在 [architecture.toml](../config/architecture.toml) 登记。根检查先扫描管理目录的 manifest，再核对生产 Cargo 图；隐藏目录与构建缓存不作为项目模块，源码符号链接被拒绝。
+
+生产成员及 Cargo metadata 可见包的 path 声明不能指向插件、SDK、实验或未登记的本地实现，normal/dev/build/optional/target 声明均检查，已解析间接 helper 的本地路径也在范围内。独立 Workspace 的登记不代表其依赖图已通过，仍需自身验证入口调用 validate_graph。Rust include!/构建脚本任意读文件、未解析第三方可选分支、插件运行权限和 SDK 仓库外可用性不由该检查证明。
+
+## NSH 前置实验
+
+[NSH 实验入口](../experiments/nsh-reader/README.md) 提供固定源码取得与复现步骤；本机 [结果](../experiments/nsh-reader/RESULTS.md) 为 P01 部分完成、P02 依赖准备阻断。已有上游 checkout 时，从 Linux/WSL 仓库根目录运行：
+
+```sh
+python3 experiments/nsh-reader/preflight.py
+python3 experiments/nsh-reader/preflight.py --cargo-check --output experiments/nsh-reader/target/preflight.json
+```
+
+退出 1 表示缺依赖或检查失败；退出 0 只表示脚本所检查的前置项满足，不是应用启动或阅读通过。脚本不安装系统软件；--cargo-check 会在上游缓存 Workspace 写构建缓存，生产依赖不变。
+
 ## 检查分别证明什么
 
 | 检查 | 证明 | 不证明 |
@@ -40,7 +57,7 @@ python3 experiments/extension-wasm/validate.py --output /tmp/qusor-wasm-results.
 | cargo test | JSON 协议、宿主授权与生命周期的真实回归通过 | 阅读器/知识入库/Agent/同步已测试 |
 | policy_walkthrough 示例 | 注册、显式授权、跨库拒绝、撤权、升级与重装失效 | 插件包已安全安装执行或状态已持久保存 |
 | cargo doc | 当前库文档可生成 | 设计已实机验证 |
-| 架构检查及 Python 测试 | 当前直接声明、已解析传递闭包与反例有效 | 未解析第三方可选分支、FFI、运行权限均已审查 |
+| 架构检查及 Python 测试 | 管理目录/Workspace 登记、生产源码边界、当前声明与配置闭包的反例有效 | 独立插件依赖图、未解析第三方可选分支、FFI、运行权限均已审查 |
 | 文档链接检查 | 仓库内 Markdown 文件目标存在 | 所有远端URL或页内锚点有效 |
 | GitHub Actions 配置 | 计划在三桌面runner执行相同检查 | 流水线已运行、NSH三桌面或移动通过 |
 
@@ -79,3 +96,11 @@ GitHub Actions 采用官方 [checkout](https://github.com/actions/checkout) 与 
 协议 Schema 已进行 Draft 2020-12 结构检查及合法/非法输入校验；该补充检查使用本机已有 jsonschema，不增加项目 Python 运行依赖。Rust 校验仍是 wire 入口的运行时强制约束。
 
 检查使用本机依赖缓存离线完成，没有在此会话提交或推送。保留并行会话新增的 MIT / GitHub 元数据。CI 已加入锁定依赖准备与无界面示例，但本轮未执行远端流水线；未验证原生 Windows/macOS、NSH、移动、发布渠道、独立插件包、沙箱、持久化或真实知识读写。
+
+## 插件目录与 NSH 前置验证（2026-11-07）
+
+落实 [ADR 0006](architecture/adr/0006-plugin-workspace-layout.md) 的目录/功能归属，新增 Cargo 目录登记和生产本地依赖边界检查。WSL 实测 42 项 Python 回归通过（新增 21 项），生产架构守卫通过；现有 Wasm 执行器/作者两个 Workspace 的真实离线 Cargo metadata 与原 validate_graph 兼容检查通过。本地文档链接、git diff --check 和三个项目技能的 quick_validate 通过。
+
+NSH 前置脚本实际检查固定源码、工具链、可加载 libclang、原生库与显示线索，并尝试离线 Cargo check；另有 3 项 libclang 缺失/无效及就绪状态回归通过。本机依赖准备阻断，未进入应用编译/窗口或阅读交互，详见 [实验结果](../experiments/nsh-reader/RESULTS.md)。持久包管理仍为架构/验收设计，无生产安装器、SDK 发行或真实知识写入成果。
+
+本轮未改变 Rust 代码或依赖，不重跑无关 Rust/Wasm 执行测试；没有远端 CI、其他原生平台或移动验收。目录检查不代替独立插件内部依赖审计、仓库外构建或执行隔离。

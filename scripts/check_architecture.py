@@ -1,4 +1,4 @@
-"""Check Cargo declarations and resolved dependency closures against policy.
+"""Check managed Cargo sources, declarations and resolved dependency closures.
 
 Declarations cover every workspace normal/dev/build/optional/target dependency.
 Resolved closure checks cover edges emitted by Cargo metadata --all-features;
@@ -7,6 +7,7 @@ they do not prove anything about third-party features Cargo did not resolve.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -140,12 +141,163 @@ def validate_graph(metadata: dict, policy: dict, root: Path) -> list[str]:
                 )
         if "allowed_transitive_dependencies" in rule and nodes is not None:
             errors.extend(validate_closure(package, rule, packages, nodes))
+    if "layout" in policy:
+        errors.extend(validate_production_layout(metadata, policy, root))
+    return errors
+
+
+def registered_manifests(policy: dict) -> tuple[dict, list[str]]:
+    """Collect package identities without importing other Workspace policies."""
+    registered = {}
+    errors = []
+    groups = [("production", policy.get("packages", {}))]
+    for section in ("experiments", "plugins", "sdk"):
+        for group in policy.get(section, {}).values():
+            groups.append((section, group.get("packages", {})))
+    for section, packages in groups:
+        for name, rule in packages.items():
+            manifest = rule["manifest"]
+            if manifest in registered:
+                errors.append(f"Duplicate package registration: {manifest}")
+            registered[manifest] = (name, section)
+    return registered, errors
+
+
+def validate_inventory(root: Path, policy: dict) -> list[str]:
+    """Inventory managed Cargo sources; do not follow symlinks or scan caches.
+
+    This checks registration, not independent Workspace dependency resolution.
+    Their own runners must still call validate_graph with their own metadata.
+    """
+    root = root.resolve()
+    layout = policy["layout"]
+    managed = set(layout["managed_roots"])
+    production = set(layout["production_roots"])
+    excluded = set(layout["excluded_directories"])
+    workspaces = set(layout["workspace_manifests"])
+    registered, errors = registered_manifests(policy)
+    discovered = {}
+
+    def read_manifest(path):
+        relative = path.relative_to(root).as_posix()
+        if path.is_symlink():
+            errors.append(f"Managed manifest must not be a symlink: {relative}")
+            return
+        try:
+            # Check before opening; this guard is not a race-proof sandbox.
+            path.resolve().relative_to(root)
+            with path.open("rb") as stream:
+                discovered[relative] = tomllib.load(stream)
+        except (OSError, ValueError) as error:
+            errors.append(f"Cannot read managed manifest {relative}: {error}")
+
+    read_manifest(root / "Cargo.toml")
+    for directory in sorted(managed):
+        if Path(directory).name != directory or directory.startswith("."):
+            errors.append(f"Invalid managed root: {directory}")
+            continue
+        base = root / directory
+        if base.is_symlink():
+            errors.append(f"Managed source directory must not be a symlink: {directory}")
+            continue
+        if not base.exists():
+            continue
+        for current, directories, files in os.walk(
+            base, followlinks=False,
+            onerror=lambda error: errors.append(f"Cannot scan managed sources: {error}"),
+        ):
+            current = Path(current)
+            kept = []
+            for child in sorted(directories):
+                if child.startswith(".") or child in excluded:
+                    continue
+                candidate = current / child
+                if candidate.is_symlink():
+                    errors.append(
+                        "Managed source directory must not be a symlink: "
+                        + candidate.relative_to(root).as_posix()
+                    )
+                else:
+                    kept.append(child)
+            directories[:] = kept
+            if "Cargo.toml" in files:
+                read_manifest(current / "Cargo.toml")
+
+    for manifest, (name, section) in sorted(registered.items()):
+        path = Path(manifest)
+        allowed_roots = production if section == "production" else {section}
+        if (path.is_absolute() or ".." in path.parts or not path.parts
+                or path.parts[0] not in allowed_roots
+                or path.name != "Cargo.toml"
+                or any(part.startswith(".") or part in excluded for part in path.parts)):
+            errors.append(f"Invalid {section} package manifest registration: {manifest}")
+        document = discovered.get(manifest)
+        if document is None:
+            errors.append(f"Registered package manifest is missing from managed sources: {manifest}")
+        elif document.get("package", {}).get("name") != name:
+            errors.append(f"Registered package identity does not match {manifest}: {name}")
+    for manifest in sorted(workspaces):
+        if "workspace" not in discovered.get(manifest, {}):
+            errors.append(f"Registered Workspace manifest is missing or has no workspace: {manifest}")
+    for manifest, document in sorted(discovered.items()):
+        if "package" in document and manifest not in registered:
+            errors.append(f"Unregistered package manifest: {manifest}")
+        if "workspace" in document and manifest not in workspaces:
+            errors.append(f"Unregistered Workspace manifest: {manifest}")
+        if "package" not in document and "workspace" not in document:
+            errors.append(f"Cargo manifest has neither package nor workspace: {manifest}")
+    return errors
+
+
+def validate_production_layout(metadata: dict, policy: dict, root: Path) -> list[str]:
+    """Reject production source dependencies on isolated or unregistered paths.
+
+    Inspect every declaration Cargo reports, including those of resolved helpers.
+    This does not inspect unresolved third-party optional dependency declarations,
+    Rust include!/build-script file access, or independent plugin dependency graphs.
+    """
+    root = root.resolve()
+    layout = policy["layout"]
+    allowed_roots = set(layout["production_roots"])
+    registered = {rule["manifest"] for rule in policy.get("packages", {}).values()}
+    errors = []
+
+    def check_manifest(manifest, context):
+        try:
+            relative = Path(manifest).resolve().relative_to(root)
+        except ValueError:
+            errors.append(f"{context}: local source manifest is outside the repository")
+            return
+        if not relative.parts or relative.parts[0] not in allowed_roots:
+            errors.append(f"{context}: production cannot use isolated/non-production source {relative.as_posix()}")
+        elif relative.as_posix() not in registered:
+            errors.append(f"{context}: unregistered production source manifest {relative.as_posix()}")
+
+    members = set(metadata["workspace_members"])
+    for package in metadata["packages"]:
+        name = package["name"]
+        if package["id"] in members:
+            check_manifest(package["manifest_path"], f"{name} Workspace member")
+        elif package.get("source") is None and "manifest_path" in package:
+            check_manifest(package["manifest_path"], f"{name} local dependency")
+        for dependency in package.get("dependencies", []):
+            if dependency.get("path") is not None:
+                kind = dependency.get("kind") or "normal"
+                target = dependency.get("target") or "all targets"
+                check_manifest(
+                    Path(dependency["path"]) / "Cargo.toml",
+                    f"{name}: {kind} path dependency {dependency['name']} ({target})",
+                )
     return errors
 
 
 def main() -> int:
     with (ROOT / "config/architecture.toml").open("rb") as stream:
         policy = tomllib.load(stream)
+    errors = validate_inventory(ROOT, policy)
+    if errors:
+        print("\n".join(errors), file=sys.stderr)
+        return 1
     result = subprocess.run(
         ["cargo", "metadata", "--format-version", "1", "--locked",
          "--offline", "--all-features"],
@@ -159,7 +311,7 @@ def main() -> int:
     if errors:
         print("\n".join(errors), file=sys.stderr)
         return 1
-    print("Architecture guard passed: workspace declarations and configured resolved closures.")
+    print("Architecture guard passed: managed manifest inventory, production source boundaries, workspace declarations and configured resolved closures.")
     return 0
 
 
