@@ -1,0 +1,43 @@
+name: Foundation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    name: Core foundation (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Check architecture
+        run: python scripts/check_architecture.py
+      - name: Test architecture guard
+        run: python -m unittest discover -s scripts/tests -v
+      - name: Check local documentation links
+        run: python scripts/check_docs.py
+      - name: Lint Core
+        run: cargo clippy --workspace --all-targets --locked --offline -- -D warnings
+      - name: Compile and test Core
+        run: cargo test --workspace --locked --offline
+      - name: Build Core documentation
+        env:
+          RUSTDOCFLAGS: "-D warnings"
+        run: cargo doc --workspace --no-deps --locked --offline

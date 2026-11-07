@@ -1,0 +1,4 @@
+# Current foundation allowlist. Expand deliberately with an architecture decision.
+[packages.learning-domain]
+manifest = "crates/learning-domain/Cargo.toml"
+allowed_dependencies = []
