@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-07T14:47:43.195171+00:00",
+  "task_ids": [
+    "P01",
+    "P02"
+  ],
+  "scope": "Dependency preparation only; no system installation or window acceptance",
+  "expected_source_sha": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "source_revision": {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit_code": 0,
+    "stdout": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+    "stderr": ""
+  },
+  "tracked_cleanliness": {
+    "command": [
+      "git",
+      "status",
+      "--porcelain",
+      "--untracked-files=no"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "cargo_lock_sha256": "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b",
+  "rust_toolchain": "1.97.1",
+  "offline_cache_verification": {
+    "command": [
+      "rustup",
+      "run",
+      "1.97.1",
+      "cargo",
+      "fetch",
+      "--locked",
+      "--target",
+      "x86_64-unknown-linux-gnu",
+      "--offline"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "online_fetch": {
+    "command": [
+      "env",
+      "CARGO_NET_RETRY=1",
+      "CARGO_HTTP_TIMEOUT=20",
+      "RUSTUP_TOOLCHAIN=1.97.1",
+      "cargo",
+      "fetch",
+      "--locked",
+      "--target",
+      "x86_64-unknown-linux-gnu"
+    ],
+    "exit_code": 0,
+    "timeout_seconds": 180,
+    "raw_log_sha256": "a1a671e13ecb0618a201b7e76bb8124e482146bcc7d3f459e1f8242dcc41c158",
+    "downloaded_crate_lines": 408,
+    "raw_log_location": "target/cargo-fetch.log (local ignored cache)"
+  },
+  "native_package_candidates": {
+    "command": [
+      "apt-cache",
+      "policy",
+      "libgtk-4-dev",
+      "libwebkitgtk-6.0-dev",
+      "libgstreamer1.0-dev",
+      "libgstreamer-plugins-base1.0-dev"
+    ],
+    "exit_code": 0,
+    "stdout": "libgtk-4-dev:\n  Installed: (none)\n  Candidate: 4.22.4+ds-0ubuntu0.1\n  Version table:\n     4.22.4+ds-0ubuntu0.1 500\n        500 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 Packages\n     4.22.2+ds-1ubuntu1 500\n        500 http://archive.ubuntu.com/ubuntu resolute/main amd64 Packages\nlibwebkitgtk-6.0-dev:\n  Installed: (none)\n  Candidate: 2.52.6-0ubuntu0.26.04.1\n  Version table:\n     2.52.6-0ubuntu0.26.04.1 500\n        500 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 Packages\n        500 http://security.ubuntu.com/ubuntu resolute-security/main amd64 Packages\n     2.52.0-1 500\n        500 http://archive.ubuntu.com/ubuntu resolute/main amd64 Packages\nlibgstreamer1.0-dev:\n  Installed: (none)\n  Candidate: 1.28.2-1\n  Version table:\n     1.28.2-1 500\n        500 http://archive.ubuntu.com/ubuntu resolute/main amd64 Packages\nlibgstreamer-plugins-base1.0-dev:\n  Installed: (none)\n  Candidate: 1.28.2-1ubuntu0.1\n  Version table:\n     1.28.2-1ubuntu0.1 500\n        500 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 Packages\n        500 http://security.ubuntu.com/ubuntu resolute-security/main amd64 Packages\n     1.28.2-1 500\n        500 http://archive.ubuntu.com/ubuntu resolute/main amd64 Packages",
+    "stderr": ""
+  },
+  "native_install_simulation": {
+    "command": [
+      "apt-get",
+      "-s",
+      "--no-install-recommends",
+      "install",
+      "libgtk-4-dev",
+      "libwebkitgtk-6.0-dev",
+      "libgstreamer1.0-dev",
+      "libgstreamer-plugins-base1.0-dev"
+    ],
+    "exit_code": 0,
+    "stdout": "NOTE: This is only a simulation!\n      apt-get needs root privileges for real execution.\n      Keep also in mind that locking is deactivated,\n      so don't depend on the relevance to the real current situation!\nReading package lists...\nBuilding dependency tree...\nReading state information...\nSolving dependencies...\nThe following additional packages will be installed:\n  gir1.2-graphene-1.0 gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0\n  gir1.2-gtk-4.0 gir1.2-gudev-1.0 gir1.2-javascriptcoregtk-6.0\n  gir1.2-webkit-6.0 libdeflate0 libdrm-dev libdrm-freedreno1 libdrm-nouveau2\n  libdrm-radeon1 libegl-mesa0 libegl1-mesa-dev libgbm-dev libgbm1\n  libgl1-mesa-dri libglx-mesa0 libgraphene-1.0-dev\n  libgstreamer-plugins-extra1.0-0 libgtk-4-1 libgtk-4-common libgudev-1.0-dev\n  libjavascriptcoregtk-6.0-1 libjavascriptcoregtk-6.0-dev libjbig0 liblerc4\n  libnss-systemd liborc-0.4-dev liborc-0.4-dev-bin libpam-systemd\n  libpciaccess-dev libsystemd-dev libsystemd-shared libsystemd0 libtiff6\n  libudev-dev libudev1 libva-drm2 libva2 libvulkan-dev libwebkitgtk-6.0-4\n  libx11-xcb-dev mesa-libgallium mesa-vulkan-drivers systemd\n  systemd-cryptsetup systemd-resolved systemd-sysv udev\nSuggested packages:\n  libgraphene-doc gstreamer1.0-doc gvfs libgtk-4-doc gtk-4-examples\n  liborc-0.4-doc gstreamer1.0-libav gstreamer1.0-plugins-bad gstreamer1.0-alsa\nRecommended packages:\n  libgtk-4-bin ibus-gtk4\nThe following NEW packages will be installed:\n  gir1.2-graphene-1.0 gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0\n  gir1.2-gtk-4.0 gir1.2-gudev-1.0 gir1.2-javascriptcoregtk-6.0\n  gir1.2-webkit-6.0 libdeflate0 libdrm-dev libdrm-freedreno1 libdrm-nouveau2\n  libdrm-radeon1 libgbm-dev libgraphene-1.0-dev\n  libgstreamer-plugins-base1.0-dev libgstreamer-plugins-extra1.0-0\n  libgstreamer1.0-dev libgtk-4-1 libgtk-4-common libgtk-4-dev libgudev-1.0-dev\n  libjavascriptcoregtk-6.0-1 libjavascriptcoregtk-6.0-dev libjbig0 liblerc4\n  liborc-0.4-dev liborc-0.4-dev-bin libpciaccess-dev libtiff6 libudev-dev\n  libva-drm2 libva2 libvulkan-dev libwebkitgtk-6.0-4 libwebkitgtk-6.0-dev\n  libx11-xcb-dev\nThe following packages will be upgraded:\n  libegl-mesa0 libegl1-mesa-dev libgbm1 libgl1-mesa-dri libglx-mesa0\n  libnss-systemd libpam-systemd libsystemd-dev libsystemd-shared libsystemd0\n  libudev1 mesa-libgallium mesa-vulkan-drivers systemd systemd-cryptsetup\n  systemd-resolved systemd-sysv udev\n18 upgraded, 36 newly installed, 0 to remove and 34 not upgraded.\nInst libsystemd-dev [259.5-0ubuntu3.4] (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64]) []\nInst libsystemd0 [259.5-0ubuntu3.4] (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64]) [systemd:amd64 ]\nConf libsystemd0 (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64]) [systemd:amd64 ]\nInst libpam-systemd [259.5-0ubuntu3.4] (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64]) [systemd:amd64 ]\nInst systemd-sysv [259.5-0ubuntu3.4] (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64]) [systemd:amd64 ]\nInst systemd-resolved [259.5-0ubuntu3.4] (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64]) [systemd:amd64 ]\nInst libsystemd-shared [259.5-0ubuntu3.4] (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64]) [systemd:amd64 on libsystemd-shared:amd64] [udev:amd64 systemd:amd64 systemd-cryptsetup:amd64 ]\nConf libsystemd-shared (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64]) [udev:amd64 systemd:amd64 systemd-cryptsetup:amd64 ]\nInst systemd [259.5-0ubuntu3.4] (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64]) [udev:amd64 systemd-cryptsetup:amd64 ]\nInst systemd-cryptsetup [259.5-0ubuntu3.4] (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64]) [udev:amd64 ]\nInst udev [259.5-0ubuntu3.4] (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64]) []\nInst libudev1 [259.5-0ubuntu3.4] (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf libudev1 (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nInst libnss-systemd [259.5-0ubuntu3.4] (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nInst gir1.2-graphene-1.0 (1.10.8-5build1 Ubuntu:26.04/resolute [amd64])\nInst gir1.2-gstreamer-1.0 (1.28.2-1 Ubuntu:26.04/resolute [amd64])\nInst gir1.2-gst-plugins-base-1.0 (1.28.2-1ubuntu0.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nInst libva2 (2.23.0-1ubuntu1 Ubuntu:26.04/resolute [amd64])\nInst libva-drm2 (2.23.0-1ubuntu1 Ubuntu:26.04/resolute [amd64])\nInst libgstreamer-plugins-extra1.0-0 (1.28.2-1ubuntu1.2 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nInst libdeflate0 (1.23-2ubuntu1 Ubuntu:26.04/resolute [amd64])\nInst libjbig0 (2.1-6.1ubuntu3 Ubuntu:26.04/resolute [amd64])\nInst liblerc4 (4.0.0+ds-5ubuntu2 Ubuntu:26.04/resolute [amd64])\nInst libtiff6 (4.7.0-3ubuntu5 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nInst libgtk-4-common (4.22.4+ds-0ubuntu0.1 Ubuntu:26.04/resolute-updates [all])\nInst libgtk-4-1 (4.22.4+ds-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nInst gir1.2-gtk-4.0 (4.22.4+ds-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nInst gir1.2-gudev-1.0 (1:238-7build1 Ubuntu:26.04/resolute [amd64])\nInst libjavascriptcoregtk-6.0-1 (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nInst gir1.2-javascriptcoregtk-6.0 (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nInst libgl1-mesa-dri [26.2.2~kisak1~r] (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64]) []\nInst libglx-mesa0 [26.2.2~kisak1~r] (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64]) []\nInst libegl-mesa0 [26.2.2~kisak1~r] (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64]) []\nInst libgbm1 [26.2.2~kisak1~r] (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64]) []\nInst mesa-libgallium [26.2.2~kisak1~r] (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])\nInst libwebkitgtk-6.0-4 (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nInst gir1.2-webkit-6.0 (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nInst libdrm-radeon1 (2.4.134-3~kisak~r kisak-mesa fresh:26.04/resolute [amd64])\nInst libdrm-nouveau2 (2.4.134-3~kisak~r kisak-mesa fresh:26.04/resolute [amd64])\nInst libdrm-freedreno1 (2.4.134-3~kisak~r kisak-mesa fresh:26.04/resolute [amd64])\nInst libpciaccess-dev (0.18.1-1ubuntu4.1 Ubuntu:26.04/resolute-updates [amd64])\nInst libdrm-dev (2.4.134-3~kisak~r kisak-mesa fresh:26.04/resolute [amd64])\nInst libegl1-mesa-dev [26.2.2~kisak1~r] (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])\nInst libgbm-dev (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])\nInst libgraphene-1.0-dev (1.10.8-5build1 Ubuntu:26.04/resolute [amd64])\nInst libgstreamer1.0-dev (1.28.2-1 Ubuntu:26.04/resolute [amd64])\nInst liborc-0.4-dev-bin (1:0.4.42-2 Ubuntu:26.04/resolute [amd64])\nInst liborc-0.4-dev (1:0.4.42-2 Ubuntu:26.04/resolute [amd64])\nInst libx11-xcb-dev (2:1.8.13-1ubuntu0.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nInst libudev-dev (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nInst libgudev-1.0-dev (1:238-7build1 Ubuntu:26.04/resolute [amd64])\nInst libgstreamer-plugins-base1.0-dev (1.28.2-1ubuntu0.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nInst libvulkan-dev (1.4.341.0-1 Ubuntu:26.04/resolute [amd64])\nInst libgtk-4-dev (4.22.4+ds-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nInst libjavascriptcoregtk-6.0-dev (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nInst libwebkitgtk-6.0-dev (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nInst mesa-vulkan-drivers [26.2.2~kisak1~r] (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])\nConf libsystemd-dev (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf libpam-systemd (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf systemd-sysv (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf systemd-resolved (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf systemd (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf systemd-cryptsetup (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf udev (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf libnss-systemd (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf gir1.2-graphene-1.0 (1.10.8-5build1 Ubuntu:26.04/resolute [amd64])\nConf gir1.2-gstreamer-1.0 (1.28.2-1 Ubuntu:26.04/resolute [amd64])\nConf gir1.2-gst-plugins-base-1.0 (1.28.2-1ubuntu0.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nConf libva2 (2.23.0-1ubuntu1 Ubuntu:26.04/resolute [amd64])\nConf libva-drm2 (2.23.0-1ubuntu1 Ubuntu:26.04/resolute [amd64])\nConf libgstreamer-plugins-extra1.0-0 (1.28.2-1ubuntu1.2 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nConf libdeflate0 (1.23-2ubuntu1 Ubuntu:26.04/resolute [amd64])\nConf libjbig0 (2.1-6.1ubuntu3 Ubuntu:26.04/resolute [amd64])\nConf liblerc4 (4.0.0+ds-5ubuntu2 Ubuntu:26.04/resolute [amd64])\nConf libtiff6 (4.7.0-3ubuntu5 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nConf libgtk-4-common (4.22.4+ds-0ubuntu0.1 Ubuntu:26.04/resolute-updates [all])\nConf libgtk-4-1 (4.22.4+ds-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf gir1.2-gtk-4.0 (4.22.4+ds-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf gir1.2-gudev-1.0 (1:238-7build1 Ubuntu:26.04/resolute [amd64])\nConf libjavascriptcoregtk-6.0-1 (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nConf gir1.2-javascriptcoregtk-6.0 (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nConf libgl1-mesa-dri (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])\nConf libglx-mesa0 (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])\nConf libegl-mesa0 (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])\nConf libgbm1 (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])\nConf mesa-libgallium (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])\nConf libwebkitgtk-6.0-4 (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nConf gir1.2-webkit-6.0 (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nConf libdrm-radeon1 (2.4.134-3~kisak~r kisak-mesa fresh:26.04/resolute [amd64])\nConf libdrm-nouveau2 (2.4.134-3~kisak~r kisak-mesa fresh:26.04/resolute [amd64])\nConf libdrm-freedreno1 (2.4.134-3~kisak~r kisak-mesa fresh:26.04/resolute [amd64])\nConf libpciaccess-dev (0.18.1-1ubuntu4.1 Ubuntu:26.04/resolute-updates [amd64])\nConf libdrm-dev (2.4.134-3~kisak~r kisak-mesa fresh:26.04/resolute [amd64])\nConf libegl1-mesa-dev (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])\nConf libgbm-dev (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])\nConf libgraphene-1.0-dev (1.10.8-5build1 Ubuntu:26.04/resolute [amd64])\nConf libgstreamer1.0-dev (1.28.2-1 Ubuntu:26.04/resolute [amd64])\nConf liborc-0.4-dev-bin (1:0.4.42-2 Ubuntu:26.04/resolute [amd64])\nConf liborc-0.4-dev (1:0.4.42-2 Ubuntu:26.04/resolute [amd64])\nConf libx11-xcb-dev (2:1.8.13-1ubuntu0.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nConf libudev-dev (259.9-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf libgudev-1.0-dev (1:238-7build1 Ubuntu:26.04/resolute [amd64])\nConf libgstreamer-plugins-base1.0-dev (1.28.2-1ubuntu0.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nConf libvulkan-dev (1.4.341.0-1 Ubuntu:26.04/resolute [amd64])\nConf libgtk-4-dev (4.22.4+ds-0ubuntu0.1 Ubuntu:26.04/resolute-updates [amd64])\nConf libjavascriptcoregtk-6.0-dev (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nConf libwebkitgtk-6.0-dev (2.52.6-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates, Ubuntu:26.04/resolute-security [amd64])\nConf mesa-vulkan-drivers (26.2.6~kisak1~r kisak-mesa fresh:26.04/resolute [amd64])",
+    "stderr": ""
+  },
+  "sudo_noninteractive_probe": {
+    "command": [
+      "sudo",
+      "-n",
+      "true"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "sudo: interactive authentication is required"
+  },
+  "dependency_inventory": {
+    "command": [
+      "rustup",
+      "run",
+      "1.97.1",
+      "cargo",
+      "tree",
+      "-p",
+      "nsh-platform-linux",
+      "--no-default-features",
+      "--features",
+      "js,webview",
+      "--locked",
+      "--offline",
+      "--target",
+      "x86_64-unknown-linux-gnu",
+      "--edges",
+      "normal,build",
+      "--prefix",
+      "none",
+      "--format",
+      "{p}|{l}|{r}"
+    ],
+    "exit_code": 0,
+    "path": "evidence/linux-native-dependencies.tsv",
+    "sha256": "8ca04f9a4bcdbf0aae32243b188229abbce3bb0151407dc87471257ddbf7ed43",
+    "unique_name_version_license_repository_rows": 329,
+    "license_expression_counts": {
+      "(MIT OR Apache-2.0) AND Unicode-3.0": 2,
+      "0BSD OR MIT OR Apache-2.0": 1,
+      "Apache-2.0": 12,
+      "Apache-2.0 AND ISC": 1,
+      "Apache-2.0 OR BSL-1.0": 1,
+      "Apache-2.0 OR ISC OR MIT": 1,
+      "Apache-2.0 OR MIT": 20,
+      "Apache-2.0 WITH LLVM-exception": 1,
+      "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT": 10,
+      "Apache-2.0/MIT": 1,
+      "BSD-2-Clause": 1,
+      "BSD-2-Clause OR Apache-2.0 OR MIT": 2,
+      "BSD-3-Clause": 8,
+      "BSD-3-Clause OR Apache-2.0": 2,
+      "BSD-3-Clause/MIT": 1,
+      "CDLA-Permissive-2.0": 2,
+      "ISC": 3,
+      "MIT": 85,
+      "MIT / Apache-2.0": 1,
+      "MIT OR Apache-2.0": 137,
+      "MIT OR Apache-2.0 OR Zlib": 2,
+      "MIT OR Zlib OR Apache-2.0": 2,
+      "MIT/Apache-2.0": 9,
+      "Unicode-3.0": 18,
+      "Unlicense OR MIT": 3,
+      "Zlib": 2,
+      "Zlib OR Apache-2.0 OR MIT": 1
+    },
+    "limitations": [
+      "Declared crate metadata only, not legal clearance",
+      "Native system libraries and bundled assets need separate review",
+      "Scope excludes default features, CLI/application package and other targets"
+    ]
+  },
+  "system_install_performed": false,
+  "application_launched": false
+}

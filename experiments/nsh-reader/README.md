@@ -1,6 +1,6 @@
 # NSH 最小阅读宿主实验
 
-状态：P01 部分完成，已有本机环境检查与固定源码留证；P02 构建检查被依赖条件阻断，尚无窗口或阅读运行证据。实际结果见 [RESULTS.md](RESULTS.md)。
+状态：P01 部分完成；固定 Linux 目标的 Cargo 缓存已补齐并离线复验，P02 已进入 Rust 依赖编译，随后被缺失的 GStreamer 原生开发库阻断。尚无完整应用构建、窗口或阅读运行证据。实际结果见 [RESULTS.md](RESULTS.md)。
 
 本实验承接用户批准的下一阶段：先验证真实 NSH 宿主，再经公开插件接口实现阅读流程。它关联 [M-1 的 P01/P02](../../docs/research/06-milestones-risks.md)，为 P03/P05/P07/P08/P09 提供前置证据；对应 F-PLAT-01、F-READ-01/02、F-SRC-01、F-EXT-04/06。没有把 NSH 加入生产 Workspace，也没有实现产品阅读器。
 
@@ -12,8 +12,8 @@
 
 | 阶段 | 通过条件 | 本轮状态 |
 |---|---|---|
-| P01 本机准备 | 固定源码、lockfile、工具链、系统库、设备与显示条件可复查 | 源码与环境已留证；系统库/依赖缓存不齐 |
-| P02 混合宿主 | 编译、链接、打包、真实窗口启动、关闭重开各有记录 | Cargo check 在依赖解析失败；其余未验证 |
+| P01 本机准备 | 固定源码、lockfile、工具链、系统库、设备与显示条件可复查 | 源码、环境与 Linux Cargo 缓存已留证；系统库不齐 |
+| P02 混合宿主 | 编译、链接、打包、真实窗口启动、关闭重开各有记录 | Cargo check 进入依赖编译，在 GStreamer build script 失败；其余未验证 |
 | P03 桥接 | 请求/错误/事件/取消、关闭后迟到消息行为有真实结果 | 未实施 |
 | P05 输入/选区 | 中文组合态、emoji、复制、撤销、显式 offset 单位正确 | 仅准备合成语料 |
 | P07/P08/P09 阅读 | 安装包离线加载资源、真实 PDF/EPUB、选区与锚点、出站/桥接隔离通过 | 未实施 |
@@ -29,7 +29,7 @@ nsh-reader/
 ├── preflight.py                  Python 标准库环境检查；可选离线 cargo check
 ├── test_preflight.py             libclang 缺失/加载失败/就绪状态回归
 ├── fixtures/selection.txt        自建公开合成语料，尚未渲染
-├── evidence/linux-preflight.json 本机命令、退出码、版本和 hash
+├── evidence/                     首轮、补齐缓存后的检查与声明许可清单
 └── target/                       被忽略的本地源码/构建缓存，不提交
     └── nsh/                      固定 SHA 的上游独立 Workspace
 ```
@@ -79,7 +79,20 @@ python3 -m unittest discover -s experiments/nsh-reader -p test_preflight.py -v
 
 ## 依赖补齐后执行 P02
 
-当前缺少 GTK4/Graphene、GStreamer core/base development packages、WebKitGTK 6.0，以及 Cargo 依赖缓存。Ubuntu/Debian 的上游构建清单包含 clang、libclang-dev、libgtk-4-dev、libwebkitgtk-6.0-dev、libgstreamer1.0-dev、libgstreamer-plugins-base1.0-dev，运行测试还包含 GStreamer base/good plugins、Xvfb。以目标发行版的包版本和上游固定文档为准。**本轮未执行系统软件安装。**
+当前缺少 GTK4/Graphene、GStreamer core/base development packages 和 WebKitGTK 6.0。固定 Linux 目标的 Cargo 缓存已补齐，离线 fetch 成功；[后续编译证据](evidence/linux-cached-preflight.json) 记录了真实进入 Rust 编译后的 GStreamer build script 失败。Ubuntu/Debian 的上游构建清单包含 clang、libclang-dev、libgtk-4-dev、libwebkitgtk-6.0-dev、libgstreamer1.0-dev、libgstreamer-plugins-base1.0-dev，运行测试还包含 GStreamer base/good plugins、Xvfb。以目标发行版的包版本和上游固定文档为准。**本轮未执行系统软件安装。**
+
+本机 apt 模拟安装（`apt-get -s --no-install-recommends install ...`）会新增 36 包、升级 18 包，包含 systemd/udev 和当前配置的 Kisak Mesa；非交互 sudo 也需要身份认证。本轮只保留 [候选版本与模拟方案](evidence/linux-dependency-preparation.json)，没有执行系统安装、升级或替换软件源。在确认目标机器的依赖准备方式后再安装，不能用 Web target 或隐藏 WebView 占位框绕过门槛。
+
+指定编译路径的 [329 项 Cargo 声明许可清单](evidence/linux-native-dependencies.tsv) 来自下列离线命令，按名称/版本去重。它覆盖 normal/build 依赖，不是发布包 SBOM 或许可证审批；系统库、捆绑资源、默认 feature、CLI/应用包及其他平台仍须单独核查：
+
+```sh
+cd experiments/nsh-reader/target/nsh
+export RUSTUP_TOOLCHAIN=1.97.1
+cargo fetch --locked --target x86_64-unknown-linux-gnu --offline
+cargo tree -p nsh-platform-linux --no-default-features --features js,webview \
+  --locked --offline --target x86_64-unknown-linux-gnu --edges normal,build \
+  --prefix none --format '{p}|{l}|{r}' > ../linux-dependency-tree.txt
+```
 
 在这些工具已准备好的环境中，先重跑 preflight，再按 [上游混合示例](https://github.com/longbridge/nsh/blob/913fd76e1f8434ec6cdf248f4476c1ebe08af19f/examples/rust-exports/README.md) 执行：
 
@@ -93,7 +106,7 @@ CARGO_NET_OFFLINE=true ./target/debug/nsh run examples/rust-exports --target lin
 CARGO_NET_OFFLINE=true ./target/debug/nsh package examples/rust-exports --target linux --out ../packaged-rust-exports --run
 ```
 
-这些构建/启动步骤尚未通过本机验证。先完成首个 run 并关闭窗口，再执行 package；CLI 为混合应用生成的辅助宿主如报告新的依赖缓存缺口，记录它的 manifest/lock 与失败，不通过自动更新依赖跳过 --locked 基线。打包结果、辅助 lockfile、运行库版本和日志另存于缓存，验收结果登记到对应证据文件。
+上述 fetch 已通过，平台 cargo check 在缺少 GStreamer 开发库处失败；CLI 完整构建及应用构建/启动步骤尚未通过本机验证。先完成首个 run 并关闭窗口，再执行 package；CLI 为混合应用生成的辅助宿主如报告新的依赖缓存缺口，记录它的 manifest/lock 与失败，不通过自动更新依赖跳过 --locked 基线。打包结果、辅助 lockfile、运行库版本和日志另存于缓存，验收结果登记到对应证据文件。
 
 P02 留证顺序：记录编译与链接；启动真实窗口并操作 Rust 导出的组件；正常关闭；重新启动；打包后退出开发服务再启动；记录显示后端、OS/SDK、字体/输入法、窗口日志和截图。WSLg 运行必须标注 WSLg，不外推成 Windows 原生或所有 Linux 发行版通过。
 

@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-07T14:45:21.299943+00:00",
+  "task_ids": [
+    "P01",
+    "P02"
+  ],
+  "status": "blocked",
+  "scope": "Linux native + JS + WebView prerequisites; not reading or platform acceptance",
+  "system": {
+    "system": "Linux",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "machine": "x86_64",
+    "os_release": "PRETTY_NAME=\"Ubuntu 26.04.1 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"26.04\"\nVERSION=\"26.04.1 LTS (Resolute Raccoon)\"\nVERSION_CODENAME=resolute\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=resolute\nLOGO=ubuntu-logo\n",
+    "logical_cpu_count": 12
+  },
+  "source": {
+    "directory": "/workspace/qusor/experiments/nsh-reader/target/nsh",
+    "expected_sha": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+    "revision": {
+      "command": [
+        "git",
+        "-C",
+        "/workspace/qusor/experiments/nsh-reader/target/nsh",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+      "stderr": ""
+    },
+    "tracked_cleanliness": {
+      "command": [
+        "git",
+        "-C",
+        "/workspace/qusor/experiments/nsh-reader/target/nsh",
+        "status",
+        "--porcelain",
+        "--untracked-files=no"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "sha256": {
+      "Cargo.toml": "7e5da7d0c7b9235b2a3c9a66cbf30dd696a5a2e16e0f2a79cf5b5877e855676a",
+      "Cargo.lock": "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b",
+      "rust-toolchain.toml": "fb9781152dbb601c53ec070f53142e569c946e4aa1571ac4800d6def4d7a4f1f",
+      "crates/nsh-platform-linux/Cargo.toml": "9de5dda9247c92904c88e69d36be9e24b142110b8cb556a8275f7f96f1358350",
+      "examples/rust-exports/nsh.json": "faf81eb8d80f38b694a9eda7cf922f1bcdaf57aad533158bb69d7d91baf49890",
+      "examples/rust-exports/App.tsx": "f04571221dcaa817e750c103b0c8312ab93796e150072af4a4ecd21e70d39265"
+    }
+  },
+  "tools": {
+    "git": "/usr/bin/git",
+    "rustup": "/home/user/.cargo/bin/rustup",
+    "clang": "/usr/bin/clang",
+    "cc": "/usr/bin/cc",
+    "pkg-config": "/usr/bin/pkg-config"
+  },
+  "rust": {
+    "command": [
+      "rustup",
+      "run",
+      "1.97.1",
+      "rustc",
+      "-Vv"
+    ],
+    "exit_code": 0,
+    "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-unknown-linux-gnu\nrelease: 1.97.1\nLLVM version: 22.1.6",
+    "stderr": ""
+  },
+  "cargo": {
+    "command": [
+      "rustup",
+      "run",
+      "1.97.1",
+      "cargo",
+      "-V"
+    ],
+    "exit_code": 0,
+    "stdout": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "stderr": ""
+  },
+  "libclang": {
+    "usable": true,
+    "status": "loaded",
+    "source": "Linux system library search",
+    "library": "libclang-21.so.1",
+    "version": "Ubuntu clang version 21.1.8 (6ubuntu1)",
+    "required_symbols_checked": true,
+    "bindgen_generation_verified": false,
+    "previous_attempts": []
+  },
+  "native_packages": {
+    "gtk4": {
+      "minimum": "4.14",
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "gtk4"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Package gtk4 was not found in the pkg-config search path.\nPerhaps you should add the directory containing `gtk4.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'gtk4' not found"
+      },
+      "minimum_check": {
+        "command": [
+          "pkg-config",
+          "--atleast-version=4.14",
+          "gtk4"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      "usable": false
+    },
+    "pango": {
+      "minimum": "1.50",
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "pango"
+        ],
+        "exit_code": 0,
+        "stdout": "1.57.0",
+        "stderr": ""
+      },
+      "minimum_check": {
+        "command": [
+          "pkg-config",
+          "--atleast-version=1.50",
+          "pango"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "usable": true
+    },
+    "pangocairo": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "pangocairo"
+        ],
+        "exit_code": 0,
+        "stdout": "1.57.0",
+        "stderr": ""
+      },
+      "minimum_check": null,
+      "usable": true
+    },
+    "cairo": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "cairo"
+        ],
+        "exit_code": 0,
+        "stdout": "1.18.4",
+        "stderr": ""
+      },
+      "minimum_check": null,
+      "usable": true
+    },
+    "graphene-gobject-1.0": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "graphene-gobject-1.0"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Package graphene-gobject-1.0 was not found in the pkg-config search path.\nPerhaps you should add the directory containing `graphene-gobject-1.0.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'graphene-gobject-1.0' not found"
+      },
+      "minimum_check": null,
+      "usable": false
+    },
+    "gstreamer-1.0": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "gstreamer-1.0"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Package gstreamer-1.0 was not found in the pkg-config search path.\nPerhaps you should add the directory containing `gstreamer-1.0.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'gstreamer-1.0' not found"
+      },
+      "minimum_check": null,
+      "usable": false
+    },
+    "gstreamer-app-1.0": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "gstreamer-app-1.0"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Package gstreamer-app-1.0 was not found in the pkg-config search path.\nPerhaps you should add the directory containing `gstreamer-app-1.0.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'gstreamer-app-1.0' not found"
+      },
+      "minimum_check": null,
+      "usable": false
+    },
+    "gstreamer-audio-1.0": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "gstreamer-audio-1.0"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Package gstreamer-audio-1.0 was not found in the pkg-config search path.\nPerhaps you should add the directory containing `gstreamer-audio-1.0.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'gstreamer-audio-1.0' not found"
+      },
+      "minimum_check": null,
+      "usable": false
+    },
+    "webkitgtk-6.0": {
+      "minimum": "2.40",
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "webkitgtk-6.0"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Package webkitgtk-6.0 was not found in the pkg-config search path.\nPerhaps you should add the directory containing `webkitgtk-6.0.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'webkitgtk-6.0' not found"
+      },
+      "minimum_check": {
+        "command": [
+          "pkg-config",
+          "--atleast-version=2.40",
+          "webkitgtk-6.0"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      "usable": false
+    }
+  },
+  "display": {
+    "DISPLAY": ":0",
+    "WAYLAND_DISPLAY": "wayland-0",
+    "XDG_RUNTIME_DIR": "/run/user/1000",
+    "wslg_present": true,
+    "x11_socket_present": true,
+    "wayland_socket_present": true,
+    "connection_tested": false
+  },
+  "fixture": {
+    "path": "fixtures/selection.txt",
+    "sha256": "78527baf41df78f31dbdfae236a0a7e6edc94e56363a5549280c3454cb228286",
+    "status": "prepared_only_not_rendered"
+  },
+  "cargo_check": {
+    "status": "failed",
+    "command": [
+      "rustup",
+      "run",
+      "1.97.1",
+      "cargo",
+      "check",
+      "-p",
+      "nsh-platform-linux",
+      "--no-default-features",
+      "--features",
+      "js,webview",
+      "--locked",
+      "--offline"
+    ],
+    "exit_code": 101,
+    "stdout": "",
+    "stderr": "Compiling proc-macro2 v1.0.107\n   Compiling quote v1.0.47\n   Compiling unicode-ident v1.0.27\n   Compiling winnow v1.0.4\n   Compiling toml_datetime v1.1.2+spec-1.1.0\n   Compiling target-lexicon v0.13.5\n   Compiling smallvec v1.16.3\n   Compiling serde_spanned v1.1.2\n   Compiling heck v0.5.0\n   Compiling pkg-config v0.3.34\n   Compiling version-compare v0.2.1\n   Compiling system-deps v9.0.0\n   Compiling libc v0.2.190\n    Checking cfg-if v1.0.5\n    Checking pin-project-lite v0.2.17\n    Checking memchr v2.8.3\n    Checking bitflags v2.13.2\n    Checking futures-core v0.3.34\n   Compiling find-msvc-tools v0.1.14\n    Checking slab v0.4.12\n    Checking futures-sink v0.3.34\n    Checking futures-task v0.3.34\n   Compiling shlex v2.0.1\n   Compiling autocfg v1.5.1\n    Checking log v0.4.34\n    Checking simd-adler32 v0.3.10\n   Compiling cc v1.8.0\n    Checking stable_deref_trait v1.2.1\n   Compiling crc32fast v1.5.2\n   Compiling version_check v0.9.5\n    Checking adler2 v2.0.1\n    Checking siphasher v1.0.4\n    Checking futures-channel v0.3.34\n    Checking zeroize v1.9.1\n   Compiling num-traits v0.2.19\n    Checking miniz_oxide v0.9.1\n   Compiling glob v0.3.4\n   Compiling cfg-expr v0.20.10\n   Compiling generic-array v0.14.7\n   Compiling semver v1.0.28\n   Compiling zerocopy v0.8.63\n    Checking typenum v1.20.1\n    Checking zlib-rs v0.6.8\n   Compiling serde_core v1.0.229\n   Compiling clang-sys v1.9.1\n   Compiling rustc_version v0.4.1\n   Compiling toml_parser v1.1.5+spec-1.1.0\n   Compiling syn v3.0.9\n   Compiling syn v2.0.119\n   Compiling prettyplease v0.2.37\n   Compiling thiserror v2.0.21\n   Compiling toml v1.1.8+spec-1.1.0\n   Compiling minimal-lexical v0.2.1\n    Checking bytes v1.12.1\n   Compiling regex-syntax v0.8.11\n   Compiling serde v1.0.229\n    Checking flate2 v1.1.10\n    Checking itoa v1.0.18\n    Checking once_cell v1.21.4\n   Compiling nom v7.1.3\n    Checking crypto-common v0.1.7\n    Checking block-buffer v0.10.4\n    Checking rustls-pki-types v1.15.1\n   Compiling libloading v0.8.9\n    Checking writeable v0.6.4\n   Compiling ring v0.17.14\n    Checking subtle v2.6.1\n   Compiling allocator-api2 v0.2.21\n   Compiling either v1.19.0\n   Compiling bindgen v0.72.1\n    Checking litemap v0.8.3\n   Compiling foldhash v0.2.0\n   Compiling equivalent v1.0.3\n   Compiling itertools v0.13.0\n    Checking digest v0.10.7\n   Compiling system-deps v7.0.8\n   Compiling hashbrown v0.17.1\n   Compiling glib-sys v0.22.9\n   Compiling gobject-sys v0.22.9\n   Compiling gio-sys v0.22.9\n   Compiling cairo-sys-rs v0.22.9\n   Compiling regex-automata v0.4.18\n   Compiling pango-sys v0.22.9\n    Checking getrandom v0.2.17\n   Compiling shlex v1.3.0\n    Checking utf-8 v0.7.6\n   Compiling rustc-hash v2.1.3\n   Compiling icu_normalizer_data v2.3.0\n   Compiling icu_properties_data v2.3.0\n   Compiling cexpr v0.6.0\n   Compiling getrandom v0.3.4\n    Checking cpufeatures v0.2.17\n    Checking utf8_iter v1.0.4\n    Checking untrusted v0.9.0\n   Compiling gdk-pixbuf-sys v0.22.9\n   Compiling rustls v0.23.45\n    Checking bytemuck v1.25.2\n   Compiling httparse v1.10.1\n    Checking arrayvec v0.7.8\n   Compiling rand_core v0.6.4\n   Compiling rustix v1.1.5\n   Compiling rand v0.8.8\n   Compiling indexmap v2.14.2\n   Compiling phf_shared v0.11.3\n    Checking miniz_oxide v0.8.9\n    Checking fdeflate v0.3.7\n   Compiling io-lifetimes v3.0.1\n   Compiling synstructure v0.14.0\n    Checking linux-raw-sys v0.12.1\n    Checking float-cmp v0.9.0\n   Compiling zmij v1.0.23\n   Compiling io-lifetimes v2.0.4\n   Compiling toml_edit v0.25.17+spec-1.1.0\n    Checking strict-num v0.1.1\n   Compiling regex v1.13.1\n   Compiling phf_generator v0.11.3\n    Checking rand_core v0.9.5\n    Checking polycool v0.4.0\n   Compiling graphene-sys v0.22.9\n   Compiling gdk4-sys v0.11.5\n   Compiling gstreamer-sys v0.25.4\n    Checking http v1.5.0\n    Checking mio v1.2.4\n    Checking socket2 v0.6.5\n   Compiling curve25519-dalek v4.1.3\n   Compiling futures-macro v0.3.34\n   Compiling zerofrom-derive v0.1.8\n   Compiling yoke-derive v0.8.4\n   Compiling glib-macros v0.22.9\n   Compiling zerovec-derive v0.11.6\n   Compiling displaydoc v0.2.7\n   Compiling zerocopy-derive v0.8.63\n    Checking futures-util v0.3.34\n   Compiling thiserror-impl v2.0.21\n   Compiling serde_derive v1.0.229\n    Checking rustls-webpki v0.103.15\n    Checking zerofrom v0.1.8\n   Compiling tokio-macros v2.7.2\n    Checking yoke v0.8.3\n    Checking zerovec v0.11.8\n    Checking zerotrie v0.2.5\n   Compiling serde_json v1.0.154\n    Checking futures-io v0.3.34\n    Checking tinystr v0.8.4\n    Checking potential_utf v0.1.6\n   Compiling io-extras v0.19.0\n    Checking icu_collections v2.3.0\n    Checking percent-encoding v2.3.2\n    Checking icu_locale_core v2.3.0\n   Compiling parking_lot_core v0.9.12\n    Checking arrayref v0.3.9\n    Checking tiny-skia-path v0.11.4\n    Checking tokio v1.53.3\n    Checking futures-executor v0.3.34\n   Compiling curve25519-dalek-derive v0.1.1\nwarning: gstreamer-sys@0.25.4: \nerror: failed to run custom build command for `gstreamer-sys v0.25.4`\n\nCaused by:\n  process didn't exit successfully: `/workspace/qusor/experiments/nsh-reader/target/nsh/target/debug/build/gstreamer-sys-9270488774f020bf/build-script-build` (exit status: 1)\n  --- stdout\n  cargo:rerun-if-changed=/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gstreamer-sys-0.25.4/Cargo.toml\n  cargo:rerun-if-env-changed=GSTREAMER_1.0_NO_PKG_CONFIG\n  cargo:rerun-if-env-changed=PKG_CONFIG_x86_64-unknown-linux-gnu\n  cargo:rerun-if-env-changed=PKG_CONFIG_x86_64_unknown_linux_gnu\n  cargo:rerun-if-env-changed=HOST_PKG_CONFIG\n  cargo:rerun-if-env-changed=PKG_CONFIG\n  cargo:rerun-if-env-changed=PKG_CONFIG_PATH_x86_64-unknown-linux-gnu\n  cargo:rerun-if-env-changed=PKG_CONFIG_PATH_x86_64_unknown_linux_gnu\n  cargo:rerun-if-env-changed=HOST_PKG_CONFIG_PATH\n  cargo:rerun-if-env-changed=PKG_CONFIG_PATH\n  cargo:rerun-if-env-changed=PKG_CONFIG_LIBDIR_x86_64-unknown-linux-gnu\n  cargo:rerun-if-env-changed=PKG_CONFIG_LIBDIR_x86_64_unknown_linux_gnu\n  cargo:rerun-if-env-changed=HOST_PKG_CONFIG_LIBDIR\n  cargo:rerun-if-env-changed=PKG_CONFIG_LIBDIR\n  cargo:rerun-if-env-changed=PKG_CONFIG_SYSROOT_DIR_x86_64-unknown-linux-gnu\n  cargo:rerun-if-env-changed=PKG_CONFIG_SYSROOT_DIR_x86_64_unknown_linux_gnu\n  cargo:rerun-if-env-changed=HOST_PKG_CONFIG_SYSROOT_DIR\n  cargo:rerun-if-env-changed=PKG_CONFIG_SYSROOT_DIR\n  cargo:warning=\n  pkg-config exited with status code 1\n  > PKG_CONFIG_PATH= PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1 pkg-config --libs --cflags gstreamer-1.0 'gstreamer-1.0 >= 1.14'\n\n  pkg-config output:\n    Package gstreamer-1.0 was not found in the pkg-config search path.\n    Perhaps you should add the directory containing `gstreamer-1.0.pc'\n    to the PKG_CONFIG_PATH environment variable\n    Package 'gstreamer-1.0' not found\n    Package 'gstreamer-1.0' not found\n\n  The system library `gstreamer-1.0` required by crate `gstreamer-sys` was not found.\n  The file `gstreamer-1.0.pc` needs to be installed and the PKG_CONFIG_PATH environment variable must contain its parent directory.\n  PKG_CONFIG_PATH contains the following:\n      - \n\n  HINT: you may need to install a package such as gstreamer-1.0, gstreamer-1.0-dev or gstreamer-1.0-devel.\n\nwarning: build failed, waiting for other jobs to finish..."
+  },
+  "blockers": [
+    "Missing or too old native development package: gtk4 >= 4.14",
+    "Missing or too old native development package: graphene-gobject-1.0",
+    "Missing or too old native development package: gstreamer-1.0",
+    "Missing or too old native development package: gstreamer-app-1.0",
+    "Missing or too old native development package: gstreamer-audio-1.0",
+    "Missing or too old native development package: webkitgtk-6.0 >= 2.40",
+    "Offline Cargo check failed; recorded output identifies the first failure."
+  ],
+  "unverified": [
+    "full application compile/link",
+    "package/install",
+    "window startup",
+    "Rust/TSX round trip",
+    "IME",
+    "PDF/EPUB rendering",
+    "selection/anchors",
+    "offline subresources/bridge isolation",
+    "close/reopen recovery",
+    "other platforms"
+  ]
+}

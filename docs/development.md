@@ -40,7 +40,7 @@ python3 experiments/extension-wasm/validate.py --output /tmp/qusor-wasm-results.
 
 ## NSH 前置实验
 
-[NSH 实验入口](../experiments/nsh-reader/README.md) 提供固定源码取得与复现步骤；本机 [结果](../experiments/nsh-reader/RESULTS.md) 为 P01 部分完成、P02 依赖准备阻断。已有上游 checkout 时，从 Linux/WSL 仓库根目录运行：
+[NSH 实验入口](../experiments/nsh-reader/README.md) 提供固定源码取得与复现步骤；本机 [结果](../experiments/nsh-reader/RESULTS.md) 为 P01 部分完成；锁定 Cargo 缓存已补齐，P02 实际依赖编译仍被原生 GStreamer 开发库阻断。已有上游 checkout 时，从 Linux/WSL 仓库根目录运行：
 
 ```sh
 python3 experiments/nsh-reader/preflight.py
@@ -104,3 +104,17 @@ GitHub Actions 采用官方 [checkout](https://github.com/actions/checkout) 与 
 NSH 前置脚本实际检查固定源码、工具链、可加载 libclang、原生库与显示线索，并尝试离线 Cargo check；另有 3 项 libclang 缺失/无效及就绪状态回归通过。本机依赖准备阻断，未进入应用编译/窗口或阅读交互，详见 [实验结果](../experiments/nsh-reader/RESULTS.md)。持久包管理仍为架构/验收设计，无生产安装器、SDK 发行或真实知识写入成果。
 
 本轮未改变 Rust 代码或依赖，不重跑无关 Rust/Wasm 执行测试；没有远端 CI、其他原生平台或移动验收。目录检查不代替独立插件内部依赖审计、仓库外构建或执行隔离。
+
+## 签名包与持久安装事务增量（2026-11-07）
+
+运行 [包实验](../experiments/extension-package/README.md)：
+
+```sh
+python3 experiments/extension-package/validate.py --output /tmp/qusor-package-validation.json
+```
+
+本机 20 项包/存储测试、84 个 CLI 场景通过，其中安装/更新/卸载共 12 次真实进程终止注入；仓库外仅用导出 SDK/API 编译两版本并保持宿主 hash 不变。两个 Workspace 的 fmt/test/clippy、独立依赖图和生产依赖图通过，源/工件/hash 见 [证据](../experiments/extension-package/RESULTS.md)。
+
+原 Wasm 实验仅增加冻结字节入口，16 项运行回归及 fmt/clippy 通过；生产架构守卫与 42 项 Python 回归通过。NSH 固定 Linux 缓存 online/offline fetch 均通过，编译在 gstreamer-sys 缺开发库处失败，未运行窗口。
+
+此次没有生产 Rust 行为/依赖改动，不重复无关 Core 业务检查；没有提交/推送、远端 CI、其他原生平台、断电或移动验收。完整授权/执行恢复、正式安装器与阅读仍待各自门槛。

@@ -1,6 +1,6 @@
 # NSH 阅读宿主实验结果
 
-日期：2026-11-07。结论：**已取得固定源码与本机 P01 环境证据；P02 被依赖准备阻断，未构建或启动 NSH 应用。** 这不证明 NSH 功能失败，也不能据此将阅读 Surface 标为可用。
+日期：2026-11-07。结论：**已取得固定源码与本机 P01 环境证据；本轮补齐 Linux Cargo 缓存，P02 已进入 Rust 依赖编译，随后因缺少 GStreamer 原生开发库阻断。尚未完成应用构建或启动窗口。** 这不证明 NSH 功能失败，也不能据此将阅读 Surface 标为可用。
 
 ## 假设与门槛
 
@@ -25,7 +25,7 @@
 
 NSH 源码、构建缓存保存在被忽略的实验 target 目录；没有创建 QUSOR Rust Workspace 或生产依赖。Windows 的初步只读检查未在当前 PATH 找到 cargo/rustc/node/MSVC，默认 Windows Kits/Visual Studio 路径也未返回安装目录；这不是全盘安装清查或 Windows 原生构建结论。
 
-## 步骤与结果
+## 首轮步骤与结果
 
 | 步骤 | 预期 | 实际 | 证据/状态 |
 |---|---|---|---|
@@ -51,11 +51,37 @@ required by package `nsh-base v0.4.0`
 
 命令显式关闭平台默认 feature，只打开 js,webview，仍由上游 Workspace 的完整锁定解析触发此缓存需求。此日志证明当前离线缓存不齐；GTK 等缺失来自单独的 pkg-config 检查，并非这个 Cargo 命令已经跑到系统库链接失败。
 
+## 同日继续执行：解除 Cargo 缓存阻塞
+
+固定 SHA、工具链和原始 lockfile 保持不变，旧 [首轮证据](evidence/linux-preflight.json) 保留。新增 [依赖准备记录](evidence/linux-dependency-preparation.json) 和 [补齐缓存后的环境/编译记录](evidence/linux-cached-preflight.json)，不是覆盖原始失败结论。
+
+| 步骤 | 实际结果 | 判断 |
+|---|---|---|
+| 在线固定目标 fetch | `cargo fetch --locked --target x86_64-unknown-linux-gnu` 退出 0；仅获取公开构建依赖 | 此目标所需缓存已准备 |
+| 离线再次 fetch | 同一命令增加 `--offline`，退出 0 | 验证缓存足以离线解析固定目标 |
+| 离线平台 check | 保持 `--no-default-features --features js,webview --locked --offline`；进入真实依赖编译，退出 101 | 首个失败为 gstreamer-sys 0.25.4 的 build script；完整 check 未通过 |
+| 固定源码完整性 | HEAD 仍为固定 SHA，tracked status 为空，lockfile SHA-256 未变 | 未通过更改依赖或关闭 WebView 绕过问题 |
+| 系统软件准备评估 | apt 模拟方案新增 36 包、升级 18 包；sudo 非交互认证不可用 | 未安装或升级任何系统软件 |
+| 声明许可清单 | 指定 Linux+JS+WebView 路径 normal/build 依赖共 329 项 | [清单](evidence/linux-native-dependencies.tsv) 为 crate 声明元数据，不代表发布许可审核通过 |
+
+本次 check 的实际失败已从“缺 imara-diff 缓存”推进到原生构建脚本：
+
+```text
+error: failed to run custom build command for `gstreamer-sys v0.25.4`
+pkg-config --libs --cflags gstreamer-1.0 'gstreamer-1.0 >= 1.14'
+The system library `gstreamer-1.0` required by crate `gstreamer-sys` was not found.
+The file `gstreamer-1.0.pc` needs to be installed
+```
+
+GTK4/Graphene、GStreamer app/audio、WebKitGTK 6.0 仍在独立 pkg-config 检查中缺失；本次首个 build script 失败不代表其他库已可用。apt 候选 GTK 为 4.22.4，WebKitGTK 为 2.52.6，GStreamer 为 1.28.2；实际模拟同时涉及 systemd/udev 和 Kisak Mesa 升级，因此没有把它作为局部缓存操作自动执行。候选版本来自当前 apt 索引，未执行软件源刷新，也不承诺今后仍有同一版本。
+
+依赖清单记录名称、版本、仓库与声明的 license 表达式，未改写原始表达式。系统动态库、库内捆绑的代码/资源、完整 CLI/应用默认功能及其他目标尚未完成清单或分发核查。没有编译/链接成功、窗口、截图、打包重开、中文输入或 PDF/EPUB 的新成绩。
+
 ## 平台与阅读证据矩阵
 
 | 平台/场景 | 编译/链接 | 安装/启动 | 输入/阅读/恢复 |
 |---|---|---|---|
-| Linux via WSLg，本机 | Cargo 依赖解析阻断 | 未验证 | 未验证 |
+| Linux via WSLg，本机 | 已进入 Rust 依赖编译；GStreamer 原生开发库缺失阻断 | 未验证 | 未验证 |
 | 原生 Linux 发行版 | 未验证 | 未验证 | 未验证 |
 | Windows 原生 | 未验证 | 未验证 | 未验证 |
 | macOS | 未验证 | 未验证 | 未验证 |
@@ -64,8 +90,8 @@ required by package `nsh-base v0.4.0`
 
 ## 结论与下一动作
 
-P01 是部分完成：固定源码与环境检查可复现，系统依赖、完整依赖/许可清单和五端工具链未齐。P02 未通过；P03/P05/P07/P08/P09 仍在各自前置之后。没有据此开始生产 NSH adapter、PDF/EPUB renderer 或官方阅读产品插件。
+P01 是部分完成：固定源码、环境检查和 Linux Cargo 缓存可复现，已有指定路径的 Cargo 声明许可清单；系统依赖、完整发布包依赖/许可核查和五端工具链未齐。P02 未通过；P03/P05/P07/P08/P09 仍在各自前置之后。没有据此开始生产 NSH adapter、PDF/EPUB renderer 或官方阅读产品插件。
 
-下一步在具备上述原生库的环境补齐锁定 Cargo 缓存，按 [准确复现步骤](README.md#依赖补齐后执行-p02) 执行上游 Rust+TSX 示例的构建、窗口与打包重开；取得首个平台证据后，再编写最小受控阅读探针。若使用其他机器或新工具链，新增结果记录，不覆盖这份失败证据。
+下一步先准备上述原生开发库；缓存已补齐，在库就绪后重跑离线 check，再按 [准确复现步骤](README.md#依赖补齐后执行-p02) 执行上游 Rust+TSX 示例的构建、窗口与打包重开；取得首个平台证据后，再编写最小受控阅读探针。若使用其他机器或新工具链，新增结果记录，不覆盖这份失败证据。
 
 [preflight.py](preflight.py) 只检查前置条件，退出 0 也不等于应用/阅读可用。此次未安装系统软件、未改全局设置、未上传用户资料，也没有把 Web target、纯文本或禁用 WebView 的占位框作为替代验收。

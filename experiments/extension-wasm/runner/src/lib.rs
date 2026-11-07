@@ -58,6 +58,33 @@ pub struct Package {
 }
 
 impl Package {
+    /// Consume frozen bytes from a trusted package verifier without reopening an input path.
+    /// The supplied digest identifies the verifier's complete package, not just this module.
+    /// This constructor does not authenticate a publisher; that is the caller's responsibility.
+    pub fn from_host_bytes(manifest: Manifest, digest: String, wasm: Vec<u8>) -> Result<Self> {
+        manifest
+            .validate()
+            .map_err(|_| ProbeError::new("invalid_manifest"))?;
+        if wasm.len() > MAX_WASM_BYTES {
+            return Err(ProbeError::new("package_size_limit"));
+        }
+        if !wasm.starts_with(b"\0asm\x01\0\0\0") {
+            return Err(ProbeError::new("invalid_wasm"));
+        }
+        if digest.len() != 64
+            || !digest
+                .bytes()
+                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+        {
+            return Err(ProbeError::new("invalid_package"));
+        }
+        Ok(Self {
+            manifest,
+            digest,
+            wasm,
+        })
+    }
+
     pub fn load(directory: &Path) -> Result<Self> {
         let envelope: Envelope =
             serde_json::from_slice(&read_bounded(&directory.join("package.json"), 4096)?)

@@ -19,7 +19,7 @@ docs/product/            功能和体验设计
 docs/research/           固定版本研究证据
 apps/ adapters/          装配与技术适配入口（只有目录说明）
 plugins/ sdk/            独立功能包与 SDK 入口（尚无正式包/发行）
-experiments/             Wasm 执行证据、NSH 前置环境/构建记录
+experiments/             Wasm、签名包/安装事务证据、NSH 环境/构建记录
 ```
 
 learning-domain 保持独立核心边界；新增两个模块承接已授权的实际协议与策略职责，见 [无界面基座规格](../product/foundation.md) 与 [ADR 0004](adr/0004-headless-extension-policy.md)。不引入与原计划重叠的 qusor-core 大模块，也不一次创建全部空业务 crate。
@@ -79,7 +79,11 @@ Core保留数据与应用服务；Host保留平台、运行管理及通用恢复
 
 当前策略实现没有真实知识读写，不创建假数据库、返回固定结果的 Agent、空导入方法、未验证的生产 renderer 或大量 todo!。协议许可与同步回调只证明宿主策略，不证明数据库提交、独立包执行或业务功能完成。
 
+新增 [签名包与安装事务实验](../../experiments/extension-package/README.md) 使用独立 Workspace，显式签名/键绑定及 SQLite BLOB 管理事务已留证；生产依赖不变。候选和限制见 [ADR 0007](adr/0007-signed-package-persistence-probe.md)，不能替代正式授权恢复或知识写入。
+
 ## 决策与研究的关系
+
+- [ADR 0007](adr/0007-signed-package-persistence-probe.md)：签名包、仓库外 SDK 工件与持久安装事务实验。
 
 - [ADR 0006](adr/0006-plugin-workspace-layout.md)：插件目录、功能归属与下一阶段边界。
 

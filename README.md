@@ -17,6 +17,7 @@ QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Cor
 | 推进下一阶段与验收 | [本地阅读闭环计划](docs/product/next-phase.md) |
 | 复现 NSH 环境与构建检查 | [阅读宿主实验](experiments/nsh-reader/README.md) |
 | 设计持久安装、授权恢复和升级回滚 | [包生命周期](docs/architecture/plugin-lifecycle.md) |
+| 复现签名包、仓库外作者构建和持久安装事务 | [包实验与结果](experiments/extension-package/README.md) |
 | 新增插件能力与外部资料接入 | [插件扩展架构](docs/architecture/extensions.md) |
 | 本地构建、检查与 CI 的实际范围 | [开发指南](docs/development.md) |
 | 项目技能、协作规则 | [AGENTS.md](AGENTS.md) |
@@ -31,7 +32,7 @@ QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Cor
 - serde/serde_json 用于协议与示例输入；没有 NSH/SQLite/运行时/模型/云服务连接。
 - 依赖边界检查及反例测试、本地 Markdown 链接检查。
 - 三桌面 Core CI 配置；是否在远端运行以真实流水线结果为准。
-- apps/adapters/plugins/sdk 已建立职责入口，尚无对应生产模块；[NSH 前置实验](experiments/nsh-reader/RESULTS.md) 已固定源码并检查环境，构建被系统开发依赖和离线缓存阻断。
+- apps/adapters/plugins/sdk 已建立职责入口，尚无对应生产模块；[NSH 前置实验](experiments/nsh-reader/RESULTS.md) 已固定源码并检查环境，已补齐 Linux Cargo 缓存，编译仍被 GStreamer 等原生开发库阻断；尚未启动窗口。
 
 本地检查需要 Rust 工具链和 Python 3.11+。首次准备依赖缓存运行 cargo fetch --locked，之后从仓库根目录离线检查：
 
@@ -47,6 +48,8 @@ cargo doc --workspace --no-deps --locked --offline
 ```
 
 Windows 的 Python 命令通常是 python；WSL 项目应在 Linux 路径内调用 Cargo，详见开发指南。
+
+独立 [签名包与安装事务实验](experiments/extension-package/RESULTS.md) 已验证完整包签名、仓库外构建、发布者绑定和禁用安装的进程恢复。生产安装器、授权恢复、私有状态迁移、长驻监督和正式阅读插件仍未完成。
 
 ## 当前产品决策状态
 
