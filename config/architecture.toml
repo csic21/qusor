@@ -1,4 +1,17 @@
-# Current foundation allowlist. Expand deliberately with an architecture decision.
+# See ADR 0004: the policy kernel does not execute plugins or write knowledge.
 [packages.learning-domain]
 manifest = "crates/learning-domain/Cargo.toml"
 allowed_dependencies = []
+
+# Serde is restricted to the public wire boundary; serde_json implements bounded JSON entrypoints.
+[packages.extension-api]
+manifest = "crates/extension-api/Cargo.toml"
+allowed_dependencies = ["serde", "serde_json"]
+# Review the complete third-party closure, including proc macros/build dependencies.
+allowed_transitive_dependencies = ["serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]
+
+# Host policy and its example depend only on the public API.
+[packages.extension-host]
+manifest = "crates/extension-host/Cargo.toml"
+allowed_dependencies = ["extension-api"]
+allowed_transitive_dependencies = ["extension-api", "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]

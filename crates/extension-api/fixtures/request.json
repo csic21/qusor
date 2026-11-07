@@ -1,0 +1,10 @@
+{
+  "api_version": { "major": 0, "minor": 1 },
+  "request_id": "request-001",
+  "capability": "selection.read",
+  "resource": {
+    "kind": "selection",
+    "vault_id": "vault-001",
+    "selection_id": "selection-001"
+  }
+}

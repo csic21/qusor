@@ -1,6 +1,16 @@
 # QUSOR 插件扩展架构
 
-日期：2026-11-07。状态：**插件化是用户已明确要求的基座能力；本文是待验证的契约设计，没有实现插件宿主、SDK 或具体插件。** 插件与扩展在本文中同义。决策见 [ADR 0002](adr/0002-extension-boundary.md)，产品范围见 [功能矩阵](../product/scope.md)。用户后续已确认第一阶段开放第三方且第一方功能插件化，分期以 [ADR 0003](adr/0003-plugin-first-delivery.md) 及第12节为准。
+日期：2026-11-07。状态：**插件化是用户已明确要求的基座能力；已推进 0.1 协议与无界面宿主策略实现，完整 SDK、包安装、运行隔离和具体插件仍未交付。** 插件与扩展在本文中同义。决策见 [ADR 0002](adr/0002-extension-boundary.md)，产品范围见 [功能矩阵](../product/scope.md)。用户后续已确认第一阶段开放第三方且第一方功能插件化，分期以 [ADR 0003](adr/0003-plugin-first-delivery.md) 及第12节为准。
+
+## 0 本轮实现与验证边界
+
+用户在前期材料收集后明确先实现基座，见 [功能规格](../product/foundation.md) 与 [ADR 0004](adr/0004-headless-extension-policy.md)。本轮新增 extension-api 与 extension-host：0.1 JSON 策略协议、manifest 策略投影、三项能力协商、内存安装元数据、资源范围授权、宿主会话、启停/撤权/升级/卸载及贡献查询。
+
+一个宿主实例绑定一个库，身份不能由插件载荷自报。会话和许可绑定宿主实例、安装实例与授权世代；同步分派在调用受信任回调前重新验证并消费许可。升级仅接受同包同发布者的更高版本及不同摘要，成功后禁用并清空授权；旧会话/许可失效。失败升级保持原有效状态。
+
+SelectionRead、DocumentMetadataRead 与 CapturePropose 在本轮只实施策略判定，没有读取正文、保存候选或正式写库。安装仅注册元数据；package_digest 是未来受信任包验证器的输入，本轮不校验包字节、签名或发布者身份。manifest、内存注册和同步回调均不构成安全执行沙箱或 Core 事务实现。
+
+下文是完整目标架构，超出上述内容的设计仍未实现。F-EXT-01/03/04/06 仅有策略层部分，F-EXT-05 及 EXT-B/P 全部门槛继续保留；独立包、运行隔离、真实知识保留/导出、贡献 UI 与五平台均未验收。本地协议/宿主回归和无界面示例已通过，详见 [验证记录](../development.md)；不把编译进宿主的示例当成外部插件包。
 
 ## 1 目标与边界
 
@@ -8,11 +18,11 @@
 
 插件负责发现资料、转换内容、提供动作或呈现方式；Core 负责知识实体、来源、事务、审核、撤销、索引和导出。卸载插件不得导致已收录段落、用户笔记、引用和关系不可读。真正新增领域语义仍可能需要受控 Core Schema 升级；不承诺任意新功能永远无需改变核心。
 
-当前保持一个零依赖的 learning-domain。下面的模块名表达未来职责，只有具体实现任务出现时才创建 crate。
+learning-domain 继续保持零外部依赖、无业务类型；extension-api 与 extension-host 已按本轮具体职责创建。下面其余模块表达未来职责，出现实际用例时再创建 crate。
 
 ## 1.1 功能围绕插件开发
 
-用户已确认：第一阶段支持第三方插件开发、安装与分发，第一方功能也围绕插件化开发。这里的“第一阶段”落实为首个可用版本M0的交付要求；当前会话仍处于架构设计，不提前实现业务。完整决策见 [ADR 0003](adr/0003-plugin-first-delivery.md)。
+用户已确认：第一阶段支持第三方插件开发、安装与分发，第一方功能也围绕插件化开发。这里的“第一阶段”落实为首个可用版本M0的交付要求；当前已进入无界面基座策略实现，不提前实现产品业务。完整决策见 [ADR 0003](adr/0003-plugin-first-delivery.md)。
 
 ### Core、Host与功能插件的责任
 
@@ -53,10 +63,10 @@ flowchart TD
 
 上图为运行调用。编译依赖另行约束：
 
-| 未来模块 | 编译依赖与职责 | 不允许 |
+| 当前与规划模块 | 编译依赖与职责 | 不允许 |
 |---|---|---|
-| extension-api | 独立的版本化 wire DTO、manifest、贡献点与错误协议；由 host 映射到 core-api | NSH、SQLite、Core内部实体布局、具体服务SDK |
-| extension-host | 依赖 extension-api、core-api、受控平台ports；识别调用者、执行策略和注册贡献点 | 直接使用 SQLite repository 提交业务写入 |
+| extension-api | 已实现 0.1 策略 wire DTO、manifest 投影、贡献点与错误；完整能力后续由 host 映射到 core-api | NSH、SQLite、Core内部实体布局、具体服务SDK |
+| extension-host | 当前只依赖 extension-api，执行内存策略；后续按用例接入 core-api/平台 ports 和运行适配器 | 直接使用 SQLite repository 提交业务写入 |
 | 执行适配器 | 实现宿主侧运行port；随应用编译、沙箱解释器、桌面隔离进程分别实现 | 将 runtime 句柄带入领域模型 |
 | nsh-adapter | 将声明式贡献映射为原生菜单/面板/表单/选择动作 | 将任意插件脚本注入 NSH 主 QuickJS 上下文 |
 | qusor-host | 装配 application、extension-host、UI和运行适配器 | 让 domain 反向依赖插件加载器 |
@@ -250,7 +260,7 @@ NSH使用QuickJS不等于应用已有安全插件环境；不复用NSH主JS上�
 
 分发策略按desktop_direct/mac_app_store/android_play/ios_app_store区分。实际可用能力取运行时支持、分发策略与有效授权的交集。各承诺首发平台都要验证第三方包的安装与实用执行能力；移动路径尚未证明，不预先承诺任意动态代码，也不能将仅内置当作通过。存在阻断时保留问题并评估替代方案，平台范围调整需有明确产品决定。
 
-C-07已确认第一阶段开放第三方开发、安装与分发，SDK/包管理/隔离进入关键路径；可安装包仍须满足声明能力、兼容与授权规则。中心插件市场、收费和后台自动更新独立规划。当前仍仅设计，不执行安装或发布。
+C-07已确认第一阶段开放第三方开发、安装与分发，SDK/包管理/隔离进入关键路径；可安装包仍须满足声明能力、兼容与授权规则。中心插件市场、收费和后台自动更新独立规划。本轮仅有内存安装元数据与策略实现；尚不接受真实外部包、执行插件代码或发布 SDK。
 
 ## 9 生命周期与兼容
 
@@ -285,7 +295,7 @@ MCP是工具/资源连接协议，可以作为某类扩展适配器；它不自�
 
 EXT-P01–P08及第12节新增EXT-P11–P13共同验证第一阶段基座；所选执行profile的隔离、独立包安装与渠道路线不再是可推迟项。未通过不能以受信任内置演示宣布第三方基座完成。真实RSS/微信读书交付时间不从此表自动推导。
 
-当前允许清单仍拒绝learning-domain的所有外部依赖，包括插件运行时。未来真正拆包时扩展现有工程检查：domain不得到达extension-host/runtime；extension-api不得到达NSH/存储；extension-host不得绕过core-api直写storage；normal/dev/build/target/optional及传递路径全部审查。当前检查不宣称已验证这些尚未创建的模块。
+当前允许清单继续拒绝 learning-domain 的所有外部依赖；extension-api 仅使用协议序列化依赖，extension-host 普通依赖仅为 extension-api。工程检查覆盖 normal/dev/build/target/optional 的声明入口。后续依赖扩展继续审查传递路径：domain 不得到达 extension-host/runtime，extension-api 不得到达 NSH/存储，extension-host 不得绕过 core-api 直写 storage；当前没有运行时或 storage 集成可供验收。
 
 ## 11 外部依据与证据范围
 
@@ -298,7 +308,7 @@ EXT-P01–P08及第12节新增EXT-P11–P13共同验证第一阶段基座；所�
 - [Wasmtime安全](https://docs.wasmtime.dev/security.html)、[平台支持](https://docs.wasmtime.dev/stability-platform-support.html)、[资源限制](https://docs.wasmtime.dev/api/wasmtime/trait.ResourceLimiter.html)、[预编译加载](https://docs.wasmtime.dev/api/wasmtime/struct.Module.html#method.deserialize)：host imports、移动验证、宿主内存与编译缓存分别管理。当前在线API含开发版本，选型后必须固定发布版复核。
 - [QuickJS手册](https://bellard.org/quickjs/quickjs.html)：字节码版本绑定与不可信加载限制；内存/栈/interrupt机制不是完整OS沙箱。
 
-本轮只更新设计、范围、项目规则与检查记录；未创建插件运行时、未接入微信读书账号、未订阅RSS、未运行任何第三方插件。
+最初设计轮次未实现插件能力；随后用户授权的无界面基座策略实现见第 0 节。仍未创建插件运行时、未接入微信读书账号、未订阅 RSS、未运行任何第三方插件。
 
 ## 12 第一阶段交付顺序与发布门槛
 
@@ -341,4 +351,4 @@ EXT-P01–P08、EXT-P11–P13是第一阶段所选profile的门槛；涉及AI或
 
 移动渠道若暂时无法满足选定执行能力，记录为未解决的发布阻断并提出可验证替代路径；不得自动退回“仅内置”、静态配置，或擅自把移动端移出首发。首发平台范围C-04仍待确定，未来的明确产品取舍才可调整发布矩阵。
 
-新增验收尚未执行；本节为可执行计划，没有生成SDK、包管理器或业务实现。
+本节完整验收尚未执行；无界面策略实现只是 SDK/宿主的部分基础，未交付发布 SDK、包管理器、执行隔离或产品业务。实际实现范围与独立验收见第 0 节。

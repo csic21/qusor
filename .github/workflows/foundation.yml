@@ -25,6 +25,8 @@ jobs:
           python-version: "3.13"
       - name: Install pinned Rust toolchain
         run: rustup show
+      - name: Fetch locked dependencies
+        run: cargo fetch --locked
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Check architecture
@@ -37,6 +39,8 @@ jobs:
         run: cargo clippy --workspace --all-targets --locked --offline -- -D warnings
       - name: Compile and test Core
         run: cargo test --workspace --locked --offline
+      - name: Run headless extension policy example
+        run: cargo run -p extension-host --example policy_walkthrough --locked --offline
       - name: Build Core documentation
         env:
           RUSTDOCFLAGS: "-D warnings"

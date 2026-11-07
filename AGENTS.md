@@ -2,7 +2,7 @@
 
 ## 当前阶段
 
-当前是技术架构基座阶段。可以维护工程配置、架构边界、文档、技能和检查工具；本轮不实现阅读器、知识库、Agent、画布或同步业务。后续用户明确推进新阶段时，以新指令为准，并更新范围记录。
+当前已从文档与工程骨架推进到无界面基座功能实现。可维护工程配置、架构边界、文档、技能和检查工具，并实现 [插件宿主策略基座](docs/product/foundation.md)；UI 研究并行。本轮不实现阅读器、知识库、Agent、画布或同步业务。后续用户明确推进新阶段时，以新指令为准，并更新范围记录。
 
 先读 [项目入口](README.md)、[功能范围](docs/product/scope.md) 和 [架构边界](docs/architecture/README.md)。按任务再读取相关研究，避免每次加载所有报告。
 
@@ -27,13 +27,13 @@
 
 ## 工程与验证
 
-- 当前只有一个无业务实现的 learning-domain crate；按实际职责拆分，不提前创建所有空业务 crate。
+- 当前 learning-domain 仍无业务实现、零外部依赖；extension-api/extension-host 承担协议与宿主策略实际职责。继续按职责拆分，不提前创建所有空业务 crate。
 - 新依赖或 Workspace member 必须更新 [依赖策略](config/architecture.toml) 并说明理由。检查覆盖 normal/dev/build 和目标平台声明。
 - [开发指南](docs/development.md) 是本地检查命令的入口。
 - 插件manifest、签名或独立进程不单独构成安全沙箱；动态代码的运行隔离与移动分发分别验证。具体契约与任务见 [插件架构](docs/architecture/extensions.md)。
 - M-1 实验位于 [experiments/](experiments/README.md)，独立 Workspace；通过后再决定生产集成。
 - 源码实现、CI 配置、构建通过、模拟器通过、真机通过分别记录。Core CI 不证明 NSH 五平台可用。
-- 不把本轮基座的零业务测试描述为业务覆盖完成；运行与变更相关的真实检查。
+- 插件策略回归不代表阅读器/知识库等业务覆盖；内存安装元数据注册不等于完整包安装，授权许可不等于知识写入。运行与变更相关的真实检查，完整门槛见 [ADR 0004](docs/architecture/adr/0004-headless-extension-policy.md)。
 - 外部服务接入、账号、密钥、部署和用户资料上传不由工程骨架或技能自动授权。
 
 ## 项目技能

@@ -1,12 +1,13 @@
 # QUSOR 求索
 
-QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Core。当前交付是可检查的工程基座、项目技能和功能设计，尚无产品业务实现。
+QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Core。当前交付包含可检查的工程基座与无界面插件宿主策略内核；尚无阅读器、知识库等产品业务实现。
 
 ## 从这里开始
 
 | 目的 | 文档 |
 |---|---|
 | 确认我们做什么、哪些尚未决定 | [功能范围与确认记录](docs/product/scope.md) |
+| 运行本轮无界面基座与查看验收范围 | [插件宿主策略规格](docs/product/foundation.md) |
 | 阅读与思考的交互设计原则 | [产品体验设计基线](docs/product/experience.md) |
 | 理解当前与未来模块边界 | [技术架构入口](docs/architecture/README.md) |
 | 新增插件能力与外部资料接入 | [插件扩展架构](docs/architecture/extensions.md) |
@@ -18,12 +19,13 @@ QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Cor
 ## 当前工程
 
 - Cargo Workspace，固定 Rust 1.97.1；该版本是本机已有工具链，不代表已验证所有 NSH 依赖兼容。
-- 一个 learning-domain library，只有边界文档，没有 Document/Note 等占位业务类型。
-- 无第三方 Rust 依赖，无 NSH/SQLite/模型/云服务连接。
+- learning-domain 保持无业务类型、零外部依赖。
+- extension-api 与 extension-host 实现 0.1 JSON 策略协议、能力协商、内存安装元数据、资源授权、会话、生命周期和贡献查询。
+- serde/serde_json 用于协议与示例输入；没有 NSH/SQLite/运行时/模型/云服务连接。
 - 依赖边界检查及反例测试、本地 Markdown 链接检查。
 - 三桌面 Core CI 配置；是否在远端运行以真实流水线结果为准。
 
-本地检查需要 Rust 工具链和 Python 3.11+。从仓库根目录运行：
+本地检查需要 Rust 工具链和 Python 3.11+。首次准备依赖缓存运行 cargo fetch --locked，之后从仓库根目录离线检查：
 
 ```sh
 python3 scripts/check_architecture.py
@@ -32,6 +34,7 @@ python3 scripts/check_docs.py
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --locked --offline -- -D warnings
 cargo test --workspace --locked --offline
+cargo run -p extension-host --example policy_walkthrough --locked --offline
 cargo doc --workspace --no-deps --locked --offline
 ```
 
@@ -41,7 +44,7 @@ Windows 的 Python 命令通常是 python；WSL 项目应在 Linux 路径内调�
 
 长期愿景与工程不变量沿用已给出的产品说明。插件化已由用户明确为基座要求；第一阶段支持第三方开发/安装/分发，自己的功能也通过同一公开插件接口开发，见 [ADR 0003](docs/architecture/adr/0003-plugin-first-delivery.md)。RSS和微信读书选段用于检验通用架构，不代表具体插件已实现或确定首版交付。首版是否包含 Reader AI、画布、同步，以及云端默认行为仍需要用户回复，见范围记录；推荐项不会自动转成确认项。
 
-本轮允许的基座工作不表示 M-1 通过，也不表示业务功能已获准开工。后续先执行独立技术验证，按真实证据更新阶段状态。
+2026-11-07，用户明确推进基座功能实现。本轮交付无界面插件策略内核，见 [功能规格](docs/product/foundation.md) 与 [ADR 0004](docs/architecture/adr/0004-headless-extension-policy.md)；安装操作仅注册内存元数据，不校验包内容或执行插件代码。第三方独立包、运行隔离、持久化和 M-1 平台验收仍未通过，后续按真实证据更新。
 
 ## 项目状态
 
