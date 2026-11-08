@@ -9,9 +9,12 @@ qusor/
 ├── apps/                 应用入口、装配、打包；当前只有说明
 ├── crates/               Core、公开协议、宿主策略等平台无关 Rust 库
 │   ├── learning-domain/  现有：零外部依赖，尚无业务类型
+│   ├── core-api/         现有：捕获/锚点与纯知识归档不变量
+│   ├── learning-ports/   现有：完整原子提交/恢复端口
+│   ├── learning-application/  现有：真实知识用例与计划
 │   ├── extension-api/    现有：0.1 wire 协议、schema、校验
 │   └── extension-host/   现有：内存授权、会话、生命周期策略
-├── adapters/             存储、运行时、平台与渲染实现；当前只有说明
+├── adapters/             已有 SQLite/CAS、插件持久内核与受限执行；平台与渲染仍按门槛推进
 ├── plugins/              独立构建/安装的功能包；当前只有目录与作者约束
 ├── sdk/                  公共契约的发行、绑定与作者入口；尚未发布 SDK
 ├── experiments/          独立验证，不属于生产 Workspace
@@ -22,7 +25,7 @@ qusor/
 └── docs/                 产品范围、架构决定、研究与开发入口
 ```
 
-本轮建立目录说明，不生成全套空 crate、占位 API 或假界面。现有三个 crate 不搬家，不因目录调整修改协议或包名。
+目录说明不生成全套空 crate、占位 API 或假界面。C3 后按 [ADR 0018](adr/0018-core-api-contract-source.md) 将捕获契约迁入 core-api，实验兼容入口转发同一实现；现有三个 crate 不搬家。
 
 ## 代码应该放在哪里
 
@@ -39,21 +42,22 @@ qusor/
 
 ## 规划模块与创建时机
 
-下列是候选路径，尚未创建不表示实现完成。新增成员仍需更新 [依赖策略](../../config/architecture.toml)、给出真实消费者并运行相关检查。
+下列区分已落位与后续候选路径，尚未创建不表示实现完成。新增成员仍需更新 [依赖策略](../../config/architecture.toml)、给出真实消费者并运行相关检查。
 
 | 规划路径 | 单一职责 | 创建触发 |
 |---|---|---|
 | `apps/qusor-desktop/`、`apps/qusor-mobile/` | 平台入口、装配与发布包 | 对应 NSH 实验通过；目录不决定首发平台 |
-| `crates/core-api/` | 版本化应用命令/查询 DTO；与插件 wire 分开版本化 | 首个真实保存/读取用例 |
-| `crates/learning-ports/` | 存储、文件、时钟等应用端口 | 首个用例需要可替换基础设施 |
-| `crates/learning-application/` | 用例、版本验证、事务、审计/outbox | 首个真实知识写入 |
+| `crates/core-api/` | 已有捕获/来源/锚点契约；持久用例命令/查询入口随后补齐，与 Host wire 独立版本 | C3 后公开契约已落位，非生产存储完成 |
+| `crates/learning-ports/` | 已落位：一致快照与完整原子提交/恢复端口 | 由真实知识 application 与 SQLite 消费 |
+| `crates/learning-application/` | 已落位：文本/PDF/复合用例、校验与整体提交计划 | 捕获实验已通过同一实现执行 |
 | `crates/document-engine/`、`crates/anchor-engine/` | 规范文档/来源与定位算法；无平台 view | 阅读、导入、引用用例需要 |
 | `crates/extension-package/` | 包格式、内容清单、身份/兼容证据校验；不保存安装状态 | 包格式实验通过；受信任校验结果交给 Host |
 | `crates/extension-host/`（现有） | 唯一的安装/授权/升级状态机，后续经 ports 提交持久管理记录 | 持久生命周期实验通过后扩展；不另建第二套安装状态机 |
 | `crates/extension-runtime-api/` | Host 侧执行、取消、预算端口；不属于作者 SDK | 实验转生产执行适配器 |
-| `adapters/storage-sqlite/`、`adapters/blob-store/` | Core 持久化、原件与不可变快照 | 存储耐久、备份与定位门槛通过 |
-| `adapters/extension-store/` | 包、安装/授权日志及插件私有状态 | 持久安装实验通过；不存规范知识 |
-| `adapters/runtime-wasm/` | 已选定并验证的受限执行实现 | 执行/恢复/相应平台门槛通过；当前不冻结生产库 |
+| `adapters/storage-sqlite/`、`adapters/blob-store/` | 已落位：整体事务、schema迁移与耐久CAS/单writer | 当前Linux本机证据；其他平台仍待资格验证 |
+| `adapters/extension-store/` | 已落位：包、安装/授权材料、私有成对状态和worker lease的唯一SQL实现 | 不存规范知识；默认缺少服务失败关闭，完整安装UI/监督仍待验 |
+| `adapters/runtime-wasm/` | 已落位：不自带授权的受限Wasmi执行 | managed/raw/private实际消费者；不代表完整监督 |
+| `adapters/runtime-process/` | 已落位：Linux进程身份、父死守卫与pidfd确认清理 | 不等于supervisor；其他平台明确Unsupported |
 | `adapters/nsh/`、`adapters/platform/` | 贡献 UI、Surface、平台资源与安全存储 | NSH bridge/输入/资源门槛通过 |
 | `adapters/pdf/`、`adapters/epub/` | 解析、渲染和选区的受控服务 | 对应格式实验通过 |
 
@@ -69,7 +73,7 @@ flowchart TD
     Application --> API["Core API / ports / domain"]
     Adapters --> Ports["Core / Host ports"]
     Host --> Wire["extension-api：公开 wire 契约"]
-    Host --> CoreAPI["core-api：受控用例入口"]
+    Application --> CoreAPI["core-api：受控用例入口"]
     Plugin["plugins：独立功能包"] --> SDK["独立发行 SDK"]
     SDK -. "生成/校验来源" .-> Wire
 ```
@@ -87,6 +91,8 @@ flowchart TD
 UI 通过贡献目录发现工作区、命令和选区动作，不硬编码官方包 ID。插件返回声明式描述和有界数据；Surface 使用 Host 发放、绑定库/安装实例/授权世代的 opaque handle，不传 NSH 节点、DOM 对象、原生指针或数据库连接。
 
 ## 用户功能的插件归属
+
+UI扩展进一步区分区域、角色与提供者，见 [软件分区](../design/composition.md) 和 [ADR 0028](adr/0028-extensible-native-workspace.md)。Host治理外壳、原生承载、焦点与权限；工作区/组件插件经同一公开契约组合，Core持有内容与来源。正式UI实现先采用 [设计基线](../design/README.md)，不把功能布局写死在apps或第一方包名分支里。
 
 下表覆盖现有 [Feature 清单](../product/scope.md)。路径是功能包划分建议，不表示全部立即开发或进入首版。相近功能作为完整插件，不按按钮拆包。
 
@@ -115,7 +121,7 @@ F-EXT-01/03/04/05/06 是全部插件的 SDK、Host、包管理和贡献接口要
 
 正式插件只能依赖发行 SDK 和允许的纯计算依赖。开发期若用本地 SDK，必须是完整导出工件且通过仓库外构建；禁止依赖主仓库 Core/Host/application/storage/NSH 私有源码，主程序也不得静态链接功能插件。
 
-当前 wire 权威源是 [extension-api](../../crates/extension-api/README.md) 的 DTO/schema/契约测试。SDK 从公开源生成/校验发行工件，版本可对应；不复制一份任意漂移的协议。尚无发布 SDK，目录说明不算发行完成。
+当前 Host 策略 wire 权威源是 [extension-api](../../crates/extension-api/README.md) 的 DTO/schema/契约测试。捕获/来源/锚点权威源为 [core-api](../../crates/core-api/README.md)。SDK 从公开源生成/校验发行工件，版本可对应；不复制一份任意漂移的协议。尚无发布 SDK，目录说明不算发行完成。
 
 跨插件通过 Host 能力发现/路由和 Core 规范数据协作，不导入对方代码或共享私有数据库；缺可选提供者时显示不可用，循环调用有预算。插件 ID、版本和发布者绑定独立于目录/显示名。
 
@@ -127,3 +133,10 @@ F-EXT-01/03/04/05/06 是全部插件的 SDK、Host、包管理和贡献接口要
 4. 仓库外作者构建、普通身份、撤权、升级恢复、停用后导出一起验收。
 
 普通文本 PDF 是第一条实验/开发链，不缩减 PDF/EPUB 长期要求；完整 M-1、首版平台和其他功能范围仍由 [范围记录](../product/scope.md) 与实测决定。目录登记守卫检查 Cargo 路径和依赖登记；它不能证明插件运行权限、UI 正确或 SDK 发行独立性。
+
+[ADR 0019](adr/0019-atomic-knowledge-persistence.md) 说明新增生产实现的单事务计划、公开计划的重新校验、稳定错误和平台限制；实验不保留分叉的 SQL/CAS。
+
+
+## Agent 工作台新增职责（设计，未创建模块）
+
+C-13 / F-AGENT-01–05 的完整边界见 [ADR 0029](adr/0029-local-agent-workbench.md)。`plugins/agent-workbench/` 提供任务工作流，`plugins/agent-backends/<backend>/` 提供公开后端贡献，`plugins/agent-orchestrator/` 提供可替换调度策略。任务/会话/事件/委派的通用协议与 Host 策略留 crates；操作存储、协议传输、PTY 与电脑服务留 adapters；apps 只装配。具体拆分按真实切片确定，本轮不创建空 crate、不新增依赖。后端不能直写知识库，外部源码修改与 Core 知识提交是不同边界；现有同程序 Wasm worker 不直接等同外部 Agent 进程监督。

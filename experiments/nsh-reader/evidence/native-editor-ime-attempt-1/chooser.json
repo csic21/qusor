@@ -1,0 +1,8 @@
+{
+  "window": "0x200009",
+  "pid": 462545,
+  "action": "path",
+  "fixture_path": "/workspace/qusor/experiments/nsh-reader/evidence/native-editor-ime-attempt-1/fixtures/ime-input.pdf",
+  "focus_verified": true,
+  "path": "XTest\u2192GTK native keyboard events; no IME claim"
+}

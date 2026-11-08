@@ -1,0 +1,7 @@
+   Compiling extension-host v0.0.0 (/workspace/qusor/crates/extension-host)
+   Compiling runtime-wasm v0.0.0 (/workspace/qusor/adapters/runtime-wasm)
+   Compiling qusor-wasm-probe v0.1.0 (/workspace/qusor/experiments/extension-wasm/runner)
+   Compiling extension-store v0.0.0 (/workspace/qusor/adapters/extension-store)
+   Compiling qusor-package-probe v0.1.0 (/workspace/qusor/experiments/extension-package)
+   Compiling qusor-capture-probe v0.1.0 (/workspace/qusor/experiments/capture-core)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.92s

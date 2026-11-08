@@ -1,0 +1,33 @@
+   Compiling projection-wasm-smoke v0.1.0 (/tmp/qusor-projection-fast64-variant/smoke)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.97s
+     Running `experiments/capture-core/target/debug/projection-wasm-smoke`
+CASE 0 passed 0
+CASE 1 passed 0
+CASE 2 passed 0
+CASE 3 passed 0
+CASE 4 passed 0
+CASE 5 passed 0
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":6,"checkpoint_after":4,"checkpoint_before":3,"code":"deadline_exceeded","state_after":"Active","vm":2}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":6,"checkpoint_after":5,"checkpoint_before":4,"code":"deadline_exceeded","state_after":"Completed","vm":3}
+CASE 6 passed 3
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":4,"checkpoint_before":3,"code":"deadline_exceeded","state_after":"Active","vm":2}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":6,"checkpoint_before":5,"code":"deadline_exceeded","state_after":"Active","vm":4}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":8,"checkpoint_before":7,"code":"deadline_exceeded","state_after":"Active","vm":6}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":10,"checkpoint_before":9,"code":"deadline_exceeded","state_after":"Active","vm":8}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":12,"checkpoint_before":11,"code":"deadline_exceeded","state_after":"Active","vm":10}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":14,"checkpoint_before":13,"code":"deadline_exceeded","state_after":"Active","vm":12}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":16,"checkpoint_before":15,"code":"deadline_exceeded","state_after":"Active","vm":14}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":18,"checkpoint_before":17,"code":"deadline_exceeded","state_after":"Active","vm":16}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":20,"checkpoint_before":19,"code":"deadline_exceeded","state_after":"Active","vm":18}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":22,"checkpoint_before":21,"code":"deadline_exceeded","state_after":"Active","vm":20}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":24,"checkpoint_before":23,"code":"deadline_exceeded","state_after":"Active","vm":22}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":26,"checkpoint_before":25,"code":"deadline_exceeded","state_after":"Active","vm":24}
+REAL_RUNTIME_ERROR {"calls_observed":5,"case":7,"checkpoint_after":27,"checkpoint_before":26,"code":"deadline_exceeded","state_after":"Active","vm":25}
+REAL_RUNTIME_ERROR {"calls_observed":5,"case":7,"checkpoint_after":27,"checkpoint_before":27,"code":"deadline_exceeded","state_after":"Active","vm":26}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":28,"checkpoint_before":27,"code":"deadline_exceeded","state_after":"Active","vm":27}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":30,"checkpoint_before":29,"code":"deadline_exceeded","state_after":"Active","vm":29}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":32,"checkpoint_before":31,"code":"deadline_exceeded","state_after":"Active","vm":31}
+
+thread 'main' (413992) panicked at src/main.rs:158:21:
+bounded deadline retry limit
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

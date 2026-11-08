@@ -1,0 +1,70 @@
+{
+  "calls": 408,
+  "cases": 8,
+  "max_fuel": 796141,
+  "native_widgets": false,
+  "ok": true,
+  "os_workers": false,
+  "partial_seen": true,
+  "real_store": true,
+  "runtime_errors": [
+    {
+      "calls_observed": 6,
+      "case": 6,
+      "checkpoint_after": 4,
+      "checkpoint_before": 3,
+      "code": "deadline_exceeded",
+      "state_after": "Active",
+      "vm": 2
+    },
+    {
+      "calls_observed": 6,
+      "case": 7,
+      "checkpoint_after": 24,
+      "checkpoint_before": 23,
+      "code": "deadline_exceeded",
+      "state_after": "Active",
+      "vm": 22
+    },
+    {
+      "calls_observed": 6,
+      "case": 7,
+      "checkpoint_after": 46,
+      "checkpoint_before": 45,
+      "code": "deadline_exceeded",
+      "state_after": "Active",
+      "vm": 44
+    },
+    {
+      "calls_observed": 6,
+      "case": 7,
+      "checkpoint_after": 60,
+      "checkpoint_before": 59,
+      "code": "deadline_exceeded",
+      "state_after": "Active",
+      "vm": 58
+    },
+    {
+      "calls_observed": 6,
+      "case": 7,
+      "checkpoint_after": 64,
+      "checkpoint_before": 63,
+      "code": "deadline_exceeded",
+      "state_after": "Active",
+      "vm": 62
+    }
+  ],
+  "vms": 75,
+  "exit_code": 0,
+  "scope": "In-process real Wasmi guest with actual signed package, real Store/fresh Host/ProjectionServices; no OSworker or native UI qualification. Native metadata diagnostic reads outside VM are not guest calls.",
+  "recovery": "New attempt restarted fixtures; real deadline errors retain same live service and query, at most3 per checkpoint/16 per case, advance already applied is read via metadata then freshVM resumes; fuel/protocol failures never retried",
+  "limits": {
+    "fuel": 1000000,
+    "deadline_ms": 250,
+    "calls": 8,
+    "measured_max_guest_calls": 6
+  },
+  "package_sha256": "585c45defd5b9a47b9489c40b4e6a055a5f8b70b8d610b346b519e1959bd6f88",
+  "harness_sha256": "479047bc39e0cf9ba0e0a8c986d45ad5662b2279bb0a03152a32486ab8a031be",
+  "note": "max_fuel is observed successful VM maximum; failed runtime fuel not inferred; five real deadline failures are not erased by eventual success"
+}

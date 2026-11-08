@@ -1,0 +1,1899 @@
+diff --git a/crates/nsh-core/src/image.rs b/crates/nsh-core/src/image.rs
+index 85df096..3a5ea4c 100644
+--- a/crates/nsh-core/src/image.rs
++++ b/crates/nsh-core/src/image.rs
+@@ -54,6 +54,12 @@ impl ImageData {
+         Self(Arc::new(bytes))
+     }
+ 
++    /// Process-local container identity while a clone of this ImageData is
++    /// retained. Not an authorization token and not stable across lifetimes.
++    pub fn identity_address(&self) -> usize {
++        Arc::as_ptr(&self.0) as *const () as usize
++    }
++
+     /// The bytes.
+     pub fn bytes(&self) -> &[u8] {
+         (*self.0).as_ref()
+diff --git a/crates/nsh-core/src/image/decoded.rs b/crates/nsh-core/src/image/decoded.rs
+index 5c33017..ebdc6ab 100644
+--- a/crates/nsh-core/src/image/decoded.rs
++++ b/crates/nsh-core/src/image/decoded.rs
+@@ -193,6 +193,7 @@ impl<V> Clone for Images<V> {
+ 
+ struct Shared<V> {
+     decoder: Box<Decoder<V>>,
++    job_observer: Option<Box<dyn Fn() -> Result<Box<dyn Send>, String> + Send + Sync>>,
+     /// Decodes running, by key: who waits for them.
+     pending: Mutex<HashMap<Key, Pending<V>>>,
+     /// Natural sizes and the number of decoded entries that keep them.
+@@ -258,6 +259,7 @@ impl<V: Clone + Send + Sync + 'static> Images<V> {
+             memory,
+             shared: Arc::new(Shared {
+                 decoder: Box::new(decoder),
++                job_observer: None,
+                 pending: Mutex::default(),
+                 naturals,
+                 waiters: AtomicU64::new(0),
+@@ -265,6 +267,17 @@ impl<V: Clone + Send + Sync + 'static> Images<V> {
+         }
+     }
+ 
++    /// Installs an optional physical-decode completion factory before this
++    /// Images instance is shared. No policy/business types cross this hook.
++    pub fn with_job_observer(
++        mut self,
++        observer: impl Fn() -> Result<Box<dyn Send>, String> + Send + Sync + 'static,
++    ) -> Result<Self, &'static str> {
++        let shared = Arc::get_mut(&mut self.shared).ok_or("images already shared")?;
++        shared.job_observer = Some(Box::new(observer));
++        Ok(self)
++    }
++
+     /// These images, loaded by `loader` (tests: a loader of their own).
+     #[cfg(test)]
+     pub(crate) fn on(mut self, loader: &'static Loader) -> Self {
+@@ -397,10 +410,22 @@ impl<V: Clone + Send + Sync + 'static> Images<V> {
+         drop(pending);
+         let images = self.clone();
+         let job_key = key.clone();
+-        let ticket = self.loader.decode(request.priority, move || {
+-            let result = (images.shared.decoder)(&bytes, &target);
+-            images.decoded(job_key, result);
+-        });
++        let completion = match self.shared.job_observer.as_ref().map(|observe| observe()) {
++            Some(Ok(completion)) => Some(completion),
++            Some(Err(error)) => {
++                self.decoded(key, Err(error));
++                return;
++            }
++            None => None,
++        };
++        let ticket = self.loader.decode_observed(
++            request.priority,
++            move || {
++                let result = (images.shared.decoder)(&bytes, &target);
++                images.decoded(job_key, result);
++            },
++            completion,
++        );
+         if let Some(p) = lock(&self.shared.pending).get_mut(&key) {
+             p.ticket = Some(ticket);
+         } else {
+@@ -451,17 +476,26 @@ impl<V: Clone + Send + Sync + 'static> Images<V> {
+         };
+         drop(read);
+         let Some(key) = key else { return };
+-        let ticket = {
++        let (removed, ticket) = {
+             let mut pending = lock(&self.shared.pending);
+             let Some(p) = pending.get_mut(&key) else {
+                 return;
+             };
+-            p.waiters.retain(|(w, _)| *w != id);
+-            if !p.waiters.is_empty() {
+-                return;
+-            }
+-            pending.remove(&key).and_then(|p| p.ticket)
++            let removed = p
++                .waiters
++                .iter()
++                .position(|(w, _)| *w == id)
++                .map(|index| p.waiters.swap_remove(index));
++            let ticket = if p.waiters.is_empty() {
++                pending.remove(&key).and_then(|p| p.ticket)
++            } else {
++                None
++            };
++            (removed, ticket)
+         };
++        // Callback captures can own payloads and completion reports.
++        // Never destroy them under the pending-decode mutex.
++        drop(removed);
+         drop(ticket);
+     }
+ }
+diff --git a/crates/nsh-core/src/image/loader.rs b/crates/nsh-core/src/image/loader.rs
+index 0bb7a91..fa1f5e4 100644
+--- a/crates/nsh-core/src/image/loader.rs
++++ b/crates/nsh-core/src/image/loader.rs
+@@ -509,6 +509,8 @@ struct Decode {
+     seq: Reverse<u64>,
+     cancelled: Arc<AtomicBool>,
+     run: Box<dyn FnOnce() + Send>,
++    // Declared after run: queued cancellation drops captures before completion.
++    _completion: Option<Box<dyn Send>>,
+ }
+ 
+ impl PartialEq for Decode {
+@@ -769,6 +771,19 @@ impl Loader {
+         &'static self,
+         priority: Priority,
+         job: impl FnOnce() + Send + 'static,
++    ) -> Ticket {
++        self.decode_observed(priority, job, None)
++    }
++
++    /// Decode with an infrastructure-only completion owner. The completion
++    /// value is destroyed after the queued closure is discarded or its running
++    /// FnOnce returns/unwinds and releases its captures. Dropping Ticket only
++    /// requests cancellation and never destroys a running job's completion.
++    pub fn decode_observed(
++        &'static self,
++        priority: Priority,
++        job: impl FnOnce() + Send + 'static,
++        completion: Option<Box<dyn Send>>,
+     ) -> Ticket {
+         self.start();
+         let cancelled = Arc::new(AtomicBool::new(false));
+@@ -778,6 +793,7 @@ impl Loader {
+             seq,
+             cancelled: cancelled.clone(),
+             run: Box::new(job),
++            _completion: completion,
+         });
+         self.decode_ready.notify_one();
+         Ticket::new(move || cancelled.store(true, Ordering::Relaxed), None)
+@@ -789,7 +805,6 @@ impl Loader {
+                 let mut queue = lock(&self.decodes);
+                 loop {
+                     match queue.pop() {
+-                        Some(job) if job.cancelled.load(Ordering::Relaxed) => continue,
+                         Some(job) => break job,
+                         None => {
+                             queue = self
+@@ -800,6 +815,11 @@ impl Loader {
+                     }
+                 }
+             };
++            // Drop cancelled payloads/completions after releasing the pool mutex.
++            if job.cancelled.load(Ordering::Relaxed) {
++                drop(job);
++                continue;
++            }
+             (job.run)();
+         }
+     }
+diff --git a/crates/nsh-core/src/image/memory.rs b/crates/nsh-core/src/image/memory.rs
+index ab60add..2005a4b 100644
+--- a/crates/nsh-core/src/image/memory.rs
++++ b/crates/nsh-core/src/image/memory.rs
+@@ -236,6 +236,22 @@ struct Inner<K, V> {
+     on_evict: Option<OnEvict<K, V>>,
+ }
+ 
++// Owner-private caches have finite lifetimes (the process-global cache does
++// not). Last cache/lease owner destruction must debit remaining charge too.
++impl<K, V> Drop for Inner<K, V> {
++    fn drop(&mut self) {
++        let state = self.state.get_mut().unwrap_or_else(|p| p.into_inner());
++        let entries = std::mem::take(&mut state.entries);
++        for (key, entry) in entries {
++            self.budget.used.fetch_sub(entry.cost, Ordering::Relaxed);
++            if let Some(evicted) = &self.on_evict {
++                evicted(&key, &entry.value);
++            }
++            // entry/payload drops with no cache/pool mutex held.
++        }
++    }
++}
++
+ struct State<K, V> {
+     entries: HashMap<K, Entry<V>>,
+     /// The entries not in use, by when they were last used.
+@@ -397,6 +413,16 @@ where
+         self.len() == 0
+     }
+ 
++    /// Number of entries with at least one live lease.
++    pub fn in_use(&self) -> usize {
++        self.inner
++            .state()
++            .entries
++            .values()
++            .filter(|entry| entry.leases != 0)
++            .count()
++    }
++
+     /// What its entries cost, in bytes.
+     pub fn cost(&self) -> usize {
+         self.inner.state().entries.values().map(|e| e.cost).sum()
+@@ -742,3 +768,19 @@ mod tests {
+         );
+     }
+ }
++
++#[cfg(test)]
++mod retirement_cache_drop_tests {
++    use super::*;
++    #[test]
++    fn retirement_finite_cache_debits_budget_only_after_last_real_lease() {
++        let budget = Budget::new(1024);
++        let cache = MemoryCache::<u32, Vec<u8>>::new(&budget);
++        let lease = cache.insert(1, vec![9; 16], 16);
++        assert_eq!(budget.used(), 16);
++        drop(cache);
++        assert_eq!(budget.used(), 16, "real lease owns the cache allocation");
++        drop(lease);
++        assert_eq!(budget.used(), 0, "last finite owner must debit budget");
++    }
++}
+diff --git a/crates/nsh-platform-linux/Cargo.toml b/crates/nsh-platform-linux/Cargo.toml
+index 14e4de1..d1c5766 100644
+--- a/crates/nsh-platform-linux/Cargo.toml
++++ b/crates/nsh-platform-linux/Cargo.toml
+@@ -12,6 +12,8 @@ repository.workspace = true
+ workspace = true
+ 
+ [features]
++# Isolated lifecycle experiment; not a release acknowledgment provider yet.
++native-retirement-observer = []
+ default = ["js", "shader", "editor", "highlight", "math", "plot", "rich-editor", "term", "zlib", "crypto"]
+ # JS apps (bundles, signed packages); without it, the library only runs a
+ # Rust app and links no QuickJS.
+diff --git a/crates/nsh-platform-linux/src/app.rs b/crates/nsh-platform-linux/src/app.rs
+index d886202..3e4e0ca 100644
+--- a/crates/nsh-platform-linux/src/app.rs
++++ b/crates/nsh-platform-linux/src/app.rs
+@@ -230,6 +230,11 @@ pub struct AppView {
+ }
+ 
+ impl AppView {
++    /// Experimental trusted registration; no guest-supplied owner identities.
++    #[cfg(feature = "native-retirement-observer")]
++    pub fn register_retirement_boundary(&self, factory_name: &str) -> Result<crate::retirement::NativeOwner, &'static str> {
++        self.surface.retirement.borrow_mut().register(factory_name)
++    }
+     /// A view with no app yet.
+     pub fn new(options: AppOptions) -> Rc<AppView> {
+         let surface = Surface::new(initial_environment());
+diff --git a/crates/nsh-platform-linux/src/image.rs b/crates/nsh-platform-linux/src/image.rs
+index 5b2709d..bb85b4d 100644
+--- a/crates/nsh-platform-linux/src/image.rs
++++ b/crates/nsh-platform-linux/src/image.rs
+@@ -167,6 +167,8 @@ const MAX_ANIMATION_BYTES: usize = 48 << 20;
+ /// A decoded image.
+ #[derive(Clone)]
+ struct Picture {
++    #[cfg(feature = "native-retirement-observer")]
++    source_data: Option<ImageData>,
+     /// The image, or an animation's first frame.
+     texture: gdk::Texture,
+     animation: Option<Arc<Animation>>,
+@@ -179,6 +181,8 @@ impl Picture {
+     fn still(texture: gdk::Texture) -> Self {
+         let natural = Natural::Pixels(texture.width() as u32, texture.height() as u32);
+         Picture {
++            #[cfg(feature = "native-retirement-observer")]
++            source_data: None,
+             texture,
+             animation: None,
+             natural,
+@@ -324,6 +328,8 @@ fn animation(
+         })
+     });
+     Ok(Some(Picture {
++        #[cfg(feature = "native-retirement-observer")]
++        source_data: None,
+         texture: first,
+         animation,
+         natural,
+@@ -412,6 +418,95 @@ fn images() -> &'static Images<Picture> {
+     &IMAGES
+ }
+ 
++/// Owner-private decoded PNG cache, charged to the existing process budget.
++#[cfg(feature = "native-retirement-observer")]
++#[derive(Clone)]
++pub(crate) struct OwnerImages {
++    images: Images<Picture>,
++}
++#[cfg(feature = "native-retirement-observer")]
++impl OwnerImages {
++    pub(crate) fn new(work: crate::retirement_work::WorkTracker) -> Result<Self, String> {
++        let decode_work = work.clone();
++        let images = Images::new(nsh_core::image::budget(), move |bytes, target| {
++            if !bytes.starts_with(b"\x89PNG\r\n\x1a\n") {
++                return Err("tracked image requires PNG".into());
++            }
++            let reader = image::ImageReader::with_format(
++                std::io::Cursor::new(bytes.bytes()),
++                image::ImageFormat::Png,
++            );
++            let (w, h) = reader
++                .into_dimensions()
++                .map_err(|_| "tracked PNG dimensions invalid")?;
++            if w == 0
++                || h == 0
++                || w > 8192
++                || h > 8192
++                || u64::from(w) * u64::from(h) * 4 > 32 << 20
++            {
++                return Err("tracked PNG pixel budget".into());
++            }
++            let rgba = image::load_from_memory_with_format(bytes, image::ImageFormat::Png)
++                .map_err(|_| "tracked PNG decode failed")?
++                .into_rgba8();
++            let rgba = shrunk(rgba, target.longest);
++            let (width, height) = rgba.dimensions();
++            let pixels = TrackedPixels {
++                bytes: rgba.into_raw(),
++                _completion: decode_work.pixels()?,
++            };
++            let pixel_bytes = glib::Bytes::from_owned(pixels);
++            let tex = gdk::MemoryTexture::new(
++                width as i32,
++                height as i32,
++                gdk::MemoryFormat::R8g8b8a8,
++                &pixel_bytes,
++                width as usize * 4,
++            )
++            .upcast::<gdk::Texture>();
++            let texture_completion = decode_work.texture()?;
++            // SAFETY: unique private qdata key installed once and never cleared.
++            // It holds only Send+Sync Arc/Mutex facts, never NativeOwner Rc.
++            // This is a finalization-stage observation, not a GPU release fence.
++            unsafe {
++                tex.set_data(
++                    "qusor-tracked-texture-finalization-913-v1",
++                    texture_completion,
++                );
++            }
++            let mut picture = Picture::still(tex);
++            // Keep the exact container alive as long as this cached picture;
++            // its process-local identity cannot be reused while the key lives.
++            picture.source_data = Some(bytes.clone());
++            picture.natural = Natural::Pixels(w, h);
++            let cost = picture.cost();
++            Ok((picture, Natural::Pixels(w, h), cost))
++        })
++        .with_job_observer(move || work.decode())
++        .map_err(str::to_owned)?;
++        Ok(Self { images })
++    }
++    pub(crate) fn usage(&self) -> (usize, usize, usize) {
++        let cache = self.images.memory();
++        (cache.len(), cache.in_use(), cache.cost())
++    }
++    pub(crate) fn clear_unused(&self) {
++        self.images.memory().clear();
++    }
++}
++#[cfg(feature = "native-retirement-observer")]
++struct TrackedPixels {
++    bytes: Vec<u8>,
++    _completion: Box<dyn Send + Sync>,
++}
++#[cfg(feature = "native-retirement-observer")]
++impl AsRef<[u8]> for TrackedPixels {
++    fn as_ref(&self) -> &[u8] {
++        &self.bytes
++    }
++}
++
+ /// Called with a load's picture (and the lease that keeps it) or error.
+ type Done = Box<dyn FnOnce(Result<(Picture, Lease), String>)>;
+ 
+@@ -440,14 +535,34 @@ fn next_id() -> u64 {
+ /// runs it there from any thread (here and now on the main thread), unless
+ /// it was forgotten ([`Load`]'s drop).
+ fn on_main<T: Send + 'static>(f: impl FnOnce(T) + 'static) -> (u64, impl FnOnce(T) + Send) {
++    on_main_completion(f, None)
++}
++struct MainDelivery<T> {
++    value: Option<T>,
++    completion: Option<Box<dyn Send>>,
++}
++impl<T> Drop for MainDelivery<T> {
++    fn drop(&mut self) {
++        drop(self.value.take());
++        drop(self.completion.take());
++    }
++}
++fn on_main_completion<T: Send + 'static>(
++    f: impl FnOnce(T) + 'static,
++    completion: Option<Box<dyn Send>>,
++) -> (u64, impl FnOnce(T) + Send) {
+     let id = next_id();
+     let f: Box<dyn FnOnce(T)> = Box::new(f);
+     WAITING.with_borrow_mut(|w| w.insert(id, Box::new(f) as Box<dyn Any>));
+     let run = move |value: T| {
++        let mut delivery = MainDelivery {
++            value: Some(value),
++            completion,
++        };
+         glib::MainContext::default().invoke(move || {
+             let f = WAITING.with_borrow_mut(|w| w.remove(&id));
+             if let Some(f) = f.and_then(|f| f.downcast::<Box<dyn FnOnce(T)>>().ok()) {
+-                f(value);
++                f(delivery.value.take().expect("one shot delivery"));
+             }
+         });
+     };
+@@ -494,12 +609,97 @@ fn fetch(
+     priority: Priority,
+     progress: Option<Progress>,
+     done: Done,
++) -> Option<Load> {
++    fetch_observed(
++        surface,
++        source,
++        want,
++        frames,
++        priority,
++        progress,
++        done,
++        #[cfg(feature = "native-retirement-observer")]
++        None,
++    )
++}
++fn fetch_for_view(
++    surface: &Surface,
++    view: &NshView,
++    source: &ImageSource,
++    want: Want,
++    frames: Frames,
++    priority: Priority,
++    progress: Option<Progress>,
++    done: Done,
++) -> Option<Load> {
++    #[cfg(feature = "native-retirement-observer")]
++    let owner = view.state().retirement_owner.clone();
++    #[cfg(not(feature = "native-retirement-observer"))]
++    let _ = view;
++    fetch_observed(
++        surface,
++        source,
++        want,
++        frames,
++        priority,
++        progress,
++        done,
++        #[cfg(feature = "native-retirement-observer")]
++        owner.as_ref(),
++    )
++}
++fn fetch_observed(
++    surface: &Surface,
++    source: &ImageSource,
++    want: Want,
++    frames: Frames,
++    priority: Priority,
++    progress: Option<Progress>,
++    done: Done,
++    #[cfg(feature = "native-retirement-observer")] owner: Option<&crate::retirement::NativeOwner>,
+ ) -> Option<Load> {
+     let context = context(surface, &source.uri);
+     let Some(location) = context.locate(source) else {
+         done(Err(format!("unsupported image source `{}`", source.uri)));
+         return None;
+     };
++    #[cfg(feature = "native-retirement-observer")]
++    let owned = if let Some(owner) = owner {
++        if !matches!(location, Location::Memory(..)) {
++            owner.mark_unprovable("non-memory tracked image");
++            done(Err("tracked image requires Memory source".into()));
++            return None;
++        }
++        let images = match owner.images() {
++            Ok(images) => images,
++            Err(e) => {
++                done(Err(e));
++                return None;
++            }
++        };
++        let delivery = match owner.work().delivery() {
++            Ok(guard) => guard,
++            Err(e) => {
++                done(Err(e));
++                return None;
++            }
++        };
++        Some((images, delivery))
++    } else {
++        None
++    };
++    #[cfg(feature = "native-retirement-observer")]
++    let location = if owner.is_some() {
++        match location {
++            Location::Memory(_, data) => Location::Memory(
++                format!("blob:tracked-image:{}", data.identity_address()).into(),
++                data,
++            ),
++            other => other,
++        }
++    } else {
++        location
++    };
+     let listener = next_id();
+     let progress = progress.map(|p| {
+         PROGRESS.with_borrow_mut(|m| m.insert(listener, Rc::from(p)));
+@@ -511,10 +711,20 @@ fn fetch(
+             });
+         }) as nsh_core::image::loader::Progress
+     });
+-    let (id, done) = on_main(move |result| {
+-        PROGRESS.with_borrow_mut(|p| p.remove(&listener));
+-        done(result);
+-    });
++    #[cfg(feature = "native-retirement-observer")]
++    let (owned_images, completion) = match owned {
++        Some((images, guard)) => (Some(images), Some(guard)),
++        None => (None, None),
++    };
++    #[cfg(not(feature = "native-retirement-observer"))]
++    let completion = None;
++    let (id, done) = on_main_completion(
++        move |result| {
++            PROGRESS.with_borrow_mut(|p| p.remove(&listener));
++            done(result);
++        },
++        completion,
++    );
+     let request = Request {
+         location,
+         context,
+@@ -524,7 +734,14 @@ fn fetch(
+         priority,
+         progress,
+     };
+-    let ticket = images().load(
++    #[cfg(feature = "native-retirement-observer")]
++    let pipeline = owned_images
++        .as_ref()
++        .map(|owned| &owned.images)
++        .unwrap_or_else(|| images());
++    #[cfg(not(feature = "native-retirement-observer"))]
++    let pipeline = images();
++    let ticket = pipeline.load(
+         request,
+         Box::new(move |result| done(result.map(|(decoded, lease)| (decoded.value, lease)))),
+     );
+@@ -929,6 +1146,16 @@ pub(crate) fn set(
+ /// Starts the loads `view` waits for: its source's, then its placeholder's
+ /// (not needed when the source is in memory).
+ fn start(surface: &Rc<Surface>, view: &NshView) {
++    #[cfg(feature = "native-retirement-observer")]
++    if view
++        .state()
++        .retirement_owner
++        .as_ref()
++        .is_some_and(|owner| owner.is_closing())
++    {
++        return;
++    }
++
+     let (generation, events, id, source, frame, mode) = {
+         let s = view.state();
+         let (events, id, frame) = (s.events, s.id, s.frame.size);
+@@ -978,8 +1205,9 @@ fn start(surface: &Rc<Surface>, view: &NshView) {
+                 }
+             }
+         };
+-        let load = fetch(
++        let load = fetch_for_view(
+             surface,
++            view,
+             &source,
+             want,
+             Frames::All,
+@@ -1007,6 +1235,15 @@ fn start(surface: &Rc<Surface>, view: &NshView) {
+         let weak = weak.clone();
+         let done = move |result: Result<(Picture, Lease), String>| {
+             let Some(view) = weak.upgrade() else { return };
++            #[cfg(feature = "native-retirement-observer")]
++            if view
++                .state()
++                .retirement_owner
++                .as_ref()
++                .is_some_and(|owner| owner.is_closing())
++            {
++                return;
++            }
+             match result {
+                 Ok((picture, lease)) => {
+                     if let Some(i) = view.state_mut().image.as_mut()
+@@ -1021,8 +1258,9 @@ fn start(surface: &Rc<Surface>, view: &NshView) {
+                 Err(message) => log::warn!("image placeholder failed: {message}"),
+             }
+         };
+-        let load = fetch(
++        let load = fetch_for_view(
+             surface,
++            view,
+             &placeholder,
+             want,
+             Frames::All,
+@@ -1042,6 +1280,16 @@ fn start(surface: &Rc<Surface>, view: &NshView) {
+ /// `view`'s frame changed: an image now shown larger than it was decoded
+ /// loads the larger size, showing the smaller one meanwhile.
+ pub(crate) fn resized(surface: &Surface, view: &NshView) {
++    #[cfg(feature = "native-retirement-observer")]
++    if view
++        .state()
++        .retirement_owner
++        .as_ref()
++        .is_some_and(|owner| owner.is_closing())
++    {
++        return;
++    }
++
+     let (generation, source, want) = {
+         let s = view.state();
+         let frame = s.frame.size;
+@@ -1086,8 +1334,9 @@ pub(crate) fn resized(surface: &Surface, view: &NshView) {
+         drop(s);
+         view.changed();
+     };
+-    let load = fetch(
++    let load = fetch_for_view(
+         surface,
++        view,
+         &source,
+         want,
+         Frames::All,
+@@ -1139,6 +1388,15 @@ fn loaded(
+     result: Result<(Picture, Lease), String>,
+     waited: bool,
+ ) {
++    #[cfg(feature = "native-retirement-observer")]
++    if view
++        .state()
++        .retirement_owner
++        .as_ref()
++        .is_some_and(|owner| owner.is_closing())
++    {
++        return;
++    }
+     let (events, id, fades, hook) = {
+         let mut s = view.state_mut();
+         let (events, id) = (s.events, s.id);
+@@ -1395,6 +1653,16 @@ pub(crate) fn draw(snapshot: &gtk::Snapshot, state: &ViewState, scale: f32) {
+     }
+     let shown = (texture, picture.natural);
+     draw_one(snapshot, state, image, shown, image.source.as_ref(), scale);
++    #[cfg(feature = "native-retirement-observer")]
++    if let Some(owner) = &state.retirement_owner {
++        owner.snapshotted(
++            state.id,
++            picture.source_data.as_ref(),
++            (texture.width(), texture.height()),
++            (state.frame.size.width.0, state.frame.size.height.0),
++            scale,
++        );
++    }
+     if alpha < 1.0 {
+         snapshot.pop();
+     }
+@@ -1815,3 +2083,167 @@ mod tests {
+         );
+     }
+ }
++
++#[cfg(all(test, feature = "native-retirement-observer"))]
++mod retirement_image_tests {
++    use super::*;
++    use crate::{gtk_test, retirement_work::WorkTracker};
++    use std::sync::{
++        Mutex,
++        atomic::{AtomicUsize, Ordering},
++        mpsc,
++    };
++    use std::time::Duration;
++    fn png() -> ImageData {
++        let mut encoded = std::io::Cursor::new(Vec::new());
++        image::RgbaImage::from_pixel(2, 2, image::Rgba([10, 20, 30, 255]))
++            .write_to(&mut encoded, image::ImageFormat::Png)
++            .unwrap();
++        ImageData::new(encoded.into_inner())
++    }
++    fn request(bytes: ImageData) -> Request {
++        Request {
++            location: Location::Memory("blob:physical-png-barrier".into(), bytes),
++            context: Default::default(),
++            declared: None,
++            want: Want::natural(1.0),
++            frames: Frames::First,
++            priority: Priority::Visible,
++            progress: None,
++        }
++    }
++    #[test]
++    fn retirement_cancelled_queued_decode_drops_payload_outside_pool_lock() {
++        use std::sync::Condvar;
++        let pool = loader();
++        let threads = nsh_core::image::loader::decoders();
++        let gate = Arc::new((Mutex::new(false), Condvar::new()));
++        struct OpenGateOnDrop(Arc<(Mutex<bool>, Condvar)>);
++        impl Drop for OpenGateOnDrop {
++            fn drop(&mut self) {
++                *self.0.0.lock().unwrap_or_else(|p| p.into_inner()) = true;
++                self.0.1.notify_all();
++            }
++        }
++        let _finally_release = OpenGateOnDrop(gate.clone());
++        let (started, ready) = mpsc::channel();
++        for _ in 0..threads {
++            let gate = gate.clone();
++            let started = started.clone();
++            pool.decode(Priority::Visible, move || {
++                started.send(()).unwrap();
++                let mut release = gate.0.lock().unwrap();
++                while !*release {
++                    release = gate.1.wait(release).unwrap();
++                }
++            })
++            .detach();
++        }
++        for _ in 0..threads {
++            ready.recv_timeout(Duration::from_secs(5)).unwrap();
++        }
++        let dropped = Arc::new(AtomicUsize::new(0));
++        let ran = Arc::new(AtomicUsize::new(0));
++        struct ReenterPool(Arc<AtomicUsize>);
++        impl Drop for ReenterPool {
++            fn drop(&mut self) {
++                // Would deadlock if cancelled closure destruction still held
++                // loader.decodes' mutex. No GTK/Host callback is involved.
++                loader().decode(Priority::Normal, || {}).detach();
++                self.0.store(1, Ordering::SeqCst);
++            }
++        }
++        let payload = ReenterPool(dropped.clone());
++        let called = ran.clone();
++        let work = WorkTracker::default();
++        let ticket = pool.decode_observed(
++            Priority::Visible,
++            move || {
++                let _payload = payload;
++                called.store(1, Ordering::SeqCst);
++            },
++            Some(work.decode().unwrap()),
++        );
++        drop(ticket);
++        assert_eq!(work.snapshot().decode, 1);
++        assert_eq!(dropped.load(Ordering::SeqCst), 0);
++        *gate.0.lock().unwrap() = true;
++        gate.1.notify_all();
++        assert!(work.wait_idle(Duration::from_secs(5)));
++        assert_eq!(dropped.load(Ordering::SeqCst), 1);
++        assert_eq!(ran.load(Ordering::SeqCst), 0);
++        eprintln!(
++            "OBSERVER_QUEUED_DECODE real_pool=true cancel_not_drop=true payload_reentered_pool=true physically_discarded=1"
++        );
++    }
++    #[test]
++    fn retirement_decode_ticket_cancel_waits_for_real_running_decoder() {
++        gtk_test::run(|| {
++            let work=WorkTracker::default();let observed=work.clone();
++            let (started_tx,started_rx)=mpsc::sync_channel(1);
++            let (release_tx,release_rx)=mpsc::sync_channel(1);let release_rx=Mutex::new(release_rx);
++            struct ReleaseOnDrop(Option<mpsc::SyncSender<()>>);
++            impl Drop for ReleaseOnDrop { fn drop(&mut self) { if let Some(tx)=self.0.take(){let _=tx.try_send(());} } }
++            let mut release_finally=ReleaseOnDrop(Some(release_tx));
++            let images=Images::new(nsh_core::image::budget(),move |bytes,target| {
++                started_tx.send(()).unwrap();release_rx.lock().unwrap().recv_timeout(Duration::from_secs(5)).unwrap();
++                let picture=decode(bytes,target)?;let cost=picture.cost();Ok((picture.clone(),picture.natural,cost))
++            }).with_job_observer(move ||observed.decode()).unwrap();
++            let callback_called=Arc::new(AtomicUsize::new(0));let called=callback_called.clone();
++            let ticket=images.load(request(png()),Box::new(move |_|{called.fetch_add(1,Ordering::SeqCst);}));
++            started_rx.recv_timeout(Duration::from_secs(5)).unwrap();
++            assert_eq!(work.snapshot().decode,1);work.close();drop(ticket);
++            assert_eq!(work.snapshot().decode,1,"cancel flag cannot stand in for physical return");
++            assert_eq!(callback_called.load(Ordering::SeqCst),0);
++            release_finally.0.take().unwrap().send(()).unwrap();assert!(work.wait_idle(Duration::from_secs(5)));
++            assert_eq!(work.snapshot().completed_decode,1);
++            assert_eq!(callback_called.load(Ordering::SeqCst),0,"cancelled subscriber stays cancelled");
++            assert_eq!(images.memory().in_use(),0);
++            images.memory().clear();assert_eq!(images.memory().len(),0);
++            eprintln!("OBSERVER_DECODE real_png_decoder=true cancel_not_completion=true physical_return=1 cancelled_callback=0");
++        }).expect("real GTK display required");
++    }
++    #[test]
++    fn retirement_queued_delivery_keeps_payload_after_subscription_cancel() {
++        gtk_test::run(|| {
++            let context=glib::MainContext::default();let _context_owner=context.acquire().unwrap();
++            let work=WorkTracker::default();let drops=Arc::new(AtomicUsize::new(0));
++            struct Payload(Arc<AtomicUsize>);impl Drop for Payload {fn drop(&mut self){self.0.fetch_add(1,Ordering::SeqCst);}}
++            let called=Arc::new(AtomicUsize::new(0));let callback=called.clone();
++            let (id,complete)=on_main_completion(move |_:Payload|{callback.fetch_add(1,Ordering::SeqCst);},Some(work.delivery().unwrap()));
++            let payload=Payload(drops.clone());
++            std::thread::spawn(move ||complete(payload)).join().unwrap();
++            assert_eq!(work.snapshot().delivery,1);assert_eq!(drops.load(Ordering::SeqCst),0);
++            // Exact production cancellation boundary: WAITING is removed, but
++            // the actual glib invoke closure still owns its result/guard.
++            let removed=WAITING.with_borrow_mut(|waiting|waiting.remove(&id));drop(removed);
++            assert_eq!(work.snapshot().delivery,1);assert_eq!(drops.load(Ordering::SeqCst),0);
++            assert!(gtk_test::wait_until(||work.snapshot().delivery==0));
++            assert_eq!(drops.load(Ordering::SeqCst),1);assert_eq!(called.load(Ordering::SeqCst),0);
++            assert_eq!(work.snapshot().completed_delivery,1);
++            eprintln!("OBSERVER_DELIVERY real_glib_queue=true unsubscribe_not_completion=true payload_drop=1 callback=0");
++        }).expect("real GTK display required");
++    }
++    #[test]
++    fn retirement_owner_cache_keeps_real_pixels_until_lease_and_cache_exit() {
++        gtk_test::run(|| {
++            let a=WorkTracker::default();let b=WorkTracker::default();
++            let cache_a=OwnerImages::new(a.clone()).unwrap();let cache_b=OwnerImages::new(b.clone()).unwrap();
++            let data=png();let (tx_a,rx_a)=mpsc::sync_channel(1);let (tx_b,rx_b)=mpsc::sync_channel(1);
++            let ta=cache_a.images.load(request(data.clone()),Box::new(move|result|tx_a.send(result).unwrap()));
++            let tb=cache_b.images.load(request(data),Box::new(move|result|tx_b.send(result).unwrap()));
++            let held_a=rx_a.recv_timeout(Duration::from_secs(5)).unwrap().unwrap();let held_b=rx_b.recv_timeout(Duration::from_secs(5)).unwrap().unwrap();
++            assert!(a.wait_idle(Duration::from_secs(5)));assert!(b.wait_idle(Duration::from_secs(5)));
++            assert_eq!(cache_a.usage().0,1);assert_eq!(cache_a.usage().1,1);
++            assert_eq!(cache_b.usage().0,1);assert_eq!(a.snapshot().pixels,1);assert_eq!(b.snapshot().pixels,1);
++            // A real Picture clone continues to own texture/pixels after its
++            // lease and cache entry end; owner B remains entirely separate.
++            let texture_a=held_a.0.value.texture.clone();drop(held_a);drop(ta);
++            assert_eq!(cache_a.usage().1,0);cache_a.clear_unused();assert_eq!(cache_a.usage(),(0,0,0));
++            assert_eq!(a.snapshot().pixels,1);assert_eq!(cache_b.usage().0,1);
++            drop(texture_a);assert_eq!(a.snapshot().pixels,0);assert_eq!(a.snapshot().textures,0);
++            drop(held_b);drop(tb);cache_b.clear_unused();assert_eq!(b.snapshot().pixels,0);assert_eq!(b.snapshot().textures,0);
++            eprintln!("OBSERVER_CACHE private_owners=2 shared_process_budget=true real_texture_clone_pins_pixels=true cache_charge_zero=true");
++        }).expect("real GTK display required");
++    }
++}
+diff --git a/crates/nsh-platform-linux/src/lib.rs b/crates/nsh-platform-linux/src/lib.rs
+index 0d10bca..2ee252d 100644
+--- a/crates/nsh-platform-linux/src/lib.rs
++++ b/crates/nsh-platform-linux/src/lib.rs
+@@ -39,6 +39,10 @@ mod keymap;
+ mod links;
+ mod menu_style;
+ mod mount;
++#[cfg(feature = "native-retirement-observer")]
++pub mod retirement;
++#[cfg(feature = "native-retirement-observer")]
++mod retirement_work;
+ mod native;
+ mod navigation;
+ mod notifications;
+diff --git a/crates/nsh-platform-linux/src/mount.rs b/crates/nsh-platform-linux/src/mount.rs
+index ec22642..b15ca74 100644
+--- a/crates/nsh-platform-linux/src/mount.rs
++++ b/crates/nsh-platform-linux/src/mount.rs
+@@ -74,6 +74,8 @@ impl Mounter {
+         match item {
+             MountItem::Create { id, kind } => {
+                 let view = NshView::new(*id, *kind);
++                #[cfg(feature = "native-retirement-observer")]
++                surface.retirement.borrow_mut().created(&view);
+                 crate::access::created(&view);
+                 match kind {
+                     ViewKind::Input => crate::text_input::create(surface, &view),
+@@ -138,6 +140,8 @@ impl Mounter {
+                 }
+             }
+             MountItem::Delete { id } => {
++                #[cfg(feature = "native-retirement-observer")]
++                surface.retirement.borrow_mut().deleted(*id);
+                 crate::file_drop::deleted(surface, *id);
+                 crate::navigation::deleted(surface, *id);
+                 if let Some(view) = self.views.remove(id) {
+diff --git a/crates/nsh-platform-linux/src/surface.rs b/crates/nsh-platform-linux/src/surface.rs
+index cbd5ca4..01ad758 100644
+--- a/crates/nsh-platform-linux/src/surface.rs
++++ b/crates/nsh-platform-linux/src/surface.rs
+@@ -106,6 +106,8 @@ pub(crate) struct Surface {
+     pub(crate) root: NshView,
+     /// Views by node id, and what mounting needs between items.
+     pub(crate) mounter: RefCell<Mounter>,
++    #[cfg(feature = "native-retirement-observer")]
++    pub(crate) retirement: RefCell<crate::retirement::Registry>,
+     /// The native animation graph.
+     pub(crate) anim: RefCell<UiAnimation>,
+     /// Stacks, screens and modals.
+@@ -236,6 +238,8 @@ impl Surface {
+             key,
+             root: root.clone(),
+             mounter: RefCell::new(Mounter::new(root.clone())),
++            #[cfg(feature = "native-retirement-observer")]
++            retirement: RefCell::default(),
+             anim: RefCell::new(UiAnimation::default()),
+             nav: RefCell::default(),
+             windows: RefCell::default(),
+@@ -561,7 +565,11 @@ impl Surface {
+         self.ensure_ticking();
+     }
+ 
+-    fn apply(self: &Rc<Self>, batch: &MountBatch) {
++    pub(crate) fn apply(self: &Rc<Self>, batch: &MountBatch) {
++        #[cfg(feature = "native-retirement-observer")]
++        if self.retirement.borrow_mut().prepare(batch, &self.mounter.borrow()).is_err() {
++            return;
++        }
+         crate::access::prepare(batch);
+         for item in &batch.items {
+             self.anim.borrow_mut().apply(item);
+diff --git a/crates/nsh-platform-linux/src/view.rs b/crates/nsh-platform-linux/src/view.rs
+index 9cb4035..7520ba8 100644
+--- a/crates/nsh-platform-linux/src/view.rs
++++ b/crates/nsh-platform-linux/src/view.rs
+@@ -73,6 +73,8 @@ pub(crate) struct ViewState {
+     pub(crate) area_selection: Option<(u32, u32)>,
+     /// Image content (image views).
+     pub(crate) image: Option<crate::image::ImageState>,
++    #[cfg(feature = "native-retirement-observer")]
++    pub(crate) retirement_owner: Option<crate::retirement::NativeOwner>,
+     /// Canvas content.
+     pub(crate) canvas: Option<crate::canvas::CanvasState>,
+     /// What a shader draws under the children ([`crate::shader`]).
+@@ -108,6 +110,8 @@ impl ViewState {
+             text: None,
+             area_selection: None,
+             image: None,
++            #[cfg(feature = "native-retirement-observer")]
++            retirement_owner: None,
+             canvas: None,
+             shader: None,
+             input: None,
+diff --git a/crates/nsh-platform-linux/src/retirement.rs b/crates/nsh-platform-linux/src/retirement.rs
+new file mode 100644
+index 0000000..71500df
+--- /dev/null
++++ b/crates/nsh-platform-linux/src/retirement.rs
+@@ -0,0 +1,818 @@
++//! Experimental Linux-only native ownership observations.
++//!
++//! This vertical slice never returns a release ACK: task/decode/cache and
++//! native-child coverage are deliberately still missing. Object finalization
++//! and snapshot participation are separate facts, not physical presentation.
++use crate::{mount::Mounter, view::NshView};
++#[cfg(test)]
++use gtk4::glib;
++use gtk4::prelude::*;
++use nsh_core::{ImageData, MountBatch, MountItem, NodeId, ViewKind};
++use std::{
++    cell::RefCell,
++    collections::{HashMap, HashSet},
++    rc::Rc,
++    sync::Arc,
++};
++
++const MAX_OWNERS: usize = 8;
++const MAX_NODES: usize = 4096;
++
++/// Trusted adapter-local identity. Deliberately nonserializable and !Send.
++#[derive(Clone)]
++pub struct NativeOwner(Rc<RefCell<Facts>>);
++struct Facts {
++    identity: Arc<()>,
++    work: crate::retirement_work::WorkTracker,
++    images: Option<crate::image::OwnerImages>,
++    root: Option<NodeId>,
++    closing: bool,
++    failure: Option<&'static str>,
++    live: HashSet<NodeId>,
++    generations: HashMap<NodeId, u64>,
++    next_generation: u64,
++    total_deleted: u64,
++    total_finalized: u64,
++    total_retired: u64,
++    deleted: HashSet<NodeId>,
++    finalized: HashSet<NodeId>,
++    next_stamp: u64,
++    frame: Option<ExpectedFrame>,
++    snapshot: Option<SnapshotEvidence>,
++    snapshots: u64,
++}
++struct ExpectedFrame {
++    stamp: FrameStamp,
++    data: ImageData,
++    pixels: (i32, i32),
++}
++/// Opaque, own-mount, strictly increasing frame identity.
++#[derive(Clone, Debug)]
++pub struct FrameStamp {
++    identity: Arc<()>,
++    ordinal: u64,
++}
++impl PartialEq for FrameStamp {
++    fn eq(&self, other: &Self) -> bool {
++        Arc::ptr_eq(&self.identity, &other.identity) && self.ordinal == other.ordinal
++    }
++}
++impl Eq for FrameStamp {}
++/// An actual image append in a GTK snapshot. This is not a display-present fence.
++#[derive(Clone, Debug, PartialEq)]
++pub struct SnapshotEvidence {
++    /// Opaque trusted frame identity.
++    pub stamp: FrameStamp,
++    /// Native node observed at the append.
++    pub node: NodeId,
++    /// Actual appended texture pixel dimensions.
++    pub pixels: (i32, i32),
++    /// Image view logical width and height.
++    pub bounds_dip: (f32, f32),
++    /// Observed surface scale.
++    pub scale: f32,
++    /// Monotonic per-owner snapshot observation sequence.
++    pub sequence: u64,
++}
++/// Partial evidence only. `Unprovable` must never be converted to a Host ACK.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub struct PartialRetirement {
++    /// Real boundary native node, once consumed.
++    pub root: Option<NodeId>,
++    /// New owned mutations and frame admission are closed.
++    pub closing: bool,
++    /// Nodes without a qdata finalization-stage notification yet.
++    pub live_nodes: usize,
++    /// Owned node Delete operations actually applied.
++    pub delete_applied: u64,
++    /// Qdata destroy notification reached; not a finalizer-return fence.
++    pub finalization_reached_nodes: u64,
++    /// Sticky bounded failure classification.
++    pub failure: Option<&'static str>,
++    /// Missing coverage; always prevents release acknowledgment.
++    pub unprovable: &'static str,
++}
++/// Partial controlled PNG pipeline counts, never a release acknowledgment.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub struct ImageCounts {
++    /// Queued or running physical decode closures.
++    pub decode: u64,
++    /// Reserved or queued main-thread result deliveries.
++    pub delivery: u64,
++    /// Live owned decoded pixel containers.
++    pub pixels: u64,
++    /// Textures without their qdata finalization-stage notification.
++    pub texture_finalization_pending: u64,
++    /// Owner-private decoded cache entries.
++    pub cache_entries: usize,
++    /// Owner-private entries pinned by leases.
++    pub cache_in_use: usize,
++    /// Owner-private cache budget charge.
++    pub cache_bytes: usize,
++    /// Sticky work accounting/admission failure.
++    pub failed: bool,
++}
++impl NativeOwner {
++    /// Close new native/frame admission. Existing objects continue their real lifetime.
++    pub fn begin_close(&self) {
++        let (old, work) = {
++            let mut f = self.0.borrow_mut();
++            f.closing = true;
++            (f.frame.take(), f.work.clone())
++        };
++        work.close();
++        // Payloads may report lifecycle facts on Drop. Never run those
++        // destructors while holding the owner's RefCell borrow.
++        drop(old);
++    }
++    /// Actual owner image facts; zero values do not cover native children/outro.
++    pub fn image_counts(&self) -> ImageCounts {
++        let (work, images) = {
++            let f = self.0.borrow();
++            (f.work.clone(), f.images.clone())
++        };
++        let w = work.snapshot();
++        let (entries, in_use, bytes) = images.map(|i| i.usage()).unwrap_or_default();
++        ImageCounts {
++            decode: w.decode,
++            delivery: w.delivery,
++            pixels: w.pixels,
++            texture_finalization_pending: w.textures,
++            cache_entries: entries,
++            cache_in_use: in_use,
++            cache_bytes: bytes,
++            failed: w.failure,
++        }
++    }
++    /// Clears only this owner cache after actual decode/delivery and leases end.
++    /// Native pixel/GSK references may still remain and are reported separately.
++    pub fn clear_image_cache(&self) -> Result<ImageCounts, &'static str> {
++        let (closing, live, work, images) = {
++            let f = self.0.borrow();
++            (
++                f.closing,
++                !f.live.is_empty(),
++                f.work.clone(),
++                f.images.clone(),
++            )
++        };
++        let w = work.snapshot();
++        if !closing || live || w.failure || w.decode != 0 || w.delivery != 0 {
++            return Err("owner image work not drained");
++        }
++        if let Some(images) = images {
++            if images.usage().1 != 0 {
++                return Err("owner image leases remain");
++            }
++            images.clear_unused();
++        }
++        let counts = self.image_counts();
++        if counts.cache_entries != 0 || counts.cache_in_use != 0 || counts.cache_bytes != 0 {
++            return Err("owner cache did not clear");
++        }
++        Ok(counts)
++    }
++    pub(crate) fn is_closing(&self) -> bool {
++        let f = self.0.borrow();
++        f.closing || f.failure.is_some()
++    }
++    pub(crate) fn work(&self) -> crate::retirement_work::WorkTracker {
++        self.0.borrow().work.clone()
++    }
++    pub(crate) fn images(&self) -> Result<crate::image::OwnerImages, String> {
++        if let Some(images) = self.0.borrow().images.clone() {
++            return Ok(images);
++        }
++        let images = crate::image::OwnerImages::new(self.work())?;
++        let old = { self.0.borrow_mut().images.replace(images.clone()) };
++        drop(old);
++        Ok(images)
++    }
++    /// Diagnostic evidence; node zero is insufficient to release a mount.
++    pub fn status(&self) -> PartialRetirement {
++        let f = self.0.borrow();
++        PartialRetirement {
++            root: f.root,
++            closing: f.closing,
++            live_nodes: f.live.len(),
++            delete_applied: f.total_deleted,
++            finalization_reached_nodes: f.total_finalized,
++            failure: f.failure,
++            unprovable: "native children, tasks, decode and cache not yet covered",
++        }
++    }
++    /// Bind exact ImageData identity supplied by the trusted Rust renderer, not URI/text props.
++    pub fn register_frame(
++        &self,
++        data: ImageData,
++        pixels: (i32, i32),
++    ) -> Result<FrameStamp, &'static str> {
++        let (stamp, old) = {
++            let mut f = self.0.borrow_mut();
++            if f.closing || f.failure.is_some() || pixels.0 <= 0 || pixels.1 <= 0 || data.is_empty()
++            {
++                return Err("frame admission rejected");
++            }
++            f.next_stamp = f.next_stamp.checked_add(1).ok_or("frame stamp exhausted")?;
++            let stamp = FrameStamp {
++                identity: f.identity.clone(),
++                ordinal: f.next_stamp,
++            };
++            let old = f.frame.replace(ExpectedFrame {
++                stamp: stamp.clone(),
++                data,
++                pixels,
++            });
++            f.snapshot = None;
++            (stamp, old)
++        };
++        drop(old);
++        Ok(stamp)
++    }
++    /// Last actual append observation, with bounded storage.
++    pub fn snapshot(&self) -> Option<SnapshotEvidence> {
++        self.0.borrow().snapshot.clone()
++    }
++    pub(crate) fn snapshotted(
++        &self,
++        node: NodeId,
++        data: Option<&ImageData>,
++        pixels: (i32, i32),
++        bounds: (f32, f32),
++        scale: f32,
++    ) {
++        let mut f = self.0.borrow_mut();
++        if f.closing
++            || f.failure.is_some()
++            || !f.live.contains(&node)
++            || !bounds.0.is_finite()
++            || !bounds.1.is_finite()
++            || bounds.0 <= 0.0
++            || bounds.1 <= 0.0
++            || !scale.is_finite()
++            || scale <= 0.0
++        {
++            return;
++        }
++        let Some(frame) = &f.frame else { return };
++        if data != Some(&frame.data) || pixels != frame.pixels {
++            return;
++        }
++        let stamp = frame.stamp.clone();
++        let Some(sequence) = f.snapshots.checked_add(1) else {
++            f.failure = Some("snapshot sequence exhausted");
++            return;
++        };
++        f.snapshots = sequence;
++        f.snapshot = Some(SnapshotEvidence {
++            stamp,
++            node,
++            pixels,
++            bounds_dip: bounds,
++            scale,
++            sequence,
++        });
++    }
++    pub(crate) fn mark_unprovable(&self, reason: &'static str) {
++        self.fail(reason);
++    }
++    fn fail(&self, reason: &'static str) {
++        self.0.borrow_mut().failure.get_or_insert(reason);
++    }
++}
++
++/// This guard is owned by GObject qdata, not by a Rust wrapper or weak-ref.
++/// A private key is installed once and never explicitly cleared/replaced.
++/// GTK object destruction stays on its main thread. Observation is polled
++/// separately on the GTK thread; this notification only proves the qdata
++/// finalization stage was reached, not that the complete native finalizer
++/// returned. No reentrant Host callback occurs here.
++struct Finalization {
++    owner: NativeOwner,
++    node: NodeId,
++    generation: u64,
++}
++impl Drop for Finalization {
++    fn drop(&mut self) {
++        let mut f = self.owner.0.borrow_mut();
++        if f.generations.get(&self.node) != Some(&self.generation) {
++            return;
++        }
++        f.live.remove(&self.node);
++        if f.finalized.insert(self.node) {
++            match f.total_finalized.checked_add(1) {
++                Some(n) => f.total_finalized = n,
++                None => f.failure = Some("finalization counter exhausted"),
++            }
++        }
++    }
++}
++#[derive(Default)]
++pub(crate) struct Registry {
++    registrations: HashMap<String, NativeOwner>,
++    spent: HashSet<String>,
++    owners: Vec<NativeOwner>,
++    nodes: HashMap<NodeId, NativeOwner>,
++    installed: HashSet<NodeId>,
++}
++impl Registry {
++    pub(crate) fn register(&mut self, factory: &str) -> Result<NativeOwner, &'static str> {
++        if factory.is_empty()
++            || factory.len() > 128
++            || self.owners.len() >= MAX_OWNERS
++            || (self.registrations.contains_key(factory) || self.spent.contains(factory))
++        {
++            return Err("boundary registration rejected");
++        }
++        let owner = NativeOwner(Rc::new(RefCell::new(Facts {
++            identity: Arc::new(()),
++            work: Default::default(),
++            images: None,
++            root: None,
++            closing: false,
++            failure: None,
++            live: HashSet::new(),
++            generations: HashMap::new(),
++            next_generation: 0,
++            total_deleted: 0,
++            total_finalized: 0,
++            total_retired: 0,
++            deleted: HashSet::new(),
++            finalized: HashSet::new(),
++            next_stamp: 0,
++            frame: None,
++            snapshot: None,
++            snapshots: 0,
++        })));
++        self.registrations.insert(factory.into(), owner.clone());
++        self.owners.push(owner.clone());
++        Ok(owner)
++    }
++    /// Resolve the complete batch before any Create/source property can start work.
++    pub(crate) fn prepare(
++        &mut self,
++        batch: &MountBatch,
++        mounter: &Mounter,
++    ) -> Result<(), &'static str> {
++        self.collect_retired();
++        match self.plan(batch, mounter) {
++            Ok((planned, roots)) => {
++                for (name, node, owner) in roots {
++                    owner.0.borrow_mut().root = Some(node);
++                    self.registrations.remove(&name);
++                    self.spent.insert(name);
++                }
++                self.nodes = planned;
++                Ok(())
++            }
++            Err(e) => {
++                for owner in &self.owners {
++                    owner.fail(e);
++                }
++                Err(e)
++            }
++        }
++    }
++    fn plan(
++        &self,
++        batch: &MountBatch,
++        mounter: &Mounter,
++    ) -> Result<
++        (
++            HashMap<NodeId, NativeOwner>,
++            Vec<(String, NodeId, NativeOwner)>,
++        ),
++        &'static str,
++    > {
++        let mut nodes = self.nodes.clone();
++        let mut roots = Vec::new();
++        let mut used = HashSet::new();
++        let mut created = HashMap::new();
++        let mut parents = HashMap::new();
++        for item in &batch.items {
++            match item {
++                MountItem::Create { id, kind } => {
++                    if created.insert(*id, *kind).is_some() || nodes.contains_key(id) {
++                        return Err("node identity reused");
++                    }
++                }
++                MountItem::Insert { parent, child, .. } => {
++                    parents.insert(*child, *parent);
++                }
++                MountItem::Component { id, name } => {
++                    if let Some(owner) = self.registrations.get(name.as_ref()) {
++                        if !used.insert(name.to_string()) || owner.0.borrow().closing {
++                            return Err("one-shot boundary reused or closed");
++                        }
++                        if nodes.insert(*id, owner.clone()).is_some() {
++                            return Err("boundary identity reused");
++                        }
++                        roots.push((name.to_string(), *id, owner.clone()));
++                    } else if self.spent.contains(name.as_ref())
++                        || self.owners.iter().any(|o| o.0.borrow().root == Some(*id))
++                    {
++                        return Err("boundary component replaced");
++                    }
++                }
++                _ => {}
++            }
++        }
++        for (_, node, _) in &roots {
++            if created.get(node) != Some(&ViewKind::Native) {
++                return Err("boundary must be a newly created native node");
++            }
++        }
++        for child in parents.keys() {
++            let mut cursor = *child;
++            let mut seen = HashSet::new();
++            while let Some(parent) = parents.get(&cursor) {
++                if !seen.insert(cursor) {
++                    return Err("native parent cycle");
++                }
++                cursor = *parent;
++            }
++        }
++        for _ in 0..=parents.len() {
++            let mut changed = false;
++            for (child, parent) in &parents {
++                if let Some(owner) = nodes.get(parent).cloned() {
++                    if let Some(old) = nodes.get(child) {
++                        if !Rc::ptr_eq(&old.0, &owner.0) {
++                            return Err("cross-owner reparent");
++                        }
++                    } else {
++                        if !created.contains_key(child) || mounter.views.contains_key(child) {
++                            return Err("retroactive owner binding");
++                        }
++                        if owner.0.borrow().closing {
++                            return Err("closed owner admission");
++                        }
++                        nodes.insert(*child, owner);
++                        changed = true;
++                    }
++                }
++            }
++            if !changed {
++                break;
++            }
++        }
++        for (child, parent) in &parents {
++            if nodes.contains_key(child)
++                && !nodes.contains_key(parent)
++                && !roots.iter().any(|(_, root, _)| root == child)
++                && !self
++                    .owners
++                    .iter()
++                    .any(|o| o.0.borrow().root == Some(*child))
++            {
++                return Err("owned node moved outside boundary");
++            }
++        }
++        if nodes.len() > MAX_NODES {
++            return Err("native node observation limit");
++        }
++        for (id, owner) in &nodes {
++            if !self.nodes.contains_key(id) {
++                if owner.0.borrow().closing
++                    || !created.contains_key(id)
++                    || mounter.views.contains_key(id)
++                {
++                    return Err("late boundary admission");
++                }
++                match created[id] {
++                    ViewKind::View
++                    | ViewKind::Text
++                    | ViewKind::Input
++                    | ViewKind::Image
++                    | ViewKind::Scroll
++                    | ViewKind::Native => {}
++                    _ => owner.fail("unsupported native resource kind"),
++                }
++            }
++        }
++        // Once closed, retain old resources only; reject state-changing operations
++        // instead of executing a late Image/source/command on an old owner.
++        for item in &batch.items {
++            match item {
++                MountItem::Delete { .. } | MountItem::Remove { .. } => {}
++                _ if mutation_node(item)
++                    .and_then(|id| nodes.get(&id))
++                    .is_some_and(|o| o.0.borrow().closing) =>
++                {
++                    return Err("closed owner mutation rejected");
++                }
++                MountItem::Animation(_) if self.owners.iter().any(|o| o.0.borrow().closing) => {
++                    return Err("global animation mutation during close unproved");
++                }
++                _ => {}
++            }
++        }
++        Ok((nodes, roots))
++    }
++    pub(crate) fn created(&mut self, view: &NshView) {
++        let Some(owner) = self.nodes.get(&view.id()).cloned() else {
++            return;
++        };
++        if !self.installed.insert(view.id()) {
++            owner.fail("duplicate finalization registration");
++            return;
++        }
++        let generation = {
++            let mut f = owner.0.borrow_mut();
++            let Some(generation) = f.next_generation.checked_add(1) else {
++                f.failure = Some("native incarnation exhausted");
++                return;
++            };
++            f.next_generation = generation;
++            f.generations.insert(view.id(), generation);
++            f.live.insert(view.id());
++            generation
++        };
++        view.state_mut().retirement_owner = Some(owner.clone());
++        // SAFETY: private key, installed once, never read/removed/replaced; the
++        // value owns no GObject reference. GObject destroys it at finalization.
++        unsafe {
++            view.set_data(
++                "qusor-retirement-finalization-913-v1",
++                Finalization {
++                    owner,
++                    node: view.id(),
++                    generation,
++                },
++            );
++        }
++    }
++    // Only node-object records retire here. Physical work/pixel/cache owners
++    // have separate records/counters and remain unprovable until they drain.
++    fn collect_retired(&mut self) {
++        let retired: Vec<_> = self
++            .nodes
++            .iter()
++            .filter_map(|(id, o)| {
++                let f = o.0.borrow();
++                (f.deleted.contains(id) && f.finalized.contains(id) && !f.live.contains(id))
++                    .then_some(*id)
++            })
++            .collect();
++        for id in retired {
++            let owner = self.nodes.remove(&id).expect("selected current node");
++            self.installed.remove(&id);
++            let mut f = owner.0.borrow_mut();
++            f.deleted.remove(&id);
++            f.finalized.remove(&id);
++            f.generations.remove(&id);
++            match f.total_retired.checked_add(1) {
++                Some(n) => f.total_retired = n,
++                None => f.failure = Some("retired counter exhausted"),
++            }
++        }
++    }
++    pub(crate) fn deleted(&mut self, node: NodeId) {
++        if let Some(owner) = self.nodes.get(&node) {
++            let mut f = owner.0.borrow_mut();
++            if f.deleted.insert(node) {
++                match f.total_deleted.checked_add(1) {
++                    Some(n) => f.total_deleted = n,
++                    None => f.failure = Some("delete counter exhausted"),
++                }
++            }
++        }
++    }
++}
++
++fn mutation_node(item: &MountItem) -> Option<NodeId> {
++    match item {
++        MountItem::Create { id, .. } => Some(*id),
++        MountItem::TrackStates { id, .. } => Some(*id),
++        MountItem::ProjectStates { id, .. } => Some(*id),
++        MountItem::Remove { id, .. } => Some(*id),
++        MountItem::Delete { id, .. } => Some(*id),
++        MountItem::Frame { id, .. } => Some(*id),
++        MountItem::Overflow { id, .. } => Some(*id),
++        MountItem::ViewStyle { id, .. } => Some(*id),
++        MountItem::Text { id, .. } => Some(*id),
++        MountItem::Events { id, .. } => Some(*id),
++        MountItem::Image { id, .. } => Some(*id),
++        MountItem::ScrollConfig { id, .. } => Some(*id),
++        MountItem::ScrollContent { id, .. } => Some(*id),
++        MountItem::ScrollBy { id, .. } => Some(*id),
++        MountItem::StickyCells { id, .. } => Some(*id),
++        MountItem::ScrollBehavior { id, .. } => Some(*id),
++        MountItem::Refreshing { id, .. } => Some(*id),
++        MountItem::Canvas { id, .. } => Some(*id),
++        MountItem::Shader { id, .. } => Some(*id),
++        MountItem::ShaderTransition { id, .. } => Some(*id),
++        MountItem::NavShader { id, .. } => Some(*id),
++        MountItem::ShaderInput { id, .. } => Some(*id),
++        MountItem::AnimationBindings { id, .. } => Some(*id),
++        MountItem::Gestures { id, .. } => Some(*id),
++        MountItem::ViewProps { id, .. } => Some(*id),
++        MountItem::AccessibilityLabel { id, .. } => Some(*id),
++        MountItem::Input { id, .. } => Some(*id),
++        MountItem::InputValue { id, .. } => Some(*id),
++        MountItem::InputContent { id, .. } => Some(*id),
++        MountItem::ScreenConfig { id, .. } => Some(*id),
++        MountItem::NativeProps { id, .. } => Some(*id),
++        MountItem::ModalConfig { id, .. } => Some(*id),
++        MountItem::Component { id, .. } => Some(*id),
++        MountItem::ComponentPropSlots { id, .. } => Some(*id),
++        MountItem::ComponentProps { id, .. } => Some(*id),
++        MountItem::Command { id, .. } => Some(*id),
++        MountItem::Insert { child, .. } => Some(*child),
++        _ => None,
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use crate::gtk_test;
++    fn create_boundary(surface: &Rc<crate::surface::Surface>, kind: ViewKind) -> NativeOwner {
++        let owner = surface
++            .retirement
++            .borrow_mut()
++            .register("fixture/one-shot")
++            .unwrap();
++        surface.apply(&MountBatch {
++            items: vec![
++                MountItem::Create {
++                    id: 2,
++                    kind: ViewKind::Native,
++                },
++                MountItem::Create { id: 3, kind },
++                // Deliberately children before boundary and parent: ownership is
++                // planned over the full batch, not assigned after Insert.
++                MountItem::Insert {
++                    parent: 2,
++                    child: 3,
++                    before: None,
++                },
++                MountItem::Component {
++                    id: 2,
++                    name: "fixture/one-shot".into(),
++                },
++                MountItem::Insert {
++                    parent: nsh_core::ROOT_ID,
++                    child: 2,
++                    before: None,
++                },
++            ],
++        });
++        assert_eq!(owner.status().root, Some(2));
++        assert_eq!(owner.status().live_nodes, 2);
++        owner
++    }
++    #[test]
++    fn retirement_frame_identity_and_payload_drop_are_owner_safe() {
++        thread_local! { static REPORT_OWNER: RefCell<Option<NativeOwner>> = const { RefCell::new(None) }; }
++        struct ReportingBytes(Vec<u8>);
++        impl AsRef<[u8]> for ReportingBytes {
++            fn as_ref(&self) -> &[u8] {
++                &self.0
++            }
++        }
++        impl Drop for ReportingBytes {
++            fn drop(&mut self) {
++                REPORT_OWNER.with_borrow(|owner| {
++                    let _ = owner.as_ref().unwrap().status();
++                });
++            }
++        }
++        let mut registry = Registry::default();
++        let a = registry.register("owner-a").unwrap();
++        let b = registry.register("owner-b").unwrap();
++        let bytes = ImageData::new(vec![1, 2, 3]);
++        let first_a = a.register_frame(bytes.clone(), (1, 1)).unwrap();
++        let first_b = b.register_frame(bytes, (1, 1)).unwrap();
++        assert_eq!(first_a.ordinal, first_b.ordinal);
++        assert_ne!(
++            first_a, first_b,
++            "same bytes/ordinal must not cross owner identity"
++        );
++        assert_eq!(first_a, first_a.clone());
++        REPORT_OWNER.with_borrow_mut(|slot| *slot = Some(a.clone()));
++        a.register_frame(ImageData::new(ReportingBytes(vec![4])), (1, 1))
++            .unwrap();
++        // Both replacement and closing run payload Drop after the owner borrow.
++        a.register_frame(ImageData::new(ReportingBytes(vec![5])), (1, 1))
++            .unwrap();
++        a.begin_close();
++        REPORT_OWNER.with_borrow_mut(|slot| *slot = None);
++    }
++    #[test]
++    fn retirement_node_budget_counts_inflight_not_4353_historical_creates() {
++        gtk_test::run(|| {
++            let s=gtk_test::surface();let o=create_boundary(&s,ViewKind::View);
++            let held=gtk_test::view(&s,3);let original_generation=o.0.borrow().generations[&3];
++            s.apply(&MountBatch{items:vec![MountItem::Delete{id:3}]});
++            let iterations=MAX_NODES+257;
++            for id in 4..4+iterations as u32 {
++                s.apply(&MountBatch{items:vec![MountItem::Create{id,kind:ViewKind::View},MountItem::Insert{parent:2,child:id,before:None}]});
++                assert!(s.mounter.borrow().views.contains_key(&id));
++                assert!(s.retirement.borrow().nodes.len()<=3);
++                s.apply(&MountBatch{items:vec![MountItem::Delete{id}]});
++            }
++            assert_eq!(o.status().live_nodes,2,"original strong clone remains live");
++            drop(held);s.apply(&MountBatch::default());assert_eq!(s.retirement.borrow().nodes.len(),1);
++            s.apply(&MountBatch{items:vec![MountItem::Create{id:3,kind:ViewKind::View},MountItem::Insert{parent:2,child:3,before:None}]});
++            let generation=o.0.borrow().generations[&3];assert_ne!(generation,original_generation);
++            drop(Finalization{owner:o.clone(),node:3,generation:original_generation});
++            assert!(o.0.borrow().live.contains(&3),"late wrong incarnation cannot retire new native object");
++            let mut over=vec![];
++            for id in 10000..10000+MAX_NODES as u32 {over.push(MountItem::Create{id,kind:ViewKind::View});over.push(MountItem::Insert{parent:2,child:id,before:None});}
++            s.apply(&MountBatch{items:over});assert!(!s.mounter.borrow().views.contains_key(&10000));
++            assert!(s.mounter.borrow().views.contains_key(&3));
++            assert_eq!(o.status().failure,Some("native node observation limit"));
++            eprintln!("OBSERVER_NODE_BUDGET historical_creates={} retained_clone=true peak_records=3 same_id_new_incarnation=true real_overlimit_rejected=true",iterations);
++        }).expect("real GTK display required");
++    }
++    #[test]
++    fn retirement_real_finalization_waits_for_clone_and_survives_dispose() {
++        gtk_test::run(|| {
++            let s=gtk_test::surface(); let o=create_boundary(&s,ViewKind::View);
++            let held=gtk_test::view(&s,3); let clone=held.clone();
++            o.begin_close();
++            s.apply(&MountBatch{items:vec![MountItem::Delete{id:2},MountItem::Delete{id:3}]});
++            assert_eq!(o.status().delete_applied,2);
++            assert_eq!(o.status().live_nodes,1,"real GTK clone must hold native object");
++            // SAFETY: dedicated detached fixture on GTK's main thread; we keep
++            // strong refs intentionally to distinguish dispose from finalize.
++            unsafe { held.run_dispose(); }
++            assert_eq!(o.status().live_nodes,1,"run_dispose must not fake finalization");
++            drop(held); assert_eq!(o.status().live_nodes,1);
++            drop(clone); assert_eq!(o.status().live_nodes,0);
++            assert_eq!(o.status().finalization_reached_nodes,2);
++            assert!(!o.status().unprovable.is_empty(),"nodes alone never ACK");
++            eprintln!("OBSERVER_REAL_FINALIZATION clones_blocked=true dispose_not_ack=true qdata_finalization_reached=2 finalizer_return_claimed=false unprovable=true");
++        }).expect("real GTK display required for this qualification test");
++    }
++    #[test]
++    fn retirement_one_shot_closed_admission_and_foreign_owner_fail_closed() {
++        gtk_test::run(|| {
++            let s = gtk_test::surface();
++            let o = create_boundary(&s, ViewKind::View);
++            assert!(
++                s.retirement
++                    .borrow_mut()
++                    .register("fixture/one-shot")
++                    .is_err()
++            );
++            o.begin_close();
++            let late = MountBatch {
++                items: vec![
++                    MountItem::Create {
++                        id: 4,
++                        kind: ViewKind::View,
++                    },
++                    MountItem::Insert {
++                        parent: 2,
++                        child: 4,
++                        before: None,
++                    },
++                ],
++            };
++            s.apply(&late);
++            assert!(!s.mounter.borrow().views.contains_key(&4));
++            assert!(o.register_frame(ImageData::new(vec![1]), (1, 1)).is_err());
++            assert!(o.status().failure.is_some());
++            let foreign = gtk_test::surface();
++            let f = foreign
++                .retirement
++                .borrow_mut()
++                .register("fixture/one-shot")
++                .unwrap();
++            assert!(f.status().root.is_none());
++            assert_eq!(f.status().live_nodes, 0);
++            eprintln!(
++                "OBSERVER_ADMISSION one_shot=true late_create_rejected=true foreign_isolated=true"
++            );
++        })
++        .expect("real GTK display required for this qualification test");
++    }
++    #[test]
++    fn retirement_actual_image_snapshot_matches_exact_frame_identity() {
++        gtk_test::run(|| {
++            let s=gtk_test::surface();let o=create_boundary(&s,ViewKind::Image);
++            let mut bytes=std::io::Cursor::new(Vec::new());
++            image::RgbaImage::from_pixel(2,2,image::Rgba([60,90,120,255]))
++                .write_to(&mut bytes,image::ImageFormat::Png).unwrap();
++            let data=ImageData::new(bytes.into_inner());
++            let stamp=o.register_frame(data.clone(),(2,2)).unwrap();
++            assert!(o.snapshot().is_none(),"registration/load is not snapshot participation");
++            s.apply(&MountBatch{items:vec![
++                MountItem::Frame{id:2,frame:gtk_test::frame(0.,0.,100.,100.)},
++                MountItem::Frame{id:3,frame:gtk_test::frame(0.,0.,100.,100.)},
++                MountItem::Image{id:3,source:Some(nsh_core::ImageSource{uri:"blob:observer-fixture".into(),size:None,scales:nsh_core::ImageScales::NONE,data:Some(data)}),resize_mode:nsh_core::ResizeMode::Contain,options:Default::default()},
++            ]});
++            let window=gtk_test::show(&s);
++            assert!(gtk_test::wait_until(|| o.snapshot().is_some()));
++            let evidence=o.snapshot().unwrap();assert_eq!(evidence.stamp,stamp);assert_eq!(evidence.node,3);
++            let different=ImageData::new(vec![9]);o.register_frame(different,(2,2)).unwrap();
++            gtk_test::view(&s,3).queue_draw();
++            while glib::MainContext::default().pending() { glib::MainContext::default().iteration(false); }
++            assert!(o.snapshot().is_none(),"wrong ImageData must not certify old pixels");
++            o.begin_close();assert!(!o.status().unprovable.is_empty());window.close();
++            eprintln!("OBSERVER_SNAPSHOT actual_append=true exact_identity=true physical_present_claimed=false");
++        }).expect("real GTK display required for this qualification test");
++    }
++}
+diff --git a/crates/nsh-platform-linux/src/retirement_work.rs b/crates/nsh-platform-linux/src/retirement_work.rs
+new file mode 100644
+index 0000000..acc3043
+--- /dev/null
++++ b/crates/nsh-platform-linux/src/retirement_work.rs
+@@ -0,0 +1,120 @@
++//! Physical background/queued-delivery accounting. No GTK or Host callbacks.
++use std::sync::{Arc, Condvar, Mutex};
++
++#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
++pub(crate) struct WorkSnapshot {
++    pub decode: u64,
++    pub delivery: u64,
++    pub pixels: u64,
++    pub textures: u64,
++    pub completed_decode: u64,
++    pub completed_delivery: u64,
++    pub closed: bool,
++    pub failure: bool,
++}
++#[derive(Clone, Default)]
++pub(crate) struct WorkTracker(Arc<(Mutex<WorkSnapshot>, Condvar)>);
++#[derive(Clone, Copy)]
++enum Kind {
++    Decode,
++    Delivery,
++    Pixels,
++    Texture,
++}
++struct Completion {
++    tracker: WorkTracker,
++    kind: Kind,
++}
++impl WorkTracker {
++    pub(crate) fn snapshot(&self) -> WorkSnapshot {
++        *self.0.0.lock().unwrap_or_else(|poison| {
++            let mut state = poison.into_inner();
++            state.failure = true;
++            state
++        })
++    }
++    pub(crate) fn close(&self) {
++        self.0.0.lock().unwrap_or_else(|p| p.into_inner()).closed = true;
++    }
++    fn acquire(&self, kind: Kind) -> Result<Box<dyn Send + Sync>, String> {
++        let mut state = self
++            .0
++            .0
++            .lock()
++            .map_err(|_| "observer work mutex poisoned")?;
++        if (state.closed && matches!(kind, Kind::Decode | Kind::Delivery)) || state.failure {
++            return Err("observer work admission closed".into());
++        }
++        let count = match kind {
++            Kind::Decode => &mut state.decode,
++            Kind::Delivery => &mut state.delivery,
++            Kind::Pixels => &mut state.pixels,
++            Kind::Texture => &mut state.textures,
++        };
++        if *count >= 64 {
++            state.failure = true;
++            return Err("observer in-flight work limit".into());
++        }
++        *count += 1;
++        Ok(Box::new(Completion {
++            tracker: self.clone(),
++            kind,
++        }))
++    }
++    pub(crate) fn decode(&self) -> Result<Box<dyn Send>, String> {
++        self.acquire(Kind::Decode)
++            .map(|guard| guard as Box<dyn Send>)
++    }
++    pub(crate) fn delivery(&self) -> Result<Box<dyn Send>, String> {
++        self.acquire(Kind::Delivery)
++            .map(|guard| guard as Box<dyn Send>)
++    }
++    pub(crate) fn pixels(&self) -> Result<Box<dyn Send + Sync>, String> {
++        self.acquire(Kind::Pixels)
++    }
++    pub(crate) fn texture(&self) -> Result<Box<dyn Send + Sync>, String> {
++        self.acquire(Kind::Texture)
++    }
++    #[cfg(test)]
++    pub(crate) fn wait_idle(&self, timeout: std::time::Duration) -> bool {
++        let state = self.0.0.lock().unwrap();
++        let (state, _) = self
++            .0
++            .1
++            .wait_timeout_while(state, timeout, |s| s.decode != 0 || s.delivery != 0)
++            .unwrap();
++        state.decode == 0 && state.delivery == 0 && !state.failure
++    }
++}
++impl Drop for Completion {
++    fn drop(&mut self) {
++        let mut s = self.tracker.0.0.lock().unwrap_or_else(|p| p.into_inner());
++        let (active, done) = match self.kind {
++            Kind::Decode => (s.decode, s.completed_decode),
++            Kind::Delivery => (s.delivery, s.completed_delivery),
++            Kind::Pixels => (s.pixels, 0),
++            Kind::Texture => (s.textures, 0),
++        };
++        let Some(active) = active.checked_sub(1) else {
++            s.failure = true;
++            return;
++        };
++        let Some(done) = done.checked_add(1) else {
++            s.failure = true;
++            return;
++        };
++        match self.kind {
++            Kind::Decode => {
++                s.decode = active;
++                s.completed_decode = done
++            }
++            Kind::Delivery => {
++                s.delivery = active;
++                s.completed_delivery = done
++            }
++            Kind::Pixels => s.pixels = active,
++            Kind::Texture => s.textures = active,
++        }
++        self.tracker.0.1.notify_all();
++    }
++}

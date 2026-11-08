@@ -1,0 +1,4 @@
+   Compiling extension-store v0.0.0 (/workspace/qusor/adapters/extension-store)
+   Compiling qusor-package-probe v0.1.0 (/workspace/qusor/experiments/extension-package)
+   Compiling qusor-capture-probe v0.1.0 (/workspace/qusor/experiments/capture-core)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.34s

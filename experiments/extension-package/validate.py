@@ -25,6 +25,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from check_architecture import validate_graph  # noqa: E402
+from private_scenarios import validate_private  # noqa: E402
+from supervisor_scenarios import validate_supervisor  # noqa: E402
+from orphan_scenarios import validate_orphans  # noqa: E402
 
 CHECKS: list[dict] = []
 SCENARIOS: list[dict] = []
@@ -86,17 +89,21 @@ def manifest_text(package: dict, dependencies: dict, *, workspace=False):
 
 def export_sdk(outside: Path):
     """Export public contract source; never copy host/store/runner implementation."""
-    parent = tomllib.loads((HERE / "Cargo.toml").read_text(encoding="utf-8"))
+    source = ROOT / "crates/extension-package"
+    parent = tomllib.loads((source / "Cargo.toml").read_text(encoding="utf-8"))
+    workspace = tomllib.loads((ROOT / "Cargo.toml").read_text(encoding="utf-8"))["workspace"]
+    package = {name: workspace["package"][name] if isinstance(value, dict) and value.get("workspace")
+               else value for name, value in parent["package"].items()}
     sdk_dependencies = {name: copy.deepcopy(value)
                         for name, value in parent["dependencies"].items()
                         if name in SDK_DEPENDENCIES}
     require(set(sdk_dependencies) == SDK_DEPENDENCIES, "SDK dependency export is incomplete")
     sdk_dependencies["extension-api"] = {"path": "api"}
     (outside / "src").mkdir()
-    shutil.copy2(HERE / "src/package.rs", outside / "src/package.rs")
+    shutil.copy2(source / "src/package.rs", outside / "src/package.rs")
     (outside / "src/lib.rs").write_text("pub mod package;\n", encoding="utf-8")
     (outside / "Cargo.toml").write_text(
-        manifest_text(parent["package"], sdk_dependencies, workspace=True), encoding="utf-8")
+        manifest_text(package, sdk_dependencies, workspace=True), encoding="utf-8")
 
     # Expand workspace inheritance from the authoritative API manifest; there is
     # no second handwritten wire schema and no reference to the original tree.
@@ -108,6 +115,13 @@ def export_sdk(outside: Path):
         else value for name, value in api["package"].items()
     }
     shutil.copytree(api_source / "src", outside / "api/src")
+    shutil.copytree(api_source / "schema", outside / "api/schema")
+    for directory in ("src", "schema"):
+        for authority in sorted((api_source / directory).rglob("*")):
+            if authority.is_file():
+                exported = outside / "api" / authority.relative_to(api_source)
+                require(digest(exported) == digest(authority),
+                        "exported API source/schema differs from authority")
     (outside / "api/Cargo.toml").write_text(
         manifest_text(api_package, api["dependencies"]), encoding="utf-8")
 
@@ -115,18 +129,23 @@ def export_sdk(outside: Path):
                     ignore=shutil.ignore_patterns("target", "Cargo.lock", "__pycache__"))
     author = tomllib.loads((HERE / "author/Cargo.toml").read_text(encoding="utf-8"))
     author["dependencies"]["extension-api"] = {"path": "../api"}
+    author["dependencies"]["qusor-package-probe"] = {"path": "..", "package": "extension-package"}
     (outside / "author/Cargo.toml").write_text(
         manifest_text(author["package"], author["dependencies"], workspace=True), encoding="utf-8")
     require(not (outside / "src/store.rs").exists(), "installer source leaked into author SDK")
     require(not (outside / "src/main.rs").exists(), "host source leaked into author SDK")
     for path in (outside / "src/package.rs", outside / "api/src/lib.rs"):
-        source = HERE / "src/package.rs" if path.name == "package.rs" else api_source / "src/lib.rs"
-        require(digest(path) == digest(source), "exported contract differs from authority")
+        authority = source / "src/package.rs" if path.name == "package.rs" else api_source / "src/lib.rs"
+        require(digest(path) == digest(authority), "exported contract differs from authority")
     # The author receives these data/source fixtures with the SDK, not repository
     # access. Its signed packages remain ordinary identities throughout.
     fixtures = outside / "fixtures"
     fixtures.mkdir()
     for name in ("valid.wat", "valid-v2.wat", "manifest.json", "manifest-v2.json"):
+        shutil.copy2(ROOT / "experiments/extension-wasm/fixtures" / name, fixtures / name)
+    for fixture in sorted((HERE / "fixtures").glob("*.wat")):
+        shutil.copy2(fixture, fixtures / fixture.name)
+    for name in ("infinite-loop.wat", "ambient-import.wat", "memory-grow.wat", "start-function.wat"):
         shutil.copy2(ROOT / "experiments/extension-wasm/fixtures" / name, fixtures / name)
     (fixtures / "asset.txt").write_text("Synthetic packaged asset, no user data.\n", encoding="utf-8")
     (fixtures / "test-seed.hex").write_text(PUBLIC_TEST_SEEDS[0], encoding="ascii")
@@ -134,9 +153,10 @@ def export_sdk(outside: Path):
     (outside / "README.md").write_text(
         "# Experimental package SDK\n\n"
         "This is a Linux/WSL validation artifact, not a production SDK release.\n"
-        "The package contract is exported verbatim from src/package.rs; api/src\n"
+        "The package contract is exported verbatim from crates/extension-package; api/src\n"
         "is the authoritative extension-api wire source. Only these public\n"
-        "contracts are provided. The author tool accepts a WAT module, manifest,\n"
+        "contracts and their api/schema JSON schemas are provided. Parsing is not authorization.\n"
+        "The author tool accepts a WAT module, manifest,\n"
         "asset, 32-byte hexadecimal seed file, and output package path.\n"
         "The included test seeds are PUBLIC fixtures; never use them for real signing.\n"
         "Build offline with cargo build --manifest-path author/Cargo.toml --locked --offline.\n",
@@ -255,7 +275,136 @@ def validate_lifecycle(runner, packages, key, scratch, expected_digests, package
         assert_current(f"restart after uninstall retry {point}", store, None)
 
 
+
+def validate_grant_recovery(runner, packages, key, scratch, package_id):
+    """Fresh processes prove persistence, not merely in-memory round trips."""
+    def action(name, *args, **kwargs):
+        return host_action(runner, name, args, **kwargs)
+
+    expiry = int(time.time()) + 3600
+    scope = ("synthetic-library", "synthetic-document", "version-1")
+    scratch.mkdir(mode=0o700)
+    for point in ("before_transaction", "after_content", "before_commit", "after_commit"):
+        store = scratch / f"grant-{point}"
+        initial = action(f"grant prepare {point}", "install", store, "base", 0,
+                         packages["metadata-v1"], key)["receipt"]
+        args = ("grant", store, "grant", initial["revision"], package_id, *scope, expiry)
+        action(f"grant crash {point}", *args, "--crash", point, crash=True)
+        committed = point == "after_commit"
+        action(f"grant recovery {point}", "resume", store, package_id, *scope, ok=committed)
+        granted = action(f"grant retry {point}", *args)["receipt"]
+        require(granted["revision"] == initial["revision"] + 1,
+                "grant retry duplicated durable mutation")
+        resumed = action(f"new session {point}", "resume", store, package_id, *scope)
+        session = json.dumps(resumed["session"], separators=(",", ":"))
+        stale = action(f"old session rejected after restart {point}", "check-session", store,
+                       session, *scope, ok=False)
+        require("unknown or stale session" in stale["error"],
+                "old session rejected for an unrelated parsing or storage error")
+        action(f"wrong library denied {point}", "resume", store, package_id,
+               "other-library", *scope[1:], ok=False)
+        action(f"wrong document denied {point}", "resume", store, package_id,
+               scope[0], "other-document", scope[2], ok=False)
+        action(f"wrong version denied {point}", "resume", store, package_id,
+               *scope[:2], "version-2", ok=False)
+        action(f"installation cannot change library {point}", "grant", store, "change-library",
+               granted["revision"], package_id, "other-library", *scope[1:], expiry, ok=False)
+        changed = action(f"update clears grant {point}", "install", store, "update",
+                         granted["revision"], packages["metadata-v2"], key)["receipt"]
+        require(changed["generation"] > granted["generation"], "update reused grant generation")
+        action(f"updated package needs new grant {point}", "resume", store, package_id,
+               *scope, ok=False)
+
+    for kind in ("disable", "revoke"):
+        for point in ("before_commit", "after_commit"):
+            store = scratch / f"{kind}-{point}"
+            initial = action(f"{kind} prepare {point}", "install", store, "base", 0,
+                             packages["metadata-v1"], key)["receipt"]
+            granted = action(f"{kind} grant {point}", "grant", store, "grant",
+                             initial["revision"], package_id, *scope, expiry)["receipt"]
+            args = (kind, store, "stop", granted["revision"], package_id)
+            action(f"{kind} crash {point}", *args, "--crash", point, crash=True)
+            action(f"{kind} recovery {point}", "resume", store, package_id, *scope,
+                   ok=point != "after_commit")
+            stopped = action(f"{kind} retry {point}", *args)["receipt"]
+            require(stopped["generation"] > granted["generation"], "stop reused generation")
+            action(f"{kind} prevents recovery {point}", "resume", store, package_id,
+                   *scope, ok=False)
+
+
+
+def validate_execution_recovery(runner, packages, key, scratch, package_id):
+    """Execute frozen stored bytes in fresh processes using saved authority."""
+    def action(name, *args, **kwargs):
+        return host_action(runner, name, args, **kwargs)
+
+    scratch.mkdir(mode=0o700)
+    store = scratch / "normal"
+    scope = ("synthetic-library", "synthetic-document", "version-1")
+    expiry = int(time.time()) + 3600
+    installed = action("execution install", "install", store, "install", 0,
+                       packages["metadata-v1"], key)["receipt"]
+    action("installed bytes alone cannot execute", "execute", store, package_id, *scope, ok=False)
+    granted = action("execution explicit grant", "grant", store, "grant", installed["revision"],
+                     package_id, *scope, expiry)["receipt"]
+    for name in ("execute after grant process ended", "execute after another restart"):
+        result = action(name, "execute", store, package_id, *scope)["result"]
+        require(result["calls"] == 1 and result["fuel_consumed"] > 0,
+                "guest did not perform an actual bounded host call")
+        metadata_value = json.loads(result["output"])
+        require(metadata_value == {"synthetic": True, "library": scope[0], "document": scope[1],
+                                   "version": scope[2], "title": "Synthetic metadata fixture"},
+                "execution did not consume the host's exact scoped synthetic metadata")
+    for library, document, version in (("other", scope[1], scope[2]),
+                                       (scope[0], "other", scope[2]),
+                                       (*scope[:2], "other")):
+        action("execution rejects wrong scope " + library + document + version,
+               "execute", store, package_id, library, document, version, ok=False)
+    stopped = action("execution revoke", "revoke", store, "revoke", granted["revision"],
+                     package_id)["receipt"]
+    action("revoked bytes cannot execute", "execute", store, package_id, *scope, ok=False)
+    granted = action("execution regrant", "grant", store, "regrant", stopped["revision"],
+                     package_id, *scope, expiry)["receipt"]
+    updated = action("execution update", "install", store, "update", granted["revision"],
+                     packages["metadata-v2"], key)["receipt"]
+    action("updated bytes cannot inherit execution grant", "execute", store, package_id,
+           *scope, ok=False)
+    granted = action("execution updated grant", "grant", store, "grant-v2", updated["revision"],
+                     package_id, *scope, expiry)["receipt"]
+    result = action("updated execution after new grant", "execute", store, package_id, *scope)["result"]
+    require(result["calls"] == 2 and json.loads(result["output"]).get("synthetic") is True,
+            "update did not execute independently authored v2 module")
+    action("execution uninstall", "uninstall", store, "remove", granted["revision"], package_id)
+    action("uninstalled bytes cannot execute", "execute", store, package_id, *scope, ok=False)
+
+    for name, error in (("infinite-loop", "fuel_exhausted"), ("ambient-import", "unknown_import"),
+                        ("memory-grow", "vm_trap"), ("start-function", "invalid_module"),
+                        ("selection-escalation", "permission_denied"),
+                        ("metadata-wrong-document", "permission_denied"),
+                        ("metadata-trap", "vm_trap")):
+        store = scratch / name
+        installed = action(name + " signed install", "install", store, "install", 0,
+                           packages[name], key)["receipt"]
+        action(name + " explicit grant", "grant", store, "grant", installed["revision"],
+               package_id, *scope, expiry)
+        rejected = action(name + " bounded execution rejection", "execute", store, package_id,
+                          *scope, ok=False)
+        require(error in rejected["error"], f"{name}: rejected at unrelated boundary: {rejected}")
+
+
+def production_installation_fingerprints():
+    paths = [ROOT / "Cargo.toml", ROOT / "Cargo.lock", ROOT / "config/architecture.toml"]
+    for directory in ("crates/extension-api", "crates/extension-host", "crates/extension-package",
+                      "crates/extension-runtime-api", "adapters/extension-store",
+                      "adapters/runtime-process", "adapters/runtime-wasm"):
+        crate = ROOT / directory
+        paths += [crate / "Cargo.toml", *sorted((crate / "src").rglob("*.rs")),
+                  *sorted((crate / "tests").rglob("*.rs"))]
+    return {str(p.relative_to(ROOT)): digest(p) for p in paths}
+
+
 def validate(report):
+    production_sources = production_installation_fingerprints()
     policy = tomllib.loads((ROOT / "config/architecture.toml").read_text(encoding="utf-8"))
     manifests = [HERE / "Cargo.toml", HERE / "author/Cargo.toml"]
     metas = [metadata(manifest) for manifest in manifests]
@@ -264,9 +413,24 @@ def validate(report):
         require(not errors, "\n".join(errors))
     root_meta = metadata(ROOT / "Cargo.toml")
     require(not validate_graph(root_meta, policy, ROOT), "production dependency policy failed")
-    require(not ({"ed25519-dalek", "rusqlite", "fs2", "wasmi"} &
-                 {package["name"] for package in root_meta["packages"]}),
-            "experiment dependency leaked into production")
+    # Production now contains qualified storage/runtime adapters. Verify the pure
+    # package authority's closure rather than forbidding those adapters globally.
+    nodes = {node["id"]: node for node in root_meta["resolve"]["nodes"]}
+    packages_by_id = {package["id"]: package for package in root_meta["packages"]}
+    authority_id = next(package["id"] for package in root_meta["packages"]
+                        if package["name"] == "extension-package")
+    pending, closure = [authority_id], set()
+    while pending:
+        package_id = pending.pop()
+        if package_id in closure:
+            continue
+        closure.add(package_id)
+        pending.extend(dep["pkg"] for dep in nodes[package_id]["deps"])
+    forbidden = {"extension-host", "rusqlite", "fs2", "wasmi", "runtime-wasm", "extension-runtime-api",
+                 "qusor-package-probe", "qusor-wasm-probe"}
+    require(not any(packages_by_id[package_id]["name"] in forbidden or
+                    packages_by_id[package_id]["name"].startswith("nsh-")
+                    for package_id in closure), "private dependency entered pure package format")
     for manifest in manifests:
         command(["cargo", "fmt", "--manifest-path", manifest, "--all", "--", "--check"])
         command(["cargo", "test", "--manifest-path", manifest, "--locked", "--offline"])
@@ -290,7 +454,7 @@ def validate(report):
             require(not path.is_relative_to(ROOT), "independent author resolved QUSOR source")
             if package.get("source") is None:
                 require(path.is_relative_to(outside), "author resolved unexported local source")
-            require(package["name"] not in {"extension-host", "qusor-wasm-probe", "rusqlite", "fs2"},
+            require(package["name"] not in {"extension-host", "qusor-wasm-probe", "runtime-wasm", "extension-runtime-api", "wasmi", "rusqlite", "fs2", "rustix"},
                     "private host/runtime dependency leaked into SDK")
         command(["cargo", "build", "--manifest-path", external_manifest, "--locked", "--offline"],
                 cwd=outside, env=author_env)
@@ -362,14 +526,52 @@ def validate(report):
         expected_digests = {name: reports[name]["digest"] for name in ("v1", "v2")}
         validate_lifecycle(runner, packages, key, outside / "stores", expected_digests,
                            reports["v1"]["package_id"], keys["stranger"])
+        metadata_packages = {}
+        metadata_id = "org.example.metadata-tools"
+        for version in (1, 2):
+            manifest = json.loads((fixtures / "manifest.json").read_text(encoding="utf-8"))
+            manifest.update(package_id=metadata_id,
+                            package_version={"major": version, "minor": 0, "patch": 0},
+                            required_capabilities=["document.metadata.read"],
+                            optional_capabilities=[], contributions=[])
+            manifest_path = outside / f"metadata-{version}.json"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            name = f"metadata-v{version}"
+            metadata_packages[name] = outside / f"{name}.qpkg"
+            module = "metadata.wat" if version == 1 else "metadata-v2.wat"
+            command([builder, fixtures / module, manifest_path,
+                     fixtures / "asset.txt", fixtures / "test-seed.hex", metadata_packages[name]],
+                    cwd=outside, env=author_env)
+        report["metadata_package_sha256"] = {name: digest(path)
+                                               for name, path in metadata_packages.items()}
+        validate_grant_recovery(runner, metadata_packages, key, outside / "grant-stores", metadata_id)
+        execution_packages = dict(metadata_packages)
+        for name in ("infinite-loop", "ambient-import", "memory-grow", "start-function", "selection-escalation",
+                     "metadata-wrong-document", "metadata-trap"):
+            execution_packages[name] = outside / f"{name}.qpkg"
+            module = "valid.wat" if name == "selection-escalation" else name + ".wat"
+            command([builder, fixtures / module, outside / "metadata-1.json", fixtures / "asset.txt",
+                     fixtures / "test-seed.hex", execution_packages[name]], cwd=outside, env=author_env)
+        report["execution_package_sha256"] = {name: digest(path)
+                                                for name, path in execution_packages.items()}
+        validate_execution_recovery(runner, execution_packages, key, outside / "execution-stores", metadata_id)
+        validate_private(builder, fixtures, outside, runner, key, report, command, host_action, digest)
+        validate_supervisor(builder, fixtures, outside, runner, key, report, command, host_action, digest)
+        validate_orphans(builder, fixtures, outside, runner, key, report, command, host_action, digest)
         report["host_sha256_after"] = digest(runner)
         require(report["host_sha256_before"] == report["host_sha256_after"],
                 "host binary changed during independent builds or lifecycle scenarios")
+    require(production_installation_fingerprints() == production_sources,
+            "production installation sources changed during qualification")
+    report["production_installation_sources"] = production_sources
     report["source_hashes"] = {
         str(p.relative_to(ROOT)): digest(p)
-        for p in [*sorted((HERE / "src").glob("*.rs")), HERE / "Cargo.toml", HERE / "Cargo.lock",
+        for p in [*sorted((HERE / "src").rglob("*.rs")), *sorted((HERE / "tests").glob("*.rs")),
+                  HERE / "Cargo.toml", HERE / "Cargo.lock",
                   HERE / "author/Cargo.toml", HERE / "author/Cargo.lock",
-                  HERE / "author/src/main.rs", HERE / "validate.py"]
+                  HERE / "author/src/main.rs", HERE / "validate.py", HERE / "private_scenarios.py", HERE / "supervisor_scenarios.py", HERE / "orphan_scenarios.py",
+                  *sorted((ROOT / "experiments/extension-wasm/runner/src").rglob("*.rs")),
+                  *sorted((HERE / "fixtures").glob("*.wat"))]
     }
     report["environment"] = {
         "platform": platform.platform(), "machine": platform.machine(),
@@ -390,11 +592,11 @@ def main():
     report = {
         "status": "running",
         "date_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "scope": "experimental signed offline package + disabled-only SQLite installation",
+        "scope": "experimental signed package, durable installation and metadata grant/session/execution recovery and paired private-state migration/rollback and live multi-plugin supervision/crash reconciliation",
         "not_validated": [
             "production SDK or installer", "real knowledge or reading",
-            "grant/session restoration", "private-state migration or rollback",
-            "long-lived multi-plugin supervisor", "NSH UI",
+            "real Core knowledge preservation across rollback", "concurrent revoke during restored execution",
+            "unbound attempted-spawn native cleanup in the same kernel boot", "real OS kill/wait failure behavior", "NSH UI",
             "native Windows/macOS/mobile or store distribution", "power loss durability",
         ],
         "checks": CHECKS, "scenarios": SCENARIOS,

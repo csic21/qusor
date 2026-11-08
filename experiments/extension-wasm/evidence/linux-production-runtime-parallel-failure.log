@@ -1,0 +1,101 @@
++ cargo metadata --manifest-path /workspace/qusor/experiments/extension-wasm/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo metadata --manifest-path /workspace/qusor/experiments/extension-wasm/author/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo metadata --manifest-path /workspace/qusor/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo fmt --all -- --check
++ cargo test -p runtime-wasm --locked --offline
++ cargo clippy -p extension-runtime-api -p runtime-wasm --all-targets --locked --offline -- -D warnings
++ cargo fmt --manifest-path /workspace/qusor/experiments/extension-wasm/Cargo.toml --all -- --check
++ cargo build --manifest-path /workspace/qusor/experiments/extension-wasm/Cargo.toml --all-targets --locked --offline
++ cargo fmt --manifest-path /workspace/qusor/experiments/extension-wasm/author/Cargo.toml --all -- --check
++ cargo build --manifest-path /workspace/qusor/experiments/extension-wasm/author/Cargo.toml --all-targets --locked --offline
++ cargo metadata --manifest-path /tmp/qusor-independent-author-4voq59zf/author/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo build --manifest-path /tmp/qusor-independent-author-4voq59zf/author/Cargo.toml --locked --offline
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/ambient-import.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/ambient-import
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/cross-selection.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/cross-selection
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/cross-vault.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/cross-vault
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/deep-recursion.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/deep-recursion
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/infinite-loop.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/infinite-loop
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/initial-memory.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/initial-memory
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/invalid-output-pointer.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/invalid-output-pointer
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/invalid-pointer.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/invalid-pointer
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/max-escaped-output.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/max-escaped-output
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/memory-grow.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/memory-grow
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/multiple-calls.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/multiple-calls
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/oversized-output.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/oversized-output
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/oversized-request.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/oversized-request
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/start-function.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/start-function
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/table-grow.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/table-grow
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/unauthorized-capture.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/unauthorized-capture
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/valid-v2.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest-v2.json /workspace/qusor/experiments/extension-wasm/packages/valid-v2
++ /tmp/qusor-independent-author-4voq59zf/target/debug/build-plugin /tmp/qusor-independent-author-4voq59zf/fixtures/valid.wat /tmp/qusor-independent-author-4voq59zf/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/valid
++ cargo test --manifest-path /workspace/qusor/experiments/extension-wasm/Cargo.toml --locked --offline
+Traceback (most recent call last):
+  File "/workspace/qusor/experiments/extension-wasm/validate.py", line 208, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/qusor/experiments/extension-wasm/validate.py", line 132, in main
+    command(["cargo", "test", "--manifest-path", manifest, "--locked", "--offline"])
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/qusor/experiments/extension-wasm/validate.py", line 34, in command
+    raise RuntimeError(result.stdout + result.stderr)
+RuntimeError: 
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 7 tests
+test broker_rejection_is_not_replaced_by_worker_grants_or_synthetic_data ... ok
+test actual_guest_request_is_forwarded_and_only_broker_bytes_are_returned ... ok
+test call_and_response_budgets_remain_bounded_across_external_broker_calls ... ok
+test invalid_guest_ranges_and_requests_are_rejected_before_forwarding ... ok
+test raw_capture_budget_does_not_expand_legacy_policy_wire ... ok
+test guest_instruction_memory_output_and_import_boundaries_are_enforced ... ok
+test a_native_callback_that_returns_late_cannot_have_its_result_accepted ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+
+running 5 tests
+test all_input_output_and_memory_boundaries_are_enforced ... ok
+test real_author_migration_preserves_input_and_matches_new_activation_schema ... ok
+test migration_guest_failures_are_rejected_at_expected_boundary ... FAILED
+test preflight_checks_real_abi_and_denies_business_calls_without_grants ... FAILED
+test allocation_and_migration_share_one_cumulative_instruction_budget ... ok
+
+failures:
+
+---- migration_guest_failures_are_rejected_at_expected_boundary stdout ----
+
+thread 'migration_guest_failures_are_rejected_at_expected_boundary' (127284) panicked at runner/tests/private_runtime.rs:47:9:
+assertion `left == right` failed: fixture migrate-loop
+  left: "private_deadline_exceeded"
+ right: "private_fuel_exhausted"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- preflight_checks_real_abi_and_denies_business_calls_without_grants stdout ----
+
+thread 'preflight_checks_real_abi_and_denies_business_calls_without_grants' (127285) panicked at runner/tests/private_runtime.rs:84:5:
+assertion `left == right` failed
+  left: "private_deadline_exceeded"
+ right: "private_fuel_exhausted"
+
+
+failures:
+    migration_guest_failures_are_rejected_at_expected_boundary
+    preflight_checks_real_abi_and_denies_business_calls_without_grants
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/qusor_wasm_probe-ffffb180dd59da87)
+     Running unittests src/main.rs (target/debug/deps/qusor_wasm_probe-569309e4bb4cd2ea)
+     Running tests/managed_runtime.rs (target/debug/deps/managed_runtime-dab03a9b91d6d135)
+     Running tests/private_runtime.rs (target/debug/deps/private_runtime-11aaecd1a130e9fb)
+error: test failed, to rerun pass `--test private_runtime`
+

@@ -1,0 +1,38 @@
+[
+  {
+    "name": "off",
+    "command": [
+      "cargo",
+      "check",
+      "--manifest-path",
+      "/home/user/.cache/qusor-native-release-observer/nsh-913-image/Cargo.toml",
+      "-p",
+      "nsh-platform-linux",
+      "--no-default-features",
+      "--locked",
+      "--offline",
+      "-j1"
+    ],
+    "exit_code": 0,
+    "seconds": 0.262400299005094
+  },
+  {
+    "name": "on",
+    "command": [
+      "cargo",
+      "check",
+      "--manifest-path",
+      "/home/user/.cache/qusor-native-release-observer/nsh-913-image/Cargo.toml",
+      "-p",
+      "nsh-platform-linux",
+      "--no-default-features",
+      "--locked",
+      "--offline",
+      "-j1",
+      "--features",
+      "native-retirement-observer"
+    ],
+    "exit_code": 101,
+    "seconds": 2.6342281269971863
+  }
+]

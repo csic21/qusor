@@ -1,0 +1,22 @@
+{
+  "experiments/nsh-reader/target/nsh/target/debug/qusor-nsh-plugin-surface-probe": {
+    "sha256": "117d3deba54a3c4a9cbaefa6137e3b0f7e5827548eff6923c6defb2a174c506f",
+    "preserved_at": "experiments/nsh-reader/target/c6-frozen-artifacts/nsh/target/debug/qusor-nsh-plugin-surface-probe"
+  },
+  "experiments/nsh-reader/target/plugin-surface-bundle/bundle.nshc": {
+    "sha256": "fb964eb9918c66ca48c5b208089a328f4f203c8196dcfadaca15433b059eb532",
+    "preserved_at": "experiments/nsh-reader/target/c6-frozen-artifacts/plugin-surface-bundle/bundle.nshc"
+  },
+  "experiments/nsh-reader/target/plugin-surface-resources/reader.package": {
+    "sha256": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+    "preserved_at": "experiments/nsh-reader/target/c6-frozen-artifacts/plugin-surface-resources/reader.package"
+  },
+  "experiments/nsh-reader/target/plugin-surface-resources/report.json": {
+    "sha256": "6a732e91917b62159aa1c55199dc86065785a1ab4eddd3bc4874f39219093f19",
+    "preserved_at": "experiments/nsh-reader/target/c6-frozen-artifacts/plugin-surface-resources/report.json"
+  },
+  "experiments/nsh-reader/target/plugin-surface-resources/snapshot.json": {
+    "sha256": "a19ee2cecc2244bbe25f0cd75910b393e468d3da97610a9af78c4b85d4e53126",
+    "preserved_at": "experiments/nsh-reader/target/c6-frozen-artifacts/plugin-surface-resources/snapshot.json"
+  }
+}

@@ -1,0 +1,449 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QUSOR controlled reader Surface wire v1 / Host API0.2",
+  "description": "Bounded4096 UTF-8 bytes including whitespace/escaped payloads; Rust enforces byte budgets, finite numbers and cross-field invariants. No guest input, native frame-ready, file paths, actor identity or approval fields exist. InvocationRequest reads only current trusted command parameters after separate session/resource policy checks.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/request"
+    },
+    {
+      "$ref": "#/$defs/response"
+    },
+    {
+      "$ref": "#/$defs/invocationRequest"
+    }
+  ],
+  "$defs": {
+    "opaqueId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$(?![\\s\\S])"
+    },
+    "contributionId": {
+      "type": "string",
+      "maxLength": 192,
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$(?![\\s\\S])",
+      "description": "Must begin with manifest.package_id followed by a dot; unique within the manifest."
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 18446744073709551615
+    },
+    "pageIndex": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "zoom": {
+      "type": "number",
+      "minimum": 0.0625,
+      "maximum": 64
+    },
+    "apiVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "major",
+        "minor"
+      ],
+      "properties": {
+        "major": {
+          "const": 0
+        },
+        "minor": {
+          "const": 2
+        }
+      }
+    },
+    "sourceVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "original_sha256",
+        "extraction_revision"
+      ],
+      "properties": {
+        "original_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "extraction_revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "vault_id",
+        "document_id"
+      ],
+      "properties": {
+        "kind": {
+          "const": "document"
+        },
+        "vault_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "document_id": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    },
+    "operation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "resource",
+            "expected",
+            "contribution_id"
+          ],
+          "properties": {
+            "kind": {
+              "const": "open"
+            },
+            "resource": {
+              "$ref": "#/$defs/document"
+            },
+            "expected": {
+              "$ref": "#/$defs/sourceVersion"
+            },
+            "contribution_id": {
+              "$ref": "#/$defs/contributionId"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "handle",
+            "generation",
+            "page_index",
+            "zoom"
+          ],
+          "properties": {
+            "kind": {
+              "const": "configure"
+            },
+            "handle": {
+              "$ref": "#/$defs/opaqueId"
+            },
+            "generation": {
+              "$ref": "#/$defs/generation"
+            },
+            "page_index": {
+              "$ref": "#/$defs/pageIndex"
+            },
+            "zoom": {
+              "$ref": "#/$defs/zoom"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "handle",
+            "generation",
+            "selection_lease"
+          ],
+          "properties": {
+            "kind": {
+              "const": "read_selection"
+            },
+            "handle": {
+              "$ref": "#/$defs/opaqueId"
+            },
+            "generation": {
+              "$ref": "#/$defs/generation"
+            },
+            "selection_lease": {
+              "$ref": "#/$defs/opaqueId"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "handle"
+          ],
+          "properties": {
+            "kind": {
+              "const": "close"
+            },
+            "handle": {
+              "$ref": "#/$defs/opaqueId"
+            }
+          }
+        }
+      ]
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surface_protocol",
+        "api_version",
+        "request_id",
+        "operation"
+      ],
+      "properties": {
+        "surface_protocol": {
+          "const": 1
+        },
+        "api_version": {
+          "$ref": "#/$defs/apiVersion"
+        },
+        "request_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "operation": {
+          "$ref": "#/$defs/operation"
+        }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "frame_id",
+        "pixel_width",
+        "pixel_height"
+      ],
+      "properties": {
+        "frame_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "pixel_width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8192
+        },
+        "pixel_height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8192
+        }
+      }
+    },
+    "descriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "handle",
+        "resource",
+        "source",
+        "generation",
+        "page_index",
+        "page_count",
+        "zoom",
+        "status"
+      ],
+      "properties": {
+        "handle": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "resource": {
+          "$ref": "#/$defs/document"
+        },
+        "source": {
+          "$ref": "#/$defs/sourceVersion"
+        },
+        "generation": {
+          "$ref": "#/$defs/generation"
+        },
+        "page_index": {
+          "$ref": "#/$defs/pageIndex"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295
+        },
+        "zoom": {
+          "$ref": "#/$defs/zoom"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "ready",
+            "closing",
+            "closed",
+            "failed"
+          ]
+        },
+        "frame": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/frame"
+            }
+          ]
+        },
+        "selection_lease": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/opaqueId"
+            }
+          ]
+        }
+      },
+      "description": "page_index must be less than page_count (enforced by Rust). Ready requires native frame metadata; inactive states expose no frame or selection.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "ready"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "frame": {
+                "$ref": "#/$defs/frame"
+              }
+            },
+            "required": [
+              "frame"
+            ]
+          },
+          "else": {
+            "properties": {
+              "frame": {
+                "type": "null"
+              },
+              "selection_lease": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "result": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "surface"
+          ],
+          "properties": {
+            "kind": {
+              "const": "state"
+            },
+            "surface": {
+              "$ref": "#/$defs/descriptor"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "handle",
+            "generation",
+            "selection_lease",
+            "capture_protocol",
+            "draft_json"
+          ],
+          "properties": {
+            "kind": {
+              "const": "selection"
+            },
+            "handle": {
+              "$ref": "#/$defs/opaqueId"
+            },
+            "generation": {
+              "$ref": "#/$defs/generation"
+            },
+            "selection_lease": {
+              "$ref": "#/$defs/opaqueId"
+            },
+            "capture_protocol": {
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "draft_json": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "description": "Whole opaque Core draft JSON; native service validates its exact typed contract before publishing. Full response must still fit4096 UTF-8 bytes.",
+              "pattern": "\\S"
+            }
+          }
+        }
+      ]
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surface_protocol",
+        "api_version",
+        "request_id",
+        "result"
+      ],
+      "properties": {
+        "surface_protocol": {
+          "const": 1
+        },
+        "api_version": {
+          "$ref": "#/$defs/apiVersion"
+        },
+        "request_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "result": {
+          "$ref": "#/$defs/result"
+        }
+      }
+    },
+    "invocationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "invocation_protocol",
+        "api_version",
+        "request_id"
+      ],
+      "properties": {
+        "invocation_protocol": {
+          "const": 1
+        },
+        "api_version": {
+          "$ref": "#/$defs/apiVersion"
+        },
+        "request_id": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+    Checking extension-store v0.0.0 (/workspace/qusor/adapters/extension-store)
+    Checking qusor-package-probe v0.1.0 (/workspace/qusor/experiments/extension-package)
+    Checking qusor-nsh-native-host-probe v0.1.0 (/workspace/qusor/experiments/nsh-reader/native-host)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.64s

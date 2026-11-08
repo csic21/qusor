@@ -1,0 +1,522 @@
+{
+  "status": "passed-default-Linux-Xvfb-GUI-frame-operation-integration",
+  "recorded_utc": "2026-11-08T15:25:05.236400+00:00",
+  "default_features": true,
+  "native_qualification_feature": false,
+  "build": {
+    "native": [
+      "cargo",
+      "build",
+      "-j1",
+      "--manifest-path",
+      "/workspace/qusor/experiments/nsh-reader/native-host/Cargo.toml",
+      "--locked",
+      "--offline",
+      "--bin",
+      "qusor-nsh-dynamic-pdf-probe"
+    ],
+    "features": "default only; no native-qualification",
+    "jobs": 1
+  },
+  "build_artifacts": {
+    "native_binary": "/workspace/qusor/experiments/nsh-reader/target/qualified-native-frame-retirement-gui-default/native-binary",
+    "native_binary_sha256": "4a9c3f5b90dee521827102702b27c3bb11aafc6f8fd7856971a28454db6b7acb",
+    "bundle_sha256": "93a8d4079ac3df9949c4ebf2a6e9f197687c6c1f674b49a40508a6d8559f3a83",
+    "source_fingerprints": 155
+  },
+  "source_inputs": 155,
+  "source_identity_before_after_equal": true,
+  "source_archive": "build-sources.zip",
+  "source_archive_sha256": "280f480e1dffa607a13252b880993d805ff8c5f3fcf0ebbbb206023bc9cccf4a",
+  "source_scope": "selected project Rust/TSX/TS/config/manifests/locks frozen before build and unchanged after actual GUI; NSH pinned separately",
+  "upstream": {
+    "checked_utc": "2026-11-08T15:19:12Z",
+    "pin": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+    "release": "official releases verified v0.4.0 stable/nightly f81b965",
+    "docs": "official fixed-pin docs/dev/linux.md reread",
+    "impact": "no upgrade; frozen Linux native qualification only",
+    "recent": [
+      {
+        "id": "tag:github.com,2008:Grit::Commit/058a745ad2d837374b99a9e46715e9b212d9b7a8",
+        "title": "cli: Log the performance monitor's readings only with -v (#1322)",
+        "updated": "2026-11-08T14:30:08Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/33f1015da8166f297c6ac01936aea6086d6a93d9",
+        "title": "core: Render far rows of an Each in a scroll view as they come near (…",
+        "updated": "2026-11-08T14:19:19Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/c89c4f09bc946fd068ba108c0304f0e8330d63c6",
+        "title": "engine: Measure the performance monitor's CPU over a second (#1313)",
+        "updated": "2026-11-08T14:14:10Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/25474f943c20a70e010469c903bfe306e7095f63",
+        "title": "macos: Picture a backdrop of only what draws under it, and only when …",
+        "updated": "2026-11-08T14:13:55Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/760a025bbb2c50f83734c145c810930251a6e946",
+        "title": "cli: Build an optimized development host with nsh run --release (#1317)",
+        "updated": "2026-11-08T14:04:07Z"
+      }
+    ]
+  },
+  "fixture_generated_after_build": true,
+  "fixture": {
+    "after_build": true,
+    "lines": [
+      [
+        "Frame retirement fresh source page 1",
+        "A runtime selected local document.",
+        "Dynamic selection stays on this source."
+      ],
+      [
+        "Frame retirement fresh source page 2",
+        "A runtime selected local document.",
+        "Dynamic selection stays on this source."
+      ],
+      [
+        "Frame retirement fresh source page 3",
+        "A runtime selected local document.",
+        "Dynamic selection stays on this source."
+      ]
+    ],
+    "sha256": "c7f9c6a71e376f9922cd001fce97e1cc4a39c94999c838e947e2b3bd048978d9"
+  },
+  "chooser": "actual GTK portal chooser; DISPLAY/XDG set before private DBus startup",
+  "page_zoom_checks": {
+    "observed_page2": true,
+    "observed_zoom65": true,
+    "rapid_requests": [
+      {
+        "generation": 5,
+        "page": 2,
+        "zoom": 0.6510752688172042,
+        "frame_id": "fr.e1dc975a1116aa03132e92cd83063093.1.7"
+      },
+      {
+        "generation": 6,
+        "page": 1,
+        "zoom": 0.6510752688172042,
+        "frame_id": "fr.e1dc975a1116aa03132e92cd83063093.1.8"
+      },
+      {
+        "generation": 7,
+        "page": 0,
+        "zoom": 0.6510752688172042,
+        "frame_id": "fr.e1dc975a1116aa03132e92cd83063093.1.9"
+      },
+      {
+        "generation": 8,
+        "page": 0,
+        "zoom": 0.7510752688172042,
+        "frame_id": "fr.e1dc975a1116aa03132e92cd83063093.1.10"
+      },
+      {
+        "generation": 9,
+        "page": 0,
+        "zoom": 0.6510752688172042,
+        "frame_id": "fr.e1dc975a1116aa03132e92cd83063093.1.11"
+      },
+      {
+        "generation": 10,
+        "page": 0,
+        "zoom": 0.7510752688172042,
+        "frame_id": "fr.e1dc975a1116aa03132e92cd83063093.1.12"
+      }
+    ],
+    "driver": {
+      "pid": 486857,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 168,
+          "y": 82
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        },
+        {
+          "kind": "move",
+          "x": 50,
+          "y": 82
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        },
+        {
+          "kind": "move",
+          "x": 50,
+          "y": 82
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        },
+        {
+          "kind": "move",
+          "x": 360,
+          "y": 82
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        },
+        {
+          "kind": "move",
+          "x": 255,
+          "y": 82
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        },
+        {
+          "kind": "move",
+          "x": 360,
+          "y": 82
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ],
+      "duration_ms": 189.8545069998363,
+      "between_event_delay_ms": 10
+    },
+    "rapid_completed_generations": [
+      10
+    ],
+    "stable_final_page_1based": 1,
+    "stable_final_zoom_percent": 75,
+    "fit_page_restored": true,
+    "old_frame_overwrite_observed": false,
+    "scope": "this actual burst and stable screenshots, not exhaustive adversarial scheduler proof"
+  },
+  "autofocus_without_field_click": true,
+  "saved_note": "frame retirement thought",
+  "second_note_discarded": "discard frame thought",
+  "discard_cancel_preserves_text": true,
+  "discard_confirm_returns_to_reading": true,
+  "app_exit": 0,
+  "xvfb_exit": 0,
+  "normal_close": "verified WM_DELETE_WINDOW only; no signal sent to App",
+  "actual_editor_vms": 30,
+  "actual_editor_calls": 100,
+  "actual_owned_reaps": 30,
+  "max_fuel": 120046,
+  "worker_leases": 0,
+  "pdf_capture_count": 1,
+  "core_reopen_empty_restore_exact": true,
+  "original_pdf_bytes_exact": true,
+  "frame_rust_retirement_prewait_snapshot": [
+    {
+      "native_release_ack": false,
+      "owners": [
+        {
+          "bridge_attempts": 1,
+          "encoded_containers": 0,
+          "encoded_referenced_bytes": 0,
+          "frame_id": "fr.e1dc975a1116aa03132e92cd83063093.1.12",
+          "generation": 10,
+          "local_delivery": 0,
+          "mount_id": "mt.e1dc975a1116aa03132e92cd83063093.1.3",
+          "pending": 0,
+          "running": 0,
+          "undelivered": 0
+        },
+        {
+          "bridge_attempts": 1,
+          "encoded_containers": 0,
+          "encoded_referenced_bytes": 0,
+          "frame_id": "fr.e1dc975a1116aa03132e92cd83063093.1.13",
+          "generation": 11,
+          "local_delivery": 0,
+          "mount_id": "mt.e1dc975a1116aa03132e92cd83063093.1.3",
+          "pending": 0,
+          "running": 0,
+          "undelivered": 0
+        }
+      ],
+      "phase": "Active"
+    }
+  ],
+  "join_evidence": {
+    "raw_logged_phase": "Active before ticket.wait_until",
+    "postwait_phase_log_available": false,
+    "actual_success_path": "App exit0 requires ticket.wait_until true, wait_operations success, shutdown_retirement_until true (which joins service thread); otherwise dynamic_main returns failure",
+    "classification": "successful actual return path combined with frozen code; not a fabricated post-join log",
+    "source_hashes": {
+      "experiments/nsh-reader/native-host/dynamic_module.rs": "0edfbbf2d0dfceb0dd0be6889d9b76df46942d88a07265ccec4e2fd922ac38d7",
+      "experiments/nsh-reader/native-host/dynamic_main.rs": "031d22ae2c6c3e2b29493b4a5eb8c1e3bf944f71f94811533b79679c4d430513",
+      "experiments/nsh-reader/native-host/frame_scheduler.rs": "651d142495eedbe945fabdf506d6fc58e1035713847f506fa344840935f9b189",
+      "experiments/nsh-reader/native-host/retirement_owner.rs": "8df83ffc54ea9ad9ac712ab32541f26d448f7bd614622dcf5e5d6497472a25a0"
+    },
+    "post_service_join_witness": "FRAME_ENCODED_SCOPE is emitted only after ticket.wait_until and shutdown_retirement_until both return success; actual line preserved below",
+    "log_witnesses": [
+      {
+        "line": 553,
+        "text": "FRAME_RUST_RETIREMENT {\"native_release_ack\":false,\"owners\":[{\"bridge_attempts\":1,\"encoded_containers\":0,\"encoded_referenced_bytes\":0,\"frame_id\":\"fr.e1dc975a1116aa03132e92cd83063093.1.12\",\"generation\":10,\"local_delivery\":0,\"mount_id\":\"mt.e1dc975a1116aa03132e92cd83063093.1.3\",\"pending\":0,\"running\":0,\"undelivered\":0},{\"bridge_attempts\":1,\"encoded_containers\":0,\"encoded_referenced_bytes\":0,\"frame_id\":\"fr.e1dc975a1116aa03132e92cd83063093.1.13\",\"generation\":11,\"local_delivery\":0,\"mount_id\":\"mt.e1dc975a1116aa03132e92cd83063093.1.3\",\"pending\":0,\"running\":0,\"undelivered\":0}],\"phase\":\"Active\"}"
+      },
+      {
+        "line": 554,
+        "text": "FRAME_ENCODED_SCOPE {\"allocation_may_remain_in_native_png_cache\":true,\"containers\":0,\"created\":5,\"native_release_ack\":false,\"referenced_bytes\":0,\"released\":5,\"retainer_class\":\"unknown_ImageData_Blob_ImageSource_cache_or_loader\",\"uncertain\":false}"
+      },
+      {
+        "line": 555,
+        "text": "NATIVE_EDITOR_SHUTDOWN pending_owner=false retirement=not_needed"
+      }
+    ]
+  },
+  "encoded_scope": [
+    {
+      "allocation_may_remain_in_native_png_cache": true,
+      "containers": 0,
+      "created": 5,
+      "native_release_ack": false,
+      "referenced_bytes": 0,
+      "released": 5,
+      "retainer_class": "unknown_ImageData_Blob_ImageSource_cache_or_loader",
+      "uncertain": false
+    }
+  ],
+  "native_release_ack_proven": false,
+  "decoded_or_GPU_release_proven": false,
+  "processes_terminal": {
+    "486852": {
+      "present": false
+    },
+    "486853": {
+      "present": false
+    },
+    "486854": {
+      "present": false
+    },
+    "486857": {
+      "present": false
+    },
+    "486864": {
+      "present": false
+    },
+    "486886": {
+      "present": false
+    },
+    "486895": {
+      "present": false
+    }
+  },
+  "not_gui_qualified": [
+    "IME/Esc",
+    "unknown apply/save",
+    "partial read preparation failure",
+    "native mounter/renderer deletion ack",
+    "physical device or nonLinux platforms"
+  ],
+  "artifacts": {
+    "core-recovery.stdout": {
+      "sha256": "27478d212d3737e60621ac0200617c24ec38d1fdf31eeebfa95f3a14f2b4c6a8",
+      "bytes": 3836
+    },
+    "build-command.json": {
+      "sha256": "d4fdf24c0b804cd303eca3b264ca52086b6bd0af5fe23897121698333919a3b5",
+      "bytes": 309
+    },
+    "window.log": {
+      "sha256": "ecd47110adc857ecbe1d868460fe52a3aba783650ce8605a072ff102bc4dee40",
+      "bytes": 69598
+    },
+    "build-sources.zip": {
+      "sha256": "280f480e1dffa607a13252b880993d805ff8c5f3fcf0ebbbb206023bc9cccf4a",
+      "bytes": 424635
+    },
+    "control.py": {
+      "sha256": "65182be0870f79eecc90385f3f9be59047e2ce98151103b2b6151fc9fd43efad",
+      "bytes": 1111
+    },
+    "gui.py": {
+      "sha256": "59bb1c29b97b75b4466221d3b98f86a944905e91a6b1631ab3373a479146f64e",
+      "bytes": 1767
+    },
+    "process-terminal.json": {
+      "sha256": "0d75737984ce8653f73aa2d3bb717ed0a2caea5fee9be1b07dbe83e4aea67562",
+      "bytes": 283
+    },
+    "xvfb.log": {
+      "sha256": "b4c7eeeb685d357271d5d414216d2d02523a3720e8b721504d7b177ea6cc0713",
+      "bytes": 264
+    },
+    "bundle.nshc": {
+      "sha256": "93a8d4079ac3df9949c4ebf2a6e9f197687c6c1f674b49a40508a6d8559f3a83",
+      "bytes": 200186
+    },
+    "typing-without-field-click.json": {
+      "sha256": "54676610fd5143cb4aed3cdd700bb8e09c1c71db6c5f07b2cc699812d5431a33",
+      "bytes": 163
+    },
+    "discard-cancelled.png": {
+      "sha256": "09fdbee7dcb7232da1473b1826e0c7fb29891024c2d2af3cb0725e565bc80fa6",
+      "bytes": 32965
+    },
+    "rapid-final-settled.png": {
+      "sha256": "015b918af21610255d46c19452bc58cc8642f0167338fcbc49e2286a51722627",
+      "bytes": 40668
+    },
+    "core-recovery.json": {
+      "sha256": "837982dd0f0e3cffbec135b0952d27eae6574f5e8a8a0e0943b1fc0afc192628",
+      "bytes": 5712
+    },
+    "build-artifacts.json": {
+      "sha256": "fcc84d869ade0ecc8827af287b6baf95e3e9022e0eeedc3d220c08a124279db1",
+      "bytes": 352
+    },
+    "fit-page-request.png": {
+      "sha256": "0a57337b604d469da305a8f2d49bc9fd1ad148ef6d5ba4778c796a9710d340a0",
+      "bytes": 36896
+    },
+    "source-before.json": {
+      "sha256": "ff167515d4ecc5259cca7788b57715a4440f33fb37511f4320b7398e6c5d0fac",
+      "bytes": 18033
+    },
+    "selection-second-draft.json": {
+      "sha256": "9d51510cdbffdacd8b2e594ba98e4530ecd2a2b88d80ad62411030b83d374988",
+      "bytes": 237
+    },
+    "second-typed.png": {
+      "sha256": "7e15b126cf4032d82eee92eab313fc4d556cd4d15f4fc7694435260d59797fb8",
+      "bytes": 38450
+    },
+    "native-build.log": {
+      "sha256": "70010bdf9eccddd95feb069e741d5d038e95a3515f381cd738399865bfc79c5e",
+      "bytes": 1146
+    },
+    "page2-zoom-request.png": {
+      "sha256": "1320d60c4e07807b0fd7c42c9279a02b78e01a8bd568c60e8d0a461d0f203cc0",
+      "bytes": 40991
+    },
+    "upstream-check.json": {
+      "sha256": "9952053d03d8a229d62ed25a15020644deb0f12009594517ea5068ac4fe678be",
+      "bytes": 1468
+    },
+    "selected-second.png": {
+      "sha256": "fbaa1697281900acba201a210952406970d2e9559cbe97e88384a9bc26afd297",
+      "bytes": 27872
+    },
+    "selection-drag.json": {
+      "sha256": "9d51510cdbffdacd8b2e594ba98e4530ecd2a2b88d80ad62411030b83d374988",
+      "bytes": 237
+    },
+    "fit-page-ready.png": {
+      "sha256": "0a57337b604d469da305a8f2d49bc9fd1ad148ef6d5ba4778c796a9710d340a0",
+      "bytes": 36896
+    },
+    "page2.png": {
+      "sha256": "9cba3fe4094491111b41edf3c0d9be065c558b4a0b85902af5a778706db09790",
+      "bytes": 21274
+    },
+    "page1.png": {
+      "sha256": "8016968ffa4630194608d94132701c3be352273d7e1ea809ea36f3aa5bb0859a",
+      "bytes": 36576
+    },
+    "session.stderr": {
+      "sha256": "d4d65a4745460f3ba10f17fe3d91acf5ecfb8ccbeed852015ac1b0caedab3964",
+      "bytes": 5097
+    },
+    "rapid-final-initial.png": {
+      "sha256": "0d9e8c00d467c078ceff86b019d5e55baa28c12b177e1efb6f89a33b9d0fead4",
+      "bytes": 21453
+    },
+    "chooser.json": {
+      "sha256": "5243a851bbf5b3e656860264fb540bd2393f5555656843f8e8c1545c1d2b0d04",
+      "bytes": 274
+    },
+    "bundle-build.log": {
+      "sha256": "7a9808b364989f5f35d64b8606d4b2c3c664771d263cf27582abb10fe6590666",
+      "bytes": 1614
+    },
+    "saved.png": {
+      "sha256": "e65d793ccd6725c4b5bcf765cbd3b6155bb3dfc0b5ed7deaeb5442e15bbe362b",
+      "bytes": 33856
+    },
+    "page2-ready.png": {
+      "sha256": "7993be2d737ab1e3b000110ba561f8b179440eb5068fe0a5f7f2dfbc721312a7",
+      "bytes": 36759
+    },
+    "continued.png": {
+      "sha256": "bf3ec20145f8984a8b6b38e3fa5f80ff6bdd7c3e2e0c82803052f514f6bb7b51",
+      "bytes": 36519
+    },
+    "postrun-checks.json": {
+      "sha256": "31f3c20267e63ab255ea674fd160e32ef26692b60b51ea3326fda6b79138d8a0",
+      "bytes": 1709
+    },
+    "upstream.atom": {
+      "sha256": "d0502d5b2342980168688e6756d10d4841402258d3d95c8e714b6c29742db2a6",
+      "bytes": 58088
+    },
+    "typing-second-draft.json": {
+      "sha256": "a8d6726237b2c50625fea4a526a62a7312803aa8635071128c6a1257f344e9e2",
+      "bytes": 160
+    },
+    "discard-confirm.png": {
+      "sha256": "0e63481b0eb91a967cbeb51b68ae9aa06b4fa0e2211a156be194f56adf017e9d",
+      "bytes": 46562
+    },
+    "typed.png": {
+      "sha256": "8ac64d4edb92b39ffd30b46a1c25e3add5450a57dbbf093c0f21d9833ef2d209",
+      "bytes": 38302
+    },
+    "discarded.png": {
+      "sha256": "bf3ec20145f8984a8b6b38e3fa5f80ff6bdd7c3e2e0c82803052f514f6bb7b51",
+      "bytes": 36519
+    },
+    "live.json": {
+      "sha256": "45304fecbb25317b0c67d59af86e06839927d56f883e4902e28ce20e6eccc9a2",
+      "bytes": 791
+    },
+    "selected.png": {
+      "sha256": "fbaa1697281900acba201a210952406970d2e9559cbe97e88384a9bc26afd297",
+      "bytes": 27872
+    },
+    "session.stdout": {
+      "sha256": "9bbfe606481d6cd2346e8022ddfafb7dbac2fa080382b8acfeffae2a3d5961ea",
+      "bytes": 755
+    },
+    "rapid_pointer.py": {
+      "sha256": "9a5c6fda0be2bc6f2912bb1406247ea4694f432d1d500ca1f1937c81d93e1165",
+      "bytes": 2153
+    },
+    "build.py": {
+      "sha256": "d8ce34a1ab9a7cae40f2a20eff2c5c3561876591688c760e54b2c40b3fa45214",
+      "bytes": 3461
+    },
+    "rapid-requests.json": {
+      "sha256": "4ea898b4b082fc8ab53148e6a41f66b183ced25b82342859db9be75df7cd7d56",
+      "bytes": 981
+    }
+  }
+}

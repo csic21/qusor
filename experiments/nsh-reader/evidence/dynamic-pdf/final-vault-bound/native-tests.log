@@ -1,0 +1,29 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+   Compiling extension-host v0.0.0 (/workspace/qusor/crates/extension-host)
+   Compiling extension-store v0.0.0 (/workspace/qusor/adapters/extension-store)
+   Compiling qusor-nsh-native-host-probe v0.1.0 (/workspace/qusor/experiments/nsh-reader/native-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.82s
+     Running unittests pdf_module.rs (experiments/nsh-reader/target/nsh/target/debug/deps/qusor_nsh_native_host_probe-484a8c088a58ee56)
+
+running 11 tests
+test dynamic_module::dynamic_tests::frame_queue_keeps_only_latest_pending_request ... ok
+test dynamic_worker::tests::exited_child_without_bound_identity_keeps_durable_quarantine ... ok
+test dynamic_worker::tests::owned_parser_termination_is_confirmed_before_its_slot_is_reused ... ok
+test dynamic_worker::tests::selected_fifo_or_symlink_is_rejected_without_blocking_the_worker ... ok
+test plugin_surface::reader_guest_tests::native_approval_retries_notes_distinct_operations_and_revoke ... ok
+test plugin_surface::reader_guest_tests::persisted_reader_set_restores_without_renewal_but_never_restores_old_frames_or_disable ... ok
+test plugin_surface::reader_guest_tests::signed_guest_preserves_complete_json_escapes_and_rejects_invalid_surrogates ... ok
+test plugin_surface::reader_guest_tests::signed_guest_trap_and_timeout_close_unmounted_open ... ok
+test tests::invalid_endpoint_clears_gesture_and_closed_surface_rejects_all_events ... ok
+test tests::page_and_zoom_changes_reject_old_events_without_cancelling_successor ... ok
+test tests::startup_budget_and_display_digest_are_enforced ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.10s
+

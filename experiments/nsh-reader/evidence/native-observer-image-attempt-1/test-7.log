@@ -1,0 +1,11 @@
+
+running 1 test
+MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+
+(process:492672): Gtk-WARNING **: 23:42:51.966: Unable to acquire session bus: Could not connect: No such file or directory
+OBSERVER_NODE_BUDGET historical_creates=4353 retained_clone=true peak_records=3 same_id_new_incarnation=true real_overlimit_rejected=true
+test retirement::tests::retirement_node_budget_counts_inflight_not_4353_historical_creates ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 136 filtered out; finished in 0.29s
+

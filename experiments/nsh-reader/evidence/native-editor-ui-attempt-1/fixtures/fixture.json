@@ -1,0 +1,23 @@
+{
+  "license": "MIT synthetic",
+  "generated_after_build": true,
+  "sha256": "8eea3037087ef409fa61dbeb3a1dee031bf7e846e84ff3ebac6ad6e8007e6796",
+  "pages": 3,
+  "text": [
+    [
+      "Native component capture page 1",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ],
+    [
+      "Native component capture page 2",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ],
+    [
+      "Native component capture page 3",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ]
+  ]
+}

@@ -1,0 +1,295 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QUSOR own component invocation context protocol1",
+  "description": "Explicit opt-in API0.3. Rust additionally enforces UTF-8/encoded byte budgets and cross-field relations. Schema validation grants no permission.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "api_version",
+        "context_protocol",
+        "request_id",
+        "operation"
+      ],
+      "properties": {
+        "api_version": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "major",
+            "minor"
+          ],
+          "properties": {
+            "major": {
+              "const": 0
+            },
+            "minor": {
+              "const": 3
+            }
+          }
+        },
+        "context_protocol": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "operation": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "read_context"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "sequence",
+                "expected_revision",
+                "offset",
+                "max_bytes"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "read_input_chunk"
+                },
+                "sequence": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 18446744073709551615
+                },
+                "expected_revision": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 18446744073709551615
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1048576
+                },
+                "max_bytes": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 512
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "api_version",
+        "context_protocol",
+        "request_id",
+        "resource",
+        "mount_id",
+        "sequence",
+        "expected_revision",
+        "outcome"
+      ],
+      "properties": {
+        "api_version": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "major",
+            "minor"
+          ],
+          "properties": {
+            "major": {
+              "const": 0
+            },
+            "minor": {
+              "const": 3
+            }
+          }
+        },
+        "context_protocol": {
+          "const": 1
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "resource": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "vault_id",
+            "draft_id"
+          ],
+          "properties": {
+            "kind": {
+              "const": "draft"
+            },
+            "vault_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "draft_id": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$",
+              "minLength": 32,
+              "maxLength": 32
+            }
+          }
+        },
+        "mount_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 18446744073709551615
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 18446744073709551615
+        },
+        "outcome": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "action"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "context"
+                },
+                "action": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "kind",
+                        "total_bytes"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "input_changed"
+                        },
+                        "total_bytes": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1048576
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "kind",
+                        "from",
+                        "to"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "move_paragraph"
+                        },
+                        "from": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1048576
+                        },
+                        "to": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1048576
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "kind",
+                        "index",
+                        "input_bytes"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "replace_paragraph"
+                        },
+                        "index": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1048576
+                        },
+                        "input_bytes": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1048576
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "offset",
+                "total_bytes",
+                "text"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "input_chunk"
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1048576
+                },
+                "total_bytes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1048576
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 512
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

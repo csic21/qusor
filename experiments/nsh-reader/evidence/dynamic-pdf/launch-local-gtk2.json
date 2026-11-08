@@ -1,0 +1,10 @@
+{
+  "pid": 228360,
+  "display": ":98",
+  "schema_compilation": "glib-compile-schemas local extracted GTK4 prefix",
+  "GTK_USE_PORTAL": "0",
+  "GIO_USE_VFS": "local",
+  "GSETTINGS_BACKEND": "memory",
+  "GSETTINGS_SCHEMA_DIR": "/workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/share/glib-2.0/schemas",
+  "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/qusor-no-session-bus"
+}

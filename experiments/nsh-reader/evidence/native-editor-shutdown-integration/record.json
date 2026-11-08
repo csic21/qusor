@@ -1,0 +1,58 @@
+{
+  "status": "integrated; actual OS 8 cases independently passed, native lib 16 passed, Clippy passed; default-feature normal GUI independently verified",
+  "patch_sha256": "99defabcd59aa7c0bbb320b57addc757f1ae915a7cba2a40e46c2c87a9895dff",
+  "files": [
+    {
+      "path": "experiments/nsh-reader/dynamic-pdf/App.tsx",
+      "sha256": "9cb6715cf3fe5ebf7088aa56b8529f21846859bb9b057ba264fdd4204f05f0d9"
+    },
+    {
+      "path": "experiments/nsh-reader/dynamic-pdf/CapturePanel.tsx",
+      "sha256": "2ae733d1409adf0533cb79f76ab4f8a909274f509d0b49249210397426a7fa62"
+    },
+    {
+      "path": "experiments/nsh-reader/dynamic-pdf/reader-state.test.mjs",
+      "sha256": "32f3567409b62f55bd39ec427e3836027cb27a05a926ee9fc577cdb2aabd64c5"
+    },
+    {
+      "path": "experiments/nsh-reader/dynamic-pdf/reader-state.ts",
+      "sha256": "aaff3a93e8e5bc6a5717af85e165a427573f3b69e3083db39cf1f84b35b9afe2"
+    },
+    {
+      "path": "experiments/nsh-reader/native-host/dynamic_module.rs",
+      "sha256": "260f400f558c2b915160f24556598684afcdd38fcfbff81f3d092281cb65a4a8"
+    },
+    {
+      "path": "experiments/nsh-reader/native-host/native_editor.rs",
+      "sha256": "cf6b64c9e51facd58dd35843a5e57eacd4fb1c670c5bc93c5ddf2ac8ad3bc6b3"
+    },
+    {
+      "path": "experiments/nsh-reader/native-host/native_editor_fixture.rs",
+      "sha256": "fee373b28bf2abb7227354206e8b99eb4cf085aebceb818f7efef0b55153fa9e"
+    },
+    {
+      "path": "experiments/nsh-reader/native-host/plugin_surface.rs",
+      "sha256": "0f31dbc9474e592b24915e24fc2167cc00100ce1d057267bdf309c9d693f0971"
+    }
+  ],
+  "limits": "No release ACK or terminate backpressure qualification. Latest normal default GUI uses frozen 59d2febb artifact; partial-read preparation failure, unknown effects and new IME were not exercised in that GUI. Future frame/observer edits require separate qualification.",
+  "initial_files_scope": "The files list preserves immediate patch-application hashes; later qualification hooks and UI review refinements are recorded separately.",
+  "validation_record": "../native-editor-shutdown/record.json",
+  "independent_record": "../native-editor-shutdown/root-independent.json",
+  "ui_review_refinements": {
+    "unknown_copy": "Offer exact retry without requiring a hidden pause button.",
+    "preparation_discard": "Show extra preparation discard only in selected state; editing/detached use their existing discard action.",
+    "files": [
+      {
+        "path": "experiments/nsh-reader/dynamic-pdf/App.tsx",
+        "sha256": "dfa328194c1f149103a442afa8aa74f735d9d0f5d9e814a4aaed2ea3c67b32d8"
+      },
+      {
+        "path": "experiments/nsh-reader/dynamic-pdf/CapturePanel.tsx",
+        "sha256": "e940f5bc9dd2fc8a1edaf39f9dc6c91973be73ac925fb0b29d0a4ef6007ca7c6"
+      }
+    ]
+  },
+  "default_gui_record": "../native-editor-shutdown-gui-default/record.json",
+  "default_gui_independent_record": "../native-editor-shutdown-gui-default/root-independent.json"
+}

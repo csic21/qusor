@@ -1,0 +1,53 @@
+{
+  "status": "integrated; final native check/Clippy/lib29/OS8 and new default GUI passed with independent replays",
+  "patch_sha256": "ad269ee39e5be25fdba454eecaf5da9ecd0dfa99e0783c42b2a44d0acb5187a6",
+  "files": [
+    {
+      "path": "experiments/nsh-reader/native-host/frame_scheduler.rs",
+      "sha256": "d111c240a9937edfe9b544a5f7932c9fcbff9506f12d11f83d512a4bef8a410a"
+    },
+    {
+      "path": "experiments/nsh-reader/native-host/retirement_owner.rs",
+      "sha256": "089716309ddbfb706107e66a2faae4b72dfd19bc795ed18371488540885c03da"
+    },
+    {
+      "path": "experiments/nsh-reader/native-host/frame_owner_map.rs",
+      "sha256": "ca4b9289c09aea3c271ba81df58219d830939f8c05940b418828448dc7b4b9bd"
+    },
+    {
+      "path": "experiments/nsh-reader/native-host/encoded_bytes.rs",
+      "sha256": "6cb6a63d7c375750163cf9b6621bf4a2c73c9dd30efc2e50640a707cff749776"
+    },
+    {
+      "path": "experiments/nsh-reader/native-host/dynamic_module.rs",
+      "sha256": "45b5e5181f97e82bc58a4d0433bd09f9c01fe667b5bdee546f8ebbea5a439c0b"
+    },
+    {
+      "path": "experiments/nsh-reader/native-host/plugin_surface.rs",
+      "sha256": "d58b0e19ace465751ced69aab48de38f02f224c12a8a7890de37b216f222169f"
+    },
+    {
+      "path": "experiments/nsh-reader/native-host/dynamic_main.rs",
+      "sha256": "031d22ae2c6c3e2b29493b4a5eb8c1e3bf944f71f94811533b79679c4d430513"
+    },
+    {
+      "path": "experiments/nsh-reader/native-host/native_editor.rs",
+      "sha256": "d946bfb5cc23c42e4e4fcea69ab374ad31bc574e34a9f6aef98e6b10c29301d6"
+    }
+  ],
+  "scope": "Rust task/result ownership and actual encoded ImageData-container reference tracking; no decoded/native release ACK. Root independently reran final candidate 13 std model tests. Native all-targets compilation, full native regression and actual GUI remain separate gates.",
+  "std_independent_record": "root-std13.json",
+  "native_check": {
+    "exit_code": 0,
+    "scope": "default features --all-targets; three cfg(test)-helper dead_code warnings remain pending adoption of ownership tests",
+    "log": "check-attempt2.log",
+    "log_sha256": "4d68b84f6ca21ae9cd3fa5b462f86234865488190a9958775648ccbb0b0f9d3d",
+    "initial_failure": "check-attempt1.log: ambiguous Later error type; fixed with explicit FrameFile/String result annotation"
+  },
+  "initial_files_scope": "The files list preserves immediate patch-application fingerprints, not later minimal compile/style fixes or unified document-operation admission.",
+  "final_native_record": "../native-frame-retirement/maincheck-record.json",
+  "final_native_independent_record": "../native-frame-retirement/root-independent.json",
+  "default_gui_record": "../native-frame-retirement-gui-default/record.json",
+  "default_gui_independent_record": "../native-frame-retirement-gui-default/root-independent.json",
+  "limits": "Rust task/result retirement and shared encoded-container scope. No decoded/native Host ACK, B native switching, new IME or exhaustive shutdown E2E proof."
+}

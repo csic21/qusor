@@ -1,0 +1,12 @@
+{
+  "pid": 245315,
+  "data": "/workspace/qusor/experiments/nsh-reader/target/dynamic-pdf-final-data",
+  "fixtures": "/workspace/qusor/experiments/nsh-reader/target/dynamic-pdf-final-fixtures",
+  "display": ":98",
+  "environment": {
+    "GTK_USE_PORTAL": "0",
+    "GIO_USE_VFS": "local",
+    "GSETTINGS_BACKEND": "memory",
+    "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/qusor-no-session-bus"
+  }
+}

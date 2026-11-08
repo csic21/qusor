@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "upstream_sha": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "packages": [
+    {
+      "file": "libdeflate0_1.23-2ubuntu1_amd64.deb",
+      "package": "libdeflate0",
+      "version": "1.23-2ubuntu1",
+      "architecture": "amd64",
+      "bytes": 51702,
+      "sha256": "40ee517cffd3730405be6ae30826533bec0ddf8773bb7ac2cccd22a57acafc25",
+      "repository_sha256": "40ee517cffd3730405be6ae30826533bec0ddf8773bb7ac2cccd22a57acafc25",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/libd/libdeflate/libdeflate0_1.23-2ubuntu1_amd64.deb"
+    },
+    {
+      "file": "libgraphene-1.0-0_1.10.8-5build1_amd64.deb",
+      "package": "libgraphene-1.0-0",
+      "version": "1.10.8-5build1",
+      "architecture": "amd64",
+      "bytes": 46178,
+      "sha256": "0c73a0aee47f87f496c9150121b04281def45d8e52564e059b59ebd9f22f5360",
+      "repository_sha256": "0c73a0aee47f87f496c9150121b04281def45d8e52564e059b59ebd9f22f5360",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/g/graphene/libgraphene-1.0-0_1.10.8-5build1_amd64.deb"
+    },
+    {
+      "file": "libgraphene-1.0-dev_1.10.8-5build1_amd64.deb",
+      "package": "libgraphene-1.0-dev",
+      "version": "1.10.8-5build1",
+      "architecture": "amd64",
+      "bytes": 58604,
+      "sha256": "9ccc194a2ec64f07b848aeae31811bfcb0a71ff2427255cf0df42e7aa315aadf",
+      "repository_sha256": "9ccc194a2ec64f07b848aeae31811bfcb0a71ff2427255cf0df42e7aa315aadf",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/g/graphene/libgraphene-1.0-dev_1.10.8-5build1_amd64.deb"
+    },
+    {
+      "file": "libgstreamer-plugins-bad1.0-0_1.28.2-1ubuntu1.2_amd64.deb",
+      "package": "libgstreamer-plugins-bad1.0-0",
+      "version": "1.28.2-1ubuntu1.2",
+      "architecture": "amd64",
+      "bytes": 545942,
+      "sha256": "3c020133ddf4483470abb7fedc9b5ac7dc14378951a8297b068bb739286f1c3b",
+      "repository_sha256": "3c020133ddf4483470abb7fedc9b5ac7dc14378951a8297b068bb739286f1c3b",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/universe/g/gst-plugins-bad1.0/libgstreamer-plugins-bad1.0-0_1.28.2-1ubuntu1.2_amd64.deb"
+    },
+    {
+      "file": "libgstreamer-plugins-base1.0-0_1.28.2-1ubuntu0.1_amd64.deb",
+      "package": "libgstreamer-plugins-base1.0-0",
+      "version": "1.28.2-1ubuntu0.1",
+      "architecture": "amd64",
+      "bytes": 920576,
+      "sha256": "b04ecc2677ae4544b55efa72655e5239437653bb4a30c031db75599978e5f63c",
+      "repository_sha256": "b04ecc2677ae4544b55efa72655e5239437653bb4a30c031db75599978e5f63c",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/g/gst-plugins-base1.0/libgstreamer-plugins-base1.0-0_1.28.2-1ubuntu0.1_amd64.deb"
+    },
+    {
+      "file": "libgstreamer-plugins-base1.0-dev_1.28.2-1ubuntu0.1_amd64.deb",
+      "package": "libgstreamer-plugins-base1.0-dev",
+      "version": "1.28.2-1ubuntu0.1",
+      "architecture": "amd64",
+      "bytes": 482726,
+      "sha256": "1de7f9df88023e4c16e14756a5e77fd1e5cff40c0ecac146252fcd4585f8cb55",
+      "repository_sha256": "1de7f9df88023e4c16e14756a5e77fd1e5cff40c0ecac146252fcd4585f8cb55",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/g/gst-plugins-base1.0/libgstreamer-plugins-base1.0-dev_1.28.2-1ubuntu0.1_amd64.deb"
+    },
+    {
+      "file": "libgstreamer-plugins-extra1.0-0_1.28.2-1ubuntu1.2_amd64.deb",
+      "package": "libgstreamer-plugins-extra1.0-0",
+      "version": "1.28.2-1ubuntu1.2",
+      "architecture": "amd64",
+      "bytes": 510394,
+      "sha256": "a6bcbe90a98d9b6709b75a6fe9f6afaf2089e24c3d25ca32e50f207d446d0e12",
+      "repository_sha256": "a6bcbe90a98d9b6709b75a6fe9f6afaf2089e24c3d25ca32e50f207d446d0e12",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/g/gst-plugins-bad1.0/libgstreamer-plugins-extra1.0-0_1.28.2-1ubuntu1.2_amd64.deb"
+    },
+    {
+      "file": "libgstreamer1.0-0_1.28.2-1_amd64.deb",
+      "package": "libgstreamer1.0-0",
+      "version": "1.28.2-1",
+      "architecture": "amd64",
+      "bytes": 1217804,
+      "sha256": "b960e6d5f23c895e6aabe8bd31bca14f14d24d47b0e6122ac3c6130c4a2fe9f5",
+      "repository_sha256": "b960e6d5f23c895e6aabe8bd31bca14f14d24d47b0e6122ac3c6130c4a2fe9f5",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/g/gstreamer1.0/libgstreamer1.0-0_1.28.2-1_amd64.deb"
+    },
+    {
+      "file": "libgstreamer1.0-dev_1.28.2-1_amd64.deb",
+      "package": "libgstreamer1.0-dev",
+      "version": "1.28.2-1",
+      "architecture": "amd64",
+      "bytes": 563466,
+      "sha256": "73185705f6a50c5381035829c03fde588150c7c5acb35acc0a198bf6f9b1059f",
+      "repository_sha256": "73185705f6a50c5381035829c03fde588150c7c5acb35acc0a198bf6f9b1059f",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/g/gstreamer1.0/libgstreamer1.0-dev_1.28.2-1_amd64.deb"
+    },
+    {
+      "file": "libgtk-4-1_4.22.4+ds-0ubuntu0.1_amd64.deb",
+      "package": "libgtk-4-1",
+      "version": "4.22.4+ds-0ubuntu0.1",
+      "architecture": "amd64",
+      "bytes": 3551986,
+      "sha256": "5ae394b2cdd4c09cb725e8a6686af27e33b476c6aca6caf016dce068b0702b2b",
+      "repository_sha256": "5ae394b2cdd4c09cb725e8a6686af27e33b476c6aca6caf016dce068b0702b2b",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/g/gtk4/libgtk-4-1_4.22.4+ds-0ubuntu0.1_amd64.deb"
+    },
+    {
+      "file": "libgtk-4-common_4.22.4+ds-0ubuntu0.1_all.deb",
+      "package": "libgtk-4-common",
+      "version": "4.22.4+ds-0ubuntu0.1",
+      "architecture": "all",
+      "bytes": 1546346,
+      "sha256": "701267c163e22c901b81733d8a6369cb7edf783618b30a35a663bb8111e67554",
+      "repository_sha256": "701267c163e22c901b81733d8a6369cb7edf783618b30a35a663bb8111e67554",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/g/gtk4/libgtk-4-common_4.22.4+ds-0ubuntu0.1_all.deb"
+    },
+    {
+      "file": "libgtk-4-dev_4.22.4+ds-0ubuntu0.1_amd64.deb",
+      "package": "libgtk-4-dev",
+      "version": "4.22.4+ds-0ubuntu0.1",
+      "architecture": "amd64",
+      "bytes": 982084,
+      "sha256": "32b6e193a62c27806d2be131280084f7c99d6a0d939e02593fea251f6c24fab4",
+      "repository_sha256": "32b6e193a62c27806d2be131280084f7c99d6a0d939e02593fea251f6c24fab4",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/g/gtk4/libgtk-4-dev_4.22.4+ds-0ubuntu0.1_amd64.deb"
+    },
+    {
+      "file": "libjbig0_2.1-6.1ubuntu3_amd64.deb",
+      "package": "libjbig0",
+      "version": "2.1-6.1ubuntu3",
+      "architecture": "amd64",
+      "bytes": 30028,
+      "sha256": "bb2ffa4e359ee7a29dab9902b45e5c85de06f019272700cb2538e4762f141ee8",
+      "repository_sha256": "bb2ffa4e359ee7a29dab9902b45e5c85de06f019272700cb2538e4762f141ee8",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/j/jbigkit/libjbig0_2.1-6.1ubuntu3_amd64.deb"
+    },
+    {
+      "file": "liblerc4_4.0.0+ds-5ubuntu2_amd64.deb",
+      "package": "liblerc4",
+      "version": "4.0.0+ds-5ubuntu2",
+      "architecture": "amd64",
+      "bytes": 206718,
+      "sha256": "29051d37d010a7a0e3b5648f73f30d35eb1e313061137c88f3a2c2078925a36d",
+      "repository_sha256": "29051d37d010a7a0e3b5648f73f30d35eb1e313061137c88f3a2c2078925a36d",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/l/lerc/liblerc4_4.0.0+ds-5ubuntu2_amd64.deb"
+    },
+    {
+      "file": "liborc-0.4-dev-bin_1%3a0.4.42-2_amd64.deb",
+      "package": "liborc-0.4-dev-bin",
+      "version": "1:0.4.42-2",
+      "architecture": "amd64",
+      "bytes": 21460,
+      "sha256": "17aedaaeba49552752d3d64800ee788c82c5eab6b5006c5a09005ded3ba736c2",
+      "repository_sha256": "17aedaaeba49552752d3d64800ee788c82c5eab6b5006c5a09005ded3ba736c2",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/o/orc/liborc-0.4-dev-bin_0.4.42-2_amd64.deb"
+    },
+    {
+      "file": "liborc-0.4-dev_1%3a0.4.42-2_amd64.deb",
+      "package": "liborc-0.4-dev",
+      "version": "1:0.4.42-2",
+      "architecture": "amd64",
+      "bytes": 38258,
+      "sha256": "e890f040400d7c240f93baeb49990a2dc1171cd51b2014bd6305a69eddd02662",
+      "repository_sha256": "e890f040400d7c240f93baeb49990a2dc1171cd51b2014bd6305a69eddd02662",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/o/orc/liborc-0.4-dev_0.4.42-2_amd64.deb"
+    },
+    {
+      "file": "libtiff6_4.7.0-3ubuntu5_amd64.deb",
+      "package": "libtiff6",
+      "version": "4.7.0-3ubuntu5",
+      "architecture": "amd64",
+      "bytes": 205792,
+      "sha256": "f48cb837a644826b9411ecd9692cbd57fbcb57b5b8fba026652d9204b3acb169",
+      "repository_sha256": "f48cb837a644826b9411ecd9692cbd57fbcb57b5b8fba026652d9204b3acb169",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/t/tiff/libtiff6_4.7.0-3ubuntu5_amd64.deb"
+    },
+    {
+      "file": "libvulkan-dev_1.4.341.0-1_amd64.deb",
+      "package": "libvulkan-dev",
+      "version": "1.4.341.0-1",
+      "architecture": "amd64",
+      "bytes": 1709730,
+      "sha256": "41d22a62e3cd03f59b54e159cd15091cf8a7535d91332b8815e114102d2db988",
+      "repository_sha256": "41d22a62e3cd03f59b54e159cd15091cf8a7535d91332b8815e114102d2db988",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/v/vulkan-loader/libvulkan-dev_1.4.341.0-1_amd64.deb"
+    },
+    {
+      "file": "libvulkan1_1.4.341.0-1_amd64.deb",
+      "package": "libvulkan1",
+      "version": "1.4.341.0-1",
+      "architecture": "amd64",
+      "bytes": 157194,
+      "sha256": "b4aca7a519d6318347f15a0e485c636603005e2553dae1a986272ac8c96176b0",
+      "repository_sha256": "b4aca7a519d6318347f15a0e485c636603005e2553dae1a986272ac8c96176b0",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/v/vulkan-loader/libvulkan1_1.4.341.0-1_amd64.deb"
+    },
+    {
+      "file": "libgstreamer-gl1.0-0_1.28.2-1ubuntu0.1_amd64.deb",
+      "package": "libgstreamer-gl1.0-0",
+      "version": "1.28.2-1ubuntu0.1",
+      "architecture": "amd64",
+      "bytes": 229996,
+      "sha256": "95c06e26d8fa0666df1b5ba6b1768112e903fababbca0af5a5a3bacb41b6ecdf",
+      "repository_sha256": "95c06e26d8fa0666df1b5ba6b1768112e903fababbca0af5a5a3bacb41b6ecdf",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/g/gst-plugins-base1.0/libgstreamer-gl1.0-0_1.28.2-1ubuntu0.1_amd64.deb"
+    },
+    {
+      "file": "liborc-0.4-0t64_1%3a0.4.42-2_amd64.deb",
+      "package": "liborc-0.4-0t64",
+      "version": "1:0.4.42-2",
+      "architecture": "amd64",
+      "bytes": 283098,
+      "sha256": "247e3b2100d94e897398e45548beba164b90917130333d6c540a0e3403e82906",
+      "repository_sha256": "247e3b2100d94e897398e45548beba164b90917130333d6c540a0e3403e82906",
+      "uri": "http://archive.ubuntu.com/ubuntu/pool/main/o/orc/liborc-0.4-0t64_0.4.42-2_amd64.deb"
+    }
+  ],
+  "native_check": {
+    "status": "passed",
+    "exit_code": 0,
+    "status_source": "original live exec session19047 completed exit0; log retained",
+    "command": [
+      "cargo",
+      "check",
+      "-p",
+      "nsh-platform-linux",
+      "--no-default-features",
+      "--features",
+      "js",
+      "--locked",
+      "--offline"
+    ],
+    "env_delta": {
+      "RUSTUP_TOOLCHAIN": "1.97.1",
+      "PKG_CONFIG_PATH": "<prefix>/usr/lib/x86_64-linux-gnu/pkgconfig:<prefix>/usr/share/pkgconfig"
+    },
+    "log_sha256": "77f4dc511f6d9726a2be5b4f4727430b45262410a9f7cfa2740077a38f128714",
+    "log": "   Compiling glib-sys v0.22.9\n   Compiling gobject-sys v0.22.9\n   Compiling gio-sys v0.22.9\n   Compiling cairo-sys-rs v0.22.9\n   Compiling pango-sys v0.22.9\n   Compiling gdk-pixbuf-sys v0.22.9\n   Compiling gstreamer-sys v0.25.4\n   Compiling gdk4-sys v0.11.5\n   Compiling gstreamer-base-sys v0.25.4\n   Compiling graphene-sys v0.22.9\n   Compiling quickjs-jit-sys v0.14.2\n   Compiling nsh-macros v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-macros)\n   Compiling gsk4-sys v0.11.5\n   Compiling gstreamer-app-sys v0.25.4\n   Compiling gstreamer-audio-sys v0.25.4\n    Checking regex-automata v0.4.18\n   Compiling pangocairo-sys v0.22.9\n    Checking crossbeam-utils v0.8.23\n   Compiling gtk4-sys v0.11.5\n    Checking memoffset v0.9.1\n    Checking unicode-id v0.3.7\n    Checking byteorder-lite v0.1.0\n    Checking color_quant v1.1.0\n    Checking weezl v0.1.12\n    Checking iana-time-zone v0.1.65\n    Checking pxfm v0.1.30\n    Checking quick-error v2.0.1\n    Checking zune-core v0.5.3\n    Checking markdown v1.0.0\n    Checking chrono v0.4.45\n   Compiling quickjs-jit-core v0.14.2\n    Checking zune-jpeg v0.5.15\n    Checking gif v0.14.2\n    Checking image-webp v0.2.4\n    Checking crossbeam-channel v0.5.17\n    Checking field-offset v0.3.6\n    Checking glib v0.22.10\n    Checking markup5ever_rcdom v0.3.0\n    Checking oxc_sourcemap v9.0.0\n   Compiling gtk4-macros v0.11.5\n    Checking png v0.18.1\n    Checking unicode-segmentation v1.13.3\n    Checking unicode-width v0.2.2\n    Checking regex v1.13.1\n   Compiling quickjs-jit-macro v0.14.2\n    Checking moxcms v0.8.1\n    Checking nsh-core v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-core)\n    Checking quickjs-jit v0.14.2\n    Checking quickjs-jit-stdlib v0.14.2\n    Checking image v0.25.10\n    Checking gio v0.22.10\n    Checking cairo-rs v0.22.9\n    Checking gstreamer v0.25.4\n    Checking graphene-rs v0.22.8\n    Checking gstreamer-base v0.25.4\n    Checking gstreamer-audio v0.25.4\n    Checking gstreamer-app v0.25.2\n    Checking pango v0.22.9\n    Checking gdk-pixbuf v0.22.0\n    Checking gdk4 v0.11.5\n    Checking pangocairo v0.22.9\n    Checking nsh-package v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-package)\n    Checking nsh-js v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-js)\n    Checking nsh-base v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-base)\n    Checking gsk4 v0.11.5\n    Checking gtk4 v0.11.5\n    Checking nsh-engine v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-engine)\n    Checking nsh-platform-linux v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-linux)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 33.41s\n"
+  },
+  "cli_build": {
+    "status": "passed",
+    "exit_code": 0,
+    "status_source": "original live exec session79768 completed exit0",
+    "command": [
+      "cargo",
+      "build",
+      "-p",
+      "nsh-cli",
+      "--locked",
+      "--offline"
+    ],
+    "log_sha256": "aba3b13c6758c7f69d54abeb86796c177a0dedaf0e19d0a67276ea4f097fde67",
+    "log": "   Compiling proc-macro2 v1.0.107\n   Compiling unicode-ident v1.0.27\n   Compiling cfg-if v1.0.5\n   Compiling serde_core v1.0.229\n   Compiling serde v1.0.229\n   Compiling memchr v2.8.3\n   Compiling itoa v1.0.18\n   Compiling foldhash v0.2.0\n   Compiling equivalent v1.0.3\n   Compiling zeroize v1.9.1\n   Compiling libc v0.2.190\n   Compiling typenum v1.20.1\n   Compiling allocator-api2 v0.2.21\n   Compiling rand_core v0.10.1\n   Compiling subtle v2.6.1\n   Compiling libm v0.2.16\n   Compiling num-traits v0.2.19\n   Compiling siphasher v1.0.4\n   Compiling adler2 v2.0.1\n   Compiling rustc-hash v2.1.3\n   Compiling zmij v1.0.23\n   Compiling simd-adler32 v0.3.10\n   Compiling stable_deref_trait v1.2.1\n   Compiling writeable v0.6.4\n   Compiling log v0.4.34\n   Compiling hashbrown v0.17.1\n   Compiling miniz_oxide v0.9.1\n   Compiling once_cell v1.21.4\n   Compiling litemap v0.8.3\n   Compiling pin-project-lite v0.2.17\n   Compiling utf8_iter v1.0.4\n   Compiling percent-encoding v2.3.2\n   Compiling crossbeam-utils v0.8.23\n   Compiling phf_shared v0.14.0\n   Compiling quote v1.0.47\n   Compiling regex-syntax v0.8.11\n   Compiling rustversion v1.0.23\n   Compiling hybrid-array v0.4.15\n   Compiling syn v3.0.9\n   Compiling syn v2.0.119\n   Compiling str_indices v0.4.4\n   Compiling unicode-width v0.2.2\n   Compiling jobserver v0.1.35\n   Compiling bytes v1.12.1\n   Compiling dragonbox_ecma v0.1.12\n   Compiling crc32fast v1.5.2\n   Compiling crypto-common v0.2.2\n   Compiling cc v1.8.0\n   Compiling cmov v0.5.4\n   Compiling static_assertions v1.1.0\n   Compiling crossbeam-epoch v0.9.21\n   Compiling unicode-segmentation v1.13.3\n   Compiling castaway v0.2.4\n   Compiling phf_generator v0.14.0\n   Compiling ctutils v0.4.3\n   Compiling crossbeam-deque v0.8.8\n   Compiling zlib-rs v0.6.8\n   Compiling serde_json v1.0.154\n   Compiling icu_locale_fallback_data v2.3.0\n   Compiling rayon-core v1.13.0\n   Compiling block-buffer v0.12.1\n   Compiling phf v0.14.0\n   Compiling either v1.19.0\n   Compiling icu_segmenter_data v2.3.0\n   Compiling aho-corasick v1.1.5\n   Compiling cow-utils v0.1.3\n   Compiling arrayvec v0.7.8\n   Compiling bitflags v2.13.2\n   Compiling indexmap v2.14.2\n   Compiling cpufeatures v0.3.1\n   Compiling nonmax v0.5.5\n   Compiling unicode-id-start v1.5.0\n   Compiling futures-core v0.3.34\n   Compiling const-oid v0.10.2\n   Compiling rayon v1.12.0\n   Compiling smawk v0.3.3\n   Compiling bytecount v0.6.9\n   Compiling mio v1.2.4\n   Compiling socket2 v0.6.5\n   Compiling num-integer v0.1.47\n   Compiling regex-automata v0.4.18\n   Compiling futures-sink v0.3.34\n   Compiling num-bigint v0.5.1\n   Compiling futures-channel v0.3.34\n   Compiling hashbrown v0.16.1\n   Compiling slab v0.4.12\n   Compiling synstructure v0.14.0\n   Compiling linux-raw-sys v0.12.1\n   Compiling futures-io v0.3.34\n   Compiling futures-task v0.3.34\n   Compiling self_cell v1.3.0\n   Compiling scopeguard v1.2.0\n   Compiling digest v0.11.3\n   Compiling tracing-core v0.1.36\n   Compiling rustix v1.1.5\n   Compiling lock_api v0.4.14\n   Compiling vsimd v0.8.0\n   Compiling outref v0.5.2\n   Compiling itertools v0.15.0\n   Compiling flate2 v1.1.10\n   Compiling base64-simd v0.8.0\n   Compiling ref-cast v1.0.27\n   Compiling halfbrown v0.4.0\n   Compiling phf_macros v0.14.0\n   Compiling tracing-attributes v0.1.31\n   Compiling regex v1.13.1\n   Compiling float-cmp v0.10.0\n   Compiling ryu v1.0.23\n   Compiling escape-simd v0.1.0\n   Compiling serde_derive v1.0.229\n   Compiling zerofrom-derive v0.1.8\n   Compiling thiserror-impl v2.0.21\n   Compiling yoke-derive v0.8.4\n   Compiling zerovec-derive v0.11.6\n   Compiling displaydoc v0.2.7\n   Compiling oxc_ast_macros v0.153.0\n   Compiling tokio-macros v2.7.2\n   Compiling futures-macro v0.3.34\n   Compiling zerofrom v0.1.8\n   Compiling tracing v0.1.44\n   Compiling yoke v0.8.3\n   Compiling thiserror v2.0.21\n   Compiling ref-cast-impl v1.0.27\n   Compiling cobs v0.3.0\n   Compiling getrandom v0.4.3\n   Compiling base64 v0.23.1\n   Compiling zerovec v0.11.8\n   Compiling zerotrie v0.2.5\n   Compiling tokio v1.53.3\n   Compiling json-escape-simd v3.1.2\n   Compiling value-trait v0.12.2\n   Compiling filetime v0.2.29\n   Compiling futures-util v0.3.34\n   Compiling simdutf8 v0.1.5\n   Compiling simd-json v0.18.1\n   Compiling form_urlencoded v1.2.2\n   Compiling seq-macro v0.3.6\n   Compiling hmac-sha1-compact v1.1.8\n   Compiling endian-type v0.2.0\n   Compiling zerocopy-derive v0.8.63\n   Compiling tinystr v0.8.4\n   Compiling potential_utf v0.1.6\n   Compiling icu_locale_core v2.3.0\n   Compiling icu_collections v2.3.0\n   Compiling concurrent_lru v0.2.0\n   Compiling regress v0.12.0\n   Compiling cpubits v0.1.1\n   Compiling semver v1.0.28\n   Compiling pathdiff v0.2.3\n   Compiling byteorder v1.5.0\n   Compiling hashbrown v0.14.5\n   Compiling nodejs-built-in-modules v1.0.0\n   Compiling rustc_version v0.4.1\n   Compiling generic-array v0.14.7\n   Compiling smallvec v1.16.3\n   Compiling icu_provider v2.3.1\n   Compiling ropey v1.6.1\n   Compiling compact_str v0.10.0\n   Compiling oxc_index v5.0.0\n   Compiling icu_locale_fallback v2.3.0\n   Compiling icu_segmenter v2.3.0\n   Compiling oxc_data_structures v0.153.0\n   Compiling postcard v1.1.3\n   Compiling parking_lot_core v0.9.12\n   Compiling oxc_estree v0.153.0\n   Compiling oxc_sourcemap v9.0.0\n   Compiling nibble_vec v0.1.0\n   Compiling dashmap v6.2.1\n   Compiling oxc-browserslist v5.0.1\n   Compiling radix_trie v0.3.0\n   Compiling oxc_allocator v0.153.0\n   Compiling zerocopy v0.8.63\n   Compiling textwrap v0.16.4\n   Compiling pnp v0.12.12\n   Compiling fast-glob v1.1.2\n   Compiling oxc_str v0.153.0\n   Compiling http v1.5.0\n   Compiling json-strip-comments v3.1.2\n   Compiling oxc_span v0.153.0\n   Compiling unicode-xid v0.2.6\n   Compiling anyhow v1.0.104\n   Compiling heck v0.5.0\n   Compiling oxc_syntax v0.153.0\n   Compiling oxc_diagnostics v0.153.0\n   Compiling derive_more-impl v2.1.1\n   Compiling oxc_resolver v11.24.3\n   Compiling sugar_path v3.0.0\n   Compiling oxc_regular_expression v0.153.0\n   Compiling yansi v1.0.1\n   Compiling oxc_compat v0.153.0\n   Compiling mime v0.3.17\n   Compiling base64ct v1.8.3\n   Compiling rolldown-ariadne v0.6.0\n   Compiling pem-rfc7468 v1.0.0\n   Compiling derive_more v2.1.1\n   Compiling oxc_ast v0.153.0\n   Compiling futures-executor v0.3.34\n   Compiling block-buffer v0.10.4\n   Compiling crypto-common v0.1.7\n   Compiling pin-project-internal v1.1.13\n   Compiling der_derive v0.8.0\n   Compiling arcstr v1.2.0\n   Compiling digest v0.10.7\n   Compiling futures v0.3.34\n   Compiling httparse v1.10.1\n   Compiling block-padding v0.4.2\n   Compiling cpufeatures v0.2.17\n   Compiling inout v0.2.5\n   Compiling rolldown_std_utils v1.2.13\n   Compiling uuid v1.28.0\n   Compiling vfs v0.13.0\n   Compiling ring v0.17.14\n   Compiling nom v8.0.0\n   Compiling base-encode v0.3.1\n   Compiling infer v0.22.0\n   Compiling pin-project v1.1.13\n   Compiling der v0.8.2\n   Compiling async-scoped v0.9.0\n   Compiling xxhash-rust v0.8.19\n   Compiling rolldown_fs v1.2.13\n   Compiling getrandom v0.3.4\n   Compiling string_wizard v1.2.13\n   Compiling crypto-bigint v0.7.5\n   Compiling termcolor v1.4.1\n   Compiling lazy_static v1.5.1\n   Compiling rand_core v0.9.5\n   Compiling sharded-slab v0.1.7\n   Compiling ppv-lite86 v0.2.21\n   Compiling ts-rs-macros v12.0.1\n   Compiling cipher v0.5.2\n   Compiling tracing-serde v0.2.0\n   Compiling blake3 v1.8.7\n   Compiling rustls-pki-types v1.15.1\n   Compiling thread_local v1.1.10\n   Compiling spki v0.8.1\n   Compiling nu-ansi-term v0.50.3\n   Compiling lazy-regex-proc_macros v3.6.2\n   Compiling pkcs8 v0.11.0\n   Compiling tracing-subscriber v0.3.23\n   Compiling rand_chacha v0.9.0\n   Compiling curve25519-dalek-derive v0.1.1\n   Compiling getrandom v0.2.17\n   Compiling phf_shared v0.11.3\n   Compiling ff v0.14.0\n   Compiling libloading v0.8.9\n   Compiling data-encoding v2.11.1\n   Compiling untrusted v0.9.0\n   Compiling lazy-regex v3.6.2\n   Compiling constant_time_eq v0.4.2\n   Compiling utf-8 v0.7.6\n   Compiling clang-sys v1.9.1\n   Compiling ts-rs v12.0.1\n   Compiling rand v0.9.5\n   Compiling icu_properties_data v2.3.0\n   Compiling icu_normalizer_data v2.3.0\n   Compiling prettyplease v0.2.37\n   Compiling rolldown_devtools_action v1.2.13\n   Compiling sha1 v0.10.7\n   Compiling hmac v0.13.0\n   Compiling bytemuck v1.25.2\n   Compiling rustls v0.23.45\n   Compiling icu_normalizer v2.3.0\n   Compiling icu_properties v2.3.0\n   Compiling group v0.14.0\n   Compiling rolldown_devtools v1.2.13\n   Compiling signature v3.0.0\n   Compiling miniz_oxide v0.8.9\n   Compiling fdeflate v0.3.7\n   Compiling base16ct v1.0.0\n   Compiling typedmap v0.6.0\n   Compiling float-cmp v0.9.0\n   Compiling base64 v0.22.1\n   Compiling strict-num v0.1.1\n   Compiling rustls-webpki v0.103.15\n   Compiling bindgen v0.72.1\n   Compiling sec1 v0.8.1\n   Compiling idna_adapter v1.2.2\n   Compiling hkdf v0.13.0\n   Compiling phf_generator v0.11.3\n   Compiling half v2.7.1\n   Compiling curve25519-dalek v4.1.3\n   Compiling polycool v0.4.0\n   Compiling alloc-no-stdlib v2.0.4\n   Compiling arrayref v0.3.9\n   Compiling httpdate v1.0.3\n   Compiling zstd-sys v2.1.2+zstd.1.5.7\n   Compiling tiny-skia-path v0.11.4\n   Compiling kurbo v0.13.1\n   Compiling brotli-decompressor v5.0.3\n   Compiling elliptic-curve v0.14.1\n   Compiling oxc_ecmascript v0.153.0\n   Compiling oxc_ast_visit v0.153.0\n   Compiling io-lifetimes v2.0.4\n   Compiling idna v1.1.0\n   Compiling io-lifetimes v3.0.1\n   Compiling primefield v0.14.0\n   Compiling webpki-roots v1.0.9\n   Compiling oxc_parser v0.153.0\n   Compiling sha2 v0.11.1\n   Compiling universal-hash v0.6.1\n   Compiling cfg_aliases v0.2.2\n   Compiling bumpalo v3.20.3\n   Compiling signature v2.2.0\n   Compiling bitflags v1.3.2\n   Compiling new_debug_unreachable v1.0.6\n   Compiling png v0.17.16\n   Compiling ed25519 v2.2.3\n   Compiling zopfli v0.8.4\n   Compiling naga v29.0.4\n   Compiling wnaf v0.14.1\n   Compiling oxc_semantic v0.153.0\n   Compiling oxc_isolated_declarations v0.153.0\n   Compiling svgtypes v0.16.1\n   Compiling url v2.5.8\n   Compiling io-extras v0.19.0\n   Compiling fs-set-times v0.20.3\n   Compiling string_cache_codegen v0.5.4\n   Compiling oxc_traverse v0.153.0\n   Compiling oxc_mangler v0.153.0\n   Compiling oxc_codegen v0.153.0\n   Compiling phf_codegen v0.11.3\n   Compiling rfc6979 v0.6.0\n   Compiling chacha20 v0.10.2\n   Compiling sha2 v0.10.9\n   Compiling curve25519-dalek v5.0.0\n   Compiling rustix-linux-procfs v0.1.1\n   Compiling event-listener v5.4.2\n   Compiling simplecss v0.2.2\n   Compiling roxmltree v0.21.1\n   Compiling pico-args v0.5.0\n   Compiling quickjs-jit-sys v0.14.2\n   Compiling ipnet v2.12.2\n   Compiling maybe-owned v0.3.4\n   Compiling data-url v0.3.2\n   Compiling xmlwriter v0.1.0\n   Compiling bit-vec v0.9.1\n   Compiling oxc_transformer v0.153.0\n   Compiling oxc_minifier v0.153.0\n   Compiling typed-path v0.12.3\n   Compiling ambient-authority v0.0.2\n   Compiling imagesize v0.14.0\n   Compiling mac v0.1.1\n   Compiling toml_edit v0.25.17+spec-1.1.0\n   Compiling futf v0.1.5\n   Compiling cap-primitives v4.0.3\n   Compiling usvg v0.46.0\n   Compiling wuff v0.2.9\n   Compiling bit-set v0.9.1\n   Compiling zip v8.6.0\n   Compiling event-listener-strategy v0.5.4\n   Compiling ed25519-dalek v2.2.0\n   Compiling ecdsa v0.17.0\n   Compiling markup5ever v0.12.1\n   Compiling tungstenite v0.28.0\n   Compiling tokio-rustls v0.26.6\n   Compiling tiny-skia v0.11.4\n   Compiling primeorder v0.14.0\n   Compiling webpki-roots v0.26.11\n   Compiling rgb v0.8.53\n   Compiling parking_lot v0.12.5\n   Compiling tar v0.4.46\n   Compiling codespan-reporting v0.13.1\n   Compiling keccak v0.2.2\n   Compiling imagesize v0.15.0\n   Compiling hexf-parse v0.2.1\n   Compiling rustc-hash v1.1.0\n   Compiling sponge-cursor v0.1.0\n   Compiling alloc-no-stdlib v3.0.0\n   Compiling zstd-safe v8.2.0\n   Compiling ttf-parser v0.25.1\n   Compiling precomputed-hash v0.1.1\n   Compiling string_cache v0.8.9\n   Compiling resvg v0.46.0\n   Compiling alloc-stdlib v0.3.0\n   Compiling nsh-updater v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-updater)\n   Compiling tokio-tungstenite v0.28.0\n   Compiling oxc_transformer_plugins v0.153.0\n   Compiling oxc v0.153.0\n   Compiling rolldown_error v1.2.13\n   Compiling rolldown_sourcemap v1.2.13\n   Compiling async-lock v3.4.2\n   Compiling proc-macro-crate v3.5.0\n   Compiling nsh-macros v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-macros)\n   Compiling cap-std v4.0.3\n   Compiling tendril v0.4.3\n   Compiling rand v0.10.3\n   Compiling polyval v0.7.3\n   Compiling phf v0.11.3\n   Compiling aead v0.6.1\n   Compiling rolldown_utils v1.2.13\n   Compiling rolldown_ecmascript v1.2.13\n   Compiling http-body v1.1.0\n   Compiling taffy v0.15.0\n   Compiling crc32c v0.6.8\n   Compiling rolldown_common v1.2.13\n   Compiling sha1 v0.11.0\n   Compiling ordered-float v5.5.1\n   Compiling convert_case v0.12.0\n   Compiling foldhash v0.1.5\n   Compiling unicode-linebreak v0.1.5\n   Compiling same-file v1.0.6\n   Compiling unicode-properties v0.1.5\n   Compiling bit-vec v0.8.0\n   Compiling relative-path v2.0.2\n   Compiling walkdir v2.5.0\n   Compiling bit-set v0.8.0\n   Compiling hashbrown v0.15.5\n   Compiling ghash v0.6.0\n   Compiling brotli-decompressor v6.0.1\n   Compiling poly1305 v0.9.1\n   Compiling ed25519 v3.0.0\n   Compiling crypto-primes v0.7.2\n   Compiling pkcs1 v0.8.0-rc.5\n   Compiling ctr v0.10.1\n   Compiling aes v0.9.3\n   Compiling rolldown_resolver v1.2.13\n   Compiling html5ever v0.27.0\n   Compiling nsh-core v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-core)\n   Compiling rolldown_plugin v1.2.13\n   Compiling tower-service v0.3.3\n   Compiling aes-kw v0.3.1\n   Compiling aes-gcm v0.11.1\n   Compiling brotli v9.0.0\n   Compiling ed25519-dalek v3.0.0\n   Compiling chacha20poly1305 v0.11.0\n   Compiling zstd v0.14.3\n   Compiling rsa v0.10.0-rc.19\n   Compiling fancy-regex v0.16.2\n   Compiling x25519-dalek v3.0.0\n   Compiling cshake v0.2.1\n   Compiling sha3 v0.12.0\n   Compiling shake v0.1.0\n   Compiling p256 v0.14.0\n   Compiling p521 v0.14.0\n   Compiling rolldown_plugin_utils v1.2.13\n   Compiling p384 v0.14.0\n   Compiling cbc v0.2.1\n   Compiling bincode v1.3.3\n   Compiling hex-simd v0.8.0\n   Compiling pbkdf2 v0.13.0\n   Compiling md-5 v0.11.0\n   Compiling sync_wrapper v1.0.2\n   Compiling fnv v1.0.7\n   Compiling atomic-waker v1.1.2\n   Compiling tower-layer v0.3.3\n   Compiling hyper v1.12.0\n   Compiling syntect v5.3.0\n   Compiling xml5ever v0.18.1\n   Compiling http-body-util v0.1.5\n   Compiling tungstenite v0.29.0\n   Compiling unicode-id v0.3.7\n   Compiling utf8parse v0.2.2\n   Compiling fixedbitset v0.5.7\n   Compiling iana-time-zone v0.1.65\n   Compiling inotify-sys v0.1.8\n   Compiling chrono v0.4.45\n   Compiling petgraph v0.8.3\n   Compiling anstyle-parse v1.0.0\n   Compiling tokio-tungstenite v0.29.0\n   Compiling two-face v0.4.5\n   Compiling axum-core v0.5.6\n   Compiling markdown v1.0.0\n   Compiling markup5ever_rcdom v0.3.0\n   Compiling hyper-util v0.1.21\n   Compiling tower v0.5.3\n   Compiling rolldown_plugin_copy_module v1.2.13\n   Compiling rolldown_plugin_asset_module v1.2.13\n   Compiling rolldown_plugin_oxc_runtime v1.2.13\n   Compiling rolldown_plugin_hmr v1.2.13\n   Compiling rolldown_plugin_data_url v1.2.13\n   Compiling rolldown_plugin_lazy_compilation v1.2.13\n   Compiling rolldown_plugin_chunk_import_map v1.2.13\n   Compiling rolldown_dev_common v1.2.13\n   Compiling rolldown_ecmascript_utils v1.2.13\n   Compiling imara-diff v0.2.0\n   Compiling rolldown_tracing v1.2.13\n   Compiling vte v0.15.0\n   Compiling is_terminal_polyfill v1.70.2\n   Compiling append-only-vec v0.1.8\n   Compiling colorchoice v1.0.5\n   Compiling anstyle v1.0.14\n   Compiling matchit v0.8.4\n   Compiling anstyle-query v1.1.5\n   Compiling dunce v1.0.5\n   Compiling rolldown v1.2.13\n   Compiling anstream v1.0.0\n   Compiling tungstenite v0.30.0\n   Compiling ureq-proto v0.6.4\n   Compiling crossbeam-channel v0.5.17\n   Compiling axum v0.8.9\n   Compiling num-conv v0.2.2\n   Compiling time-core v0.1.9\n   Compiling strsim v0.11.1\n   Compiling powerfmt v0.2.1\n   Compiling clap_lex v1.1.1\n   Compiling deranged v0.5.9\n   Compiling pxfm v0.1.30\n   Compiling utf8-zero v0.8.1\n   Compiling clap_builder v4.6.7\n   Compiling ureq v3.4.2\n   Compiling inotify v0.11.5\n   Compiling png v0.18.1\n   Compiling clap_derive v4.6.7\n   Compiling time v0.3.55\n   Compiling nsh-cli v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-cli)\n   Compiling notify-types v2.1.0\n   Compiling quick-xml v0.42.0\n   Compiling moxcms v0.8.1\n   Compiling byteorder-lite v0.1.0\n   Compiling plist v1.10.1\n   Compiling clap v4.6.7\n   Compiling nsh-dev v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-dev)\n   Compiling notify v8.2.0\n   Compiling wasmparser v0.262.0\n   Compiling serde_path_to_error v0.1.20\n   Compiling serde_ignored v0.1.14\n   Compiling image v0.25.10\n   Compiling nsh-package v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-package)\n   Compiling nsh-base v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-base)\n   Compiling quickjs-jit-core v0.14.2\n   Compiling quickjs-jit-macro v0.14.2\n   Compiling quickjs-jit v0.14.2\n   Compiling quickjs-jit-stdlib v0.14.2\n   Compiling nsh-js v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-js)\n   Compiling nsh-engine v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-engine)\n   Compiling nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)\n   Compiling nsh-testing v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-testing)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2m 24s\n"
+  },
+  "notes": [
+    "No system package installation or sudo",
+    "Original download console outputs were observed but not saved; URIs and repository checksums re-observed via apt-cache show",
+    "Only extracted pc prefix=/usr relocated; system pc unchanged"
+  ],
+  "reproduction": {
+    "prepare_script": "native_prefix.py",
+    "status": "passed",
+    "destination": "target/native-prefix-reproduced",
+    "unit_tests": 2
+  },
+  "relocated_pc_sha256": {
+    "usr/lib/x86_64-linux-gnu/pkgconfig/graphene-1.0.pc": "293a427c0838591c72399a153cab801b578d45574873bc1ffc3b00aa9b6ac91a",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-1.0.pc": "e75ba80f746b1a6b52765cbd65833c419dc501253161fcf3a7882a8c8d42cf10",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-gl-prototypes-1.0.pc": "e78e43de8cdf92cd50ef3e8823c61a6914a37d5869061ab80400821436c28b2b",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-sdp-1.0.pc": "3394632c858168753d3b86a45ae1f701aa1357fe0de44d9d2ec29aa9cab25b33",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-fft-1.0.pc": "2a639fbd4fd784ef587eebedcd3d150730ff50b10e76b16cca4dfb28722393af",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-pbutils-1.0.pc": "14eeae94b2c270228acb2c3271feb498245ad2d306de5cde21742b40f3752edc",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gtk4-broadway.pc": "d4b61bc631e28bcc742823785d35452fc491f7d08a3b58dd47b5b7f2663cc70b",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gtk4-atspi.pc": "8fba41eb9404e982963f1cebc771189b997ec214de3babb6e72a3b82dea42d83",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/graphene-gobject-1.0.pc": "eb073404ae0106409f0650e6cfe7d2c37f96e4a3d7ecc6ecf6017d5e5250df34",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-gl-egl-1.0.pc": "b45275fa727090c7cf8e10554230229816557416d7e93f9b2284af33d9b84f9f",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-gl-1.0.pc": "7274563256fff07a7efdae697403384b93bd76806294344fcff1351d6a55a647",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-app-1.0.pc": "0072eb96c76f652bfdbaaed99bf5f44d2913394f25c9534ef23f4a014322fabd",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-gl-x11-1.0.pc": "f6cba11f9f01c7b0ac2c377c7f6c160857bfa0b60e3f7a56fc7a51dba828ff46",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-plugins-base-1.0.pc": "e5f3a1a514a47e77466cd357cbf88ed7de77b483a251ccd1c401f02df34a7fe2",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-riff-1.0.pc": "0a7fdd97a4344dcf3a3f6a62f2168c96734348767a3300fee4a01b27a76e7147",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-check-1.0.pc": "31a9b682cfd7b09f189c9c04f9b1285edcae17859cfb36ce7d3ec2847f885b3d",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/vulkan.pc": "bc70657f750939136fb5c09a8224521938fd5cb27b4c8c7a7d9175afb771f2df",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/orc-test-0.4.pc": "40aa2e381aa2f630cc0d9ea37d551d212716fe451c46ed784331a48d7be8f1ee",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-audio-1.0.pc": "51ed5f8a9cfa0e56dc8df2e9926b2efe7873867c4e05ce549cf9735af391fb72",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gtk4-x11.pc": "fe2146edf5500f9fc5d770704bc36538da4f00d73e7773836048f123c8ee4ed3",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-net-1.0.pc": "de70a5117bc77a2c5968e15f9339d5eaa1eefc70312f4609f9b97a37f0985531",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-controller-1.0.pc": "0c87101d5c1ffd8ddf270f2071da0bb81ec40e0785978716b50c303546dc5a69",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gtk4.pc": "af8838bb3ade8e83c69386ad59c935a89e3896df3a643443022095506a186089",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gtk4-wayland.pc": "0d41b8676770a0b598044879006e08c6a41bde513569e4f73268c8f4767d3b84",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-allocators-1.0.pc": "e10e237b2f603fab16a68754840541315a84d167617fe19c2e404ab30a76519d",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-tag-1.0.pc": "c2190f22a96188ab800fae738f331162792d84a65fd48f17deacd580a51ac06f",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-gl-wayland-1.0.pc": "204967ee33b6571c39cd5e63d69758d28b98520f87e16ae4960952fe65825f77",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-rtsp-1.0.pc": "385d0dff2d0b6737bd31dd82e13d1cb2ef13d44f9c49e0bd876d169bd3a39b65",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/orc-0.4.pc": "4cefc6ac814088bdacecb1e4c5d2d8e3c41d0dd641221cbadb6942c3c94c311f",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-video-1.0.pc": "00cfbf8f41df20438ac650e892d47a76e211b22a2975bbc06e338e118784a45b",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-rtp-1.0.pc": "d0419d441cf93feab0634a123fc7dffa5d2e858429d92fb1194887b107e3a13d",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gstreamer-base-1.0.pc": "5747f7ed0438f9e97240015c0b7acc3b1049873f1ea8d605fb2d26b13a9520e5",
+    "usr/lib/x86_64-linux-gnu/pkgconfig/gtk4-unix-print.pc": "44e55080fff66a36b90044aae3083b34dfcb93c6b500ac05ebd10f6542291462"
+  },
+  "link_followup": {
+    "reason": "native example real linking exposed absent runtime SONAME targets in isolated prefix",
+    "added": [
+      "libgstreamer1.0-0",
+      "libvulkan1"
+    ],
+    "note": "base runtime already present; downloaded matching package again, no fake system symlinks",
+    "remaining_broken_symlinks": [],
+    "ldd": {
+      "libgtk-4.so.1": "\tlinux-vdso.so.1 (0x0000708bd2cd8000)\n\tlibgmodule-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libgmodule-2.0.so.0 (0x0000708bd2cbf000)\n\tlibglib-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 (0x0000708bd1ea8000)\n\tlibgobject-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0 (0x0000708bd2c5b000)\n\tlibgio-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libgio-2.0.so.0 (0x0000708bd1ccb000)\n\tlibpangocairo-1.0.so.0 => /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so.0 (0x0000708bd2c48000)\n\tlibpango-1.0.so.0 => /usr/lib/x86_64-linux-gnu/libpango-1.0.so.0 (0x0000708bd2bd7000)\n\tlibcairo.so.2 => /usr/lib/x86_64-linux-gnu/libcairo.so.2 (0x0000708bd1b7c000)\n\tlibharfbuzz.so.0 => /usr/lib/x86_64-linux-gnu/libharfbuzz.so.0 (0x0000708bd1a51000)\n\tlibharfbuzz-subset.so.0 => /usr/lib/x86_64-linux-gnu/libharfbuzz-subset.so.0 (0x0000708bd193c000)\n\tlibfribidi.so.0 => /usr/lib/x86_64-linux-gnu/libfribidi.so.0 (0x0000708bd2bb8000)\n\tlibcairo-gobject.so.2 => /usr/lib/x86_64-linux-gnu/libcairo-gobject.so.2 (0x0000708bd2baa000)\n\tlibfontconfig.so.1 => /usr/lib/x86_64-linux-gnu/libfontconfig.so.1 (0x0000708bd18e9000)\n\tlibgdk_pixbuf-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so.0 (0x0000708bd18b3000)\n\tlibepoxy.so.0 => /usr/lib/x86_64-linux-gnu/libepoxy.so.0 (0x0000708bd1792000)\n\tlibm.so.6 => /usr/lib/x86_64-linux-gnu/libm.so.6 (0x0000708bd166c000)\n\tlibgstplay-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstplay-1.0.so.0 (0x0000708bd1647000)\n\tlibgstvideo-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstvideo-1.0.so.0 (0x0000708bd1561000)\n\tlibgstreamer-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstreamer-1.0.so.0 (0x0000708bd13f4000)\n\tlibgstgl-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstgl-1.0.so.0 (0x0000708bd1357000)\n\tlibgstallocators-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstallocators-1.0.so.0 (0x0000708bd2b9e000)\n\tlibgraphene-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgraphene-1.0.so.0 (0x0000708bd1339000)\n\tlibXi.so.6 => /usr/lib/x86_64-linux-gnu/libXi.so.6 (0x0000708bd1325000)\n\tlibX11.so.6 => /usr/lib/x86_64-linux-gnu/libX11.so.6 (0x0000708bd11e3000)\n\tlibpangoft2-1.0.so.0 => /usr/lib/x86_64-linux-gnu/libpangoft2-1.0.so.0 (0x0000708bd11c3000)\n\tlibvulkan.so.1 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libvulkan.so.1 (0x0000708bd1133000)\n\tlibpng16.so.16 => /usr/lib/x86_64-linux-gnu/libpng16.so.16 (0x0000708bd10f9000)\n\tlibtiff.so.6 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libtiff.so.6 (0x0000708bd1065000)\n\tlibjpeg.so.8 => /usr/lib/x86_64-linux-gnu/libjpeg.so.8 (0x0000708bd0fce000)\n\tlibxkbcommon.so.0 => /usr/lib/x86_64-linux-gnu/libxkbcommon.so.0 (0x0000708bd0f6f000)\n\tlibwayland-client.so.0 => /usr/lib/x86_64-linux-gnu/libwayland-client.so.0 (0x0000708bd0f5c000)\n\tlibwayland-egl.so.1 => /usr/lib/x86_64-linux-gnu/libwayland-egl.so.1 (0x0000708bd2b93000)\n\tlibXext.so.6 => /usr/lib/x86_64-linux-gnu/libXext.so.6 (0x0000708bd0f48000)\n\tlibXcursor.so.1 => /usr/lib/x86_64-linux-gnu/libXcursor.so.1 (0x0000708bd0f3b000)\n\tlibXdamage.so.1 => /usr/lib/x86_64-linux-gnu/libXdamage.so.1 (0x0000708bd0f36000)\n\tlibXfixes.so.3 => /usr/lib/x86_64-linux-gnu/libXfixes.so.3 (0x0000708bd0f2e000)\n\tlibXrandr.so.2 => /usr/lib/x86_64-linux-gnu/libXrandr.so.2 (0x0000708bd0f21000)\n\tlibXinerama.so.1 => /usr/lib/x86_64-linux-gnu/libXinerama.so.1 (0x0000708bd0f1c000)\n\tlibcairo-script-interpreter.so.2 => /usr/lib/x86_64-linux-gnu/libcairo-script-interpreter.so.2 (0x0000708bd0ef5000)\n\tlibcups.so.2 => /usr/lib/x86_64-linux-gnu/libcups.so.2 (0x0000708bd0e52000)\n\tlibcolord.so.2 => /usr/lib/x86_64-linux-gnu/libcolord.so.2 (0x0000708bd0e01000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x0000708bd0a00000)\n\tlibatomic.so.1 => /usr/lib/x86_64-linux-gnu/libatomic.so.1 (0x0000708bd0df4000)\n\tlibpcre2-8.so.0 => /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x0000708bd0d48000)\n\tlibffi.so.8 => /usr/lib/x86_64-linux-gnu/libffi.so.8 (0x0000708bd0d37000)\n\tlibz.so.1 => /usr/lib/x86_64-linux-gnu/libz.so.1 (0x0000708bd0d19000)\n\tlibmount.so.1 => /usr/lib/x86_64-linux-gnu/libmount.so.1 (0x0000708bd0cc6000)\n\tlibselinux.so.1 => /usr/lib/x86_64-linux-gnu/libselinux.so.1 (0x0000708bd0c93000)\n\tlibthai.so.0 => /usr/lib/x86_64-linux-gnu/libthai.so.0 (0x0000708bd0c85000)\n\tlibfreetype.so.6 => /usr/lib/x86_64-linux-gnu/libfreetype.so.6 (0x0000708bd092b000)\n\tlibXrender.so.1 => /usr/lib/x86_64-linux-gnu/libXrender.so.1 (0x0000708bd0c79000)\n\tlibxcb.so.1 => /usr/lib/x86_64-linux-gnu/libxcb.so.1 (0x0000708bd0c4e000)\n\tlibxcb-render.so.0 => /usr/lib/x86_64-linux-gnu/libxcb-render.so.0 (0x0000708bd0c3f000)\n\tlibxcb-shm.so.0 => /usr/lib/x86_64-linux-gnu/libxcb-shm.so.0 (0x0000708bd0c38000)\n\tlibpixman-1.so.0 => /usr/lib/x86_64-linux-gnu/libpixman-1.so.0 (0x0000708bd0874000)\n\tlibgraphite2.so.3 => /usr/lib/x86_64-linux-gnu/libgraphite2.so.3 (0x0000708bd084e000)\n\tlibexpat.so.1 => /usr/lib/x86_64-linux-gnu/libexpat.so.1 (0x0000708bd0820000)\n\tlibglycin-2.so.0 => /usr/lib/x86_64-linux-gnu/libglycin-2.so.0 (0x0000708bd0400000)\n\t/lib64/ld-linux-x86-64.so.2 (0x0000708bd2cda000)\n\tlibgsttag-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgsttag-1.0.so.0 (0x0000708bd03be000)\n\tlibgstpbutils-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstpbutils-1.0.so.0 (0x0000708bd0375000)\n\tlibgstbase-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstbase-1.0.so.0 (0x0000708bd02f1000)\n\tliborc-0.4.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/liborc-0.4.so.0 (0x0000708bd01ee000)\n\tlibGL.so.1 => /usr/lib/x86_64-linux-gnu/libGL.so.1 (0x0000708bd0169000)\n\tlibEGL.so.1 => /usr/lib/x86_64-linux-gnu/libEGL.so.1 (0x0000708bd0c21000)\n\tlibwayland-cursor.so.0 => /usr/lib/x86_64-linux-gnu/libwayland-cursor.so.0 (0x0000708bd0816000)\n\tlibX11-xcb.so.1 => /usr/lib/x86_64-linux-gnu/libX11-xcb.so.1 (0x0000708bd0811000)\n\tlibgudev-1.0.so.0 => /usr/lib/x86_64-linux-gnu/libgudev-1.0.so.0 (0x0000708bd0804000)\n\tlibdrm.so.2 => /usr/lib/x86_64-linux-gnu/libdrm.so.2 (0x0000708bd0152000)\n\tlibgbm.so.1 => /usr/lib/x86_64-linux-gnu/libgbm.so.1 (0x0000708bd07fd000)\n\tlibwebp.so.7 => /usr/lib/x86_64-linux-gnu/libwebp.so.7 (0x0000708bd00bf000)\n\tlibzstd.so.1 => /usr/lib/x86_64-linux-gnu/libzstd.so.1 (0x0000708bcfffc000)\n\tliblzma.so.5 => /usr/lib/x86_64-linux-gnu/liblzma.so.5 (0x0000708bcffc7000)\n\tlibLerc.so.4 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libLerc.so.4 (0x0000708bcff32000)\n\tlibjbig.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libjbig.so.0 (0x0000708bcff20000)\n\tlibdeflate.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libdeflate.so.0 (0x0000708bcff08000)\n\tliblzo2.so.2 => /usr/lib/x86_64-linux-gnu/liblzo2.so.2 (0x0000708bcfee2000)\n\tlibgssapi_krb5.so.2 => /usr/lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x0000708bcfe8a000)\n\tlibavahi-common.so.3 => /usr/lib/x86_64-linux-gnu/libavahi-common.so.3 (0x0000708bcfe7b000)\n\tlibavahi-client.so.3 => /usr/lib/x86_64-linux-gnu/libavahi-client.so.3 (0x0000708bcfe67000)\n\tlibgnutls.so.30 => /usr/lib/x86_64-linux-gnu/libgnutls.so.30 (0x0000708bcfc00000)\n\tliblcms2.so.2 => /usr/lib/x86_64-linux-gnu/liblcms2.so.2 (0x0000708bcfb99000)\n\tlibudev.so.1 => /usr/lib/x86_64-linux-gnu/libudev.so.1 (0x0000708bcfe20000)\n\tlibblkid.so.1 => /usr/lib/x86_64-linux-gnu/libblkid.so.1 (0x0000708bcfb5d000)\n\tlibdatrie.so.1 => /usr/lib/x86_64-linux-gnu/libdatrie.so.1 (0x0000708bcfe17000)\n\tlibbz2.so.1.0 => /usr/lib/x86_64-linux-gnu/libbz2.so.1.0 (0x0000708bcfb48000)\n\tlibbrotlidec.so.1 => /usr/lib/x86_64-linux-gnu/libbrotlidec.so.1 (0x0000708bcfb39000)\n\tlibXau.so.6 => /usr/lib/x86_64-linux-gnu/libXau.so.6 (0x0000708bcfe11000)\n\tlibXdmcp.so.6 => /usr/lib/x86_64-linux-gnu/libXdmcp.so.6 (0x0000708bcfb31000)\n\tlibseccomp.so.2 => /usr/lib/x86_64-linux-gnu/libseccomp.so.2 (0x0000708bcfb03000)\n\tlibgcc_s.so.1 => /usr/lib/x86_64-linux-gnu/libgcc_s.so.1 (0x0000708bcfad3000)\n\tlibgstaudio-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstaudio-1.0.so.0 (0x0000708bcfa48000)\n\tlibGLdispatch.so.0 => /usr/lib/x86_64-linux-gnu/libGLdispatch.so.0 (0x0000708bcf98f000)\n\tlibGLX.so.0 => /usr/lib/x86_64-linux-gnu/libGLX.so.0 (0x0000708bcf95c000)\n\tlibsharpyuv.so.0 => /usr/lib/x86_64-linux-gnu/libsharpyuv.so.0 (0x0000708bcf953000)\n\tlibstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x0000708bcf600000)\n\tlibkrb5.so.3 => /usr/lib/x86_64-linux-gnu/libkrb5.so.3 (0x0000708bcf534000)\n\tlibk5crypto.so.3 => /usr/lib/x86_64-linux-gnu/libk5crypto.so.3 (0x0000708bcf925000)\n\tlibcom_err.so.2 => /usr/lib/x86_64-linux-gnu/libcom_err.so.2 (0x0000708bcf91f000)\n\tlibkrb5support.so.0 => /usr/lib/x86_64-linux-gnu/libkrb5support.so.0 (0x0000708bcf912000)\n\tlibdbus-1.so.3 => /usr/lib/x86_64-linux-gnu/libdbus-1.so.3 (0x0000708bcf8c0000)\n\tlibp11-kit.so.0 => /usr/lib/x86_64-linux-gnu/libp11-kit.so.0 (0x0000708bcf359000)\n\tlibidn2.so.0 => /usr/lib/x86_64-linux-gnu/libidn2.so.0 (0x0000708bcf337000)\n\tlibunistring.so.5 => /usr/lib/x86_64-linux-gnu/libunistring.so.5 (0x0000708bcf150000)\n\tlibtasn1.so.6 => /usr/lib/x86_64-linux-gnu/libtasn1.so.6 (0x0000708bcf8a9000)\n\tlibhogweed.so.6 => /usr/lib/x86_64-linux-gnu/libhogweed.so.6 (0x0000708bcf105000)\n\tlibnettle.so.8 => /usr/lib/x86_64-linux-gnu/libnettle.so.8 (0x0000708bcf0ae000)\n\tlibgmp.so.10 => /usr/lib/x86_64-linux-gnu/libgmp.so.10 (0x0000708bcf028000)\n\tlibbrotlicommon.so.1 => /usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1 (0x0000708bcf005000)\n\tlibkeyutils.so.1 => /usr/lib/x86_64-linux-gnu/libkeyutils.so.1 (0x0000708bcf8a0000)\n\tlibresolv.so.2 => /usr/lib/x86_64-linux-gnu/libresolv.so.2 (0x0000708bceff2000)\n\tlibsystemd.so.0 => /usr/lib/x86_64-linux-gnu/libsystemd.so.0 (0x0000708bceedc000)\n",
+      "libgstbase-1.0.so.0": "\tlinux-vdso.so.1 (0x0000761490952000)\n\tlibgstreamer-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstreamer-1.0.so.0 (0x0000761490759000)\n\tlibglib-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 (0x00007614905f7000)\n\tlibgobject-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0 (0x0000761490593000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x0000761490200000)\n\tlibgmodule-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libgmodule-2.0.so.0 (0x000076149058a000)\n\tlibm.so.6 => /usr/lib/x86_64-linux-gnu/libm.so.6 (0x0000761490464000)\n\tlibatomic.so.1 => /usr/lib/x86_64-linux-gnu/libatomic.so.1 (0x0000761490459000)\n\tlibpcre2-8.so.0 => /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x0000761490154000)\n\tlibffi.so.8 => /usr/lib/x86_64-linux-gnu/libffi.so.8 (0x0000761490448000)\n\t/lib64/ld-linux-x86-64.so.2 (0x0000761490954000)\n",
+      "libgstreamer-1.0.so.0": "\tlinux-vdso.so.1 (0x000073353e51d000)\n\tlibgobject-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0 (0x000073353e33a000)\n\tlibglib-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 (0x000073353e1e2000)\n\tlibgmodule-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libgmodule-2.0.so.0 (0x000073353e1db000)\n\tlibm.so.6 => /usr/lib/x86_64-linux-gnu/libm.so.6 (0x000073353e0b5000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x000073353de00000)\n\tlibffi.so.8 => /usr/lib/x86_64-linux-gnu/libffi.so.8 (0x000073353e0a2000)\n\tlibatomic.so.1 => /usr/lib/x86_64-linux-gnu/libatomic.so.1 (0x000073353e097000)\n\tlibpcre2-8.so.0 => /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x000073353dd54000)\n\t/lib64/ld-linux-x86-64.so.2 (0x000073353e51f000)\n",
+      "libvulkan.so.1": "\tlinux-vdso.so.1 (0x0000718a8992d000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x0000718a89600000)\n\t/lib64/ld-linux-x86-64.so.2 (0x0000718a8992f000)\n",
+      "libgstgl-1.0.so.0": "\tlinux-vdso.so.1 (0x00007b671ca72000)\n\tlibgstvideo-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstvideo-1.0.so.0 (0x00007b671c8e7000)\n\tlibgstallocators-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstallocators-1.0.so.0 (0x00007b671c8dd000)\n\tlibgstbase-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstbase-1.0.so.0 (0x00007b671c859000)\n\tlibgstreamer-1.0.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/libgstreamer-1.0.so.0 (0x00007b671c6ea000)\n\tlibgobject-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0 (0x00007b671c67c000)\n\tlibglib-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 (0x00007b671c524000)\n\tlibgmodule-2.0.so.0 => /usr/lib/x86_64-linux-gnu/libgmodule-2.0.so.0 (0x00007b671c51d000)\n\tlibGL.so.1 => /usr/lib/x86_64-linux-gnu/libGL.so.1 (0x00007b671c498000)\n\tlibEGL.so.1 => /usr/lib/x86_64-linux-gnu/libEGL.so.1 (0x00007b671c485000)\n\tlibwayland-client.so.0 => /usr/lib/x86_64-linux-gnu/libwayland-client.so.0 (0x00007b671c470000)\n\tlibwayland-cursor.so.0 => /usr/lib/x86_64-linux-gnu/libwayland-cursor.so.0 (0x00007b671c466000)\n\tlibwayland-egl.so.1 => /usr/lib/x86_64-linux-gnu/libwayland-egl.so.1 (0x00007b671c461000)\n\tlibX11.so.6 => /usr/lib/x86_64-linux-gnu/libX11.so.6 (0x00007b671c31f000)\n\tlibX11-xcb.so.1 => /usr/lib/x86_64-linux-gnu/libX11-xcb.so.1 (0x00007b671c31a000)\n\tlibxcb.so.1 => /usr/lib/x86_64-linux-gnu/libxcb.so.1 (0x00007b671c2ed000)\n\tlibgudev-1.0.so.0 => /usr/lib/x86_64-linux-gnu/libgudev-1.0.so.0 (0x00007b671c2e0000)\n\tlibdrm.so.2 => /usr/lib/x86_64-linux-gnu/libdrm.so.2 (0x00007b671c2c9000)\n\tlibgbm.so.1 => /usr/lib/x86_64-linux-gnu/libgbm.so.1 (0x00007b671c2c2000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x00007b671c000000)\n\tliborc-0.4.so.0 => /workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu/liborc-0.4.so.0 (0x00007b671befd000)\n\tlibm.so.6 => /usr/lib/x86_64-linux-gnu/libm.so.6 (0x00007b671bdd7000)\n\tlibffi.so.8 => /usr/lib/x86_64-linux-gnu/libffi.so.8 (0x00007b671c2af000)\n\tlibatomic.so.1 => /usr/lib/x86_64-linux-gnu/libatomic.so.1 (0x00007b671c2a4000)\n\tlibpcre2-8.so.0 => /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x00007b671bd2b000)\n\tlibGLdispatch.so.0 => /usr/lib/x86_64-linux-gnu/libGLdispatch.so.0 (0x00007b671bc72000)\n\tlibGLX.so.0 => /usr/lib/x86_64-linux-gnu/libGLX.so.0 (0x00007b671c26f000)\n\tlibXau.so.6 => /usr/lib/x86_64-linux-gnu/libXau.so.6 (0x00007b671c269000)\n\tlibXdmcp.so.6 => /usr/lib/x86_64-linux-gnu/libXdmcp.so.6 (0x00007b671c261000)\n\tlibudev.so.1 => /usr/lib/x86_64-linux-gnu/libudev.so.1 (0x00007b671bc2b000)\n\tlibexpat.so.1 => /usr/lib/x86_64-linux-gnu/libexpat.so.1 (0x00007b671c233000)\n\tlibgcc_s.so.1 => /usr/lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007b671bbfd000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007b671ca74000)\n"
+    }
+  }
+}

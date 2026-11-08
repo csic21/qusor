@@ -1,0 +1,20 @@
+{
+  "status": "failed-environment-before-document-import",
+  "normal_close_requested": true,
+  "normal_close_observed": false,
+  "app_identity": {
+    "pid": 470312,
+    "start_ticks": 4906594
+  },
+  "wchan": "poll_schedule_timeout.constprop.0",
+  "reason": "Portal activation inherited wrong display; pending chooser did not recover after private backend termination",
+  "business_operation_occurred": false,
+  "databases": [],
+  "native_binary_sha256": "7e52ffd15c223237f94985bc11c74017425a76a87c4682f6f7ffdf70cbd31883",
+  "bundle_sha256": "35333d69f9e76e8ffb16a8f8a5a93a0ab3169c37525ed8b58d4ab866ce3ae0b7",
+  "app_exit": -15,
+  "xvfb_exit": 0,
+  "manager_session_exit": 0,
+  "actual_terminal_verified": true,
+  "no_core_or_package_database_created": true
+}

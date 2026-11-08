@@ -1,0 +1,705 @@
+diff --git a/crates/nsh-platform-linux/Cargo.toml b/crates/nsh-platform-linux/Cargo.toml
+index 14e4de1..d1c5766 100644
+--- a/crates/nsh-platform-linux/Cargo.toml
++++ b/crates/nsh-platform-linux/Cargo.toml
+@@ -12,6 +12,8 @@ repository.workspace = true
+ workspace = true
+ 
+ [features]
++# Isolated lifecycle experiment; not a release acknowledgment provider yet.
++native-retirement-observer = []
+ default = ["js", "shader", "editor", "highlight", "math", "plot", "rich-editor", "term", "zlib", "crypto"]
+ # JS apps (bundles, signed packages); without it, the library only runs a
+ # Rust app and links no QuickJS.
+diff --git a/crates/nsh-platform-linux/src/app.rs b/crates/nsh-platform-linux/src/app.rs
+index d886202..3e4e0ca 100644
+--- a/crates/nsh-platform-linux/src/app.rs
++++ b/crates/nsh-platform-linux/src/app.rs
+@@ -230,6 +230,11 @@ pub struct AppView {
+ }
+ 
+ impl AppView {
++    /// Experimental trusted registration; no guest-supplied owner identities.
++    #[cfg(feature = "native-retirement-observer")]
++    pub fn register_retirement_boundary(&self, factory_name: &str) -> Result<crate::retirement::NativeOwner, &'static str> {
++        self.surface.retirement.borrow_mut().register(factory_name)
++    }
+     /// A view with no app yet.
+     pub fn new(options: AppOptions) -> Rc<AppView> {
+         let surface = Surface::new(initial_environment());
+diff --git a/crates/nsh-platform-linux/src/image.rs b/crates/nsh-platform-linux/src/image.rs
+index 5b2709d..6389d8c 100644
+--- a/crates/nsh-platform-linux/src/image.rs
++++ b/crates/nsh-platform-linux/src/image.rs
+@@ -1360,6 +1360,11 @@ fn draw_one(
+         }
+         None => draw_texture(snapshot, texture, &rect, scale),
+     }
++    #[cfg(feature = "native-retirement-observer")]
++    if let Some(owner) = &state.retirement_owner {
++        owner.snapshotted(state.id, source.and_then(|s| s.data.as_ref()),
++            (texture.width(), texture.height()), (w, h), scale);
++    }
+     if blur > 0.0 {
+         snapshot.pop();
+         snapshot.pop();
+diff --git a/crates/nsh-platform-linux/src/lib.rs b/crates/nsh-platform-linux/src/lib.rs
+index 0d10bca..9f2105c 100644
+--- a/crates/nsh-platform-linux/src/lib.rs
++++ b/crates/nsh-platform-linux/src/lib.rs
+@@ -39,6 +39,8 @@ mod keymap;
+ mod links;
+ mod menu_style;
+ mod mount;
++#[cfg(feature = "native-retirement-observer")]
++pub mod retirement;
+ mod native;
+ mod navigation;
+ mod notifications;
+diff --git a/crates/nsh-platform-linux/src/mount.rs b/crates/nsh-platform-linux/src/mount.rs
+index ec22642..b15ca74 100644
+--- a/crates/nsh-platform-linux/src/mount.rs
++++ b/crates/nsh-platform-linux/src/mount.rs
+@@ -74,6 +74,8 @@ impl Mounter {
+         match item {
+             MountItem::Create { id, kind } => {
+                 let view = NshView::new(*id, *kind);
++                #[cfg(feature = "native-retirement-observer")]
++                surface.retirement.borrow_mut().created(&view);
+                 crate::access::created(&view);
+                 match kind {
+                     ViewKind::Input => crate::text_input::create(surface, &view),
+@@ -138,6 +140,8 @@ impl Mounter {
+                 }
+             }
+             MountItem::Delete { id } => {
++                #[cfg(feature = "native-retirement-observer")]
++                surface.retirement.borrow_mut().deleted(*id);
+                 crate::file_drop::deleted(surface, *id);
+                 crate::navigation::deleted(surface, *id);
+                 if let Some(view) = self.views.remove(id) {
+diff --git a/crates/nsh-platform-linux/src/surface.rs b/crates/nsh-platform-linux/src/surface.rs
+index cbd5ca4..01ad758 100644
+--- a/crates/nsh-platform-linux/src/surface.rs
++++ b/crates/nsh-platform-linux/src/surface.rs
+@@ -106,6 +106,8 @@ pub(crate) struct Surface {
+     pub(crate) root: NshView,
+     /// Views by node id, and what mounting needs between items.
+     pub(crate) mounter: RefCell<Mounter>,
++    #[cfg(feature = "native-retirement-observer")]
++    pub(crate) retirement: RefCell<crate::retirement::Registry>,
+     /// The native animation graph.
+     pub(crate) anim: RefCell<UiAnimation>,
+     /// Stacks, screens and modals.
+@@ -236,6 +238,8 @@ impl Surface {
+             key,
+             root: root.clone(),
+             mounter: RefCell::new(Mounter::new(root.clone())),
++            #[cfg(feature = "native-retirement-observer")]
++            retirement: RefCell::default(),
+             anim: RefCell::new(UiAnimation::default()),
+             nav: RefCell::default(),
+             windows: RefCell::default(),
+@@ -561,7 +565,11 @@ impl Surface {
+         self.ensure_ticking();
+     }
+ 
+-    fn apply(self: &Rc<Self>, batch: &MountBatch) {
++    pub(crate) fn apply(self: &Rc<Self>, batch: &MountBatch) {
++        #[cfg(feature = "native-retirement-observer")]
++        if self.retirement.borrow_mut().prepare(batch, &self.mounter.borrow()).is_err() {
++            return;
++        }
+         crate::access::prepare(batch);
+         for item in &batch.items {
+             self.anim.borrow_mut().apply(item);
+diff --git a/crates/nsh-platform-linux/src/view.rs b/crates/nsh-platform-linux/src/view.rs
+index 9cb4035..7520ba8 100644
+--- a/crates/nsh-platform-linux/src/view.rs
++++ b/crates/nsh-platform-linux/src/view.rs
+@@ -73,6 +73,8 @@ pub(crate) struct ViewState {
+     pub(crate) area_selection: Option<(u32, u32)>,
+     /// Image content (image views).
+     pub(crate) image: Option<crate::image::ImageState>,
++    #[cfg(feature = "native-retirement-observer")]
++    pub(crate) retirement_owner: Option<crate::retirement::NativeOwner>,
+     /// Canvas content.
+     pub(crate) canvas: Option<crate::canvas::CanvasState>,
+     /// What a shader draws under the children ([`crate::shader`]).
+@@ -108,6 +110,8 @@ impl ViewState {
+             text: None,
+             area_selection: None,
+             image: None,
++            #[cfg(feature = "native-retirement-observer")]
++            retirement_owner: None,
+             canvas: None,
+             shader: None,
+             input: None,
+diff --git acrates/nsh-platform-linux/src/retirement.rs bcrates/nsh-platform-linux/src/retirement.rs
+new file mode 100644
+index 0000000..b98fa0a
+--- /dev/null
++++ bcrates/nsh-platform-linux/src/retirement.rs
+@@ -0,0 +1,562 @@
++//! Experimental Linux-only native ownership observations.
++//!
++//! This vertical slice never returns a release ACK: task/decode/cache and
++//! native-child coverage are deliberately still missing. Object finalization
++//! and snapshot participation are separate facts, not physical presentation.
++use crate::{mount::Mounter, view::NshView};
++use gtk4::{glib, prelude::*};
++use nsh_core::{ImageData, MountBatch, MountItem, NodeId, ViewKind};
++use std::{
++    cell::RefCell,
++    collections::{HashMap, HashSet},
++    rc::Rc,
++};
++
++const MAX_OWNERS: usize = 8;
++const MAX_NODES: usize = 4096;
++
++/// Trusted adapter-local identity. Deliberately nonserializable and !Send.
++#[derive(Clone)]
++pub struct NativeOwner(Rc<RefCell<Facts>>);
++struct Facts {
++    root: Option<NodeId>,
++    closing: bool,
++    failure: Option<&'static str>,
++    live: HashSet<NodeId>,
++    deleted: HashSet<NodeId>,
++    finalized: HashSet<NodeId>,
++    next_stamp: u64,
++    frame: Option<ExpectedFrame>,
++    snapshot: Option<SnapshotEvidence>,
++    snapshots: u64,
++}
++struct ExpectedFrame {
++    stamp: FrameStamp,
++    data: ImageData,
++    pixels: (i32, i32),
++}
++/// Opaque, own-mount, strictly increasing frame identity.
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub struct FrameStamp(u64);
++/// An actual image append in a GTK snapshot. This is not a display-present fence.
++#[derive(Clone, Debug, PartialEq)]
++pub struct SnapshotEvidence {
++    pub stamp: FrameStamp,
++    pub node: NodeId,
++    pub pixels: (i32, i32),
++    pub bounds_dip: (f32, f32),
++    pub scale: f32,
++    pub sequence: u64,
++}
++/// Partial evidence only. `Unprovable` must never be converted to a Host ACK.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub struct PartialRetirement {
++    pub root: Option<NodeId>,
++    pub closing: bool,
++    pub live_nodes: usize,
++    pub delete_applied: usize,
++    /// Qdata destroy notification reached; not a finalizer-return fence.
++    pub finalization_reached_nodes: usize,
++    pub failure: Option<&'static str>,
++    pub unprovable: &'static str,
++}
++impl NativeOwner {
++    /// Close new native/frame admission. Existing objects continue their real lifetime.
++    pub fn begin_close(&self) {
++        let mut f = self.0.borrow_mut();
++        f.closing = true;
++        f.frame = None;
++    }
++    /// Diagnostic evidence; node zero is insufficient to release a mount.
++    pub fn status(&self) -> PartialRetirement {
++        let f = self.0.borrow();
++        PartialRetirement {
++            root: f.root,
++            closing: f.closing,
++            live_nodes: f.live.len(),
++            delete_applied: f.deleted.len(),
++            finalization_reached_nodes: f.finalized.len(),
++            failure: f.failure,
++            unprovable: "native children, tasks, decode and cache not yet covered",
++        }
++    }
++    /// Bind exact ImageData identity supplied by the trusted Rust renderer, not URI/text props.
++    pub fn register_frame(
++        &self,
++        data: ImageData,
++        pixels: (i32, i32),
++    ) -> Result<FrameStamp, &'static str> {
++        let mut f = self.0.borrow_mut();
++        if f.closing || f.failure.is_some() || pixels.0 <= 0 || pixels.1 <= 0 || data.is_empty() {
++            return Err("frame admission rejected");
++        }
++        f.next_stamp = f.next_stamp.checked_add(1).ok_or("frame stamp exhausted")?;
++        let stamp = FrameStamp(f.next_stamp);
++        f.frame = Some(ExpectedFrame {
++            stamp,
++            data,
++            pixels,
++        });
++        f.snapshot = None;
++        Ok(stamp)
++    }
++    /// Last actual append observation, with bounded storage.
++    pub fn snapshot(&self) -> Option<SnapshotEvidence> {
++        self.0.borrow().snapshot.clone()
++    }
++    pub(crate) fn snapshotted(
++        &self,
++        node: NodeId,
++        data: Option<&ImageData>,
++        pixels: (i32, i32),
++        bounds: (f32, f32),
++        scale: f32,
++    ) {
++        let mut f = self.0.borrow_mut();
++        if f.closing
++            || f.failure.is_some()
++            || !f.live.contains(&node)
++            || !bounds.0.is_finite()
++            || !bounds.1.is_finite()
++            || bounds.0 <= 0.0
++            || bounds.1 <= 0.0
++            || !scale.is_finite()
++            || scale <= 0.0
++        {
++            return;
++        }
++        let Some(frame) = &f.frame else { return };
++        if data != Some(&frame.data) || pixels != frame.pixels {
++            return;
++        }
++        let stamp = frame.stamp;
++        let Some(sequence) = f.snapshots.checked_add(1) else {
++            f.failure = Some("snapshot sequence exhausted");
++            return;
++        };
++        f.snapshots = sequence;
++        f.snapshot = Some(SnapshotEvidence {
++            stamp,
++            node,
++            pixels,
++            bounds_dip: bounds,
++            scale,
++            sequence,
++        });
++    }
++    fn fail(&self, reason: &'static str) {
++        self.0.borrow_mut().failure.get_or_insert(reason);
++    }
++}
++
++/// This guard is owned by GObject qdata, not by a Rust wrapper or weak-ref.
++/// A private key is installed once and never explicitly cleared/replaced.
++/// GTK object destruction stays on its main thread. Observation is polled
++/// separately on the GTK thread; this notification only proves the qdata
++/// finalization stage was reached, not that the complete native finalizer
++/// returned. No reentrant Host callback occurs here.
++struct Finalization {
++    owner: NativeOwner,
++    node: NodeId,
++}
++impl Drop for Finalization {
++    fn drop(&mut self) {
++        let mut f = self.owner.0.borrow_mut();
++        f.live.remove(&self.node);
++        f.finalized.insert(self.node);
++    }
++}
++#[derive(Default)]
++pub(crate) struct Registry {
++    registrations: HashMap<String, NativeOwner>,
++    spent: HashSet<String>,
++    owners: Vec<NativeOwner>,
++    nodes: HashMap<NodeId, NativeOwner>,
++    installed: HashSet<NodeId>,
++}
++impl Registry {
++    pub(crate) fn register(&mut self, factory: &str) -> Result<NativeOwner, &'static str> {
++        if factory.is_empty()
++            || factory.len() > 128
++            || self.owners.len() >= MAX_OWNERS
++            || (self.registrations.contains_key(factory) || self.spent.contains(factory))
++        {
++            return Err("boundary registration rejected");
++        }
++        let owner = NativeOwner(Rc::new(RefCell::new(Facts {
++            root: None,
++            closing: false,
++            failure: None,
++            live: HashSet::new(),
++            deleted: HashSet::new(),
++            finalized: HashSet::new(),
++            next_stamp: 0,
++            frame: None,
++            snapshot: None,
++            snapshots: 0,
++        })));
++        self.registrations.insert(factory.into(), owner.clone());
++        self.owners.push(owner.clone());
++        Ok(owner)
++    }
++    /// Resolve the complete batch before any Create/source property can start work.
++    pub(crate) fn prepare(
++        &mut self,
++        batch: &MountBatch,
++        mounter: &Mounter,
++    ) -> Result<(), &'static str> {
++        match self.plan(batch, mounter) {
++            Ok((planned, roots)) => {
++                for (name, node, owner) in roots {
++                    owner.0.borrow_mut().root = Some(node);
++                    self.registrations.remove(&name);
++                    self.spent.insert(name);
++                }
++                self.nodes = planned;
++                Ok(())
++            }
++            Err(e) => {
++                for owner in &self.owners {
++                    owner.fail(e);
++                }
++                Err(e)
++            }
++        }
++    }
++    fn plan(
++        &self,
++        batch: &MountBatch,
++        mounter: &Mounter,
++    ) -> Result<
++        (
++            HashMap<NodeId, NativeOwner>,
++            Vec<(String, NodeId, NativeOwner)>,
++        ),
++        &'static str,
++    > {
++        let mut nodes = self.nodes.clone();
++        let mut roots = Vec::new();
++        let mut used = HashSet::new();
++        let mut created = HashMap::new();
++        let mut parents = HashMap::new();
++        for item in &batch.items {
++            match item {
++                MountItem::Create { id, kind } => {
++                    if created.insert(*id, *kind).is_some() || nodes.contains_key(id) {
++                        return Err("node identity reused");
++                    }
++                }
++                MountItem::Insert { parent, child, .. } => {
++                    parents.insert(*child, *parent);
++                }
++                MountItem::Component { id, name } => {
++                    if let Some(owner) = self.registrations.get(name.as_ref()) {
++                        if !used.insert(name.to_string()) || owner.0.borrow().closing {
++                            return Err("one-shot boundary reused or closed");
++                        }
++                        if nodes.insert(*id, owner.clone()).is_some() {
++                            return Err("boundary identity reused");
++                        }
++                        roots.push((name.to_string(), *id, owner.clone()));
++                    } else if self.spent.contains(name.as_ref())
++                        || self.owners.iter().any(|o| o.0.borrow().root == Some(*id))
++                    {
++                        return Err("boundary component replaced");
++                    }
++                }
++                _ => {}
++            }
++        }
++        for (_, node, _) in &roots {
++            if created.get(node) != Some(&ViewKind::Native) {
++                return Err("boundary must be a newly created native node");
++            }
++        }
++        for child in parents.keys() {
++            let mut cursor = *child;
++            let mut seen = HashSet::new();
++            while let Some(parent) = parents.get(&cursor) {
++                if !seen.insert(cursor) {
++                    return Err("native parent cycle");
++                }
++                cursor = *parent;
++            }
++        }
++        for _ in 0..=parents.len() {
++            let mut changed = false;
++            for (child, parent) in &parents {
++                if let Some(owner) = nodes.get(parent).cloned() {
++                    if let Some(old) = nodes.get(child) {
++                        if !Rc::ptr_eq(&old.0, &owner.0) {
++                            return Err("cross-owner reparent");
++                        }
++                    } else {
++                        if !created.contains_key(child) || mounter.views.contains_key(child) {
++                            return Err("retroactive owner binding");
++                        }
++                        if owner.0.borrow().closing {
++                            return Err("closed owner admission");
++                        }
++                        nodes.insert(*child, owner);
++                        changed = true;
++                    }
++                }
++            }
++            if !changed {
++                break;
++            }
++        }
++        for (child, parent) in &parents {
++            if nodes.contains_key(child)
++                && !nodes.contains_key(parent)
++                && !roots.iter().any(|(_, root, _)| root == child)
++                && !self
++                    .owners
++                    .iter()
++                    .any(|o| o.0.borrow().root == Some(*child))
++            {
++                return Err("owned node moved outside boundary");
++            }
++        }
++        if nodes.len() > MAX_NODES {
++            return Err("native node observation limit");
++        }
++        for (id, owner) in &nodes {
++            if !self.nodes.contains_key(id) {
++                if owner.0.borrow().closing
++                    || !created.contains_key(id)
++                    || mounter.views.contains_key(id)
++                {
++                    return Err("late boundary admission");
++                }
++                match created[id] {
++                    ViewKind::View
++                    | ViewKind::Text
++                    | ViewKind::Input
++                    | ViewKind::Image
++                    | ViewKind::Scroll
++                    | ViewKind::Native => {}
++                    _ => owner.fail("unsupported native resource kind"),
++                }
++            }
++        }
++        // Once closed, retain old resources only; reject state-changing operations
++        // instead of executing a late Image/source/command on an old owner.
++        for item in &batch.items {
++            match item {
++                MountItem::Delete { .. } | MountItem::Remove { .. } => {}
++                _ if mutation_node(item)
++                    .and_then(|id| nodes.get(&id))
++                    .is_some_and(|o| o.0.borrow().closing) =>
++                {
++                    return Err("closed owner mutation rejected");
++                }
++                MountItem::Animation(_) if self.owners.iter().any(|o| o.0.borrow().closing) => {
++                    return Err("global animation mutation during close unproved");
++                }
++                _ => {}
++            }
++        }
++        Ok((nodes, roots))
++    }
++    pub(crate) fn created(&mut self, view: &NshView) {
++        let Some(owner) = self.nodes.get(&view.id()).cloned() else {
++            return;
++        };
++        if !self.installed.insert(view.id()) {
++            owner.fail("duplicate finalization registration");
++            return;
++        }
++        owner.0.borrow_mut().live.insert(view.id());
++        view.state_mut().retirement_owner = Some(owner.clone());
++        // SAFETY: private key, installed once, never read/removed/replaced; the
++        // value owns no GObject reference. GObject destroys it at finalization.
++        unsafe {
++            view.set_data(
++                "qusor-retirement-finalization-913-v1",
++                Finalization {
++                    owner,
++                    node: view.id(),
++                },
++            );
++        }
++    }
++    pub(crate) fn deleted(&mut self, node: NodeId) {
++        if let Some(owner) = self.nodes.get(&node) {
++            owner.0.borrow_mut().deleted.insert(node);
++        }
++    }
++}
++
++fn mutation_node(item: &MountItem) -> Option<NodeId> {
++    match item {
++        MountItem::Create { id, .. } => Some(*id),
++        MountItem::TrackStates { id, .. } => Some(*id),
++        MountItem::ProjectStates { id, .. } => Some(*id),
++        MountItem::Remove { id, .. } => Some(*id),
++        MountItem::Delete { id, .. } => Some(*id),
++        MountItem::Frame { id, .. } => Some(*id),
++        MountItem::Overflow { id, .. } => Some(*id),
++        MountItem::ViewStyle { id, .. } => Some(*id),
++        MountItem::Text { id, .. } => Some(*id),
++        MountItem::Events { id, .. } => Some(*id),
++        MountItem::Image { id, .. } => Some(*id),
++        MountItem::ScrollConfig { id, .. } => Some(*id),
++        MountItem::ScrollContent { id, .. } => Some(*id),
++        MountItem::ScrollBy { id, .. } => Some(*id),
++        MountItem::StickyCells { id, .. } => Some(*id),
++        MountItem::ScrollBehavior { id, .. } => Some(*id),
++        MountItem::Refreshing { id, .. } => Some(*id),
++        MountItem::Canvas { id, .. } => Some(*id),
++        MountItem::Shader { id, .. } => Some(*id),
++        MountItem::ShaderTransition { id, .. } => Some(*id),
++        MountItem::NavShader { id, .. } => Some(*id),
++        MountItem::ShaderInput { id, .. } => Some(*id),
++        MountItem::AnimationBindings { id, .. } => Some(*id),
++        MountItem::Gestures { id, .. } => Some(*id),
++        MountItem::ViewProps { id, .. } => Some(*id),
++        MountItem::AccessibilityLabel { id, .. } => Some(*id),
++        MountItem::Input { id, .. } => Some(*id),
++        MountItem::InputValue { id, .. } => Some(*id),
++        MountItem::InputContent { id, .. } => Some(*id),
++        MountItem::ScreenConfig { id, .. } => Some(*id),
++        MountItem::NativeProps { id, .. } => Some(*id),
++        MountItem::ModalConfig { id, .. } => Some(*id),
++        MountItem::Component { id, .. } => Some(*id),
++        MountItem::ComponentPropSlots { id, .. } => Some(*id),
++        MountItem::ComponentProps { id, .. } => Some(*id),
++        MountItem::Command { id, .. } => Some(*id),
++        MountItem::Insert { child, .. } => Some(*child),
++        _ => None,
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use crate::gtk_test;
++    fn create_boundary(surface: &Rc<crate::surface::Surface>, kind: ViewKind) -> NativeOwner {
++        let owner = surface
++            .retirement
++            .borrow_mut()
++            .register("fixture/one-shot")
++            .unwrap();
++        surface.apply(&MountBatch {
++            items: vec![
++                MountItem::Create {
++                    id: 2,
++                    kind: ViewKind::Native,
++                },
++                MountItem::Create { id: 3, kind },
++                // Deliberately children before boundary and parent: ownership is
++                // planned over the full batch, not assigned after Insert.
++                MountItem::Insert {
++                    parent: 2,
++                    child: 3,
++                    before: None,
++                },
++                MountItem::Component {
++                    id: 2,
++                    name: "fixture/one-shot".into(),
++                },
++                MountItem::Insert {
++                    parent: nsh_core::ROOT_ID,
++                    child: 2,
++                    before: None,
++                },
++            ],
++        });
++        assert_eq!(owner.status().root, Some(2));
++        assert_eq!(owner.status().live_nodes, 2);
++        owner
++    }
++    #[test]
++    fn retirement_real_finalization_waits_for_clone_and_survives_dispose() {
++        gtk_test::run(|| {
++            let s=gtk_test::surface(); let o=create_boundary(&s,ViewKind::View);
++            let held=gtk_test::view(&s,3); let clone=held.clone();
++            o.begin_close();
++            s.apply(&MountBatch{items:vec![MountItem::Delete{id:2},MountItem::Delete{id:3}]});
++            assert_eq!(o.status().delete_applied,2);
++            assert_eq!(o.status().live_nodes,1,"real GTK clone must hold native object");
++            // SAFETY: dedicated detached fixture on GTK's main thread; we keep
++            // strong refs intentionally to distinguish dispose from finalize.
++            unsafe { held.run_dispose(); }
++            assert_eq!(o.status().live_nodes,1,"run_dispose must not fake finalization");
++            drop(held); assert_eq!(o.status().live_nodes,1);
++            drop(clone); assert_eq!(o.status().live_nodes,0);
++            assert_eq!(o.status().finalization_reached_nodes,2);
++            assert!(!o.status().unprovable.is_empty(),"nodes alone never ACK");
++            eprintln!("OBSERVER_REAL_FINALIZATION clones_blocked=true dispose_not_ack=true qdata_finalization_reached=2 finalizer_return_claimed=false unprovable=true");
++        }).expect("real GTK display required for this qualification test");
++    }
++    #[test]
++    fn retirement_one_shot_closed_admission_and_foreign_owner_fail_closed() {
++        gtk_test::run(|| {
++            let s = gtk_test::surface();
++            let o = create_boundary(&s, ViewKind::View);
++            assert!(
++                s.retirement
++                    .borrow_mut()
++                    .register("fixture/one-shot")
++                    .is_err()
++            );
++            o.begin_close();
++            let late = MountBatch {
++                items: vec![
++                    MountItem::Create {
++                        id: 4,
++                        kind: ViewKind::View,
++                    },
++                    MountItem::Insert {
++                        parent: 2,
++                        child: 4,
++                        before: None,
++                    },
++                ],
++            };
++            s.apply(&late);
++            assert!(!s.mounter.borrow().views.contains_key(&4));
++            assert!(o.register_frame(ImageData::new(vec![1]), (1, 1)).is_err());
++            assert!(o.status().failure.is_some());
++            let foreign = gtk_test::surface();
++            let f = foreign
++                .retirement
++                .borrow_mut()
++                .register("fixture/one-shot")
++                .unwrap();
++            assert!(f.status().root.is_none());
++            assert_eq!(f.status().live_nodes, 0);
++            eprintln!(
++                "OBSERVER_ADMISSION one_shot=true late_create_rejected=true foreign_isolated=true"
++            );
++        })
++        .expect("real GTK display required for this qualification test");
++    }
++    #[test]
++    fn retirement_actual_image_snapshot_matches_exact_frame_identity() {
++        gtk_test::run(|| {
++            let s=gtk_test::surface();let o=create_boundary(&s,ViewKind::Image);
++            let mut bytes=std::io::Cursor::new(Vec::new());
++            image::RgbaImage::from_pixel(2,2,image::Rgba([60,90,120,255]))
++                .write_to(&mut bytes,image::ImageFormat::Png).unwrap();
++            let data=ImageData::new(bytes.into_inner());
++            let stamp=o.register_frame(data.clone(),(2,2)).unwrap();
++            assert!(o.snapshot().is_none(),"registration/load is not snapshot participation");
++            s.apply(&MountBatch{items:vec![
++                MountItem::Frame{id:2,frame:gtk_test::frame(0.,0.,100.,100.)},
++                MountItem::Frame{id:3,frame:gtk_test::frame(0.,0.,100.,100.)},
++                MountItem::Image{id:3,source:Some(nsh_core::ImageSource{uri:"blob:observer-fixture".into(),size:None,scales:nsh_core::ImageScales::NONE,data:Some(data)}),resize_mode:nsh_core::ResizeMode::Contain,options:Default::default()},
++            ]});
++            let window=gtk_test::show(&s);
++            assert!(gtk_test::wait_until(|| o.snapshot().is_some()));
++            let evidence=o.snapshot().unwrap();assert_eq!(evidence.stamp,stamp);assert_eq!(evidence.node,3);
++            let different=ImageData::new(vec![9]);o.register_frame(different,(2,2)).unwrap();
++            gtk_test::view(&s,3).queue_draw();
++            while glib::MainContext::default().pending() { glib::MainContext::default().iteration(false); }
++            assert!(o.snapshot().is_none(),"wrong ImageData must not certify old pixels");
++            o.begin_close();assert!(!o.status().unprovable.is_empty());window.close();
++            eprintln!("OBSERVER_SNAPSHOT actual_append=true exact_identity=true physical_present_claimed=false");
++        }).expect("real GTK display required for this qualification test");
++    }
++}

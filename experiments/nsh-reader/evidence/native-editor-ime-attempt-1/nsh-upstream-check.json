@@ -1,0 +1,28 @@
+{
+  "checked_at_utc": "2026-11-08T12:48:53.988738+00:00",
+  "fixed_commit": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "official_main_commit": "101a426f8c5ef62e62e60ad32d5e6db4e68caa67",
+  "official_main_commit_date": "2026-11-08T12:33:29Z",
+  "releases": [
+    {
+      "tag": "nightly",
+      "published_at": "2026-11-08T00:16:39Z"
+    },
+    {
+      "tag": "v0.4.0",
+      "published_at": "2026-11-04T12:23:58Z"
+    }
+  ],
+  "linux_text_input_sha256_fixed_and_main": "4f7a3706ea2013afa371a604b6588e50771f52189f7f611f60b343d663e80774",
+  "latest_composition_related_commit": {
+    "sha": "1ace9c3b28368648a311ec49894dce7ff6717c79",
+    "date": "2026-11-05T01:59:18Z",
+    "title": "linux: Keep a multiline input's text still when CJK is typed (#926)"
+  },
+  "sources": [
+    "https://api.github.com/repos/longbridge/nsh/commits?per_page=3",
+    "https://api.github.com/repos/longbridge/nsh/releases?per_page=3",
+    "https://github.com/longbridge/nsh/blob/101a426f8c5ef62e62e60ad32d5e6db4e68caa67/docs/dev/linux.md"
+  ],
+  "impact": "No NSH upgrade required for IME qualification; pinned Linux composition implementation equals current main. Actual engine/preedit integration remains untested."
+}

@@ -1,0 +1,7 @@
+   Compiling nsh-macros v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-macros)
+    Checking nsh-updater v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-updater)
+    Checking nsh-core v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-core)
+    Checking nsh-base v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-base)
+    Checking nsh-engine v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-engine)
+    Checking nsh-platform-linux v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-platform-linux)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 23.82s

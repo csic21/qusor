@@ -1,0 +1,7 @@
+{
+  "before_composition_events": 10,
+  "after_composition_events": 11,
+  "before_vms": 3,
+  "after_vms": 3,
+  "scope": "IME Escape cancellation only, not global Escape UX"
+}

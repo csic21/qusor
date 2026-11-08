@@ -1,0 +1,1114 @@
+{
+  "restore": {
+    "ok": true,
+    "receipt": {
+      "pdf_captures": 3,
+      "pdf_documents": 1,
+      "text_captures": 0
+    }
+  },
+  "captures_equal_before_after_restore": true,
+  "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+  "archive_sha256": "573a7a4548e3a7c39dd44753f12dd7afdf1c4fc23c4f1d9234d97b68ee57c474",
+  "records": [
+    {
+      "capture": {
+        "draft": {
+          "end": 5,
+          "exact": "QUSOR",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+          "page_index": 0,
+          "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+          "protocol_version": 1,
+          "start": 0,
+          "unit": "unicode_scalar"
+        },
+        "provenance": {
+          "installation_id": 1,
+          "package_digest": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+          "package_id": "org.example.surface-reader",
+          "publisher_id": "org.example.author"
+        },
+        "receipt": {
+          "capture_id": 1,
+          "commit_rev": 2,
+          "document_id": 1,
+          "draft_hash": "e7a3844140f76b809b0b4b330a201943f549b00271b35c0426c2dfd5230ae1ef",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "operation_id": "surface-save-d6a7f42e918a8dd98b29e95e8da1ad21-6",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c"
+        },
+        "user_note": "native note one"
+      },
+      "ok": true
+    },
+    {
+      "capture": {
+        "draft": {
+          "end": 12,
+          "exact": "native",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+          "page_index": 0,
+          "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+          "protocol_version": 1,
+          "start": 6,
+          "unit": "unicode_scalar"
+        },
+        "provenance": {
+          "installation_id": 1,
+          "package_digest": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+          "package_id": "org.example.surface-reader",
+          "publisher_id": "org.example.author"
+        },
+        "receipt": {
+          "capture_id": 2,
+          "commit_rev": 3,
+          "document_id": 1,
+          "draft_hash": "05fa933ec8eff89d3f6e9438a6241e8f3bda73f8787c359cd8237816abc62abd",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "operation_id": "surface-save-d6a7f42e918a8dd98b29e95e8da1ad21-9",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c"
+        },
+        "user_note": "native note two"
+      },
+      "ok": true
+    },
+    {
+      "capture": {
+        "compound": {
+          "exact": "QUSOR native PDF qualification\nRepeat",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+          "protocol_version": 2,
+          "segments": [
+            {
+              "end": 30,
+              "exact": "QUSOR native PDF qualification",
+              "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+              "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+              "page_index": 0,
+              "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+              "protocol_version": 1,
+              "start": 0,
+              "unit": "unicode_scalar"
+            },
+            {
+              "end": 38,
+              "exact": "Repeat",
+              "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+              "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+              "page_index": 0,
+              "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+              "protocol_version": 1,
+              "start": 32,
+              "unit": "unicode_scalar"
+            }
+          ],
+          "selection_profile": "qusor-plain-ltr-lines-v1",
+          "separator": "\n"
+        },
+        "draft": {
+          "end": 30,
+          "exact": "QUSOR native PDF qualification",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+          "page_index": 0,
+          "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+          "protocol_version": 1,
+          "start": 0,
+          "unit": "unicode_scalar"
+        },
+        "provenance": {
+          "installation_id": 1,
+          "package_digest": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+          "package_id": "org.example.surface-reader",
+          "publisher_id": "org.example.author"
+        },
+        "receipt": {
+          "capture_id": 3,
+          "commit_rev": 4,
+          "document_id": 1,
+          "draft_hash": "c053cb6d3afee1ca1bfb47bd8c47d1652702e297db4979ed6daef655d099aaee",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "operation_id": "surface-save-d6a7f42e918a8dd98b29e95e8da1ad21-12",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c"
+        },
+        "user_note": "native compound note"
+      },
+      "ok": true
+    }
+  ],
+  "exact_resolutions": [
+    {
+      "ok": true,
+      "selection": {
+        "anchor": {
+          "end": 5,
+          "exact": "QUSOR",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+          "page_index": 0,
+          "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+          "protocol_version": 1,
+          "start": 0,
+          "unit": "unicode_scalar"
+        },
+        "byte_end": 5,
+        "byte_start": 0,
+        "characters": [
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.22998046875,
+              "left": 72.5459976196289,
+              "right": 82.34600067138672,
+              "top": 710.3179931640625
+            },
+            "pdf_char_index": 0,
+            "scalar_end": 1,
+            "scalar_start": 0,
+            "unicode_value": 81,
+            "utf16_end": 1,
+            "utf16_start": 0,
+            "utf8_end": 1,
+            "utf8_start": 0
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.7479858398438,
+              "left": 83.99800109863281,
+              "right": 91.90800476074219,
+              "top": 710.052001953125
+            },
+            "pdf_char_index": 1,
+            "scalar_end": 2,
+            "scalar_start": 1,
+            "unicode_value": 85,
+            "utf16_end": 2,
+            "utf16_start": 1,
+            "utf8_end": 2,
+            "utf8_start": 1
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.7479858398438,
+              "left": 93.68600463867188,
+              "right": 101.68000030517578,
+              "top": 710.3179931640625
+            },
+            "pdf_char_index": 2,
+            "scalar_end": 3,
+            "scalar_start": 2,
+            "unicode_value": 83,
+            "utf16_end": 3,
+            "utf16_start": 2,
+            "utf8_end": 3,
+            "utf8_start": 2
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.7479858398438,
+              "left": 102.88400268554688,
+              "right": 112.68400573730469,
+              "top": 710.3179931640625
+            },
+            "pdf_char_index": 3,
+            "scalar_end": 4,
+            "scalar_start": 3,
+            "unicode_value": 79,
+            "utf16_end": 4,
+            "utf16_start": 3,
+            "utf8_end": 4,
+            "utf8_start": 3
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 114.46200561523438,
+              "right": 122.80599975585938,
+              "top": 710.052001953125
+            },
+            "pdf_char_index": 4,
+            "scalar_end": 5,
+            "scalar_start": 4,
+            "unicode_value": 82,
+            "utf16_end": 5,
+            "utf16_start": 4,
+            "utf8_end": 5,
+            "utf8_start": 4
+          }
+        ],
+        "end": 5,
+        "exact": "QUSOR",
+        "page_index": 0,
+        "start": 0,
+        "utf16_end": 5,
+        "utf16_start": 0
+      }
+    },
+    {
+      "ok": true,
+      "selection": {
+        "anchor": {
+          "end": 12,
+          "exact": "native",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+          "page_index": 0,
+          "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+          "protocol_version": 1,
+          "start": 6,
+          "unit": "unicode_scalar"
+        },
+        "byte_end": 12,
+        "byte_start": 6,
+        "characters": [
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 128.13999938964844,
+              "right": 134.10400390625,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 6,
+            "scalar_end": 7,
+            "scalar_start": 6,
+            "unicode_value": 110,
+            "utf16_end": 7,
+            "utf16_start": 6,
+            "utf8_end": 7,
+            "utf8_start": 6
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.8040161132812,
+              "left": 135.51800537109375,
+              "right": 142.4340057373047,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 7,
+            "scalar_end": 8,
+            "scalar_start": 7,
+            "unicode_value": 97,
+            "utf16_end": 8,
+            "utf16_start": 7,
+            "utf8_end": 8,
+            "utf8_start": 7
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.916015625,
+              "left": 142.99400329589844,
+              "right": 146.39599609375,
+              "top": 709.3660278320312
+            },
+            "pdf_char_index": 8,
+            "scalar_end": 9,
+            "scalar_start": 8,
+            "unicode_value": 116,
+            "utf16_end": 9,
+            "utf16_start": 8,
+            "utf8_end": 9,
+            "utf8_start": 8
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 147.6280059814453,
+              "right": 148.86000061035156,
+              "top": 710.052001953125
+            },
+            "pdf_char_index": 9,
+            "scalar_end": 10,
+            "scalar_start": 9,
+            "unicode_value": 105,
+            "utf16_end": 10,
+            "utf16_start": 9,
+            "utf8_end": 10,
+            "utf8_start": 9
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 149.91000366210938,
+              "right": 156.68600463867188,
+              "top": 707.322021484375
+            },
+            "pdf_char_index": 10,
+            "scalar_end": 11,
+            "scalar_start": 10,
+            "unicode_value": 118,
+            "utf16_end": 11,
+            "utf16_start": 10,
+            "utf8_end": 11,
+            "utf8_start": 10
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.8040161132812,
+              "left": 157.35800170898438,
+              "right": 164.02200317382812,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 11,
+            "scalar_end": 12,
+            "scalar_start": 11,
+            "unicode_value": 101,
+            "utf16_end": 12,
+            "utf16_start": 11,
+            "utf8_end": 12,
+            "utf8_start": 11
+          }
+        ],
+        "end": 12,
+        "exact": "native",
+        "page_index": 0,
+        "start": 6,
+        "utf16_end": 12,
+        "utf16_start": 6
+      }
+    },
+    {
+      "ok": true,
+      "selection": {
+        "draft": {
+          "exact": "QUSOR native PDF qualification\nRepeat",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+          "protocol_version": 2,
+          "segments": [
+            {
+              "end": 30,
+              "exact": "QUSOR native PDF qualification",
+              "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+              "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+              "page_index": 0,
+              "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+              "protocol_version": 1,
+              "start": 0,
+              "unit": "unicode_scalar"
+            },
+            {
+              "end": 38,
+              "exact": "Repeat",
+              "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+              "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+              "page_index": 0,
+              "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+              "protocol_version": 1,
+              "start": 32,
+              "unit": "unicode_scalar"
+            }
+          ],
+          "selection_profile": "qusor-plain-ltr-lines-v1",
+          "separator": "\n"
+        },
+        "exact": "QUSOR native PDF qualification\nRepeat",
+        "segments": [
+          {
+            "anchor": {
+              "end": 30,
+              "exact": "QUSOR native PDF qualification",
+              "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+              "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+              "page_index": 0,
+              "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+              "protocol_version": 1,
+              "start": 0,
+              "unit": "unicode_scalar"
+            },
+            "byte_end": 30,
+            "byte_start": 0,
+            "characters": [
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.22998046875,
+                  "left": 72.5459976196289,
+                  "right": 82.34600067138672,
+                  "top": 710.3179931640625
+                },
+                "pdf_char_index": 0,
+                "scalar_end": 1,
+                "scalar_start": 0,
+                "unicode_value": 81,
+                "utf16_end": 1,
+                "utf16_start": 0,
+                "utf8_end": 1,
+                "utf8_start": 0
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.7479858398438,
+                  "left": 83.99800109863281,
+                  "right": 91.90800476074219,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 1,
+                "scalar_end": 2,
+                "scalar_start": 1,
+                "unicode_value": 85,
+                "utf16_end": 2,
+                "utf16_start": 1,
+                "utf8_end": 2,
+                "utf8_start": 1
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.7479858398438,
+                  "left": 93.68600463867188,
+                  "right": 101.68000030517578,
+                  "top": 710.3179931640625
+                },
+                "pdf_char_index": 2,
+                "scalar_end": 3,
+                "scalar_start": 2,
+                "unicode_value": 83,
+                "utf16_end": 3,
+                "utf16_start": 2,
+                "utf8_end": 3,
+                "utf8_start": 2
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.7479858398438,
+                  "left": 102.88400268554688,
+                  "right": 112.68400573730469,
+                  "top": 710.3179931640625
+                },
+                "pdf_char_index": 3,
+                "scalar_end": 4,
+                "scalar_start": 3,
+                "unicode_value": 79,
+                "utf16_end": 4,
+                "utf16_start": 3,
+                "utf8_end": 4,
+                "utf8_start": 3
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 114.46200561523438,
+                  "right": 122.80599975585938,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 4,
+                "scalar_end": 5,
+                "scalar_start": 4,
+                "unicode_value": 82,
+                "utf16_end": 5,
+                "utf16_start": 4,
+                "utf8_end": 5,
+                "utf8_start": 4
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": null,
+                "pdf_char_index": 5,
+                "scalar_end": 6,
+                "scalar_start": 5,
+                "unicode_value": 32,
+                "utf16_end": 6,
+                "utf16_start": 5,
+                "utf8_end": 6,
+                "utf8_start": 5
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 128.13999938964844,
+                  "right": 134.10400390625,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 6,
+                "scalar_end": 7,
+                "scalar_start": 6,
+                "unicode_value": 110,
+                "utf16_end": 7,
+                "utf16_start": 6,
+                "utf8_end": 7,
+                "utf8_start": 6
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 135.51800537109375,
+                  "right": 142.4340057373047,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 7,
+                "scalar_end": 8,
+                "scalar_start": 7,
+                "unicode_value": 97,
+                "utf16_end": 8,
+                "utf16_start": 7,
+                "utf8_end": 8,
+                "utf8_start": 7
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.916015625,
+                  "left": 142.99400329589844,
+                  "right": 146.39599609375,
+                  "top": 709.3660278320312
+                },
+                "pdf_char_index": 8,
+                "scalar_end": 9,
+                "scalar_start": 8,
+                "unicode_value": 116,
+                "utf16_end": 9,
+                "utf16_start": 8,
+                "utf8_end": 9,
+                "utf8_start": 8
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 147.6280059814453,
+                  "right": 148.86000061035156,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 9,
+                "scalar_end": 10,
+                "scalar_start": 9,
+                "unicode_value": 105,
+                "utf16_end": 10,
+                "utf16_start": 9,
+                "utf8_end": 10,
+                "utf8_start": 9
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 149.91000366210938,
+                  "right": 156.68600463867188,
+                  "top": 707.322021484375
+                },
+                "pdf_char_index": 10,
+                "scalar_end": 11,
+                "scalar_start": 10,
+                "unicode_value": 118,
+                "utf16_end": 11,
+                "utf16_start": 10,
+                "utf8_end": 11,
+                "utf8_start": 10
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 157.35800170898438,
+                  "right": 164.02200317382812,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 11,
+                "scalar_end": 12,
+                "scalar_start": 11,
+                "unicode_value": 101,
+                "utf16_end": 12,
+                "utf16_start": 11,
+                "utf8_end": 12,
+                "utf8_start": 11
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": null,
+                "pdf_char_index": 12,
+                "scalar_end": 13,
+                "scalar_start": 12,
+                "unicode_value": 32,
+                "utf16_end": 13,
+                "utf16_start": 12,
+                "utf8_end": 13,
+                "utf8_start": 12
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 169.67800903320312,
+                  "right": 177.1820068359375,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 13,
+                "scalar_end": 14,
+                "scalar_start": 13,
+                "unicode_value": 80,
+                "utf16_end": 14,
+                "utf16_start": 13,
+                "utf8_end": 14,
+                "utf8_start": 13
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 178.9459991455078,
+                  "right": 187.24798583984375,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 14,
+                "scalar_end": 15,
+                "scalar_start": 14,
+                "unicode_value": 68,
+                "utf16_end": 15,
+                "utf16_start": 14,
+                "utf8_end": 15,
+                "utf8_start": 14
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 189.12399291992188,
+                  "right": 196.08200073242188,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 15,
+                "scalar_end": 16,
+                "scalar_start": 15,
+                "unicode_value": 70,
+                "utf16_end": 16,
+                "utf16_start": 15,
+                "utf8_end": 16,
+                "utf8_start": 15
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": null,
+                "pdf_char_index": 16,
+                "scalar_end": 17,
+                "scalar_start": 16,
+                "unicode_value": 32,
+                "utf16_end": 17,
+                "utf16_start": 16,
+                "utf8_end": 17,
+                "utf8_start": 16
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 697.1160278320312,
+                  "left": 200.8560028076172,
+                  "right": 207.28199768066406,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 17,
+                "scalar_end": 18,
+                "scalar_start": 17,
+                "unicode_value": 113,
+                "utf16_end": 18,
+                "utf16_start": 17,
+                "utf8_end": 18,
+                "utf8_start": 17
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 209.10198974609375,
+                  "right": 214.99598693847656,
+                  "top": 707.322021484375
+                },
+                "pdf_char_index": 18,
+                "scalar_end": 19,
+                "scalar_start": 18,
+                "unicode_value": 117,
+                "utf16_end": 19,
+                "utf16_start": 18,
+                "utf8_end": 19,
+                "utf8_start": 18
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 216.43798828125,
+                  "right": 223.35398864746094,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 19,
+                "scalar_end": 20,
+                "scalar_start": 19,
+                "unicode_value": 97,
+                "utf16_end": 20,
+                "utf16_start": 19,
+                "utf8_end": 20,
+                "utf8_start": 19
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 224.65599060058594,
+                  "right": 225.8879852294922,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 20,
+                "scalar_end": 21,
+                "scalar_start": 20,
+                "unicode_value": 108,
+                "utf16_end": 21,
+                "utf16_start": 20,
+                "utf8_end": 21,
+                "utf8_start": 20
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 227.7639923095703,
+                  "right": 228.99598693847656,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 21,
+                "scalar_end": 22,
+                "scalar_start": 21,
+                "unicode_value": 105,
+                "utf16_end": 22,
+                "utf16_start": 21,
+                "utf8_end": 22,
+                "utf8_start": 21
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 230.12998962402344,
+                  "right": 233.60198974609375,
+                  "top": 710.1920166015625
+                },
+                "pdf_char_index": 22,
+                "scalar_end": 23,
+                "scalar_start": 22,
+                "unicode_value": 102,
+                "utf16_end": 23,
+                "utf16_start": 22,
+                "utf8_end": 23,
+                "utf8_start": 22
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 234.7639923095703,
+                  "right": 235.99598693847656,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 23,
+                "scalar_end": 24,
+                "scalar_start": 23,
+                "unicode_value": 105,
+                "utf16_end": 24,
+                "utf16_start": 23,
+                "utf8_end": 24,
+                "utf8_start": 23
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 237.49398803710938,
+                  "right": 243.75198364257812,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 24,
+                "scalar_end": 25,
+                "scalar_start": 24,
+                "unicode_value": 99,
+                "utf16_end": 25,
+                "utf16_start": 24,
+                "utf8_end": 25,
+                "utf8_start": 24
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 244.43798828125,
+                  "right": 251.35398864746094,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 25,
+                "scalar_end": 26,
+                "scalar_start": 25,
+                "unicode_value": 97,
+                "utf16_end": 26,
+                "utf16_start": 25,
+                "utf8_end": 26,
+                "utf8_start": 25
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.916015625,
+                  "left": 251.9139862060547,
+                  "right": 255.3159942626953,
+                  "top": 709.3660278320312
+                },
+                "pdf_char_index": 26,
+                "scalar_end": 27,
+                "scalar_start": 26,
+                "unicode_value": 116,
+                "utf16_end": 27,
+                "utf16_start": 26,
+                "utf8_end": 27,
+                "utf8_start": 26
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 256.5479736328125,
+                  "right": 257.77996826171875,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 27,
+                "scalar_end": 28,
+                "scalar_start": 27,
+                "unicode_value": 105,
+                "utf16_end": 28,
+                "utf16_start": 27,
+                "utf8_end": 28,
+                "utf8_start": 27
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8179931640625,
+                  "left": 259.2080078125,
+                  "right": 266.0119934082031,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 28,
+                "scalar_end": 29,
+                "scalar_start": 28,
+                "unicode_value": 111,
+                "utf16_end": 29,
+                "utf16_start": 28,
+                "utf8_end": 29,
+                "utf8_start": 28
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 267.4119873046875,
+                  "right": 273.3759765625,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 29,
+                "scalar_end": 30,
+                "scalar_start": 29,
+                "unicode_value": 110,
+                "utf16_end": 30,
+                "utf16_start": 29,
+                "utf8_end": 30,
+                "utf8_start": 29
+              }
+            ],
+            "end": 30,
+            "exact": "QUSOR native PDF qualification",
+            "page_index": 0,
+            "start": 0,
+            "utf16_end": 30,
+            "utf16_start": 0
+          },
+          {
+            "anchor": {
+              "end": 38,
+              "exact": "Repeat",
+              "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+              "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+              "page_index": 0,
+              "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+              "protocol_version": 1,
+              "start": 32,
+              "unit": "unicode_scalar"
+            },
+            "byte_end": 38,
+            "byte_start": 32,
+            "characters": [
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 73.23200225830078,
+                  "right": 81.57600402832031,
+                  "top": 686.052001953125
+                },
+                "pdf_char_index": 32,
+                "scalar_end": 33,
+                "scalar_start": 32,
+                "unicode_value": 82,
+                "utf16_end": 33,
+                "utf16_start": 32,
+                "utf8_end": 33,
+                "utf8_start": 32
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 82.66799926757812,
+                  "right": 89.33200073242188,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 33,
+                "scalar_end": 34,
+                "scalar_start": 33,
+                "unicode_value": 101,
+                "utf16_end": 34,
+                "utf16_start": 33,
+                "utf8_end": 34,
+                "utf8_start": 33
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 673.1160278320312,
+                  "left": 90.7040023803711,
+                  "right": 97.1300048828125,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 34,
+                "scalar_end": 35,
+                "scalar_start": 34,
+                "unicode_value": 112,
+                "utf16_end": 35,
+                "utf16_start": 34,
+                "utf8_end": 35,
+                "utf8_start": 34
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 98.23600006103516,
+                  "right": 104.9000015258789,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 35,
+                "scalar_end": 36,
+                "scalar_start": 35,
+                "unicode_value": 101,
+                "utf16_end": 36,
+                "utf16_start": 35,
+                "utf8_end": 36,
+                "utf8_start": 35
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 105.96400451660156,
+                  "right": 112.87999725341797,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 36,
+                "scalar_end": 37,
+                "scalar_start": 36,
+                "unicode_value": 97,
+                "utf16_end": 37,
+                "utf16_start": 36,
+                "utf8_end": 37,
+                "utf8_start": 36
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.916015625,
+                  "left": 113.44000244140625,
+                  "right": 116.84199523925781,
+                  "top": 685.3660278320312
+                },
+                "pdf_char_index": 37,
+                "scalar_end": 38,
+                "scalar_start": 37,
+                "unicode_value": 116,
+                "utf16_end": 38,
+                "utf16_start": 37,
+                "utf8_end": 38,
+                "utf8_start": 37
+              }
+            ],
+            "end": 38,
+            "exact": "Repeat",
+            "page_index": 0,
+            "start": 32,
+            "utf16_end": 38,
+            "utf16_start": 32
+          }
+        ]
+      }
+    }
+  ]
+}

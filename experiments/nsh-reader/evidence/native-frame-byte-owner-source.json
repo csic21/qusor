@@ -1,0 +1,27 @@
+{
+  "kind": "local pinned source inspection, not runtime qualification",
+  "base_sha": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "files": [
+    {
+      "path": "crates/nsh-core/src/image.rs",
+      "sha256": "0acec293ffde275b0b8955530aa6bc6c82f9270dd41ebfdc4929fa8769c518be"
+    },
+    {
+      "path": "crates/nsh-js/src/classes.rs",
+      "sha256": "e739a3c7ffca011c90960fd885b452bf5ec26008da8f6603aa0f8d1c490f8687"
+    },
+    {
+      "path": "crates/nsh-js/src/web/blob.rs",
+      "sha256": "23b18b1af90f61ede79e694cecca85c38199b3f655a9b44dc63596dd501cdb40"
+    },
+    {
+      "path": "crates/nsh-core/src/image/loader.rs",
+      "sha256": "ad38c8004f2f87901fd1b4664615d49512a93f3e0267407629fb71c580f587a7"
+    }
+  ],
+  "finding": "ImageData::new accepts an owning AsRef<[u8]> wrapper. new_file and full Blob::image_data share ImageData; sliced BlobBytes retains original Blob. An encoded-byte RAII owner can track the actual shared encoded container lifetime, but cannot prove decoded/native resource or mount retirement.",
+  "runtime_verified": false,
+  "memory_source_finding": "Blob URL resolution supplies shared ImageData in ImageSource.data; Context locates Location::Memory. Loader::read directly clones its ImageData and returns Ticket::done before L3 lookup/insertion. Other non-memory paths can retain encoded L3 entries.",
+  "allocation_limit": "dynamic_worker::png returns Arc<[u8]> also retained by its separate 3-page/32MiB PNG cache. Wrapper final Drop proves shared ImageData container retirement, not underlying allocation freed or decoded/native resource retirement.",
+  "native_png_source_sha256": "9e764697ad1db0f1b4445b1e1f99f4430162f408ec6afa5ae38175e78abe6452"
+}

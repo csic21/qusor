@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "outside_repository": "/tmp/qusor-component-public-author-sqtdfbdh",
+  "public_sdk_fingerprints": {
+    "capture/contract.rs": "5f2a41176927913eac86859c2a7c724996cecfab0b030b50306324c0d3f8532b",
+    "capture/pdf_contract.rs": "7673e004999b75d37fbe43e038df8e48803838493b066e907ce296a421f83609",
+    "capture/pdf_compound.rs": "59634bfd7055df2a2886ed74fe5871ecf04311cb3d6d87ed3e1bdfa4c48e761d",
+    "package/package.rs": "4de3ba3784a111d47683f41ceff6f625868fbb5d61148a0cfbfca70787d066f2",
+    "api/src/composition.rs": "2625de213f479da8a8d7338d9f9b095151f280fdcd41038e259a2586f168fc2e",
+    "api/src/draft.rs": "c89c51d1f1bc9d135a6143d1cfdd335152b151d084fa4d03732d3654790bacf6",
+    "api/src/invocation.rs": "56a2da6b501b750476db54b4c89f0edfff8d27965ff574f651a38a4f1e057955",
+    "api/src/lib.rs": "d77f86dd0fc530a8d80c61e81f5f8cb1ba7343ba1345881ddf16af34a7a9c842",
+    "api/src/surface.rs": "b4c0ea070e5e86734fd1f8131bd00ea1dffdbba81b5633b930c7fbf3ccc387b6",
+    "api/schema/component-context-v1.schema.json": "936eae8268ab699e3a1156c5d948389837e529f4799f539441947972748ab325",
+    "api/schema/composition-v1.schema.json": "2d3bad97c4e8eb62ad8ab4b3ae478b645b7dcf392b40f196cdb0ca0cc2f5bdc8",
+    "api/schema/draft-v1.schema.json": "90ed8de0bd92577325f2a2bbb364557d91859bddd937eec014d5e7bf2b5d88fd",
+    "api/schema/policy-v0.1.schema.json": "a9ec0d843fa58b3835f14fd24a27211a4b40c7cb62aeecb0ee7973124335947b",
+    "api/schema/policy-v0.2.schema.json": "1cb65514f75c56864848d6c9cb760b8ddf494fe040f283c18c9835ab98f707de",
+    "api/schema/policy-v0.3.schema.json": "909b434bbafe126e4208b18f0ad2fa7a2330a6ba2ee3a149d06310e4b873bdaf",
+    "api/schema/surface-v1.schema.json": "e56d9c3379eb4b1e87ec96750655740ac0a9819c0f7840cd17015407feb4de4a"
+  },
+  "author_sources": {
+    "composition.json": "{\"composition_protocol\": 1, \"api_version\": {\"major\": 0, \"minor\": 3}, \"contribution_id\": \"ordinary.external-editor.input\", \"role\": \"annotation.plain-text-editor\", \"contract\": \"annotation.plain-text-editor/v1\", \"view\": {\"kind\": \"text_editor\", \"label\": \"My thought\", \"placeholder\": \"Write\"}}",
+    "main.rs": "use extension_api::{Manifest, HOST_API, HOST_API_V0_3, composition::CompositionDescriptor, draft::DraftRequest};\n    use extension_package::package::{PackageFile,build_signed_for_host,verify_for_host,publisher_key};\n    fn main(){\n     let manifest=Manifest::from_json(include_str!(\"manifest.json\")).unwrap();\n     assert!(!manifest.supports_api(HOST_API));assert!(manifest.supports_api(HOST_API_V0_3));\n     let asset=include_bytes!(\"composition.json\");let descriptor=CompositionDescriptor::from_slice(asset).unwrap();descriptor.validate_for_manifest(&manifest).unwrap();\n     let request=DraftRequest::from_json(include_str!(\"request.json\")).unwrap();assert_eq!(DraftRequest::from_json(&request.to_json().unwrap()).unwrap(),request);\n     let package=build_signed_for_host(manifest,\"module.wasm\",vec![PackageFile{path:\"module.wasm\".into(),mime:\"application/wasm\".into(),bytes:b\"\\0asm\\x01\\0\\0\\0\".to_vec()},PackageFile{path:\"assets/ui-composition.json\".into(),mime:\"application/json\".into(),bytes:asset.to_vec()}],&[64;32],&[HOST_API_V0_3]).unwrap();\n     let verified=verify_for_host(&package,&publisher_key(&[64;32]),&[HOST_API_V0_3]).unwrap();assert!(verified.file(\"assets/ui-composition.json\").is_some());\n     assert!(verify_for_host(&package,&publisher_key(&[64;32]),&[HOST_API]).is_err());\n     println!(\"public SDK0.3 independent author and signed composition verified\");\n    }",
+    "manifest.json": "{\"manifest_version\": 1, \"package_id\": \"ordinary.external-editor\", \"publisher_id\": \"ordinary.author\", \"package_version\": {\"major\": 1, \"minor\": 0, \"patch\": 0}, \"host_api\": {\"major\": 0, \"min_minor\": 3, \"max_minor\": 3}, \"required_capabilities\": [\"note.draft.edit\"], \"optional_capabilities\": [], \"contributions\": [{\"id\": \"ordinary.external-editor.input\", \"title\": \"Thought\", \"kind\": \"component_provider\", \"required_capabilities\": [\"note.draft.edit\"]}]}",
+    "request.json": "{\"api_version\": {\"major\": 0, \"minor\": 3}, \"draft_protocol\": 1, \"request_id\": \"read\", \"resource\": {\"kind\": \"draft\", \"vault_id\": \"vault\", \"draft_id\": \"11111111111111111111111111111111\"}, \"mount_id\": \"22222222222222222222222222222222\", \"operation\": {\"kind\": \"read_chunk\", \"revision\": null, \"offset\": 0, \"max_bytes\": 512}}"
+  },
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "generate-lockfile",
+        "--offline"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "     Locking 41 packages to latest Rust 1.97.1 compatible versions\n      Adding serde v1.0.228 (available: v1.0.229)\n      Adding serde_core v1.0.228 (available: v1.0.229)\n      Adding serde_derive v1.0.228 (available: v1.0.229)\n      Adding serde_json v1.0.149 (available: v1.0.154)\n"
+    },
+    {
+      "command": [
+        "cargo",
+        "run",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "stdout": "public SDK0.3 independent author and signed composition verified\n",
+      "stderr": "   Compiling proc-macro2 v1.0.107\n   Compiling version_check v0.9.5\n   Compiling quote v1.0.47\n   Compiling unicode-ident v1.0.27\n   Compiling typenum v1.20.1\n   Compiling serde_core v1.0.228\n   Compiling semver v1.0.28\n   Compiling zmij v1.0.23\n   Compiling serde_json v1.0.149\n   Compiling serde v1.0.228\n   Compiling cpufeatures v0.2.17\n   Compiling cfg-if v1.0.5\n   Compiling subtle v2.6.1\n   Compiling itoa v1.0.18\n   Compiling zeroize v1.9.1\n   Compiling signature v2.2.0\n   Compiling memchr v2.8.3\n   Compiling rustc_version v0.4.1\n   Compiling ed25519 v2.2.3\n   Compiling generic-array v0.14.7\n   Compiling curve25519-dalek v4.1.3\n   Compiling syn v2.0.119\n   Compiling block-buffer v0.10.4\n   Compiling crypto-common v0.1.7\n   Compiling digest v0.10.7\n   Compiling sha2 v0.10.9\n   Compiling curve25519-dalek-derive v0.1.1\n   Compiling serde_derive v1.0.228\n   Compiling ed25519-dalek v2.2.0\n   Compiling extension-api v0.0.0 (/tmp/qusor-component-public-author-sqtdfbdh/sdk/api)\n   Compiling extension-package v0.0.0 (/tmp/qusor-component-public-author-sqtdfbdh/sdk/package)\n   Compiling ordinary-component-author v0.1.0 (/tmp/qusor-component-public-author-sqtdfbdh/component-author)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.29s\n     Running `target/debug/ordinary-component-author`\n"
+    }
+  ],
+  "scope": "Independent native author compile/sign/verify of 0.3 public contracts; no plugin execution or native replacement"
+}

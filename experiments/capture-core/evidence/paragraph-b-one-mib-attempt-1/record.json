@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "recorded_at_utc": "2026-11-08T09:21:44.032902+00:00",
+  "attempt": 1,
+  "pid": 371867,
+  "exec_session": 70716,
+  "exit_code": 101,
+  "failure": {
+    "case": "B-1MiB-forward",
+    "zero_based_vm": 11423,
+    "error": "deadline_exceeded",
+    "observation_timeout": false,
+    "fuel_limit_raised": false,
+    "deadline_limit_raised": false,
+    "parallel_CPU_load": "Root observed concurrent C3/fault checks; scheduling contribution is plausible, not proven by this trace."
+  },
+  "guest": {
+    "path": "../component-author-b/module.wasm",
+    "sha256": "85227fff8c1a5ee28b1ad65436ef144585001c769cc8ec3e38dacc4e33cd3eff"
+  },
+  "limits": {
+    "fuel": 1000000,
+    "timeout_ms": 250,
+    "calls": 8,
+    "cache_bytes": 128,
+    "work_quantum_scalars": 64,
+    "max_vms_per_action": 70000
+  },
+  "input_cases": [
+    {
+      "id": "B-1MiB-forward",
+      "source_bytes": 1048576,
+      "source_sha256": "da8f32cd8febb561eb3035e5f0938e18aeb5b4458c606f95830d531ecad906e5",
+      "expected_bytes": 1048576,
+      "expected_sha256": "97c57125b198089e0089aabf941318316c59090be9aa4837b86c271a0a35b0b3",
+      "operation": {
+        "kind": "move",
+        "from": 0,
+        "to": 1
+      }
+    },
+    {
+      "id": "B-1MiB-inverse",
+      "source_bytes": 1048576,
+      "source_sha256": "97c57125b198089e0089aabf941318316c59090be9aa4837b86c271a0a35b0b3",
+      "expected_bytes": 1048576,
+      "expected_sha256": "da8f32cd8febb561eb3035e5f0938e18aeb5b4458c606f95830d531ecad906e5",
+      "operation": {
+        "kind": "move",
+        "from": 1,
+        "to": 0
+      }
+    }
+  ],
+  "progress": {
+    "completed_vms_before_failure": 11423,
+    "last_logged_checkpoint_revision": 11002,
+    "last_logged_vm": 11000,
+    "last_failure_advance_applied": "not observed; original harness panicked before snapshot capture",
+    "inverse": "not started"
+  },
+  "recovery_boundary": "Original application registry was session-only memory and lost when this proof process panicked. This attempt cannot be resumed from a log or fabricated checkpoint. Any new attempt must be explicitly distinguished; future retry harness must retain the live application on bounded deadline errors.",
+  "scope": "Isolated actual Wasmi+production app algorithm proof, not real Host/process authority or UE. No pass claimed.",
+  "artifacts": {
+    "fixed-byte-cases.json.gz": {
+      "bytes": 4397,
+      "sha256": "39dcfc5bf3674025b4b5aabb07069616de143d6cbc24464e945fa212d014dcc4"
+    },
+    "algorithm-proof-harness.rs": {
+      "bytes": 16671,
+      "sha256": "161459d844692f212e8c2750852f2be00d66548435baa265757c3e8d05856123"
+    },
+    "run.log": {
+      "bytes": 6888,
+      "sha256": "ad0d3321b395f0aaa09787f84b29e88c825bae23875b7ca6f454c08799f54d0f"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+修改完成：
+
+- `rowCommitted` 现在仅在 `local !== 已提交文本` 时生成 `conflict`；正常提交会清除 `inflight/unknown`，且 `canReplaceWindow=true`。
+- 每次成功提交都会保留 `postCommit` 墓碑元数据；`rowDelivery` 和 `rowRetry` 不再允许旧 identity 发送旧 base 命令。迟到文本、IME 新文本会保留在本地并进入明确恢复状态。
+- 旧 identity 的 revision/ordinal 保持不变，不会自动升级或重发。
+- 保留 queued LF 的 submitted/retained/base/conflict 信息；composing 状态、取消 composition、unknown 原样重试逻辑均覆盖。
+- 原有测试未删除或弱化，并补充了正常提交、提交后迟到输入、IME、queued LF 和 unknown 重试回归。
+
+实际测试：运行 `node paragraph-input-state.test.ts`，退出码 `0`。

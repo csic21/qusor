@@ -1,0 +1,9 @@
+
+running 1 test
+MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+OBSERVER_CACHE private_owners=2 shared_process_budget=true real_texture_clone_pins_pixels=true cache_charge_zero=true
+test image::retirement_image_tests::retirement_owner_cache_keeps_real_pixels_until_lease_and_cache_exit ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 136 filtered out; finished in 0.05s
+

@@ -1,0 +1,114 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+    Checking qusor-nsh-native-host-probe v0.1.0 (/workspace/qusor/experiments/nsh-reader/native-host)
+error[E0283]: type annotations needed
+   --> dynamic_module.rs:495:24
+    |
+495 |                 return Err("stale native frame metadata".into());
+    |                        ^^^ cannot infer type of the type parameter `E` declared on the enum `Result`
+    |
+    = note: the type must implement `IntoThrown`
+help: the trait `IntoThrown` is implemented for `JsError`
+   --> /workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-core/src/element/system.rs:660:1
+    |
+660 | impl IntoThrown for JsError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: required by a bound in `nsh_core::element::Later::<T>::new`
+   --> /workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-core/src/element/system.rs:402:19
+    |
+402 |     pub fn new<E: IntoThrown>(work: impl Future<Output = Result<T, E>> + 'static) -> Self {
+    |                   ^^^^^^^^^^ required by this bound in `Later::<T>::new`
+help: consider specifying the generic arguments
+    |
+495 |                 return Err::<FrameFile, E>("stale native frame metadata".into());
+    |                           ++++++++++++++++
+
+error[E0283]: type annotations needed
+   --> dynamic_module.rs:495:24
+    |
+495 |                 return Err("stale native frame metadata".into());
+    |                        ^^^                               ---- type must be known at this point
+    |                        |
+    |                        cannot infer type of the type parameter `E` declared on the enum `Result`
+    |
+    = note: multiple `impl`s satisfying `_: std::convert::From<&str>` found in the following crates: `bytes`, `naga`, `nsh_core`:
+            - impl std::convert::From<&'static str> for SharedString;
+            - impl std::convert::From<&'static str> for bytes::bytes::Bytes;
+            - impl std::convert::From<&'static str> for naga::front::wgsl::error::DiagnosticAttributeNotSupportedPosition;
+            - impl std::convert::From<&'static str> for nsh_core::element::Prop<SharedString>;
+            - impl std::convert::From<&'static str> for nsh_core::element::Prop<std::option::Option<SharedString>>;
+    = note: required for `&str` to implement `Into<_>`
+help: consider specifying the generic arguments
+    |
+495 |                 return Err::<FrameFile, E>("stale native frame metadata".into());
+    |                           ++++++++++++++++
+
+error[E0283]: type annotations needed
+   --> dynamic_module.rs:495:24
+    |
+495 |                 return Err("stale native frame metadata".into());
+    |                        ^^^ cannot infer type of the type parameter `E` declared on the enum `Result`
+...
+507 |                 return Err("native frame source mismatch".into());
+    |                                                           ---- type must be known at this point
+    |
+    = note: multiple `impl`s satisfying `_: std::convert::From<&str>` found in the following crates: `bytes`, `naga`, `nsh_core`:
+            - impl std::convert::From<&'static str> for SharedString;
+            - impl std::convert::From<&'static str> for bytes::bytes::Bytes;
+            - impl std::convert::From<&'static str> for naga::front::wgsl::error::DiagnosticAttributeNotSupportedPosition;
+            - impl std::convert::From<&'static str> for nsh_core::element::Prop<SharedString>;
+            - impl std::convert::From<&'static str> for nsh_core::element::Prop<std::option::Option<SharedString>>;
+    = note: required for `&str` to implement `Into<_>`
+help: consider specifying the generic arguments
+    |
+495 |                 return Err::<FrameFile, E>("stale native frame metadata".into());
+    |                           ++++++++++++++++
+
+error[E0283]: type annotations needed
+   --> dynamic_module.rs:495:24
+    |
+495 |                 return Err("stale native frame metadata".into());
+    |                        ^^^ cannot infer type of the type parameter `E` declared on the enum `Result`
+...
+501 |                 .map_err(|_| "native artifact unavailable")?
+    |                                                            - type must be known at this point
+    |
+    = note: multiple `impl`s satisfying `_: std::convert::From<&str>` found in the following crates: `bytes`, `naga`, `nsh_core`:
+            - impl std::convert::From<&'static str> for SharedString;
+            - impl std::convert::From<&'static str> for bytes::bytes::Bytes;
+            - impl std::convert::From<&'static str> for naga::front::wgsl::error::DiagnosticAttributeNotSupportedPosition;
+            - impl std::convert::From<&'static str> for nsh_core::element::Prop<SharedString>;
+            - impl std::convert::From<&'static str> for nsh_core::element::Prop<std::option::Option<SharedString>>;
+help: consider specifying the generic arguments
+    |
+495 |                 return Err::<FrameFile, E>("stale native frame metadata".into());
+    |                           ++++++++++++++++
+
+error[E0283]: type annotations needed
+   --> dynamic_module.rs:495:24
+    |
+495 |                 return Err("stale native frame metadata".into());
+    |                        ^^^ cannot infer type of the type parameter `E` declared on the enum `Result`
+...
+503 |                 .ok_or("native artifact unavailable")?;
+    |                                                      - type must be known at this point
+    |
+    = note: multiple `impl`s satisfying `_: std::convert::From<&str>` found in the following crates: `bytes`, `naga`, `nsh_core`:
+            - impl std::convert::From<&'static str> for SharedString;
+            - impl std::convert::From<&'static str> for bytes::bytes::Bytes;
+            - impl std::convert::From<&'static str> for naga::front::wgsl::error::DiagnosticAttributeNotSupportedPosition;
+            - impl std::convert::From<&'static str> for nsh_core::element::Prop<SharedString>;
+            - impl std::convert::From<&'static str> for nsh_core::element::Prop<std::option::Option<SharedString>>;
+help: consider specifying the generic arguments
+    |
+495 |                 return Err::<FrameFile, E>("stale native frame metadata".into());
+    |                           ++++++++++++++++
+
+For more information about this error, try `rustc --explain E0283`.
+error: could not compile `qusor-nsh-native-host-probe` (lib) due to 5 previous errors

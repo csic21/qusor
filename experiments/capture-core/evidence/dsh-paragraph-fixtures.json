@@ -1,0 +1,23 @@
+{
+  "tool": "@deepseek-ai/dsh",
+  "version": "0.2.2-rc.1",
+  "command": [
+    "npx",
+    "--yes",
+    "@deepseek-ai/dsh@0.2.2-rc.1",
+    "--profile",
+    "headless",
+    "<bounded fixture-generation task>"
+  ],
+  "exit_code": 0,
+  "workspace": "/tmp/qusor-dsh-paragraph-cases",
+  "generated_cases": 16,
+  "accepted_cases": 16,
+  "root_added_rejection_cases": 4,
+  "scope": "Only a copied paragraph contract and one fixture JSON in an isolated temporary directory; no repository modifications delegated",
+  "input_sha256": "1522d55eaf0a91ed3bc5353758858afaac91107b65e1533b819fa7917b325a02",
+  "dsh_output_sha256": "f5d9d76868d7b0af8c3e58d9b226e8fe1ece79d05410ff61321d6a3a844abe96",
+  "reviewed_repository_fixture": "experiments/capture-core/fixtures/paragraph-cases.json",
+  "reviewed_fixture_sha256": "bef08a142640792430bd9b59bad2cdf0d233b0a2a1228a8c499687973f988738",
+  "review": "JSON parsed; all expected strings independently checked against P/S/T; successful moves reparsed for stable boundaries. Ambiguous CR/LF and empty-EOF cases explicitly rejected."
+}

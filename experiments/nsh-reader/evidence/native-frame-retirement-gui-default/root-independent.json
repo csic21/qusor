@@ -1,0 +1,25 @@
+{
+  "artifact_hashes_checked": 45,
+  "paired_actual_VM_reap": 30,
+  "calls": 100,
+  "capture_count": 1,
+  "reopened_and_restored_capture_rows_equal": true,
+  "note": "frame retirement thought",
+  "worker_leases": 0,
+  "encoded_scope": {
+    "allocation_may_remain_in_native_png_cache": true,
+    "containers": 0,
+    "created": 5,
+    "native_release_ack": false,
+    "referenced_bytes": 0,
+    "released": 5,
+    "retainer_class": "unknown_ImageData_Blob_ImageSource_cache_or_loader",
+    "uncertain": false
+  },
+  "join_scope": "Pre-wait phase remains Active. Post-service-join FRAME_ENCODED_SCOPE and exit0 witness successful frozen control flow; no fabricated ObservedJoined/native ACK.",
+  "scope": "Latest default GUI functional/recovery proof; not decode/native owner release, B switch or new IME proof.",
+  "frozen_native_binary_sha256": "4a9c3f5b90dee521827102702b27c3bb11aafc6f8fd7856971a28454db6b7acb",
+  "frozen_bundle_sha256": "93a8d4079ac3df9949c4ebf2a6e9f197687c6c1f674b49a40508a6d8559f3a83",
+  "frozen_native_binary_hash_checked": true,
+  "selected_source_files_and_zip_checked": 155
+}

@@ -1,3 +1,11 @@
+# 最新增量：生产执行端口与 Wasmi 适配器
+
+2026-11-08：[ADR 0022](../../docs/architecture/adr/0022-authority-free-wasm-runtime.md) 将 authority-free managed/private 执行迁入 [runtime-wasm](../../adapters/runtime-wasm/README.md)，并通过 [extension-runtime-api](../../crates/extension-runtime-api/README.md) 实际调用。实验旧模块仅兼容转发；合成Probe、Host控制/文件载入/阻塞故障留在实验。Core/API/application/Host闭包仍拒绝Wasmi和平台依赖，不能用根Workspace现在有适配器推导业务依赖运行时。
+
+默认预算、旧错误code与JSON保持；直接端口3项测试及旧32项Rust测试已有通过。完整当前入口结果见 [新证据](evidence/linux-production-runtime.json)，具体场景/指纹以该记录为准。运行器不认证发布者、不创建grants，不读取任意包路径；native编译/阻塞broker仍须外部进程watchdog，尚未交付生产安装/监督或正式阅读旅程。
+
+验证过程保留两次失败：[首次输出父目录缺失](evidence/linux-production-runtime-output-failure.log) 发生于场景完成后写JSON；脚本现自动创建显式output父目录。[并行private测试](evidence/linux-production-runtime-parallel-failure.log) 在同时运行package编译/场景时，安全的250ms deadline先于预期fuel上限触发。生产期限和精确断言没有放宽；本次资格测试改用显式 `--test-threads=1`，真实双插件/监督并发路径保持。旧结果是其当时源码的历史记录，不直接代表迁移后的全部代码。
+
 # M-1 独立 Wasm 执行：本机验证记录
 
 日期：2026-11-07。结论：本机实验用例通过，保留为候选执行方案；未批准生产运行时。

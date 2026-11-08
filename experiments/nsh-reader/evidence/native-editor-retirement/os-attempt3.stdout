@@ -1,0 +1,7 @@
+NATIVE_RETIREMENT_CASE {"actual_reaped":["4d640fb6ed5187698de61f80ef440f5f-1"],"case":"invocation","faults":1,"leases":0}
+NATIVE_RETIREMENT_CASE {"actual_reaped":["f83d82cd7e863387c92aa7e01ab2693e-1"],"case":"gate","faults":1,"leases":0}
+NATIVE_RETIREMENT_CASE {"actual_reaped":["32e56dad90c76990c4af0316e55b1662-1"],"case":"finish","faults":1,"leases":0}
+NATIVE_RETIREMENT_CASE {"actual_reaped":["9b33d8a7e46566dbaad2fabe8d663ee6-1"],"case":"unknown_wait","faults":0,"leases":0}
+NATIVE_RETIREMENT_CASE {"actual_reaped":true,"case":"foreign_install","guarded":true,"lease_record_unchanged":true,"remaining_leases":0}
+NATIVE_RETIREMENT_CASE {"actual_reaped":true,"case":"same_install","guarded":true,"lease_record_unchanged":true,"remaining_leases":0}
+NATIVE_RETIREMENT_PASSED cases=6 budgets=250ms/1000000fuel/8calls backpressure=unverified native_release_ack=unverified

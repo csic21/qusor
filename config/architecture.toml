@@ -13,6 +13,10 @@ workspace_manifests = [
   "experiments/extension-wasm/author/Cargo.toml",
   "experiments/extension-package/Cargo.toml",
   "experiments/extension-package/author/Cargo.toml",
+  "experiments/capture-core/Cargo.toml",
+  "experiments/capture-core/author/Cargo.toml",
+  "experiments/pdf-provider/Cargo.toml",
+  "experiments/nsh-reader/native-host/Cargo.toml",
 ]
 
 # See ADR 0004: the policy kernel does not execute plugins or write knowledge.
@@ -20,18 +24,45 @@ workspace_manifests = [
 manifest = "crates/learning-domain/Cargo.toml"
 allowed_dependencies = []
 
+# Canonical base64 bounds opaque continuation checkpoints; no I/O or authority.
 # Serde is restricted to the public wire boundary; serde_json implements bounded JSON entrypoints.
 [packages.extension-api]
 manifest = "crates/extension-api/Cargo.toml"
-allowed_dependencies = ["serde", "serde_json"]
+allowed_dependencies = ["base64", "serde", "serde_json"]
 # Review the complete third-party closure, including proc macros/build dependencies.
-allowed_transitive_dependencies = ["serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]
+allowed_transitive_dependencies = ["base64", "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]
 
-# Host policy and its example depend only on the public API.
+# ADR 0018/0019: authoritative capture/source/anchor and knowledge envelopes; no Host/runtime/SQL/UI.
+# Base64 validates canonical binary archive blobs, not external I/O.
+[packages.core-api]
+manifest = "crates/core-api/Cargo.toml"
+allowed_dependencies = ["base64", "serde", "serde_json", "sha2", "unicode-segmentation"]
+allowed_transitive_dependencies = ["base64", "block-buffer", "cfg-if", "cpufeatures", "crypto-common", "digest", "generic-array", "itoa", "libc", "memchr", "proc-macro2", "quote", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "syn", "typenum", "unicode-ident", "unicode-segmentation", "version_check", "zmij"]
+
+
 [packages.extension-host]
 manifest = "crates/extension-host/Cargo.toml"
 allowed_dependencies = ["extension-api"]
-allowed_transitive_dependencies = ["extension-api", "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]
+allowed_transitive_dependencies = ["base64", "extension-api", "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]
+
+# ADR 0021: pure signed-package format, immutable content and bound-key verification.
+# No installation state, filesystem, Host or execution dependency.
+[packages.extension-package]
+manifest = "crates/extension-package/Cargo.toml"
+allowed_dependencies = ["extension-api", "ed25519-dalek", "serde", "serde_json", "sha2"]
+allowed_transitive_dependencies = ["base64", "base64ct", "block-buffer", "cfg-if", "const-oid", "cpufeatures", "crypto-common", "curve25519-dalek", "curve25519-dalek-derive", "der", "digest", "ed25519", "ed25519-dalek", "extension-api", "fiat-crypto", "generic-array", "getrandom", "itoa", "libc", "memchr", "pkcs8", "proc-macro2", "quote", "rand_core", "rustc_version", "semver", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "signature", "spki", "subtle", "syn", "typenum", "unicode-ident", "version_check", "wasi", "zeroize", "zmij"]
+
+# ADR 0022: authority-free runtime port and qualified bounded Wasmi adapter.
+# API owns trusted budgets/error/result types; adapter owns interpreter details, no Host/data/FS.
+[packages.extension-runtime-api]
+manifest = "crates/extension-runtime-api/Cargo.toml"
+allowed_dependencies = ["serde"]
+allowed_transitive_dependencies = ["serde", "serde_core", "serde_derive", "proc-macro2", "quote", "syn", "unicode-ident"]
+
+[packages.runtime-wasm]
+manifest = "adapters/runtime-wasm/Cargo.toml"
+allowed_dependencies = ["extension-api", "extension-runtime-api", "wasmi", "wat", "serde_json"]
+allowed_transitive_dependencies = ["base64", "bitflags", "bumpalo", "equivalent", "extension-api", "extension-runtime-api", "foldhash", "hashbrown", "indexmap", "itoa", "leb128fmt", "libm", "memchr", "proc-macro2", "quote", "semver", "serde", "serde_core", "serde_derive", "serde_json", "spin", "string-interner", "syn", "unicode-ident", "unicode-width", "wasm-encoder", "wasmi", "wasmi_collections", "wasmi_core", "wasmi_ir", "wasmparser", "wast", "wat", "zmij"]
 
 # ADR 0005: isolated M-1 experiments. These are NOT production workspace members.
 # validate.py checks their normal/dev/build/target declarations and resolved closures
@@ -40,13 +71,53 @@ allowed_transitive_dependencies = ["extension-api", "serde", "serde_core", "serd
 manifest = "experiments/extension-wasm/runner/Cargo.toml"
 # Wasmi: validated interpreter and budgets; SHA-256: module byte consistency only;
 # Serde: bounded package/report formats; API/host: existing public policy boundary.
-allowed_dependencies = ["extension-api", "extension-host", "wasmi", "serde", "serde_json", "sha2"]
-allowed_transitive_dependencies = [
-  "extension-api", "extension-host", "wasmi", "wasmi_collections", "wasmi_core", "wasmi_ir",
-  "wasmparser", "spin", "libm", "bitflags", "indexmap", "equivalent", "hashbrown", "foldhash", "string-interner",
-  "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij",
-  "proc-macro2", "quote", "syn", "unicode-ident",
-  "sha2", "cfg-if", "cpufeatures", "libc", "digest", "block-buffer", "crypto-common", "generic-array", "typenum", "version_check",
+# WAT is dev-only: compile adversarial migration/preflight fixtures without external build prerequisites.
+allowed_dependencies = ["extension-runtime-api", "runtime-wasm", "extension-api", "extension-host", "wasmi", "serde", "serde_json", "sha2", "wat"]
+allowed_transitive_dependencies = ["base64",
+  "extension-runtime-api", "runtime-wasm",
+  "extension-api",
+  "extension-host",
+  "wasmi",
+  "wasmi_collections",
+  "wasmi_core",
+  "wasmi_ir",
+  "wasmparser",
+  "spin",
+  "libm",
+  "bitflags",
+  "indexmap",
+  "equivalent",
+  "hashbrown",
+  "foldhash",
+  "string-interner",
+  "serde",
+  "serde_core",
+  "serde_derive",
+  "serde_json",
+  "itoa",
+  "memchr",
+  "zmij",
+  "proc-macro2",
+  "quote",
+  "syn",
+  "unicode-ident",
+  "sha2",
+  "cfg-if",
+  "cpufeatures",
+  "libc",
+  "digest",
+  "block-buffer",
+  "crypto-common",
+  "generic-array",
+  "typenum",
+  "version_check",
+  "wat",
+  "wast",
+  "wasm-encoder",
+  "bumpalo",
+  "leb128fmt",
+  "semver",
+  "unicode-width",
 ]
 
 [experiments.extension-wasm-author.packages.build-plugin]
@@ -66,8 +137,13 @@ allowed_transitive_dependencies = [
 # Wasmi is reused through the earlier experiment; no production dependency changes.
 [experiments.extension-package.packages.qusor-package-probe]
 manifest = "experiments/extension-package/Cargo.toml"
-allowed_dependencies = ["extension-api", "ed25519-dalek", "sha2", "serde", "serde_json", "fs2", "libc", "rusqlite", "qusor-wasm-probe"]
-allowed_transitive_dependencies = [
+# Recovery reconstructs sessions through the authoritative Host policy, never a parallel policy engine.
+# WAT is dev-only: compile adversarial migration/preflight fixtures without external build prerequisites.
+# Rustix safe Linux pidfd/prctl/event APIs implement identity-pinned cleanup and parent-death fencing.
+allowed_dependencies = ["extension-store", "extension-runtime-api", "runtime-process", "extension-package", "extension-api", "extension-host", "sha2", "serde", "serde_json", "fs2", "libc", "rusqlite", "qusor-wasm-probe", "wat", "rustix"]
+allowed_transitive_dependencies = ["base64", "extension-store", "runtime-process",
+  "extension-runtime-api", "runtime-wasm",
+  "extension-package",
   "extension-api",
   "extension-host",
   "qusor-wasm-probe",
@@ -142,94 +218,197 @@ allowed_transitive_dependencies = [
   "generic-array",
   "typenum",
   "version_check",
-]
-
-# Development author links the local contract; validate.py exports only the package
-# contract and authoritative extension-api into a repo-external SDK and checks paths.
-# WAT assembles synthetic guest modules; no accounts, network services or user data.
-[experiments.extension-package-author.packages.build-signed-plugin]
-manifest = "experiments/extension-package/author/Cargo.toml"
-allowed_dependencies = ["qusor-package-probe", "extension-api", "wat"]
-allowed_transitive_dependencies = [
-  "extension-api",
-  "extension-host",
-  "qusor-wasm-probe",
-  "ed25519-dalek",
-  "ed25519",
-  "curve25519-dalek",
-  "curve25519-dalek-derive",
-  "fiat-crypto",
-  "subtle",
-  "zeroize",
-  "signature",
-  "rand_core",
-  "getrandom",
-  "wasi",
-  "rustc_version",
-  "semver",
-  "pkcs8",
-  "spki",
-  "der",
-  "const-oid",
-  "base64ct",
-  "rusqlite",
-  "libsqlite3-sys",
-  "fallible-iterator",
-  "fallible-streaming-iterator",
-  "hashlink",
-  "ahash",
-  "once_cell",
-  "zerocopy",
-  "zerocopy-derive",
-  "smallvec",
-  "cc",
-  "find-msvc-tools",
-  "shlex",
-  "pkg-config",
-  "vcpkg",
-  "fs2",
-  "libc",
-  "winapi",
-  "winapi-i686-pc-windows-gnu",
-  "winapi-x86_64-pc-windows-gnu",
-  "wasmi",
-  "wasmi_collections",
-  "wasmi_core",
-  "wasmi_ir",
-  "wasmparser",
-  "spin",
-  "libm",
-  "bitflags",
-  "indexmap",
-  "equivalent",
-  "hashbrown",
-  "foldhash",
-  "string-interner",
-  "serde",
-  "serde_core",
-  "serde_derive",
-  "serde_json",
-  "itoa",
-  "memchr",
-  "zmij",
-  "proc-macro2",
-  "quote",
-  "syn",
-  "unicode-ident",
-  "sha2",
-  "cfg-if",
-  "cpufeatures",
-  "digest",
-  "block-buffer",
-  "crypto-common",
-  "generic-array",
-  "typenum",
-  "version_check",
-  "qusor-package-probe",
   "wat",
   "wast",
   "wasm-encoder",
   "bumpalo",
   "leb128fmt",
   "unicode-width",
+  "rustix",
+  "linux-raw-sys",
+  "errno",
+  "windows-sys",
+  "windows-link",
 ]
+
+# Development author links the local contract; validate.py exports only the package
+# contract and authoritative extension-api into a repo-external SDK and checks paths.
+# WAT assembles synthetic guest modules; no accounts, network services or user data.
+
+[experiments.extension-package-author.packages.build-signed-plugin]
+manifest = "experiments/extension-package/author/Cargo.toml"
+# Local author aliases only public contract packages; exported builds remain repository-independent.
+allowed_dependencies = ["extension-api", "extension-package", "wat"]
+allowed_transitive_dependencies = ["base64", "base64ct", "bitflags", "block-buffer", "bumpalo", "cfg-if", "const-oid", "cpufeatures", "crypto-common", "curve25519-dalek", "curve25519-dalek-derive", "der", "digest", "ed25519", "ed25519-dalek", "equivalent", "extension-api", "extension-package", "fiat-crypto", "generic-array", "getrandom", "hashbrown", "indexmap", "itoa", "leb128fmt", "libc", "memchr", "pkcs8", "proc-macro2", "quote", "rand_core", "rustc_version", "semver", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "signature", "spki", "subtle", "syn", "typenum", "unicode-ident", "unicode-width", "version_check", "wasi", "wasm-encoder", "wasmparser", "wast", "wat", "zeroize", "zmij"]
+
+[experiments.capture-core.packages.qusor-capture-probe]
+manifest = "experiments/capture-core/Cargo.toml"
+allowed_dependencies = ["runtime-process", "extension-store", "extension-package", "extension-runtime-api", "runtime-wasm", "core-api", "learning-application", "storage-sqlite", "extension-api", "extension-host", "qusor-package-probe", "qusor-wasm-probe", "serde_json", "libc", "rusqlite", "wat"]
+allowed_transitive_dependencies = ["extension-store", "runtime-process",
+  "extension-runtime-api", "runtime-wasm",
+  "extension-package",
+  "learning-application", "learning-ports", "storage-sqlite", "blob-store",
+  "core-api",
+  "extension-api",
+  "extension-host",
+  "qusor-wasm-probe",
+  "ed25519-dalek",
+  "ed25519",
+  "curve25519-dalek",
+  "curve25519-dalek-derive",
+  "fiat-crypto",
+  "subtle",
+  "zeroize",
+  "signature",
+  "rand_core",
+  "getrandom",
+  "wasi",
+  "rustc_version",
+  "semver",
+  "pkcs8",
+  "spki",
+  "der",
+  "const-oid",
+  "base64ct",
+  "rusqlite",
+  "libsqlite3-sys",
+  "fallible-iterator",
+  "fallible-streaming-iterator",
+  "hashlink",
+  "ahash",
+  "once_cell",
+  "zerocopy",
+  "zerocopy-derive",
+  "smallvec",
+  "cc",
+  "find-msvc-tools",
+  "shlex",
+  "pkg-config",
+  "vcpkg",
+  "fs2",
+  "libc",
+  "winapi",
+  "winapi-i686-pc-windows-gnu",
+  "winapi-x86_64-pc-windows-gnu",
+  "wasmi",
+  "wasmi_collections",
+  "wasmi_core",
+  "wasmi_ir",
+  "wasmparser",
+  "spin",
+  "libm",
+  "bitflags",
+  "indexmap",
+  "equivalent",
+  "hashbrown",
+  "foldhash",
+  "string-interner",
+  "serde",
+  "serde_core",
+  "serde_derive",
+  "serde_json",
+  "itoa",
+  "memchr",
+  "zmij",
+  "proc-macro2",
+  "quote",
+  "syn",
+  "unicode-ident",
+  "sha2",
+  "cfg-if",
+  "cpufeatures",
+  "digest",
+  "block-buffer",
+  "crypto-common",
+  "generic-array",
+  "typenum",
+  "version_check",
+  "wat",
+  "wast",
+  "wasm-encoder",
+  "bumpalo",
+  "leb128fmt",
+  "unicode-width",
+  "rustix",
+  "linux-raw-sys",
+  "errno",
+  "windows-sys",
+  "windows-link",
+  "qusor-package-probe",
+  "unicode-segmentation",
+  "base64",
+]
+
+[experiments.capture-core-author.packages.build-capture-plugin]
+manifest = "experiments/capture-core/author/Cargo.toml"
+# Local author aliases only public contract packages; exported builds remain repository-independent.
+allowed_dependencies = ["core-api", "extension-api", "extension-package", "serde_json", "wat"]
+allowed_transitive_dependencies = ["base64", "base64ct", "bitflags", "block-buffer", "bumpalo", "cfg-if", "const-oid", "core-api", "cpufeatures", "crypto-common", "curve25519-dalek", "curve25519-dalek-derive", "der", "digest", "ed25519", "ed25519-dalek", "equivalent", "extension-api", "extension-package", "fiat-crypto", "generic-array", "getrandom", "hashbrown", "indexmap", "itoa", "leb128fmt", "libc", "memchr", "pkcs8", "proc-macro2", "quote", "rand_core", "rustc_version", "semver", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "signature", "spki", "subtle", "syn", "typenum", "unicode-ident", "unicode-segmentation", "unicode-width", "version_check", "wasi", "wasm-encoder", "wasmparser", "wast", "wat", "zeroize", "zmij"]
+
+[experiments.pdf-provider.packages.qusor-pdf-provider-probe]
+manifest = "experiments/pdf-provider/Cargo.toml"
+allowed_dependencies = ["pdfium-render", "serde", "serde_json", "sha2", "unicode-segmentation", "libc"]
+allowed_transitive_dependencies = [
+  "pdfium-render", "serde", "serde_core", "serde_derive", "serde_json", "sha2",
+  "unicode-segmentation", "android_system_properties", "autocfg", "bitflags",
+  "block-buffer", "bumpalo", "bytemuck", "byteorder", "bytes", "cc", "cfg-if",
+  "chrono", "console_error_panic_hook", "console_log", "core-foundation-sys",
+  "cpufeatures", "crypto-common", "digest", "either", "find-msvc-tools",
+  "futures-core", "futures-task", "futures-util", "generic-array", "iana-time-zone",
+  "iana-time-zone-haiku", "itertools", "itoa", "js-sys", "libc", "libloading",
+  "log", "maybe-owned", "memchr", "num-traits", "once_cell", "pin-project-lite",
+  "piston-float", "proc-macro2", "quote", "rustversion", "shlex", "slab", "syn",
+  "tokio", "typenum", "unicode-ident", "utf16string", "vecmath", "version_check",
+  "wasm-bindgen", "wasm-bindgen-futures", "wasm-bindgen-macro",
+  "wasm-bindgen-macro-support", "wasm-bindgen-shared", "web-sys", "windows-core",
+  "windows-implement", "windows-interface", "windows-link", "windows-result",
+  "windows-strings", "zmij",
+]
+
+# C-09 / P02: isolated GTK native host for the fixed upstream Rust+TSX bridge.
+# Explicitly disable optional WebView. Trusted composition now consumes Core/Host;
+# Core/application remain independent from NSH. Reader package itself consumes only SDK.
+# Fixed upstream checkout and lockfile are checked by the experiment runner.
+[experiments.nsh-native-host.packages.qusor-nsh-native-host-probe]
+manifest = "experiments/nsh-reader/native-host/Cargo.toml"
+# Shared edit/projection brokers are reused only by this isolated native experiment.
+# This does not make an experiment crate a production Core or plugin dependency.
+allowed_dependencies = ["qusor-capture-probe", "runtime-process", "libc", "png", "nsh-linux-host", "nsh-core", "nsh-base", "nsh-platform-linux", "rust-exports-native", "qusor-pdf-provider-probe", "serde_json", "extension-api", "extension-host", "extension-package", "runtime-wasm", "core-api", "learning-application", "storage-sqlite", "extension-store"]
+
+
+# ADR 0019: real knowledge application / atomic persistence boundary.
+[packages.learning-ports]
+manifest = "crates/learning-ports/Cargo.toml"
+allowed_dependencies = ["core-api"]
+allowed_transitive_dependencies = ["base64", "block-buffer", "cfg-if", "core-api", "cpufeatures", "crypto-common", "digest", "generic-array", "itoa", "libc", "memchr", "proc-macro2", "quote", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "syn", "typenum", "unicode-ident", "unicode-segmentation", "version_check", "zmij"]
+
+# ADR 0019: real knowledge application / atomic persistence boundary.
+[packages.learning-application]
+manifest = "crates/learning-application/Cargo.toml"
+allowed_dependencies = ["core-api", "learning-ports", "serde_json"]
+allowed_transitive_dependencies = ["base64", "block-buffer", "cfg-if", "core-api", "cpufeatures", "crypto-common", "digest", "generic-array", "itoa", "learning-ports", "libc", "memchr", "proc-macro2", "quote", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "syn", "typenum", "unicode-ident", "unicode-segmentation", "version_check", "zmij"]
+
+# ADR 0019: real knowledge application / atomic persistence boundary.
+[packages.blob-store]
+manifest = "adapters/blob-store/Cargo.toml"
+allowed_dependencies = ["core-api", "fs2", "libc"]
+allowed_transitive_dependencies = ["base64", "block-buffer", "cfg-if", "core-api", "cpufeatures", "crypto-common", "digest", "fs2", "generic-array", "itoa", "libc", "memchr", "proc-macro2", "quote", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "syn", "typenum", "unicode-ident", "unicode-segmentation", "version_check", "winapi", "winapi-i686-pc-windows-gnu", "winapi-x86_64-pc-windows-gnu", "zmij"]
+
+# ADR 0019: real knowledge application / atomic persistence boundary.
+[packages.storage-sqlite]
+manifest = "adapters/storage-sqlite/Cargo.toml"
+allowed_dependencies = ["blob-store", "core-api", "learning-application", "learning-ports", "rusqlite", "serde_json"]
+allowed_transitive_dependencies = ["ahash", "base64", "bitflags", "blob-store", "block-buffer", "cc", "cfg-if", "core-api", "cpufeatures", "crypto-common", "digest", "fallible-iterator", "fallible-streaming-iterator", "find-msvc-tools", "fs2", "generic-array", "hashbrown", "hashlink", "itoa", "learning-application", "learning-ports", "libc", "libsqlite3-sys", "memchr", "once_cell", "pkg-config", "proc-macro2", "quote", "rusqlite", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "shlex", "smallvec", "syn", "typenum", "unicode-ident", "unicode-segmentation", "vcpkg", "version_check", "winapi", "winapi-i686-pc-windows-gnu", "winapi-x86_64-pc-windows-gnu", "zerocopy", "zerocopy-derive", "zmij"]
+
+# ADR 0025: same durable kernel; Host dependency implements pure authority-source port, no Host/Session instances or VM/UI.
+[packages.extension-store]
+manifest = "adapters/extension-store/Cargo.toml"
+allowed_dependencies = ["extension-host", "extension-api", "extension-package", "extension-runtime-api", "fs2", "libc", "rusqlite", "serde", "serde_json", "sha2"]
+allowed_transitive_dependencies = ["base64", "extension-host", "ahash", "base64ct", "bitflags", "block-buffer", "cc", "cfg-if", "const-oid", "cpufeatures", "crypto-common", "curve25519-dalek", "curve25519-dalek-derive", "der", "digest", "ed25519", "ed25519-dalek", "extension-api", "extension-package", "extension-runtime-api", "fallible-iterator", "fallible-streaming-iterator", "fiat-crypto", "find-msvc-tools", "fs2", "generic-array", "getrandom", "hashbrown", "hashlink", "itoa", "libc", "libsqlite3-sys", "memchr", "once_cell", "pkcs8", "pkg-config", "proc-macro2", "quote", "rand_core", "rusqlite", "rustc_version", "semver", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "shlex", "signature", "smallvec", "spki", "subtle", "syn", "typenum", "unicode-ident", "vcpkg", "version_check", "wasi", "winapi", "winapi-i686-pc-windows-gnu", "winapi-x86_64-pc-windows-gnu", "zerocopy", "zerocopy-derive", "zeroize", "zmij"]
+
+# ADR 0025 / 0027: identity-pinned Linux cleanup and bounded process transport.
+# Serde/JSON encode private IPC only; no Host, Store, Probe, Wasmi or UI dependency.
+[packages.runtime-process]
+manifest = "adapters/runtime-process/Cargo.toml"
+allowed_dependencies = ["extension-runtime-api", "rustix", "serde", "serde_json"]
+allowed_transitive_dependencies = ["bitflags", "errno", "extension-runtime-api", "itoa", "libc", "linux-raw-sys", "memchr", "proc-macro2", "quote", "rustix", "serde", "serde_core", "serde_derive", "serde_json", "syn", "unicode-ident", "windows-link", "windows-sys", "zmij"]

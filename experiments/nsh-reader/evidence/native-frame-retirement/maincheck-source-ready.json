@@ -1,0 +1,12 @@
+{
+  "status": "source-ready-awaiting-heavy-slot-no-native-model-test-result-yet",
+  "at_utc": "2026-11-08T14:56:06.709943+00:00",
+  "files": {
+    "dynamic_module.rs": "c6eca707670f703cfd2e62b86ac28e78d7501480961818ec0c283f7521c151ed",
+    "frame_caller_tests.rs": "965e00bc97d853b09ebc7574d92fa53ab8eea9de1e51cb6c82b221e79ebbd7f6",
+    "frame_scheduler.rs": "d111c240a9937edfe9b544a5f7932c9fcbff9506f12d11f83d512a4bef8a410a",
+    "frame_owner_map.rs": "ca4b9289c09aea3c271ba81df58219d830939f8c05940b418828448dc7b4b9bd",
+    "retirement_owner.rs": "089716309ddbfb706107e66a2faae4b72dfd19bc795ed18371488540885c03da",
+    "encoded_bytes.rs": "6cb6a63d7c375750163cf9b6621bf4a2c73c9dd30efc2e50640a707cff749776"
+  }
+}

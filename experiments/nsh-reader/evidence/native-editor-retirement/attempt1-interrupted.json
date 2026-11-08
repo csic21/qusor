@@ -1,0 +1,17 @@
+{
+  "time_utc": "2026-11-08T13:57:03Z",
+  "cargo_root_pid": 466160,
+  "cargo_starttime_ticks": null,
+  "starttime_note": "Not captured before SIGINT; do not reconstruct or assert exact start identity. PID observed in own active cargo session30108 before interrupt.",
+  "session": 30108,
+  "terminal_returncode": -2,
+  "reason": "four concurrent native linkers with memory pressure; no OS cases or workers had started",
+  "observed_pids": {
+    "466160": false,
+    "466399": false,
+    "466525": false,
+    "466467": false,
+    "466521": false,
+    "466522": false
+  }
+}

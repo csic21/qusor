@@ -1,0 +1,10 @@
+{
+  "command": [
+    "unshare",
+    "-Ur",
+    "true"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": ""
+}

@@ -2,6 +2,8 @@
 
 日期：2026-11-07。状态：设计提案；未创建云项目、执行迁移、实现RPC或运行同步测试。所有指标为待验收目标。配合[Core Schema](./03-core-data-architecture.md)实施。
 
+> 2026-11-08 架构修订：按用户确认的 C-10 与 [ADR 0024](../architecture/adr/0024-cloud-storage-adapters.md)，云后端改为可替换适配器，Supabase 与 Cloudflare 均为候选。下文 Supabase 专有 SQL、RLS、RPC 和身份方案仅作候选实现研究；通用同步语义不能依赖这些机制。文中的默认云行为仍为研究建议，以范围记录 C-03 为准。
+
 ## 1 核心决定
 
 SQLite是当前设备事实源；离线导入、阅读、标注、笔记、画布、复习不等待云端。Supabase负责认证、授权后的副本、设备协调和可选文件备份。它没有自动提供本方案的SQLite同步协议，协议由QUSOR实现。

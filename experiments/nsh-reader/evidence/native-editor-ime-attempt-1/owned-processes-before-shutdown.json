@@ -1,0 +1,18 @@
+{
+  "461925": {
+    "start_ticks": 4518277,
+    "exe": "/tmp/qusor-xvfb-prefix/usr/bin/Xvfb-local"
+  },
+  "461928": {
+    "start_ticks": 4518377,
+    "exe": "/home/user/.cache/qusor-ime/prefix/usr/bin/ibus-daemon"
+  },
+  "462328": {
+    "start_ticks": 4536194,
+    "exe": "/home/user/.cache/qusor-ime/prefix/usr/libexec/ibus-memconf"
+  },
+  "462339": {
+    "start_ticks": 4536941,
+    "exe": "/home/user/.cache/qusor-ime/prefix/usr/libexec/ibus-engine-libpinyin"
+  }
+}

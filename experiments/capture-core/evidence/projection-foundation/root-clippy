@@ -1,0 +1,5 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+    Checking extension-host v0.0.0 (/workspace/qusor/crates/extension-host)
+    Checking extension-store v0.0.0 (/workspace/qusor/adapters/extension-store)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.35s

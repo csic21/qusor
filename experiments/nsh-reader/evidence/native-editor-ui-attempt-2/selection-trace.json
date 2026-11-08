@@ -1,0 +1,35 @@
+{
+  "trace": {
+    "pid": 458620,
+    "window": "0x200005",
+    "origin": [
+      0,
+      0
+    ],
+    "size": [
+      1000,
+      1000
+    ],
+    "events": [
+      {
+        "kind": "move",
+        "x": 247.05645161290326,
+        "y": 195.43548387096774
+      },
+      {
+        "kind": "down"
+      },
+      {
+        "kind": "move",
+        "x": 479.88575268817203,
+        "y": 226.57123655913978
+      },
+      {
+        "kind": "up"
+      }
+    ]
+  },
+  "source_end_scalar": 66,
+  "expected_title": "Focused component source page 1",
+  "spans": "actual native drag across two displayed lines"
+}

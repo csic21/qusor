@@ -1,0 +1,19 @@
+{
+  "checked_at_utc": "2026-11-08T11:25:24.578015+00:00",
+  "pinned_checkout": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "sources": {
+    "releases.json": {
+      "url": "https://api.github.com/repos/longbridge/nsh/releases?per_page=3",
+      "sha256": "e0c044b757205dc4e0b9096c86a3bf9f1a8a10093601fb9466e27d87a97a6fb6"
+    },
+    "commits.json": {
+      "url": "https://api.github.com/repos/longbridge/nsh/commits?per_page=3",
+      "sha256": "64eb0e820c813655197d02f95ffa7c3e90cb60e79800805257ecb799927bc927"
+    },
+    "design-guides.txt": {
+      "url": "https://raw.githubusercontent.com/longbridge/nsh/bba76ef739135dbdaa0147e2533c75e814beb61f/skills/nsh-design-guides/references/design-guides.md",
+      "sha256": "86f3482bb692a5dae053d1cf21da8d855d083ab3363b2c2469684dc2c76c27f0"
+    }
+  },
+  "upstream_main": "bba76ef739135dbdaa0147e2533c75e814beb61f"
+}

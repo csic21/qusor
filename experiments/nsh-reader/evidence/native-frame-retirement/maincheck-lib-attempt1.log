@@ -1,0 +1,44 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+   Compiling qusor-nsh-native-host-probe v0.1.0 (/workspace/qusor/experiments/nsh-reader/native-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.66s
+     Running unittests pdf_module.rs (experiments/nsh-reader/target/nsh/target/debug/deps/qusor_nsh_native_host_probe-0aef8d990cdd832c)
+
+running 28 tests
+test dynamic_module::dynamic_tests::frame_queue_keeps_only_latest_pending_request ... ok
+test dynamic_module::frame_caller_tests::more_than64_deliver_close_reclaim_with_an_old_encoded_guard_still_alive ... ok
+test dynamic_module::frame_caller_tests::shared_full_slice_retainer_and_decoded_copy_have_distinct_lifetimes ... ok
+test dynamic_module::frame_scheduler::tests::abandoned_completed_future_physically_drops_its_local_payload ... ok
+test dynamic_module::frame_scheduler::tests::abandoned_future_keeps_running_charge_until_actual_work_returns ... ok
+test dynamic_module::frame_scheduler::tests::blocked_worker_close_remains_pending_until_real_exit_and_join ... ok
+test dynamic_module::frame_scheduler::tests::closing_owner_drops_unpolled_payload_even_when_future_stays_alive ... ok
+test dynamic_module::frame_scheduler::tests::delivered_local_lease_and_bridge_boundary_are_distinct ... ok
+test dynamic_module::frame_scheduler::tests::last_state_arc_dropped_by_work_requests_retirement_without_self_join ... ok
+test dynamic_module::frame_scheduler::tests::old_owner_close_and_late_result_do_not_cancel_successor ... ok
+test dynamic_module::frame_scheduler::tests::panic_work_is_settled_and_foreign_owner_cannot_release_local_work ... ok
+test dynamic_module::frame_scheduler::tests::pending_closure_drop_can_reenter_scheduler_without_queue_lock_deadlock ... ok
+test dynamic_module::frame_scheduler::tests::scheduler_drop_while_caller_holds_gate_does_not_wait_or_drop_user_closures ... ok
+test dynamic_worker::tests::exited_child_without_bound_identity_keeps_durable_quarantine ... ok
+test dynamic_worker::tests::owned_parser_termination_is_confirmed_before_its_slot_is_reused ... ok
+test dynamic_worker::tests::selected_fifo_or_symlink_is_rejected_without_blocking_the_worker ... ok
+test plugin_surface::native_editor::tests::busy_duplicate_retains_unknown_effect_and_does_not_enter_job ... ok
+test plugin_surface::native_editor::tests::committed_frozen_save_is_reconciled_after_original_capture_revocation ... ok
+test plugin_surface::native_editor::tests::latched_shutdown_rejects_business_but_allows_explicit_discard ... ok
+test plugin_surface::native_editor::tests::repeated_begin_preserves_body_binding_and_original_source_metadata ... ok
+test plugin_surface::native_editor::tests::uncommitted_frozen_save_cannot_write_after_capture_revocation ... ok
+test plugin_surface::reader_guest_tests::native_approval_retries_notes_distinct_operations_and_revoke ... ok
+test plugin_surface::reader_guest_tests::persisted_reader_set_restores_without_renewal_but_never_restores_old_frames_or_disable ... ok
+test plugin_surface::reader_guest_tests::signed_guest_preserves_complete_json_escapes_and_rejects_invalid_surrogates ... ok
+test plugin_surface::reader_guest_tests::signed_guest_trap_and_timeout_close_unmounted_open ... ok
+test tests::invalid_endpoint_clears_gesture_and_closed_surface_rejects_all_events ... ok
+test tests::page_and_zoom_changes_reject_old_events_without_cancelling_successor ... ok
+test tests::startup_budget_and_display_digest_are_enforced ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.67s
+

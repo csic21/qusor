@@ -1,0 +1,22 @@
+{
+  "license": "MIT synthetic",
+  "generated_after_build": true,
+  "sha256": "8841083cb26f3c4369897de3c0289091269264e5241a3bb99268a9d61ed210e2",
+  "text": [
+    [
+      "Ready component witness page 1",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ],
+    [
+      "Ready component witness page 2",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ],
+    [
+      "Ready component witness page 3",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ]
+  ]
+}

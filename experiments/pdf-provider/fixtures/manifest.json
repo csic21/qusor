@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "license": "MIT; synthetic fixtures created for QUSOR",
+  "generator": {
+    "path": "generate.py",
+    "sha256": "14a530bd0a30e0ede99fa84d5b4bc273ade20d656c7fd0d53596eb9763cdf68e",
+    "dependencies": "Python standard library only"
+  },
+  "text_oracle": "expected_text_lines are source construction order; newline representation and engine character/scalar/byte indices must be measured from actual extraction",
+  "coordinate_oracle": "MediaBox/CropBox are PDF user space; rotation is page display rotation; text origin is an operator position, not an expected glyph bounding box",
+  "fixtures": [
+    {
+      "path": "text-two-pages.pdf",
+      "sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+      "bytes": 1292,
+      "expected_status": "text_available",
+      "expected_page_count": 2,
+      "pages": [
+        {
+          "page_index": 0,
+          "media_box": [
+            0,
+            0,
+            612,
+            792
+          ],
+          "crop_box": [
+            18,
+            24,
+            594,
+            768
+          ],
+          "rotation_degrees": 0,
+          "text_origin_pdf_user_space": [
+            72,
+            700
+          ],
+          "expected_text_lines": [
+            "QUSOR native PDF qualification",
+            "Repeated evidence stays local.",
+            "Distinct first-page context.",
+            "Repeated evidence stays local.",
+            "Selection target: immutable originals."
+          ]
+        },
+        {
+          "page_index": 1,
+          "media_box": [
+            0,
+            0,
+            792,
+            612
+          ],
+          "crop_box": [
+            30,
+            18,
+            762,
+            594
+          ],
+          "rotation_degrees": 90,
+          "text_origin_pdf_user_space": [
+            72,
+            520
+          ],
+          "expected_text_lines": [
+            "QUSOR second source page",
+            "Repeated evidence stays local.",
+            "Second-page context is explicit.",
+            "Selection target: immutable originals."
+          ]
+        }
+      ],
+      "selections": [
+        {
+          "id": "page-zero-unique",
+          "page_index": 0,
+          "quote": "immutable originals",
+          "expected_match_count_in_page": 1,
+          "expected_resolution": "exact",
+          "source_line_index": 4
+        },
+        {
+          "id": "page-zero-ambiguous",
+          "page_index": 0,
+          "quote": "Repeated evidence stays local.",
+          "expected_match_count_in_page": 2,
+          "expected_resolution": "ambiguous"
+        },
+        {
+          "id": "page-one-exact",
+          "page_index": 1,
+          "quote": "Repeated evidence stays local.",
+          "expected_match_count_in_page": 1,
+          "expected_resolution": "exact",
+          "source_line_index": 1
+        },
+        {
+          "id": "missing-quote",
+          "page_index": 0,
+          "quote": "A quote that is not in this document.",
+          "expected_match_count_in_page": 0,
+          "expected_resolution": "not_found"
+        }
+      ]
+    },
+    {
+      "path": "image-only.pdf",
+      "sha256": "da4e3f70951c3dec5d2568e49b561757365e2efb1c85cb93ae0035d8ce8f69a2",
+      "bytes": 720,
+      "expected_status": "no_text",
+      "expected_page_count": 1,
+      "pages": [
+        {
+          "page_index": 0,
+          "media_box": [
+            0,
+            0,
+            300,
+            300
+          ],
+          "crop_box": [
+            0,
+            0,
+            300,
+            300
+          ],
+          "rotation_degrees": 0,
+          "expected_text_lines": []
+        }
+      ],
+      "note": "Synthetic image-only PDF representing absence of an embedded text layer; no OCR claim"
+    },
+    {
+      "path": "malformed.pdf",
+      "sha256": "a0ec8aec17e5a18511ff5cbd329adfc0582bbcf3a886275c1aafc570699f952e",
+      "bytes": 78,
+      "expected_status": "invalid_document"
+    }
+  ],
+  "unverified": [
+    "Chinese PDF text extraction",
+    "embedded or CID fonts",
+    "Unicode ToUnicode mappings",
+    "RTL/vertical text",
+    "ligatures",
+    "multi-column reading order",
+    "OCR",
+    "encrypted PDFs",
+    "all-platform rendering"
+  ]
+}

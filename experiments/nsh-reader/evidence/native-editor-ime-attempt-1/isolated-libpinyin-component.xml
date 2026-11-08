@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<component>
+	<name>org.freedesktop.IBus.Libpinyin</name>
+	<description>Libpinyin Component</description>
+	<exec>/home/user/.cache/qusor-ime/bin/engine-wrapper.py --ibus</exec>
+	<version>1.16.5</version>
+	<author>Peng Wu &lt;alexepico@gmail.com&gt;</author>
+	<license>GPL</license>
+	<homepage>https://github.com/libpinyin/ibus-libpinyin</homepage>
+	<textdomain>ibus-libpinyin</textdomain>
+
+	
+	<observed-paths>
+		<path>~/.config/ibus/libpinyin/engines.xml</path>
+		<path>/usr/share/ibus-libpinyin/default.xml</path>
+	</observed-paths>
+    <engines exec="/home/user/.cache/qusor-ime/bin/engine-wrapper.py --xml" />
+</component>

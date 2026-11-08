@@ -1,0 +1,276 @@
+{
+  "schema_version": 2,
+  "recorded_at_utc": "2026-11-08T01:03:21.812575+00:00",
+  "task_ids": [
+    "P01",
+    "P02"
+  ],
+  "profile": "native",
+  "cargo_features": [
+    "js"
+  ],
+  "status": "blocked",
+  "scope": "Linux native NSH + JS prerequisites; WebView excluded; not reading or platform acceptance",
+  "system": {
+    "system": "Linux",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "machine": "x86_64",
+    "os_release": "PRETTY_NAME=\"Ubuntu 26.04.1 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"26.04\"\nVERSION=\"26.04.1 LTS (Resolute Raccoon)\"\nVERSION_CODENAME=resolute\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=resolute\nLOGO=ubuntu-logo\n",
+    "logical_cpu_count": 12
+  },
+  "source": {
+    "directory": "/workspace/qusor/experiments/nsh-reader/target/nsh",
+    "expected_sha": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+    "revision": {
+      "command": [
+        "git",
+        "-C",
+        "/workspace/qusor/experiments/nsh-reader/target/nsh",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+      "stderr": ""
+    },
+    "tracked_cleanliness": {
+      "command": [
+        "git",
+        "-C",
+        "/workspace/qusor/experiments/nsh-reader/target/nsh",
+        "status",
+        "--porcelain",
+        "--untracked-files=no"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "sha256": {
+      "Cargo.toml": "7e5da7d0c7b9235b2a3c9a66cbf30dd696a5a2e16e0f2a79cf5b5877e855676a",
+      "Cargo.lock": "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b",
+      "rust-toolchain.toml": "fb9781152dbb601c53ec070f53142e569c946e4aa1571ac4800d6def4d7a4f1f",
+      "crates/nsh-platform-linux/Cargo.toml": "9de5dda9247c92904c88e69d36be9e24b142110b8cb556a8275f7f96f1358350",
+      "examples/rust-exports/nsh.json": "faf81eb8d80f38b694a9eda7cf922f1bcdaf57aad533158bb69d7d91baf49890",
+      "examples/rust-exports/App.tsx": "f04571221dcaa817e750c103b0c8312ab93796e150072af4a4ecd21e70d39265"
+    }
+  },
+  "tools": {
+    "git": "/usr/bin/git",
+    "rustup": "/home/user/.cargo/bin/rustup",
+    "clang": "/usr/bin/clang",
+    "cc": "/usr/bin/cc",
+    "pkg-config": "/usr/bin/pkg-config"
+  },
+  "rust": {
+    "command": [
+      "rustup",
+      "run",
+      "1.97.1",
+      "rustc",
+      "-Vv"
+    ],
+    "exit_code": 0,
+    "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-unknown-linux-gnu\nrelease: 1.97.1\nLLVM version: 22.1.6",
+    "stderr": ""
+  },
+  "cargo": {
+    "command": [
+      "rustup",
+      "run",
+      "1.97.1",
+      "cargo",
+      "-V"
+    ],
+    "exit_code": 0,
+    "stdout": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "stderr": ""
+  },
+  "libclang": {
+    "usable": true,
+    "status": "loaded",
+    "source": "Linux system library search",
+    "library": "libclang-21.so.1",
+    "version": "Ubuntu clang version 21.1.8 (6ubuntu1)",
+    "required_symbols_checked": true,
+    "bindgen_generation_verified": false,
+    "previous_attempts": []
+  },
+  "native_packages": {
+    "gtk4": {
+      "minimum": "4.14",
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "gtk4"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Package gtk4 was not found in the pkg-config search path.\nPerhaps you should add the directory containing `gtk4.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'gtk4' not found"
+      },
+      "minimum_check": {
+        "command": [
+          "pkg-config",
+          "--atleast-version=4.14",
+          "gtk4"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      "usable": false
+    },
+    "pango": {
+      "minimum": "1.50",
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "pango"
+        ],
+        "exit_code": 0,
+        "stdout": "1.57.0",
+        "stderr": ""
+      },
+      "minimum_check": {
+        "command": [
+          "pkg-config",
+          "--atleast-version=1.50",
+          "pango"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "usable": true
+    },
+    "pangocairo": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "pangocairo"
+        ],
+        "exit_code": 0,
+        "stdout": "1.57.0",
+        "stderr": ""
+      },
+      "minimum_check": null,
+      "usable": true
+    },
+    "cairo": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "cairo"
+        ],
+        "exit_code": 0,
+        "stdout": "1.18.4",
+        "stderr": ""
+      },
+      "minimum_check": null,
+      "usable": true
+    },
+    "graphene-gobject-1.0": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "graphene-gobject-1.0"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Package graphene-gobject-1.0 was not found in the pkg-config search path.\nPerhaps you should add the directory containing `graphene-gobject-1.0.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'graphene-gobject-1.0' not found"
+      },
+      "minimum_check": null,
+      "usable": false
+    },
+    "gstreamer-1.0": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "gstreamer-1.0"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Package gstreamer-1.0 was not found in the pkg-config search path.\nPerhaps you should add the directory containing `gstreamer-1.0.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'gstreamer-1.0' not found"
+      },
+      "minimum_check": null,
+      "usable": false
+    },
+    "gstreamer-app-1.0": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "gstreamer-app-1.0"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Package gstreamer-app-1.0 was not found in the pkg-config search path.\nPerhaps you should add the directory containing `gstreamer-app-1.0.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'gstreamer-app-1.0' not found"
+      },
+      "minimum_check": null,
+      "usable": false
+    },
+    "gstreamer-audio-1.0": {
+      "minimum": null,
+      "version": {
+        "command": [
+          "pkg-config",
+          "--modversion",
+          "gstreamer-audio-1.0"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Package gstreamer-audio-1.0 was not found in the pkg-config search path.\nPerhaps you should add the directory containing `gstreamer-audio-1.0.pc'\nto the PKG_CONFIG_PATH environment variable\nPackage 'gstreamer-audio-1.0' not found"
+      },
+      "minimum_check": null,
+      "usable": false
+    }
+  },
+  "display": {
+    "DISPLAY": ":0",
+    "WAYLAND_DISPLAY": "wayland-0",
+    "XDG_RUNTIME_DIR": "/run/user/1000",
+    "wslg_present": true,
+    "x11_socket_present": true,
+    "wayland_socket_present": true,
+    "connection_tested": false
+  },
+  "fixture": {
+    "path": "fixtures/selection.txt",
+    "sha256": "78527baf41df78f31dbdfae236a0a7e6edc94e56363a5549280c3454cb228286",
+    "status": "prepared_only_not_rendered"
+  },
+  "cargo_check": {
+    "status": "not_run"
+  },
+  "blockers": [
+    "Missing or too old native development package: gtk4 >= 4.14",
+    "Missing or too old native development package: graphene-gobject-1.0",
+    "Missing or too old native development package: gstreamer-1.0",
+    "Missing or too old native development package: gstreamer-app-1.0",
+    "Missing or too old native development package: gstreamer-audio-1.0"
+  ],
+  "unverified": [
+    "full application compile/link",
+    "package/install",
+    "window startup",
+    "Rust/TSX round trip",
+    "IME",
+    "PDF/EPUB rendering",
+    "selection/anchors",
+    "offline subresources/bridge isolation",
+    "close/reopen recovery",
+    "other platforms",
+    "WebView build/embedding (excluded by native profile)"
+  ]
+}

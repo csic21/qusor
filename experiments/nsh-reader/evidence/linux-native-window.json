@@ -1,0 +1,147 @@
+{
+  "registry_lock_drift": {
+    "probe": [],
+    "helper": []
+  },
+  "source_sha": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "source_lock_sha256": "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b",
+  "probe_lock_sha256": "1f73e33ea340988976ed592f38ca695352d5e0cdf3baf92ff1f3a6052d62f655",
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "nsh-cli",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "seconds": 0.485,
+      "log": "target/native-prefix-downloads/native-probe-cli-build.log",
+      "log_sha256": "29162d76fb109d9c6005d8544d63a4a438d15235d4f9b8e73d51adc9ba6e95d7"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--manifest-path",
+        "/workspace/qusor/experiments/nsh-reader/native-host/Cargo.toml",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "seconds": 0.462,
+      "log": "target/native-prefix-downloads/native-probe-build.log",
+      "log_sha256": "f829274da50ed01a5790c91b3ff45f50fb126e9709e198f3cb996aa0e6c8fd5b"
+    },
+    {
+      "command": [
+        "/workspace/qusor/experiments/nsh-reader/target/nsh/target/debug/nsh",
+        "build",
+        "/workspace/qusor/experiments/nsh-reader/target/nsh/examples/rust-exports",
+        "-o",
+        "/workspace/qusor/experiments/nsh-reader/target/native-bundle",
+        "--verbose"
+      ],
+      "exit_code": 0,
+      "seconds": 0.501,
+      "log": "target/native-prefix-downloads/native-probe-bundle.log",
+      "log_sha256": "4b4da2532c8f15e51d9310bfd752178ef1c703534b252d4cfc31528112bdb11e"
+    }
+  ],
+  "web_dependencies": [],
+  "webview_features": [],
+  "schema_version": 1,
+  "date": "2026-11-08",
+  "scope": "P02/P03 local Linux via WSLg X11 native Rust+TSX bridge subset; not reading or full platform qualification",
+  "first_launch": {
+    "pid": 90225,
+    "window": "0x600005",
+    "requested_size": [
+      600,
+      900
+    ],
+    "observed_size": [
+      385,
+      900
+    ],
+    "map_state": "IsViewable",
+    "exit_code": 0,
+    "close_method": "WM_PROTOCOLS/WM_DELETE_WINDOW ClientMessage, child wait exit0",
+    "command": [
+      "/workspace/qusor/experiments/nsh-reader/target/nsh/target/debug/qusor-nsh-native-host-probe",
+      "--bundle",
+      "/workspace/qusor/experiments/nsh-reader/target/native-bundle/bundle.nshc",
+      "--trace",
+      "--app-id",
+      "org.qusor.nativeprobe",
+      "--data-dir",
+      "/workspace/qusor/experiments/nsh-reader/target/native-probe-data",
+      "--window-size",
+      "600x900"
+    ]
+  },
+  "reopen": {
+    "pid": 93157,
+    "window": "0x600005",
+    "observed_size": [
+      600,
+      900
+    ],
+    "map_state": "IsViewable",
+    "exit_code": 0,
+    "close_method": "WM_PROTOCOLS/WM_DELETE_WINDOW ClientMessage, child wait exit0",
+    "initial_demo_balance": 120,
+    "business_persistence_verified": false
+  },
+  "interaction": {
+    "method": "XTest synthetic pointer motion, button1 press/release with flush and 100ms intervals on identified probe Deposit button",
+    "first_attempt": "sent but screenshot unchanged; not counted as success",
+    "verified_attempt": "Screenshot changed Savings $120.00 to $145.00, Heard145, Deposited$145.00; real log PressUp/Press then commit4ops",
+    "clipboard_used": false
+  },
+  "warnings": [
+    "MESA-EGL DRI3 device unavailable",
+    "dzn Vulkan implementation is non-conformant/testing only",
+    "first launch GTK width measurement warning after system resized client to385px"
+  ],
+  "limitations": [
+    "Upstream ledger example is synthetic, nonpersistent and not a QUSOR business UI or plugin SDK",
+    "No release packaging/install validation",
+    "No Chinese IME/composition, keyboard undo, cancellation/late callback proof",
+    "No PDF/EPUB Surface, source anchors, reading UX, performance benchmark or other platform proof",
+    "No WebView is used by the ledger; disabling optional host default does not validate any WebView feature"
+  ],
+  "ldd": {
+    "exit_code": 0,
+    "missing_libraries": false,
+    "webkit_javascriptcore_soup_present": false
+  },
+  "visual_observation": [
+    "Real Rust Ledger.format $1,234.50",
+    "Account constructors/getters and Draft.statement $15 after1entry",
+    "Gauge component 25% and native GTK Meter25%",
+    "Deposit Rust method and listener update visible",
+    "Reopen re-evaluates bundle and returns demo initial120, not saved business state"
+  ],
+  "artifacts": {
+    "evidence/native-window-before.png": "3cf2e9dca23096d9ce7212a787642d38eac722f12807c324195fe68c4186563c",
+    "evidence/native-window-after-deposit.png": "95420de4b5fd5fcd0e8b131aa897225b917e6107222cb30f741193bd4a510afd",
+    "evidence/native-window-reopened.png": "513ce37abd75d5541610475a985e1cadd2e2d24cfa3847d5afc4c47fce558124",
+    "evidence/linux-native-window-first.log": "970dfd64e15d2115198b851c44c0cf80940398b149fe6977b50cb9c6e12d6839",
+    "evidence/linux-native-window-reopen.log": "00457e8cd38f36ae075eadaba0af676ebb244e6988ec4de2a8f25dd7c316a4ba",
+    "evidence/linux-native-window-ldd.txt": "999f87dedd0d2a7654cdc081df953fb88d019f617150df089fec8c7ce1f10896",
+    "native-host/Cargo.toml": "dfcc801afefff374b4c0bafc25895a83d30039ac968e31537e8933ced2c6949f",
+    "native-host/Cargo.lock": "1f73e33ea340988976ed592f38ca695352d5e0cdf3baf92ff1f3a6052d62f655",
+    "native-host/main.rs": "6f3452e297abba4d13d5c5b30bb20c23a56009caac91e4a433378cfae27c5dc5",
+    "native-host/prepare.py": "bad3d8e931ca791cb9187eb57456b45c84d228d277b96ab1b65c20336b418c39",
+    "native-host/run.py": "1cf1bfa5646a4b29dee37127b6b8f33235a01b1b63586b2f9b9e1718383efdbb",
+    "native-host/capture_window.py": "eed35b01fd19f0eb95312cd246b2ade6b80a1d7cdb9ce494f06f68a7ad6ef9fa",
+    "native-host/close_window.py": "1c3ed88cb49bf6fcaf74cb1a59dc664ce0117825908d13158758df8f705985fa",
+    "target/native-bundle/bundle.nshc": "ff4eeae5d181dcc931f837a1e043755340405affd164e4be97a610a2532186f5",
+    "target/native-bundle/bundle.js": "f5d0e08aa2e7b39fe0afef6b0e06c9c2cdfaa1c7ea1765b3cd3f60aee43d83a4",
+    "target/nsh/target/debug/qusor-nsh-native-host-probe": "8cda3e8231b6c41860f95754de1bf98560d34a5e32add955669eb49c6851a920"
+  },
+  "source_tracked_clean_after": true
+}

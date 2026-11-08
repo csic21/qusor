@@ -1,0 +1,5 @@
+FIXTURE_REPLY_LOST begin_reply_lost after applied effect; terminate owned worker
+FIXTURE_REPLY_LOST append_reply_lost after applied effect; terminate owned worker
+FIXTURE_REPLY_LOST commit_reply_lost after applied effect; terminate owned worker
+REAL_COMPONENT_INPUT_COMPLETED bytes=1120 vms=8
+REAL_COMPONENT_INPUT_COMPLETED bytes=0 vms=10

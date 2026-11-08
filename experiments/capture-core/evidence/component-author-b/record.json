@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "status": "ordinary-provider-B-author-and-algorithm-proof-passed",
+  "recorded_at_utc": "2026-11-08T09:11:15.925792+00:00",
+  "source_sha256": {
+    "experiments/capture-core/author/src/component_paragraph.c": "bea64b7630c3ef28c29db08fdd3bda3383db683a9c25aa357a882b8a4bda6222",
+    "experiments/capture-core/author/src/component_paragraph_entry.s": "cbe7bb988a2ba77c9a2f22593631e5e9c21e909997495dc38112e9c1dea7cdd4",
+    "experiments/capture-core/author/src/bin/component_paragraph_author.rs": "3bf4a6c0398f8b999d98313e82e35e04c88e38bb9b20d176f7e491db98d57273"
+  },
+  "public_sdk_export": {
+    "root": "/tmp/qusor-component-b-final-sdk",
+    "fingerprints": {
+      "api/Cargo.toml": "e83fb65cb6845403643fd64641c8597442b789da80bfaae444db4e4ee6cec853",
+      "api/schema/continuation-v1.schema.json": "e58ed374c8974394c33297667025da4953291dfe714200428251f9b6ce164458",
+      "api/schema/policy-v0.3.schema.json": "909b434bbafe126e4208b18f0ad2fa7a2330a6ba2ee3a149d06310e4b873bdaf",
+      "api/schema/policy-v0.1.schema.json": "a9ec0d843fa58b3835f14fd24a27211a4b40c7cb62aeecb0ee7973124335947b",
+      "api/schema/policy-v0.2.schema.json": "1cb65514f75c56864848d6c9cb760b8ddf494fe040f283c18c9835ab98f707de",
+      "api/schema/component-context-v1.schema.json": "339a2b6ec996d471ff6cc0a92b4d4a77e00fd78dfa1b0cb81c71884cfadcb06d",
+      "api/schema/composition-v1.schema.json": "2d3bad97c4e8eb62ad8ab4b3ae478b645b7dcf392b40f196cdb0ca0cc2f5bdc8",
+      "api/schema/surface-v1.schema.json": "e56d9c3379eb4b1e87ec96750655740ac0a9819c0f7840cd17015407feb4de4a",
+      "api/schema/draft-v1.schema.json": "90ed8de0bd92577325f2a2bbb364557d91859bddd937eec014d5e7bf2b5d88fd",
+      "api/src/invocation.rs": "56a2da6b501b750476db54b4c89f0edfff8d27965ff574f651a38a4f1e057955",
+      "api/src/lib.rs": "52f241562a46aa1f876842b0a072b45cbe8cf5b2f60a591dec8abd0608b25120",
+      "api/src/draft.rs": "c89c51d1f1bc9d135a6143d1cfdd335152b151d084fa4d03732d3654790bacf6",
+      "api/src/surface.rs": "b4c0ea070e5e86734fd1f8131bd00ea1dffdbba81b5633b930c7fbf3ccc387b6",
+      "api/src/composition.rs": "65dec6accec7458187a9e5fce44e142087fc6487436b0938cc880fcff46c24b9",
+      "api/src/continuation.rs": "fffcb559ceade8671a103484ba562fc3200f535dca160745acdd12513d33e036",
+      "capture/Cargo.toml": "f76871a423f769e5bac0366962bb74305e83a71ba8e1f7ce531464bf940dad59",
+      "capture/src/pdf_compound.rs": "59634bfd7055df2a2886ed74fe5871ecf04311cb3d6d87ed3e1bdfa4c48e761d",
+      "capture/src/pdf_contract.rs": "7673e004999b75d37fbe43e038df8e48803838493b066e907ce296a421f83609",
+      "capture/src/lib.rs": "63a9154056d64faffdb117fb80de3778349991e366913af86830c9012e96b00f",
+      "capture/src/contract.rs": "5f2a41176927913eac86859c2a7c724996cecfab0b030b50306324c0d3f8532b",
+      "package/Cargo.toml": "f1ddd84f1fc91db0ec53a5e5665cf9c960a7273fc29ffd555a89a27605e936d0",
+      "package/src/lib.rs": "400ced8ea6002d66ba28d1a6f852e285999caf561aafbe93e516a7c29633724d",
+      "package/src/package.rs": "4de3ba3784a111d47683f41ceff6f625868fbb5d61148a0cfbfca70787d066f2",
+      "author/Cargo.toml": "e07484d5924b7d5825a004ace06f00b11733f20d2749dfc0e717fed4a8896070",
+      "author/src/component_text.wat": "9bfec0cd13241bae659f3813f977ae0539f0877e0e19f7aa572a442de33aaa01",
+      "author/src/component_paragraph.c": "bea64b7630c3ef28c29db08fdd3bda3383db683a9c25aa357a882b8a4bda6222",
+      "author/src/main.rs": "c1ba01d2963dccb2cf0412c3cc8c5c29797e3fc8cb6bd65d7c68496e7479dc74",
+      "author/src/component_paragraph_entry.s": "cbe7bb988a2ba77c9a2f22593631e5e9c21e909997495dc38112e9c1dea7cdd4",
+      "author/src/bin/component_author.rs": "2f414b38c73b788fc016a0fd3afd8f57e67969a58f6c75a9957c5a95f2b687f3",
+      "author/src/bin/component_paragraph_author.rs": "3bf4a6c0398f8b999d98313e82e35e04c88e38bb9b20d176f7e491db98d57273"
+    },
+    "private_host_core_runtime_not_exported": true
+  },
+  "toolchain": {
+    "clang": "Ubuntu clang version 21.1.8 (6ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-21/bin",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "linker": "LLD 22.1.6 (/checkout/src/llvm-project/llvm dcc3606807c989700e0ac1cac18c31741bcd40d9)"
+  },
+  "compile_arguments": [
+    "clang --target=wasm32-unknown-unknown -O2 -ffreestanding -fno-builtin -nostdlib -Wall -Wextra -Werror -c guest.c -o guest.o",
+    "clang --target=wasm32-unknown-unknown -mmultivalue -c entry.s -o entry.o",
+    "rust1.97.1 wasm-ld --no-entry --export=run --export-memory --initial-memory=131072 --max-memory=131072 guest.o entry.o -o module.wasm"
+  ],
+  "path_graph": {
+    "repository_author": "experiments/capture-core/author/src/bin/component_paragraph_author.rs",
+    "included_guest": [
+      "../component_paragraph.c",
+      "../component_paragraph_entry.s"
+    ],
+    "external_author": "/tmp/qusor-component-b-final-sdk/author",
+    "signed_package": "/workspace/qusor/experiments/capture-core/evidence/component-author-b/provider-b.qpk",
+    "exact_signed_wasm": "/workspace/qusor/experiments/capture-core/evidence/component-author-b/module.wasm",
+    "temporary_algorithm_proof": "/tmp/qusor-paragraph-proof",
+    "actual_Host_process_consumer": "separate agent/evidence; not inferred by this record"
+  },
+  "module_sha256": "85227fff8c1a5ee28b1ad65436ef144585001c769cc8ec3e38dacc4e33cd3eff",
+  "module_bytes": 26244,
+  "checkpoint_format": {
+    "version": 1,
+    "raw_struct_bytes": 544,
+    "encoding": "3byte version/size header; zero runs>=3, literal runs include short zeros; both<=128; strict bounded decode",
+    "worst_packed_bytes": 552,
+    "cache_bytes_each": 128,
+    "cursor_count": 3,
+    "work_quantum_scalars": 64
+  },
+  "execution_limits": {
+    "total_fuel": 1000000,
+    "timeout_ms": 250,
+    "host_calls": 8,
+    "measured_max_calls_per_vm": 5,
+    "reply_bytes": 4096,
+    "request_bytes": 65536,
+    "memory_pages": 2
+  },
+  "fixed_fixture_results": [
+    {
+      "calls": 13,
+      "id": "empty-text-replace",
+      "max_fuel": 441327,
+      "outcome": "passed",
+      "vms": 3
+    },
+    {
+      "calls": 4,
+      "id": "empty-text-same-move",
+      "max_fuel": 350579,
+      "outcome": "passed",
+      "vms": 1
+    },
+    {
+      "calls": 23,
+      "id": "empty-body-emoji-nul",
+      "max_fuel": 510620,
+      "outcome": "passed",
+      "vms": 5
+    },
+    {
+      "calls": 13,
+      "id": "crlf-only-replace",
+      "max_fuel": 449066,
+      "outcome": "passed",
+      "vms": 3
+    },
+    {
+      "calls": 28,
+      "id": "empty-body-lone-cr",
+      "max_fuel": 515402,
+      "outcome": "passed",
+      "vms": 6
+    },
+    {
+      "calls": 4,
+      "id": "lone-cr-same-move",
+      "max_fuel": 358087,
+      "outcome": "passed",
+      "vms": 1
+    },
+    {
+      "calls": 23,
+      "id": "repeated-cr-move",
+      "max_fuel": 516873,
+      "outcome": "passed",
+      "vms": 5
+    },
+    {
+      "calls": 23,
+      "id": "repeated-cr-inverse",
+      "max_fuel": 514948,
+      "outcome": "passed",
+      "vms": 5
+    },
+    {
+      "calls": 23,
+      "id": "mix-move-0-2",
+      "max_fuel": 513492,
+      "outcome": "passed",
+      "vms": 5
+    },
+    {
+      "calls": 23,
+      "id": "mix-move-inverse",
+      "max_fuel": 523563,
+      "outcome": "passed",
+      "vms": 5
+    },
+    {
+      "calls": 4,
+      "id": "mix-same-index",
+      "max_fuel": 370476,
+      "outcome": "passed",
+      "vms": 1
+    },
+    {
+      "calls": 23,
+      "id": "lf-crlf-replace",
+      "max_fuel": 514605,
+      "outcome": "passed",
+      "vms": 5
+    },
+    {
+      "calls": 23,
+      "id": "emoji-move",
+      "max_fuel": 516529,
+      "outcome": "passed",
+      "vms": 5
+    },
+    {
+      "calls": 23,
+      "id": "nul-content-move",
+      "max_fuel": 509705,
+      "outcome": "passed",
+      "vms": 5
+    },
+    {
+      "calls": 18,
+      "id": "empty-body-move",
+      "max_fuel": 504409,
+      "outcome": "passed",
+      "vms": 4
+    },
+    {
+      "calls": 13,
+      "id": "no-trim-nul-replace",
+      "max_fuel": 454345,
+      "outcome": "passed",
+      "vms": 3
+    },
+    {
+      "calls": 3,
+      "id": "reject-lone-cr-absorbed-by-tail",
+      "max_fuel": 307703,
+      "outcome": "rejected",
+      "vms": 1
+    },
+    {
+      "calls": 3,
+      "id": "reject-eof-cr-absorbed-by-slot",
+      "max_fuel": 304427,
+      "outcome": "rejected",
+      "vms": 1
+    },
+    {
+      "calls": 3,
+      "id": "reject-empty-body-becomes-tail",
+      "max_fuel": 300725,
+      "outcome": "rejected",
+      "vms": 1
+    },
+    {
+      "calls": 3,
+      "id": "reject-shifted-body-cr",
+      "max_fuel": 309980,
+      "outcome": "rejected",
+      "vms": 1
+    }
+  ],
+  "fixed_fixture_totals": {
+    "cases": 20,
+    "vms": 66,
+    "calls": 293
+  },
+  "corrupt_checkpoint_results": [
+    {
+      "calls": 7,
+      "id": "corrupt-phase",
+      "max_fuel": 502881,
+      "outcome": "rejected",
+      "vms": 2
+    },
+    {
+      "calls": 7,
+      "id": "corrupt-action",
+      "max_fuel": 502881,
+      "outcome": "rejected",
+      "vms": 2
+    },
+    {
+      "calls": 7,
+      "id": "corrupt-cache-n",
+      "max_fuel": 510713,
+      "outcome": "rejected",
+      "vms": 2
+    },
+    {
+      "calls": 7,
+      "id": "corrupt-span",
+      "max_fuel": 502881,
+      "outcome": "rejected",
+      "vms": 2
+    },
+    {
+      "calls": 7,
+      "id": "corrupt-base64",
+      "max_fuel": 361805,
+      "outcome": "rejected",
+      "vms": 2
+    },
+    {
+      "calls": 7,
+      "id": "corrupt-packed-overflow",
+      "max_fuel": 361805,
+      "outcome": "rejected",
+      "vms": 2
+    }
+  ],
+  "pressure": {
+    "cross512_crlf_vms": 45,
+    "long_64KiB_move_vms": 3077,
+    "4096_empty_paragraphs_vms": 194,
+    "alternating_NUL_nonzero_cache_vms": 101,
+    "Unicode_NUL_copy_fallback_vms": 26,
+    "pressure_wasm_sha256": "cf68a243b6edc569731220a8d190a160b19d12f7d1f9b60da35bbff77d01aefd",
+    "signed_vs_pressure_module": "Executable sections byte-identical; custom name section module name differs by linker output basename component_paragraph.wasm vs module.wasm (not C source filename). Exact signed module reran all20 fixed+6 corruption cases.",
+    "pressure_module_archive": "pressure-module.wasm",
+    "archive_recovery": "Re-linked retained original objects using original arguments and output basename component_paragraph.wasm; SHA256 exactly matches pressure module hash."
+  },
+  "proof_scope": "Real Wasmi executes guest; production AnnotationDrafts/ProviderEvents+SQLite synthetic source fixture. No real Host authorization/process supervision/native gesture claimed by temporary broker. Static fixture outputs only compare; parent does not calculate guest transformation.",
+  "not_qualified": [
+    "native ParagraphEditor projection/render/input/release",
+    "1MiB end-to-end B latency and functional run",
+    "user experience latency",
+    "cross-platform author toolchain"
+  ],
+  "secrets": "seed excluded; only public key and signed artifacts recorded",
+  "artifacts": {
+    "algorithm-pressure-cases.json": {
+      "bytes": 183975,
+      "sha256": "8cc3f0e610c9f582059ec6a85f6087840d8e285cc114d3634b332452145ed5e3"
+    },
+    "fixed-and-corrupt-proof.log": {
+      "bytes": 25955,
+      "sha256": "758dcc44ece7d622df855bf97aaae18ba483572a881365e64853340c5db802ef"
+    },
+    "publisher-public-key.txt": {
+      "bytes": 64,
+      "sha256": "0bc34ac963f053158740ace002c4c448686139601bb14438fc32274cd3e2921b"
+    },
+    "provider-b.qpk": {
+      "bytes": 54271,
+      "sha256": "7bbb96ca215909cd632d74b3885591deb69f7116271eb3ed32a700db69d12f33"
+    },
+    "ui-composition.json": {
+      "bytes": 288,
+      "sha256": "020a29cd7bedc18283785f536351904eea7b9f3f161a3cbd288b89578a7b8c70"
+    },
+    "provider-manifest.json": {
+      "bytes": 458,
+      "sha256": "23a1d19f9d599f48f49c0efce628ee6ca1356788d2bf916aa37782f4ac231750"
+    },
+    "toolchain.json": {
+      "bytes": 293,
+      "sha256": "50518e6836ca541b108bed3499b06b7e8a9f599e88e7a768cadcad5dae427e56"
+    },
+    "author-clippy.log": {
+      "bytes": 1235,
+      "sha256": "512560bf9ae024df90682f5dae0e572ae41d56f91d599cd04fbf70707125152f"
+    },
+    "algorithm-corrupt-cases.json": {
+      "bytes": 3661,
+      "sha256": "7ac5f52f051bf899464a26c09d7b2cb6a2e0da32263568cd17eda717f8814d8d"
+    },
+    "author-build-sign.log": {
+      "bytes": 2113,
+      "sha256": "577b589a6615062bcd3fd715e37028c0f5489c90b538e819983b21d8bf429cb0"
+    },
+    "pressure-proof.log": {
+      "bytes": 42516,
+      "sha256": "c0f3d4afacf791c813072ac83f567b0756e1bbd7fa49fa807437db80ff95d108"
+    },
+    "module.wasm": {
+      "bytes": 26244,
+      "sha256": "85227fff8c1a5ee28b1ad65436ef144585001c769cc8ec3e38dacc4e33cd3eff"
+    },
+    "algorithm-proof-harness.rs": {
+      "bytes": 16546,
+      "sha256": "040b261ccb1974250bc3748067865e1898c4b01e6a78cf2753c6221302a277b6"
+    },
+    "pressure-module.wasm": {
+      "bytes": 26257,
+      "sha256": "cf68a243b6edc569731220a8d190a160b19d12f7d1f9b60da35bbff77d01aefd"
+    }
+  }
+}

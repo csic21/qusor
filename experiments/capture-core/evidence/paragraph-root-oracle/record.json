@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "cases": 200,
+  "seed": 20261108,
+  "oracle": "Python regex split of anchored EOF terminator, separator slots, reorder P and independently reparse candidate before acceptance. Replace uses exact body substitution. Oracle is independent of streaming C guest.",
+  "vms": 712,
+  "calls": 3214,
+  "max_fuel": 630002,
+  "rejections": 8,
+  "runtime": "WasmiRuntime, default 1000000 fuel / 250ms / 8 calls; real production AnnotationDrafts/ProviderEvents; synthetic Core fixture; no real Host/process/native qualification",
+  "exit_code": 0,
+  "files": {
+    "harness.rs": "c2e79cf8fe1445e023b37e02456ce4654c3bb0f4b65d9156f8658849885ef5de",
+    "guest.wasm": "85227fff8c1a5ee28b1ad65436ef144585001c769cc8ec3e38dacc4e33cd3eff",
+    "run.stdout": "f25bf11a91ad0710a39a616bd91db623909ee283dece18f2c0d14f95131515f4",
+    "run.stderr": "e4a9985340d09056fe4664b60fe6b7330d32b809e34231c61e44511e218c77ba",
+    "cases.json": "4b745086f9439d492d4a69f4632f6cd1d174cb5202d0e80329ad55b6c0034c47",
+    "Cargo.toml.txt": "1408f98bbf3093f9ca684609f1875111f393ce773eed96618432a6df8793e1d3",
+    "Cargo.lock.txt": "7044b947022195bd3f6d32eae34e18ee813eeaa23eddd68623ae140c6a0f5721"
+  }
+}

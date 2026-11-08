@@ -1,0 +1,31 @@
+{
+  "verified": true,
+  "qualification_parent_pid": 334511,
+  "observed_during_large_execution": true,
+  "installed_package_digests": [
+    [
+      "ordinary.capture-source",
+      "dd35cd58c9b16e857193c8c98369d6e32cb89ce9554ee899cc92905aa3fa3c50"
+    ],
+    [
+      "ordinary.text-editor",
+      "7769c10ae964187765e8e7de9c84ff6422d00da7426b7581ed961f18c6a030b8"
+    ]
+  ],
+  "fixture_hashes": {
+    "check.stderr": "b3514e70b8cda30b084cb875c77b8a1e34f3af534b2713413eef1f56bd5c9082",
+    "check.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publisher-public-key.txt": "89f5f8ad250c485a739372f74689e3f1eb558af6b39c2b95330cf920b3e657c4",
+    "capture-identity.qpk": "dd35cd58c9b16e857193c8c98369d6e32cb89ce9554ee899cc92905aa3fa3c50",
+    "provider-a.qpk": "7769c10ae964187765e8e7de9c84ff6422d00da7426b7581ed961f18c6a030b8",
+    "provider-manifest.json": "6c35433cef7fba8bace6ec6785e1ba049446ab1e6454ac952b8c8f33c37e105b",
+    "clippy.stderr": "5609a4c1fcb5f7105d468d2a0b802f2bbecd34aea827e5016406018e2ded1562",
+    "sign.stdout": "343aeea983bbf0fd6171872828c0899aaa80650667c2146b22f870b975e2529e",
+    "capture-identity-manifest.json": "ab464f1811b4d913fe36175488de13a2414a275c02d6df2dbf4a58145595a261",
+    "sign.stderr": "421e4910b5a13854bdb4f35f2fe2a358fa16823ad5601c5a5b4e4e86c02f5366",
+    "record.json": "04b3a05ade7874848d71f7e2330da0c44ce0353e4b4849abafb5889e1a562549",
+    "clippy.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "database_observation": "read-only SELECT of synthetic qualification installation facts; connection closed immediately",
+  "fixtures_unchanged_after_execution": true
+}

@@ -1,0 +1,4 @@
+   Compiling extension-api v0.0.0 (/tmp/qusor-projection-sdk-probe/sdk-bootstrap/api)
+   Compiling ordinary-projection-sdk-probe v0.1.0 (/tmp/qusor-projection-sdk-probe/probe)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.50s
+     Running `/tmp/qusor-projection-sdk-probe/probe/target/debug/ordinary-projection-sdk-probe`

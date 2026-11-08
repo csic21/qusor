@@ -1,0 +1,16 @@
+{
+  "pin": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "scope": "read-only design; no compile, GUI or NSH checkout mutation",
+  "files": {
+    "crates/nsh-platform-linux/src/mount.rs": "9b584fd833cd05f24048c7ba10a975476dd8b10d98c5360232de692e7fc23f00",
+    "crates/nsh-platform-linux/src/transition.rs": "e6a7909b8f6bd923386a57520985aeb32b8963cf39c8360db5b98c5a60f4602f",
+    "crates/nsh-platform-linux/src/view.rs": "480b4252c968d37c527f716fd0500785a90f35bca4ca037b3d194b9cf326dd8a",
+    "crates/nsh-platform-linux/src/image.rs": "98ecc924d31745493dd26e4994b2389800bd5bccf66d663ff1d2ff88ef388e82",
+    "crates/nsh-platform-linux/src/native.rs": "d6a245ab77f75f62bc3e7e1d746403cbc36a8babedda87c876db719963ee91cf",
+    "crates/nsh-platform-linux/src/surface.rs": "826a46333421c7434efe2db6df46d957711e423275326dc897bc5e3e1527dc5c",
+    "crates/nsh-platform-linux/src/text_input.rs": "4f7a3706ea2013afa371a604b6588e50771f52189f7f611f60b343d663e80774",
+    "crates/nsh-core/src/image/loader.rs": "ad38c8004f2f87901fd1b4664615d49512a93f3e0267407629fb71c580f587a7",
+    "crates/nsh-core/src/image/decoded.rs": "622839179841143953d1a11e2a224925178bc920558833167b60d6ff7e65496b",
+    "crates/nsh-core/src/image/memory.rs": "7c0fdf17dfcfc14ccedcd608fe5432a18598e80483d178dbcfdb0fcb89cb8454"
+  }
+}

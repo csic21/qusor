@@ -1,0 +1,20 @@
+{
+  "command": [
+    "cargo",
+    "build",
+    "--manifest-path",
+    "/workspace/qusor/experiments/nsh-reader/native-host/Cargo.toml",
+    "--locked",
+    "--offline",
+    "-j1",
+    "--bin",
+    "qusor-nsh-dynamic-pdf-probe"
+  ],
+  "features": "default=[]; no native-qualification",
+  "env": {
+    "TMPDIR": "/home/user/.cache/qusor-native-retirement/tmp",
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_TARGET_DIR": "/workspace/qusor/experiments/nsh-reader/target/nsh/target",
+    "RUSTUP_TOOLCHAIN": "1.97.1"
+  }
+}

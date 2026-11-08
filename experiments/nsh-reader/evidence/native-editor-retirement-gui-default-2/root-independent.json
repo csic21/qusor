@@ -1,0 +1,16 @@
+{
+  "artifact_hashes_checked": 49,
+  "paired_actual_vm_reap": 33,
+  "calls": 110,
+  "pdf_capture_count": 1,
+  "reopened_and_restored_capture_rows_equal": true,
+  "saved_note_present": true,
+  "lease_counts": {
+    "worker_leases": 0
+  },
+  "screenshots_visually_reviewed": [
+    "typed.png",
+    "after-continue.png"
+  ],
+  "scope": "Frozen 7e52ffd1 default artifact; does not qualify later shutdown/admission/UI recovery edits."
+}

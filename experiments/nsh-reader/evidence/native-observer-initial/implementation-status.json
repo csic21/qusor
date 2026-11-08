@@ -1,0 +1,32 @@
+{
+  "status": "feature-on-check-and-three-real-GTK-tests-passed-partial-observer",
+  "pin": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "feature": "native-retirement-observer",
+  "feature_off": "all operational hooks cfg gated; Surface.apply visibility broadened crate-only without behavior change; NOT yet compiled",
+  "tests_written": 3,
+  "tests_executed": 3,
+  "no_release_ack_api": true,
+  "qdata_evidence": "finalization stage reached only; not whole-finalizer-return fence; no GPU/physical present claim",
+  "remaining": [
+    "compile feature-on/off",
+    "execute actual GTK tests",
+    "native children finalization",
+    "background jobs",
+    "decoded cache and texture owner retirement",
+    "outro lifecycle tests"
+  ],
+  "files": {
+    "crates/nsh-platform-linux/Cargo.toml": "06b53a5685d82565d786bdf1557c5b93f02d6fdd3ed03dabc98d07a3b42f69a6",
+    "crates/nsh-platform-linux/src/app.rs": "7b7b31feac5215230d43917f3e04c92a3030dacc8f1a9aab36c794b40b363a81",
+    "crates/nsh-platform-linux/src/image.rs": "dcdb53765ec3d915c76fac645679b5961a38da72a03d6e1dafe0b87555709482",
+    "crates/nsh-platform-linux/src/lib.rs": "09d8bdd850a81fb28f90e8b85430851fbef5781d9b13c0c24bef8fcc84132ea8",
+    "crates/nsh-platform-linux/src/mount.rs": "de508e57da5044b500505d201fbab9549e122012dfaeb04ed9ba4bd78df7e074",
+    "crates/nsh-platform-linux/src/surface.rs": "e664eb1a50dfa56939afe51ae16962b7249ed3a126ac28ecb549a35ad9fc8e05",
+    "crates/nsh-platform-linux/src/view.rs": "91f1cba422c05972c81a43860561d286da6189a3dc4bcfac0dee117aabb6a5db",
+    "crates/nsh-platform-linux/src/retirement.rs": "735584285fae9f9146f3efd7d384dc2012d9f5be8be852085a4d807d0ad5e1e8"
+  },
+  "patch_sha256": "879b8b8439b43c318c524d3dd908a34cf349388091b075334ae2610695c58bda",
+  "source_archive_sha256": "6ed12d7b527e62a559ecde0df12566d39ed0455fe5c9882caa555f73e241fc53",
+  "tests_passed": 3,
+  "proof": "gtk-attempt-2/record.json"
+}

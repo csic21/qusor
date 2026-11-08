@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "status": "exported-sdk-author-build-and-sign-passed",
+  "recorded_at_utc": "2026-11-08T08:16:59.308118+00:00",
+  "sdk_root": "/tmp/qusor-component-author-a-sdk",
+  "author_source_sha256": {
+    "experiments/capture-core/author/src/bin/component_author.rs": "2f414b38c73b788fc016a0fd3afd8f57e67969a58f6c75a9957c5a95f2b687f3",
+    "experiments/capture-core/author/src/component_text.wat": "9bfec0cd13241bae659f3813f977ae0539f0877e0e19f7aa572a442de33aaa01"
+  },
+  "artifacts": {
+    "check.stderr": {
+      "bytes": 156,
+      "sha256": "b3514e70b8cda30b084cb875c77b8a1e34f3af534b2713413eef1f56bd5c9082"
+    },
+    "check.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "publisher-public-key.txt": {
+      "bytes": 64,
+      "sha256": "89f5f8ad250c485a739372f74689e3f1eb558af6b39c2b95330cf920b3e657c4"
+    },
+    "capture-identity.qpk": {
+      "bytes": 1149,
+      "sha256": "dd35cd58c9b16e857193c8c98369d6e32cb89ce9554ee899cc92905aa3fa3c50"
+    },
+    "provider-a.qpk": {
+      "bytes": 7627,
+      "sha256": "7769c10ae964187765e8e7de9c84ff6422d00da7426b7581ed961f18c6a030b8"
+    },
+    "provider-manifest.json": {
+      "bytes": 443,
+      "sha256": "6c35433cef7fba8bace6ec6785e1ba049446ab1e6454ac952b8c8f33c37e105b"
+    },
+    "clippy.stderr": {
+      "bytes": 156,
+      "sha256": "5609a4c1fcb5f7105d468d2a0b802f2bbecd34aea827e5016406018e2ded1562"
+    },
+    "sign.stdout": {
+      "bytes": 65,
+      "sha256": "343aeea983bbf0fd6171872828c0899aaa80650667c2146b22f870b975e2529e"
+    },
+    "capture-identity-manifest.json": {
+      "bytes": 436,
+      "sha256": "ab464f1811b4d913fe36175488de13a2414a275c02d6df2dbf4a58145595a261"
+    },
+    "sign.stderr": {
+      "bytes": 376,
+      "sha256": "421e4910b5a13854bdb4f35f2fe2a358fa16823ad5601c5a5b4e4e86c02f5366"
+    },
+    "clippy.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "checks": {
+    "offline_author_check": "passed",
+    "offline_author_clippy_D_warnings": "passed",
+    "ordinary_api03_signed_package": "passed; build_signed_for_host internally verifies signature/assets",
+    "ordinary_api02_capture_identity_package": "passed; synthetic trusted capture identity fixture only"
+  },
+  "execution_budget": {
+    "max_calls_per_fresh_vm": 4,
+    "fuel_limit_requirement": 1000000,
+    "timeout_ms_requirement": 250,
+    "host_call_limit_requirement": 8,
+    "module_limit_bytes": 262144,
+    "output_limit_bytes": 4096
+  },
+  "not_verified_here": [
+    "Wasmi validation/execution and actual fuel usage",
+    "1MiB streaming/Unicode/NUL/empty-text whole-run qualification",
+    "native window input/release",
+    "Core save and receipt recovery"
+  ],
+  "consumer_execution_owner": "separate real-consumer qualification; no pass inferred from author build",
+  "capture_identity_scope": "API0.2 CapturePropose-only Command; not executed; source is synthetic trusted Core fixture, not a claimed reader gesture/proposal",
+  "secrets": "Signing seed excluded from evidence; public key only."
+}

@@ -111,7 +111,7 @@ fn manifest_parsing_keeps_host_compatibility_separate_from_structure() {
 fn request_requires_the_implemented_protocol_version() {
     for version in [
         ApiVersion { major: 0, minor: 0 },
-        ApiVersion { major: 0, minor: 2 },
+        ApiVersion { major: 0, minor: 4 },
         ApiVersion { major: 1, minor: 1 },
     ] {
         let mut request = request();

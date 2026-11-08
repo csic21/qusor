@@ -1,0 +1,461 @@
+--- a/experiments/nsh-reader/dynamic-pdf/App.tsx
++++ b/experiments/nsh-reader/dynamic-pdf/App.tsx
+@@ -5,7 +5,7 @@
+ import { ReaderViewport } from "./ReaderViewport";
+ import { CapturePanel } from "./CapturePanel";
+ import { ActionButton, Body, InlineStatus, color } from "./ui";
+-import { editNote, frameKey, pinned, selectedDraft, settle, submit, submitEditor, editorEventMatches, activeInputEvent, deferInputFocus, chunkEnd, sourceUnavailable, type Draft } from "./reader-state";
++import { editNote, frameKey, pinned, selectedDraft, settle, submit, submitEditor, editorEventMatches, canDiscardDraft, canDiscardPreparation, activeInputEvent, deferInputFocus, chunkEnd, sourceUnavailable, type Draft } from "./reader-state";
+ import { editorInput, localInput, composition, deliver, deliveryReply, retryDelivery, inputCanSave, type EditorInput, type Delivery } from "./editor-input-state";
+ const parse=(raw:string)=>JSON.parse(raw);
+ function App(){
+@@ -15,6 +15,7 @@
+  const importing=signal(false),importedOnly=signal(false),frameFailed=signal(false),resized=signal(false);
+  const editor=signal<EditorInput|null>(null),beginning=signal(false),editorMessage=signal(""),bodyLoaded=signal(false),closingEditor=signal(false),nativeClosing=signal<{binding:string;pendingRelease:boolean}|null>(null),beginAttempt=signal(false);
+  let activeApply:Promise<void>|null=null;
++ const discardDialog=signal(false);
+  const notice=signal(""),copyStatus=signal("");
+  const status=signal("从本机打开 PDF，选文后可保存摘录或写想法。");
+  let frameRequest=0,importRequest=0,focusEditor=false,focusEpoch=0;
+@@ -38,11 +39,14 @@
+    editor.set(null);bodyLoaded.set(false);beginAttempt.set(false);editorMessage.set("编辑器仍在关闭，可继续阅读。");return true;
+   }catch(_){notice.set("暂未能关闭这份想法。内容仍保留，可复制后稍后重试。");auxiliary.set(true);return false;}finally{closingEditor.set(false);}
+  };
+- const returnToText=async()=>{if(editor()?.composing){editorMessage.set("请先完成当前输入，再返回正文。内容仍保留在这里。");auxiliary.set(true);return;}activeInputToken=null;focusEditor=false;++focusEpoch;const old=draft();if(old?.phase==="saved"){if(!await clearNative())return;resetSelection();}else if(!editor()&&!beginning()&&old?.phase==="editing"&&!old.note.length&&!old.submission)draft.set({...old,phase:"selected"});auxiliary.set(false);setTimeout(()=>{pageRef?.focus();},0);};
++ const returnToText=async()=>{if(discardDialog())return;if(editor()?.composing){editorMessage.set("请先完成当前输入，再返回正文。内容仍保留在这里。");auxiliary.set(true);return;}activeInputToken=null;focusEditor=false;++focusEpoch;const old=draft();if(old?.phase==="saved"){if(!await clearNative())return;resetSelection();}else if(!editor()&&!beginning()&&old?.phase==="editing"&&!old.note.length&&!old.submission)draft.set({...old,phase:"selected"});auxiliary.set(false);setTimeout(()=>{pageRef?.focus();},0);};
+  const discard=async()=>{
+-  const old=draft();if(!old||old.phase==="saving"||old.phase==="uncertain")return;
+-  const answer=await AlertDialog.show({title:"放弃这份未保存想法？",description:"引文与想法只保留在当前会话。放弃后不会保存这份草稿。",actions:[{id:"keep",label:"继续编辑",role:"cancel"},{id:"discard",label:"放弃草稿",role:"destructive"}]});
+-  if(answer.action==="discard"&&draft()?.id===old.id&&await clearNative()){resetSelection();returnToText();}
++  const old=draft(),nativeBinding=editor()?.binding??"";
++  if(!old||!canDiscardDraft(old,nativeBinding,beginning(),closingEditor(),discardDialog(),importing()))return;
++  discardDialog.set(true);
++  try{const answer=await AlertDialog.show({title:"放弃这份未保存想法？",description:"引文与想法只保留在当前会话。放弃后不会保存这份草稿。",actions:[{id:"keep",label:"继续编辑",role:"cancel"},{id:"discard",label:"放弃草稿",role:"destructive"}]});
++  if(answer.action==="discard"&&draft()?.id===old.id&&draft()?.binding===old.binding&&editor()?.binding===nativeBinding&&canDiscardDraft(draft(),nativeBinding,beginning(),closingEditor(),false,importing())&&await clearNative()){resetSelection();discardDialog.set(false);returnToText();}
++  }finally{discardDialog.set(false);}
+  };
+  const copyDraft=async()=>{const old=draft();if(!old)return;try{await Clipboard.writeText(`${old.title} · 第 ${old.page+1} 页\n\n${old.quote}\n\n我的想法\n${old.note}`);if(draft()?.id===old.id)copyStatus.set("已复制引文与想法。");}catch(_){if(draft()?.id===old.id)copyStatus.set("复制未完成，可选中想法内容手动复制。");}};
+  const leaveUncertain=async()=>{const old=draft();if(old?.phase!=="uncertain")return;const answer=await AlertDialog.show({title:"离开这份结果未确认的草稿？",description:"保存可能已经完成。离开不会撤销已经发生的保存。建议先复制引文与想法；也可先原样重试确认结果。",actions:[{id:"keep",label:"返回草稿",role:"cancel"},{id:"leave",label:"离开此草稿"}]});if(answer.action==="leave"&&draft()?.id===old.id&&await clearNative()){resetSelection();returnToText();notice.set("已离开草稿，未撤销任何已发生的保存。");}};
+@@ -69,7 +73,7 @@
+   await requestImage(fitted.ok?fitted.value:c);
+  };
+  const open=async()=>{
+-  if(importing()||saving())return;
++  if(importing()||saving()||discardDialog())return;
+   if(beginning()||(beginAttempt()&&!editor())){auxiliary.set(true);return;}
+   const old=draft();if(old?.phase==="uncertain"){auxiliary.set(true);return;}
+   if(old&&pinned(old)){
+@@ -106,7 +110,7 @@
+  const retryInput=()=>{const e=editor();if(!e||importing()||closingEditor()||beginning())return;const next=retryDelivery(e);if(next){editor.set(next.state);activeApply=send(next.command);}};
+  const pauseInput=()=>{const e=editor();if(!e)return;try{const r=parse(NativeEditor.pause(e.binding));editorMessage.set(r.ok?"已请求暂停；正在等待处理结束，原输入保留，可原样重试。":"暂停尚未确认，原输入仍保留。");}catch(_){editorMessage.set("暂停尚未确认，原输入仍保留。");}};
+  const write=async()=>{
+-  const old=draft();if(!old)return;focusEditor=true;++focusEpoch;auxiliary.set(true);
++  const old=draft();if(!old||discardDialog()||closingEditor())return;focusEditor=true;++focusEpoch;auxiliary.set(true);
+   if((editor()&&bodyLoaded())||beginning()||old.phase==="saved"||old.submission)return;
+   beginning.set(true);beginAttempt.set(true);editorMessage.set("正在准备想法，原选段保持不变…");
+   try{const r=parse(await NativeEditor.begin(old.id,"a"));const v=r.value;
+@@ -131,7 +135,7 @@
+   finally{beginning.set(false);}
+  };
+  const save=async()=>{
+-  const old=draft();if(!old)return;if(importing()||(!old.submission?.editor&&(old.sourceUnavailable||old.binding!==frameKey(config())||ready()!==old.binding))){notice.set("原页面暂不可用，不能提交或重试。内容仍保留，可复制后明确离开草稿。");return;}
++  const old=draft();if(!old||discardDialog()||closingEditor())return;if(importing()||(!old.submission?.editor&&(old.sourceUnavailable||old.binding!==frameKey(config())||ready()!==old.binding))){notice.set("原页面暂不可用，不能提交或重试。内容仍保留，可复制后明确离开草稿。");return;}
+   const e=editor();if(beginAttempt()||beginning()||(e&&(!bodyLoaded()||(!old.submission&&!inputCanSave(e))))){notice.set("请先确认输入处理完成，再保存。内容仍保留。");return;}
+   if(old.phase!=="selected"&&!e&&!old.submission){notice.set("编辑尚未就绪，内容已保留，请重新准备想法。");return;}
+   const pending=e?submitEditor(old,e.binding,e.revision):submit(old);if(!pending)return;notice.set("");draft.set(pending);const frozen=pending.submission!;
+@@ -175,7 +179,7 @@
+   <If when={frameFailed()&&!!display()}><InlineStatus danger>{status()}</InlineStatus><ActionButton label="重试当前页" disabled={!controlsEnabled()} onPress={()=>configure(config().page,config().zoom)}/></If>
+  </View>;
+  return <WorkspaceShell toolbar={toolbar} content={content} auxiliaryOpen={auxiliary()} wide={wide()}
+-  auxiliary={<CapturePanel draft={draft} close={returnToText} discard={discard} save={save} copy={copyDraft} copyStatus={copyStatus()} leaveUncertain={leaveUncertain} editingEnabled={!importing()&&!closingEditor()&&!beginning()&&bodyLoaded()&&!!editor()} saveEnabled={!importing()&&!beginning()&&bodyLoaded()&&!!editor()&&inputCanSave(editor()!)} deliveryStatus={editorMessage()} canPause={!!editor()?.inflight&&!editor()?.uncertain&&!closingEditor()} canRetry={!!editor()?.uncertain&&!!editor()?.inflight&&!editor()?.composing&&!importing()&&!closingEditor()} preparing={beginning()} needsPreparation={!bodyLoaded()} retryInput={()=>{if(!bodyLoaded())void write();else retryInput();}} pauseInput={pauseInput} nativeBinding={editor()?.binding??""} composition={(id,binding,nativeBinding,token,value)=>{const e=editor();if(!importing()&&!closingEditor()&&bodyLoaded()&&activeInputEvent(activeInputToken,token,auxiliary())&&editorEventMatches(draft(),e?.binding,id,binding,nativeBinding)&&e){editor.set(composition(e,nativeBinding,value));if(!value)pump();}}} retryEnabled={!importing()&&(!!draft()?.submission?.editor||(!draft()?.sourceUnavailable&&draft()?.binding===frameKey(config())&&ready()===draft()?.binding))} inputRef={(node,editable,token)=>{
++  auxiliary={<CapturePanel draft={draft} close={returnToText} discard={discard} save={save} copy={copyDraft} copyStatus={copyStatus()} leaveUncertain={leaveUncertain} editingEnabled={!importing()&&!closingEditor()&&!beginning()&&bodyLoaded()&&!!editor()} saveEnabled={!discardDialog()&&!closingEditor()&&!importing()&&!beginning()&&bodyLoaded()&&!!editor()&&inputCanSave(editor()!)} deliveryStatus={editorMessage()} canPause={!!editor()?.inflight&&!editor()?.uncertain&&!closingEditor()} canRetry={!!editor()?.uncertain&&!!editor()?.inflight&&!editor()?.composing&&!importing()&&!closingEditor()} preparing={beginning()} canDiscard={canDiscardDraft(draft(),editor()?.binding??"",beginning(),closingEditor(),discardDialog(),importing())} canDiscardPreparation={canDiscardPreparation(editor()?.binding??"",bodyLoaded(),beginning())&&canDiscardDraft(draft(),editor()?.binding??"",beginning(),closingEditor(),discardDialog(),importing())} needsPreparation={!bodyLoaded()} retryInput={()=>{if(!bodyLoaded())void write();else retryInput();}} pauseInput={pauseInput} nativeBinding={editor()?.binding??""} composition={(id,binding,nativeBinding,token,value)=>{const e=editor();if(!importing()&&!closingEditor()&&bodyLoaded()&&activeInputEvent(activeInputToken,token,auxiliary())&&editorEventMatches(draft(),e?.binding,id,binding,nativeBinding)&&e){editor.set(composition(e,nativeBinding,value));if(!value)pump();}}} retryEnabled={!importing()&&(!!draft()?.submission?.editor||(!draft()?.sourceUnavailable&&draft()?.binding===frameKey(config())&&ready()===draft()?.binding))} inputRef={(node,editable,token)=>{
+    if(!node)return;activeInputToken=token;if(!editable)return;
+    const epoch=focusEpoch,e=editor(),d=draft();if(!e||!d)return;
+    const nativeBinding=e.binding,id=d.id,binding=d.binding;
+--- a/experiments/nsh-reader/dynamic-pdf/CapturePanel.tsx
++++ b/experiments/nsh-reader/dynamic-pdf/CapturePanel.tsx
+@@ -1,19 +1,19 @@
+ import { Scroll, View } from "nsh";
+ import { ActionButton, Body, InlineStatus, NoteEditor, QuoteBlock } from "./ui";
+ import { editorRows, editorRowKey, type Draft } from "./reader-state";
+-export function CapturePanel(props:{draft:()=>Draft|null;close:()=>void;save:()=>void;discard:()=>void;copy:()=>void;copyStatus:string;leaveUncertain:()=>void;retryEnabled:boolean;editingEnabled:boolean; saveEnabled:boolean; deliveryStatus:string; canPause:boolean;canRetry:boolean;preparing:boolean;needsPreparation:boolean;retryInput:()=>void; pauseInput:()=>void; nativeBinding:string;composition:(id:string,binding:string,nativeBinding:string,token:object,composing:boolean)=>void;inputRef:(node:any,editable:boolean,token:object)=>void;change:(id:string,binding:string,nativeBinding:string,token:object,value:string)=>void}) {
++export function CapturePanel(props:{draft:()=>Draft|null;close:()=>void;save:()=>void;discard:()=>void;copy:()=>void;copyStatus:string;leaveUncertain:()=>void;retryEnabled:boolean;editingEnabled:boolean; saveEnabled:boolean; deliveryStatus:string; canPause:boolean;canRetry:boolean;preparing:boolean;canDiscardPreparation:boolean;canDiscard:boolean;needsPreparation:boolean;retryInput:()=>void; pauseInput:()=>void; nativeBinding:string;composition:(id:string,binding:string,nativeBinding:string,token:object,composing:boolean)=>void;inputRef:(node:any,editable:boolean,token:object)=>void;change:(id:string,binding:string,nativeBinding:string,token:object,value:string)=>void}) {
+  return <Scroll style={{flex:1}} contentStyle={{padding:24,gap:20}}>
+   <View style={{flexDirection:"row",alignItems:"center",gap:8}}><View style={{flex:1}}><Body title>{props.draft()?.phase==="saved"?"已保存的摘录":"写想法"}</Body></View><ActionButton label="返回正文" onPress={props.close} compact/></View>
+   <Each of={editorRows(props.draft(),props.nativeBinding,props.editingEnabled)} key={editorRowKey}>{(entry)=>{const current=()=>entry().draft;const row=entry();const inputToken={};const identity={id:row.draft.id,binding:row.draft.binding,nativeBinding:row.nativeBinding,editable:row.editable};return <View style={{gap:16}}>
+    <Body muted>{`${current()!.title} · 第 ${current()!.page+1} 页`}</Body>
+    <QuoteBlock text={current()!.quote}/>
+    <NoteEditor value={current()!.note} readonly={!entry().editable} inputRef={(node)=>props.inputRef(node,identity.editable,inputToken)} onComposition={(value)=>props.composition(identity.id,identity.binding,identity.nativeBinding,inputToken,value)} onChange={(value)=>props.change(identity.id,identity.binding,identity.nativeBinding,inputToken,value)}/>
+-   <If when={current()!.phase==="editing"}><InlineStatus>未保存 · 仅保留在当前会话</InlineStatus><View style={{flexDirection:"row",flexWrap:"wrap",gap:8}}><ActionButton label="保存想法" primary disabled={!props.saveEnabled} onPress={props.save}/><ActionButton label="放弃草稿…" disabled={!props.editingEnabled} onPress={props.discard}/></View><Body muted>保存或放弃后可重新选文、换页和缩放。阅读区仍可滚动。</Body></If>
+-   <If when={!!props.deliveryStatus}><InlineStatus>{props.deliveryStatus}</InlineStatus><View style={{flexDirection:"row",gap:8}}><If when={props.canPause}><ActionButton label="暂停处理" onPress={props.pauseInput}/></If><If when={props.needsPreparation}><ActionButton label="重试准备" disabled={props.preparing} onPress={props.retryInput}/></If><If when={!props.needsPreparation&&props.canRetry}><ActionButton label="原样重试输入" onPress={props.retryInput}/></If><ActionButton label="复制内容" onPress={props.copy}/></View></If>
++   <If when={current()!.phase==="editing"}><InlineStatus>未保存 · 仅保留在当前会话</InlineStatus><View style={{flexDirection:"row",flexWrap:"wrap",gap:8}}><ActionButton label="保存想法" primary disabled={!props.saveEnabled} onPress={props.save}/><ActionButton label="放弃草稿…" disabled={!props.canDiscard} onPress={props.discard}/></View><Body muted>保存或放弃后可重新选文、换页和缩放。阅读区仍可滚动。</Body></If>
++   <If when={!!props.deliveryStatus}><InlineStatus>{props.deliveryStatus}</InlineStatus><View style={{flexDirection:"row",gap:8}}><If when={props.canPause}><ActionButton label="暂停处理" onPress={props.pauseInput}/></If><If when={props.needsPreparation}><ActionButton label="重试准备" disabled={props.preparing} onPress={props.retryInput}/></If><If when={!props.needsPreparation&&props.canRetry}><ActionButton label="原样重试输入" onPress={props.retryInput}/></If><If when={props.canDiscardPreparation}><ActionButton label="放弃这份草稿…" disabled={!props.canDiscard} onPress={props.discard}/></If><ActionButton label="复制内容" onPress={props.copy}/></View></If>
+    <If when={current()!.phase==="saving"}><InlineStatus>正在保存，想法已保留…</InlineStatus></If>
+    <If when={current()!.phase==="uncertain"}><InlineStatus danger>保存结果尚未确认。内容已锁定，可原样重试。</InlineStatus><If when={current()!.sourceUnavailable}><Body muted>{current()!.submission?.editor?"原页面已不可用，仍可原样重试确认这次保存。":"原页面已不可用，暂不能重试此保存。可复制内容后明确离开。"}</Body></If><ActionButton label="原样重试保存" primary disabled={!props.retryEnabled} onPress={props.save}/><ActionButton label="复制引文与想法" onPress={props.copy}/><ActionButton label="离开此草稿…" onPress={props.leaveUncertain}/></If>
+    <If when={current()!.phase==="saved"}><InlineStatus success>已保存到本机</InlineStatus><ActionButton label="继续阅读" primary onPress={props.close}/><ActionButton label="复制引文与想法" onPress={props.copy}/><Body muted>当前组件可查看这次保存的内容；暂不支持修改已保存笔记。</Body></If>
+-   <If when={current()!.phase==="detached"}><InlineStatus danger>原想法仍保留在当前会话，原阅读来源已不可用。可选中复制内容。</InlineStatus><ActionButton label="复制引文与想法" onPress={props.copy}/><ActionButton label="放弃此草稿…" disabled={!props.editingEnabled} onPress={props.discard}/></If>
++   <If when={current()!.phase==="detached"}><InlineStatus danger>原想法仍保留在当前会话，原阅读来源已不可用。可选中复制内容。</InlineStatus><ActionButton label="复制引文与想法" onPress={props.copy}/><ActionButton label="放弃此草稿…" disabled={!props.canDiscard} onPress={props.discard}/></If>
+    <If when={!!props.copyStatus}><InlineStatus>{props.copyStatus}</InlineStatus></If>
+   </View>;}}</Each>
+  </Scroll>;
+--- a/experiments/nsh-reader/dynamic-pdf/reader-state.test.mjs
++++ b/experiments/nsh-reader/dynamic-pdf/reader-state.test.mjs
+@@ -1,5 +1,5 @@
+ import assert from 'node:assert/strict';
+-import { selectedDraft, editNote, submit, settle, frameKey, pinned, sourceUnavailable, submitEditor, editorEventMatches, chunkEnd, activeInputEvent, deferInputFocus, editorRows, editorRowKey } from './reader-state.ts';
++import { selectedDraft, editNote, submit, settle, frameKey, pinned, sourceUnavailable, submitEditor, editorEventMatches, chunkEnd, activeInputEvent, deferInputFocus, editorRows, editorRowKey, canDiscardPreparation, canDiscardDraft } from './reader-state.ts';
+ const a={document_id:1,report_digest:'a',handle:'first',generation:2,frame_id:'frame-a',title:'First source',page:2};
+ const b={...a,document_id:2,report_digest:'b',handle:'second',frame_id:'frame-b'};
+ let draft=selectedDraft(a,'candidate-a','exact source text');
+@@ -85,3 +85,24 @@
+ assert.notEqual(editorRowKey(readyRow),editorRowKey(editorRows(nativeDraft,'native-b',true)[0]));
+ assert.deepEqual(editorRows(null,'native-a',true),[]);
+ console.log('tracked Input rows: readiness/binding remount, typing preserves instance passed');
++
++assert.equal(canDiscardPreparation('known-binding',false,false),true,'failed partial read can discard its acquired binding');
++assert.equal(canDiscardPreparation('',false,false),false,'unknown begin without binding must retry discovery');
++assert.equal(canDiscardPreparation('known-binding',false,true),false,'preparing call remains protected');
++assert.equal(canDiscardPreparation('known-binding',true,false),false,'ready editor uses ordinary discard');
++console.log('preparation recovery: acquired binding permits explicit discard, unknown/inflight begin does not');
++
++assert.equal(canDiscardDraft(nativeDraft,'binding',false,false,false,false),true);
++assert.equal(canDiscardDraft({...nativeDraft,phase:'detached'},'binding',false,false,false,false),true,'partial-read detached binding remains discardable');
++for(const phase of ['saving','uncertain'])assert.equal(canDiscardDraft({...nativeDraft,phase},'binding',false,false,false,false),false);
++assert.equal(canDiscardDraft(nativeDraft,'',false,false,false,false),false);
++for(const flags of [[true,false,false,false],[false,true,false,false],[false,false,true,false],[false,false,false,true]])assert.equal(canDiscardDraft(nativeDraft,'binding',...flags),false);
++console.log('discard admission: independent of body readiness, blocks unknown save, duplicate dialog and closure');
++
++for(const changed of [ {...nativeDraft,phase:'saving'}, {...nativeDraft,phase:'uncertain'} ]) {
++ assert.equal(canDiscardDraft(changed,'binding',false,false,false,false),false,'confirmation must recheck phase after dialog');
++}
++assert.equal(canDiscardDraft(nativeDraft,'binding',false,false,false,true),false,'confirmation must recheck import after dialog');
++assert.equal(canDiscardDraft(nativeDraft,'binding',true,false,false,false),false,'confirmation must recheck begin after dialog');
++assert.equal(canDiscardDraft(nativeDraft,'binding',false,true,false,false),false,'confirmation must recheck closing after dialog');
++console.log('discard dialog race: changed save/import/begin/close state cannot retire the draft');
+--- a/experiments/nsh-reader/dynamic-pdf/reader-state.ts
++++ b/experiments/nsh-reader/dynamic-pdf/reader-state.ts
+@@ -57,3 +57,13 @@
+ export function editorRowKey(row:EditorRow):string {
+  return `${row.draft.id}:${row.draft.binding}:${row.nativeBinding}:${row.editable}`;
+ }
++
++/** An acquired binding can be explicitly discarded after preparation fails. */
++export function canDiscardPreparation(nativeBinding:string,bodyLoaded:boolean,preparing:boolean):boolean {
++ return !!nativeBinding&&!bodyLoaded&&!preparing;
++}
++
++/** Discard admission is independent of text-input readiness. */
++export function canDiscardDraft(draft:Draft|null,nativeBinding:string,preparing:boolean,closing:boolean,dialogOpen:boolean,importing:boolean):boolean {
++ return !!draft&&!!nativeBinding&&draft.phase!=="saving"&&draft.phase!=="uncertain"&&!preparing&&!closing&&!dialogOpen&&!importing;
++}
+--- a/experiments/nsh-reader/native-host/dynamic_module.rs
++++ b/experiments/nsh-reader/native-host/dynamic_module.rs
+@@ -83,7 +83,7 @@
+     Ok(())
+ }
+ pub fn shutdown() {
+-    plugin_surface::native_editor::shutdown();
++    // Editor retirement is checked once by plugin_surface::shutdown before Service.take.
+     if let Ok(s) = state() {
+         s.generation
+             .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |n| n.checked_add(1))
+--- a/experiments/nsh-reader/native-host/native_editor.rs
++++ b/experiments/nsh-reader/native-host/native_editor.rs
+@@ -33,6 +33,9 @@
+ static STATUS: Mutex<Value> = Mutex::new(Value::Null);
+ static BUSY: AtomicBool = AtomicBool::new(false);
+ static CANCEL: AtomicBool = AtomicBool::new(false);
++// Survives a shutdown attempt: live-host callbacks cannot reopen admission
++// between retirement returning and the reader Service being taken.
++static SHUTTING_DOWN: AtomicBool = AtomicBool::new(false);
+ struct Apply {
+     base: u64,
+     text: String,
+@@ -107,7 +110,19 @@
+     extension_api::ApiError::new(extension_api::ErrorCode::InvalidState, e.to_string())
+ }
+ pub fn initialize(resources: &Path) -> Result<()> {
++    // Reset only at a controlled new lifecycle, never over a live editor/job.
++    if BUSY
++        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
++        .is_err()
++    {
++        return Err("cannot initialize over active editor job".into());
++    }
++    let _admission = Busy;
++    if editor_for_retirement()?.is_some() {
++        return Err("cannot initialize over active editor lifecycle".into());
++    }
+     *mutex(&RESOURCES)? = Some(resources.into());
++    SHUTTING_DOWN.store(false, Ordering::SeqCst);
+     Ok(())
+ }
+ fn status(e: &Editor, state: &str) -> Result<Value> {
+@@ -425,6 +440,9 @@
+     }
+ }
+ fn resume_run(e: &mut Editor) -> Result<Option<String>> {
++    resume_run_until(e, None)
++}
++fn resume_run_until(e: &mut Editor, deadline: Option<Instant>) -> Result<Option<String>> {
+     // Editor retains an Arc throughout drive, including unwind. Poison recovery
+     // permits retirement only; it must never resume publication or Boot.
+     let owner = e
+@@ -460,7 +478,7 @@
+     {
+         p.not_spawned = true; // Proven no Controller Start enqueue occurred.
+     }
+-    let result = drive_run(e, &mut p);
++    let result = drive_run(e, &mut p, deadline);
+     let finished = p.finished;
+     drop(p);
+     if finished {
+@@ -543,7 +561,11 @@
+     }
+     Ok(())
+ }
+-fn drive_run(e: &mut Editor, p: &mut PendingRun) -> Result<Option<String>> {
++fn drive_run(
++    e: &mut Editor,
++    p: &mut PendingRun,
++    deadline: Option<Instant>,
++) -> Result<Option<String>> {
+     // Service/authority errors are not permission to lose the running Child owner.
+     // On a later call even a previously failed lease finish is retried from observed state.
+     if p.reaped || p.not_spawned {
+@@ -567,16 +589,18 @@
+         .clone()
+         .ok_or("Controller start outcome unknown; owner and lease retained")?;
+     let limits = ExecutionLimits::default();
+-    let end = Instant::now() + {
+-        #[cfg(feature = "native-qualification")]
+-        {
+-            qualification::wait_limit()
+-        }
+-        #[cfg(not(feature = "native-qualification"))]
+-        {
+-            Duration::from_secs(8)
+-        }
+-    };
++    let end = deadline.unwrap_or_else(|| {
++        Instant::now() + {
++            #[cfg(feature = "native-qualification")]
++            {
++                qualification::wait_limit()
++            }
++            #[cfg(not(feature = "native-qualification"))]
++            {
++                Duration::from_secs(8)
++            }
++        }
++    });
+     if p.invocation.is_none() && p.fatal.is_none() {
+         match (|| {
+             #[cfg(feature = "native-qualification")]
+@@ -1033,11 +1057,32 @@
+         BUSY.store(false, Ordering::SeqCst);
+     }
+ }
++fn shutdown_error() -> String {
++    json!({"ok":false,"code":"editor_shutting_down","effect_unknown":true,"error":"editor is closing; only explicit retirement is available"}).to_string()
++}
+ async fn background(work: impl FnOnce() -> Result<Value> + Send + 'static) -> Result<String> {
++    background_with_admission(false, work).await
++}
++async fn background_with_admission(
++    retirement_only: bool,
++    work: impl FnOnce() -> Result<Value> + Send + 'static,
++) -> Result<String> {
++    if !retirement_only && SHUTTING_DOWN.load(Ordering::SeqCst) {
++        return Ok(shutdown_error());
++    }
+     if BUSY.swap(true, Ordering::SeqCst) {
+         return Ok(busy_error());
+     }
+-    CANCEL.store(false, Ordering::SeqCst);
++    // Recheck after acquiring BUSY: shutdown may latch while this caller was
++    // racing admission. Existing jobs retire; new publication is rejected.
++    if !retirement_only {
++        CANCEL.store(false, Ordering::SeqCst);
++        if SHUTTING_DOWN.load(Ordering::SeqCst) {
++            CANCEL.store(true, Ordering::SeqCst);
++            BUSY.store(false, Ordering::SeqCst);
++            return Ok(shutdown_error());
++        }
++    }
+     // The background job owns admission even when JS drops its Later future.
+     let guard = Busy;
+     let result = crate::dynamic_module::Job::start(move || {
+@@ -1060,17 +1105,76 @@
+     .await;
+     Ok(encode(result))
+ }
+-pub fn shutdown() {
++/// Attempt bounded owned retirement while the reader Service is still present.
++/// false retains Service/PendingRun/SQL lease; it is never an OS reap assertion.
++pub fn shutdown() -> bool {
++    SHUTTING_DOWN.store(true, Ordering::SeqCst);
+     CANCEL.store(true, Ordering::SeqCst);
+     let deadline = Instant::now() + Duration::from_secs(10);
+     while BUSY.load(Ordering::SeqCst) && Instant::now() < deadline {
+         thread::sleep(Duration::from_millis(10));
+     }
++    // Exclude new jobs between observing !BUSY and inspecting the retained owner.
++    if BUSY
++        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
++        .is_err()
++    {
++        eprintln!("NATIVE_EDITOR_SHUTDOWN busy=true retirement=unconfirmed service_retained=true");
++        return false;
++    }
++    let _admission = Busy;
++    let mut slot = match EDITOR.try_lock() {
++        Ok(slot) => slot,
++        Err(std::sync::TryLockError::Poisoned(poison)) => {
++            let slot = poison.into_inner();
++            if let Some(e) = slot.as_ref()
++                && let Some(owner) = &e.pending_run
++            {
++                let mut p = owner.lock().unwrap_or_else(|poison| poison.into_inner());
++                p.poisoned = true;
++                p.fatal = Some("editor panicked; shutdown retirement only".into());
++            }
++            slot
++        }
++        Err(std::sync::TryLockError::WouldBlock) => {
++            eprintln!(
++                "NATIVE_EDITOR_SHUTDOWN editor_locked=true retirement=unconfirmed service_retained=true"
++            );
++            return false;
++        }
++    };
++    let Some(e) = slot.as_mut() else {
++        eprintln!("NATIVE_EDITOR_SHUTDOWN pending_owner=false retirement=not_needed");
++        return true;
++    };
++    if let Some(owner) = e.pending_run.as_ref() {
++        let mut p = owner.lock().unwrap_or_else(|poison| poison.into_inner());
++        p.fatal
++            .get_or_insert_with(|| "editor shutdown; retirement only".into());
++    }
++    // No Gate held over waiting. The same shutdown deadline bounds both the
++    // BUSY wait and drain; do not silently append the ordinary 8s drive budget.
++    let result = if e.pending_run.is_some() {
++        if Instant::now() < deadline {
++            resume_run_until(e, Some(deadline)).map(|_| ())
++        } else {
++            Err("shutdown retirement budget exhausted; owner retained".into())
++        }
++    } else {
++        Ok(())
++    };
++    let retained = e.pending_run.is_some();
+     eprintln!(
+-        "NATIVE_EDITOR_SHUTDOWN pending_operation={}",
+-        BUSY.load(Ordering::SeqCst)
++        "NATIVE_EDITOR_SHUTDOWN {}",
++        json!({
++            "pending_owner":retained,"retirement_confirmed":!retained,
++            "service_retained":retained,"retirement_error":result.err(),
++            "native_release_ack":false
++        })
+     );
+-}
++    !retained
++}
++
+ #[module]
+ pub struct NativeEditor;
+ #[module]
+@@ -1111,7 +1215,7 @@
+         })())
+     }
+     pub fn discard(binding: String) -> Later<String> {
+-        Later::new(background(move || discard(binding)))
++        Later::new(background_with_admission(true, move || discard(binding)))
+     }
+     pub fn status(binding: String) -> String {
+         encode((|| {
+@@ -1288,6 +1392,43 @@
+         assert_eq!(actual.revision, revision);
+         assert_eq!(actual.text, "retained");
+     }
++    #[test]
++    fn latched_shutdown_rejects_business_but_allows_explicit_discard() {
++        let (_fixture, _, binding) = Fixture::new("shutdown-admission");
++        SHUTTING_DOWN.store(true, Ordering::SeqCst);
++        let mut cx = Context::from_waker(std::task::Waker::noop());
++        let mut blocked = std::pin::pin!(background(|| panic!("latched business must not run")));
++        let Poll::Ready(Ok(reply)) = blocked.as_mut().poll(&mut cx) else {
++            panic!("latched call must reject immediately")
++        };
++        let reply: Value = serde_json::from_str(&reply).unwrap();
++        assert_eq!(reply["code"], "editor_shutting_down");
++        assert!(!BUSY.load(Ordering::SeqCst));
++        let resources =
++            Path::new(env!("CARGO_MANIFEST_DIR")).join("../target/dynamic-pdf-resources");
++        assert!(
++            initialize(&resources).is_err(),
++            "live editor must prevent lifecycle reset"
++        );
++        let mut retired = std::pin::pin!(background_with_admission(true, move || discard(binding)));
++        let until = Instant::now() + Duration::from_secs(2);
++        loop {
++            if let Poll::Ready(result) = retired.as_mut().poll(&mut cx) {
++                let reply: Value = serde_json::from_str(&result.unwrap()).unwrap();
++                assert_eq!(reply["ok"], true);
++                break;
++            }
++            assert!(Instant::now() < until, "explicit retirement did not return");
++            thread::sleep(Duration::from_millis(1));
++        }
++        assert!(
++            SHUTTING_DOWN.load(Ordering::SeqCst),
++            "discard must not reopen admission"
++        );
++        assert!(EDITOR.lock().unwrap().is_none());
++        initialize(&resources).unwrap();
++        assert!(!SHUTTING_DOWN.load(Ordering::SeqCst));
++    }
+ }
+ 
+ #[cfg(any(test, feature = "native-qualification"))]
+--- a/experiments/nsh-reader/native-host/native_editor_fixture.rs
++++ b/experiments/nsh-reader/native-host/native_editor_fixture.rs
+@@ -8,6 +8,7 @@
+     pub(super) fn new(label: &str) -> (Self, String, String) {
+         let serial = super::super::SERVICE_TEST.lock().unwrap();
+         assert!(!BUSY.load(Ordering::SeqCst));
++        CANCEL.store(false, Ordering::SeqCst);
+         assert!(EDITOR.lock().unwrap().is_none());
+         let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+         let reader_resources = root.join("../target/plugin-surface-resources");
+--- a/experiments/nsh-reader/native-host/plugin_surface.rs
++++ b/experiments/nsh-reader/native-host/plugin_surface.rs
+@@ -1237,6 +1237,11 @@
+ }
+ /// Called only after the native window has actually stopped and released its nodes.
+ pub fn shutdown() -> Result<()> {
++    // This gate also protects live-host callers: never take Service away while
++    // NativeEditor still owns a run whose retirement needs this authority/Store.
++    if !native_editor::shutdown() {
++        return Err("editor retirement unconfirmed; Service and lease retained".into());
++    }
+     let Some(s) = SERVICE.lock().map_err(|_| "service lock poisoned")?.take() else {
+         return Ok(());
+     };
+@@ -1262,12 +1267,12 @@
+     registry.module::<ReaderSurface>();
+ }
+ 
+-#[cfg(any(test, feature="native-qualification"))]
++#[cfg(any(test, feature = "native-qualification"))]
+ pub(super) static SERVICE_TEST: Mutex<()> = Mutex::new(());
+ #[cfg(test)]
+ mod reader_guest_tests {
++    pub(super) use super::SERVICE_TEST;
+     use super::*;
+-    pub(super) use super::SERVICE_TEST;
+     #[test]
+     fn signed_guest_preserves_complete_json_escapes_and_rejects_invalid_surrogates() {
+         let resources =

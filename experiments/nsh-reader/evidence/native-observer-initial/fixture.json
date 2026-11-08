@@ -1,0 +1,14 @@
+{
+  "type": "synthetic-runtime-PNG",
+  "width": 2,
+  "height": 2,
+  "rgba_each_pixel": [
+    60,
+    90,
+    120,
+    255
+  ],
+  "encoding": "image crate PNG encoder in frozen test source",
+  "raw_RGBA_bytes_hex": "3c5a78ff3c5a78ff3c5a78ff3c5a78ff",
+  "source": "retirement_actual_image_snapshot_matches_exact_frame_identity"
+}

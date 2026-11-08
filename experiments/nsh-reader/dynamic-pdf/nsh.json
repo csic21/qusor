@@ -1,0 +1,6 @@
+{
+  "name": "QUSOR Dynamic Local PDF Qualification",
+  "id": "org.qusor.dynamicpdf",
+  "rust": "../native-host",
+  "theme": "theme.json"
+}

@@ -1,0 +1,596 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QUSOR read-only paragraph projection protocol1",
+  "description": "API0.3; request<=65536 and response<=4096 encoded bytes. Rust additionally enforces canonical base64 pad bits/decoded limits, cross-field windows and context-derived readiness. Registry validates freshness and UTF-8 boundaries. Structure does not prove paragraph or EOF semantics. No text effects.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "api_version",
+        "request_id",
+        "projection_protocol"
+      ],
+      "properties": {
+        "kind": {
+          "const": "read_context"
+        },
+        "api_version": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "major",
+            "minor"
+          ],
+          "properties": {
+            "major": {
+              "const": 0
+            },
+            "minor": {
+              "const": 3
+            }
+          }
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "projection_protocol": {
+          "const": 1
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "api_version",
+        "request_id",
+        "projection_protocol",
+        "resource",
+        "mount_id",
+        "query_id",
+        "base_revision",
+        "operation"
+      ],
+      "properties": {
+        "kind": {
+          "const": "query"
+        },
+        "api_version": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "major",
+            "minor"
+          ],
+          "properties": {
+            "major": {
+              "const": 0
+            },
+            "minor": {
+              "const": 3
+            }
+          }
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "projection_protocol": {
+          "const": 1
+        },
+        "resource": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "vault_id",
+            "draft_id"
+          ],
+          "properties": {
+            "kind": {
+              "const": "draft"
+            },
+            "vault_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "draft_id": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$",
+              "minLength": 32,
+              "maxLength": 32
+            }
+          }
+        },
+        "mount_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "query_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "base_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 18446744073709551615
+        },
+        "operation": {
+          "$ref": "#/$defs/operation"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "api_version",
+        "request_id",
+        "projection_protocol",
+        "context"
+      ],
+      "properties": {
+        "kind": {
+          "const": "context"
+        },
+        "api_version": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "major",
+            "minor"
+          ],
+          "properties": {
+            "major": {
+              "const": 0
+            },
+            "minor": {
+              "const": 3
+            }
+          }
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "projection_protocol": {
+          "const": 1
+        },
+        "context": {
+          "$ref": "#/$defs/context"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "api_version",
+        "request_id",
+        "projection_protocol",
+        "resource",
+        "mount_id",
+        "query_id",
+        "base_revision",
+        "outcome"
+      ],
+      "properties": {
+        "kind": {
+          "const": "query"
+        },
+        "api_version": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "major",
+            "minor"
+          ],
+          "properties": {
+            "major": {
+              "const": 0
+            },
+            "minor": {
+              "const": 3
+            }
+          }
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "projection_protocol": {
+          "const": 1
+        },
+        "resource": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "vault_id",
+            "draft_id"
+          ],
+          "properties": {
+            "kind": {
+              "const": "draft"
+            },
+            "vault_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "draft_id": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$",
+              "minLength": 32,
+              "maxLength": 32
+            }
+          }
+        },
+        "mount_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "query_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "base_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 18446744073709551615
+        },
+        "outcome": {
+          "$ref": "#/$defs/outcome"
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinal",
+        "start",
+        "end",
+        "complete"
+      ],
+      "properties": {
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576
+        },
+        "complete": {
+          "type": "boolean"
+        }
+      }
+    },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rows",
+        "reached_eof"
+      ],
+      "properties": {
+        "rows": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "reached_eof": {
+          "type": "boolean"
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resource",
+        "mount_id",
+        "query_id",
+        "base_revision",
+        "query_generation",
+        "first_paragraph",
+        "max_rows",
+        "total_bytes"
+      ],
+      "properties": {
+        "resource": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "vault_id",
+            "draft_id"
+          ],
+          "properties": {
+            "kind": {
+              "const": "draft"
+            },
+            "vault_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "draft_id": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$",
+              "minLength": 32,
+              "maxLength": 32
+            }
+          }
+        },
+        "mount_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "query_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "base_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 18446744073709551615
+        },
+        "query_generation": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 18446744073709551615
+        },
+        "first_paragraph": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576
+        },
+        "max_rows": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "total_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkpoint_revision",
+        "checkpoint_bytes",
+        "state",
+        "window",
+        "window_ready"
+      ],
+      "properties": {
+        "checkpoint_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 18446744073709551615
+        },
+        "checkpoint_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8192
+        },
+        "state": {
+          "enum": [
+            "active",
+            "completed",
+            "cancelled",
+            "invalidated",
+            "expired"
+          ]
+        },
+        "window": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/window"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "window_ready": {
+          "type": "boolean"
+        }
+      }
+    },
+    "operation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "read_metadata"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "checkpoint_revision",
+            "offset",
+            "max_bytes"
+          ],
+          "properties": {
+            "kind": {
+              "const": "read_checkpoint_chunk"
+            },
+            "checkpoint_revision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 18446744073709551615
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8192
+            },
+            "max_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2048
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "expected_checkpoint_revision",
+            "checkpoint_base64",
+            "window",
+            "complete"
+          ],
+          "properties": {
+            "kind": {
+              "const": "advance_projection"
+            },
+            "expected_checkpoint_revision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 18446744073709551615
+            },
+            "checkpoint_base64": {
+              "type": "string",
+              "maxLength": 10924,
+              "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+            },
+            "window": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/window"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "complete": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "expected_checkpoint_revision"
+          ],
+          "properties": {
+            "kind": {
+              "const": "cancel"
+            },
+            "expected_checkpoint_revision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 18446744073709551615
+            }
+          }
+        }
+      ]
+    },
+    "outcome": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "metadata"
+          ],
+          "properties": {
+            "kind": {
+              "const": "metadata"
+            },
+            "metadata": {
+              "$ref": "#/$defs/metadata"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "checkpoint_revision",
+            "offset",
+            "total_bytes",
+            "checkpoint_base64"
+          ],
+          "properties": {
+            "kind": {
+              "const": "checkpoint_chunk"
+            },
+            "checkpoint_revision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 18446744073709551615
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8192
+            },
+            "total_bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8192
+            },
+            "checkpoint_base64": {
+              "type": "string",
+              "maxLength": 2732,
+              "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

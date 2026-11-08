@@ -1,0 +1,12 @@
+{
+  "/home/user/.cache/qusor-ime/prefix/usr/bin/ibus address": {
+    "returncode": 0,
+    "out": "unix:path=/home/user/.cache/qusor-ime/runs/native-ime-1-1794142930/runtime/ibus.sock\n",
+    "err": ""
+  },
+  "gdbus call --address unix:path=/home/user/.cache/qusor-ime/runs/native-ime-1-1794142930/runtime/ibus.sock --dest org.freedesktop.IBus --object-path /org/freedesktop/IBus --method org.freedesktop.IBus.ListEngines": {
+    "returncode": 0,
+    "out": "([<('IBusEngineDesc', @a{sv} {}, 'libbopomofo', 'Bopomofo', 'Bopomofo input method', 'zh_TW', 'GPL', '\\n\\tPeng Wu <alexepico@gmail.com>\\n\\tPeng Huang <shawn.p.huang@gmail.com>\\n\\tBYVoid <byvoid1@gmail.com>\\n\\t', '/usr/share/ibus-libpinyin/icons/ibus-bopomofo.svg', 'default', uint32 98, '', '\u3109', '/usr/libexec/ibus-setup-libpinyin libbopomofo', '', '', '1.16.5', 'ibus-libpinyin', 'InputMode')>, <('IBusEngineDesc', @a{sv} {}, 'libpinyin', 'Intelligent Pinyin', 'Intelligent Pinyin input method', 'zh_CN', 'GPL', '\\n\\tPeng Wu <alexepico@gmail.com>\\n\\tPeng Huang <shawn.p.huang@gmail.com>\\n\\tBYVoid <byvoid1@gmail.com>\\n\\t', '/usr/share/ibus-libpinyin/icons/ibus-pinyin.svg', 'default', uint32 99, '', '\u62fc', '/usr/libexec/ibus-setup-libpinyin libpinyin', '', '', '1.16.5', 'ibus-libpinyin', 'InputMode')>],)\n",
+    "err": ""
+  }
+}

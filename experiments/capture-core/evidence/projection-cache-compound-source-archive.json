@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "scope": "C3 full compatibility, not native UI qualification",
+  "checks": 314,
+  "cli_scenarios": 286,
+  "native_cases": 8,
+  "source_files": 203,
+  "archive": "projection-cache-compound-sources.zip",
+  "archive_sha256": "6aef38a63d4480ee17e46002cc9c5303dd3282073491a006b3d2479e1888c49f",
+  "source_identity": "Validator checked pre/post identity; archive independently matched all203 current inputs before later changes",
+  "host_sha256": "3bdbdd0b59dfb96fc52d73d088b6a3885f977a72ecccac92724464f591ce42af",
+  "generic_evidence_restored": true,
+  "host_binary_archive": "projection-cache-compound-host.gz",
+  "host_binary_archive_sha256": "69a4cb96c04a38ffc3a8316a607e4836bf497b3735e2fad41bbbaf42bc9c0aa5"
+}

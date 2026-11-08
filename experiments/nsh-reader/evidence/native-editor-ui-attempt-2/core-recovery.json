@@ -1,0 +1,1303 @@
+{
+  "restore": {
+    "ok": true,
+    "receipt": {
+      "pdf_captures": 1,
+      "pdf_documents": 1,
+      "text_captures": 0
+    }
+  },
+  "captures_equal_before_after_restore": true,
+  "records": [
+    {
+      "capture": {
+        "compound": {
+          "exact": "Focused component source page 1\nA runtime selected local document.",
+          "extraction_revision": "7d0923a292de80901d3d0292f7a0a0741f806c1d64320fd036988e9593cf7e07",
+          "original_sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f",
+          "protocol_version": 2,
+          "segments": [
+            {
+              "end": 31,
+              "exact": "Focused component source page 1",
+              "extraction_revision": "7d0923a292de80901d3d0292f7a0a0741f806c1d64320fd036988e9593cf7e07",
+              "original_sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f",
+              "page_index": 0,
+              "page_text_sha256": "844bc09e83f936e4c12f46d6a1acc0f9a622b1200f0cfe47bdabad3808a60acf",
+              "protocol_version": 1,
+              "start": 0,
+              "unit": "unicode_scalar"
+            },
+            {
+              "end": 67,
+              "exact": "A runtime selected local document.",
+              "extraction_revision": "7d0923a292de80901d3d0292f7a0a0741f806c1d64320fd036988e9593cf7e07",
+              "original_sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f",
+              "page_index": 0,
+              "page_text_sha256": "844bc09e83f936e4c12f46d6a1acc0f9a622b1200f0cfe47bdabad3808a60acf",
+              "protocol_version": 1,
+              "start": 33,
+              "unit": "unicode_scalar"
+            }
+          ],
+          "selection_profile": "qusor-plain-ltr-lines-v1",
+          "separator": "\n"
+        },
+        "draft": {
+          "end": 31,
+          "exact": "Focused component source page 1",
+          "extraction_revision": "7d0923a292de80901d3d0292f7a0a0741f806c1d64320fd036988e9593cf7e07",
+          "original_sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f",
+          "page_index": 0,
+          "page_text_sha256": "844bc09e83f936e4c12f46d6a1acc0f9a622b1200f0cfe47bdabad3808a60acf",
+          "protocol_version": 1,
+          "start": 0,
+          "unit": "unicode_scalar"
+        },
+        "provenance": {
+          "installation_id": 1,
+          "package_digest": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+          "package_id": "org.example.surface-reader",
+          "publisher_id": "org.example.author"
+        },
+        "receipt": {
+          "capture_id": 1,
+          "commit_rev": 2,
+          "document_id": 1,
+          "draft_hash": "b0527d29b5a6eac70d616b777fa7aa5898bf1903f069443df5a381e4321d656c",
+          "extraction_revision": "7d0923a292de80901d3d0292f7a0a0741f806c1d64320fd036988e9593cf7e07",
+          "operation_id": "surface-save-e016cd083dc4a5131d49c3ab43c42ea2-5",
+          "original_sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f"
+        },
+        "user_note": "focused component thought"
+      },
+      "ok": true
+    }
+  ],
+  "exact_resolutions": [
+    {
+      "ok": true,
+      "selection": {
+        "draft": {
+          "exact": "Focused component source page 1\nA runtime selected local document.",
+          "extraction_revision": "7d0923a292de80901d3d0292f7a0a0741f806c1d64320fd036988e9593cf7e07",
+          "original_sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f",
+          "protocol_version": 2,
+          "segments": [
+            {
+              "end": 31,
+              "exact": "Focused component source page 1",
+              "extraction_revision": "7d0923a292de80901d3d0292f7a0a0741f806c1d64320fd036988e9593cf7e07",
+              "original_sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f",
+              "page_index": 0,
+              "page_text_sha256": "844bc09e83f936e4c12f46d6a1acc0f9a622b1200f0cfe47bdabad3808a60acf",
+              "protocol_version": 1,
+              "start": 0,
+              "unit": "unicode_scalar"
+            },
+            {
+              "end": 67,
+              "exact": "A runtime selected local document.",
+              "extraction_revision": "7d0923a292de80901d3d0292f7a0a0741f806c1d64320fd036988e9593cf7e07",
+              "original_sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f",
+              "page_index": 0,
+              "page_text_sha256": "844bc09e83f936e4c12f46d6a1acc0f9a622b1200f0cfe47bdabad3808a60acf",
+              "protocol_version": 1,
+              "start": 33,
+              "unit": "unicode_scalar"
+            }
+          ],
+          "selection_profile": "qusor-plain-ltr-lines-v1",
+          "separator": "\n"
+        },
+        "exact": "Focused component source page 1\nA runtime selected local document.",
+        "segments": [
+          {
+            "anchor": {
+              "end": 31,
+              "exact": "Focused component source page 1",
+              "extraction_revision": "7d0923a292de80901d3d0292f7a0a0741f806c1d64320fd036988e9593cf7e07",
+              "original_sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f",
+              "page_index": 0,
+              "page_text_sha256": "844bc09e83f936e4c12f46d6a1acc0f9a622b1200f0cfe47bdabad3808a60acf",
+              "protocol_version": 1,
+              "start": 0,
+              "unit": "unicode_scalar"
+            },
+            "byte_end": 31,
+            "byte_start": 0,
+            "characters": [
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 73.2040023803711,
+                  "right": 80.16200256347656,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 0,
+                "scalar_end": 1,
+                "scalar_start": 0,
+                "unicode_value": 70,
+                "utf16_end": 1,
+                "utf16_start": 0,
+                "utf8_end": 1,
+                "utf8_start": 0
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8179931640625,
+                  "left": 81.04399871826172,
+                  "right": 87.8479995727539,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 1,
+                "scalar_end": 2,
+                "scalar_start": 1,
+                "unicode_value": 111,
+                "utf16_end": 2,
+                "utf16_start": 1,
+                "utf8_end": 2,
+                "utf8_start": 1
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 88.89799499511719,
+                  "right": 95.15599822998047,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 2,
+                "scalar_end": 3,
+                "scalar_start": 2,
+                "unicode_value": 99,
+                "utf16_end": 3,
+                "utf16_start": 2,
+                "utf8_end": 3,
+                "utf8_start": 2
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 96.29000091552734,
+                  "right": 102.18399810791016,
+                  "top": 707.322021484375
+                },
+                "pdf_char_index": 3,
+                "scalar_end": 4,
+                "scalar_start": 3,
+                "unicode_value": 117,
+                "utf16_end": 4,
+                "utf16_start": 3,
+                "utf8_end": 4,
+                "utf8_start": 3
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 103.56999969482422,
+                  "right": 109.61799621582031,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 4,
+                "scalar_end": 5,
+                "scalar_start": 4,
+                "unicode_value": 115,
+                "utf16_end": 5,
+                "utf16_start": 4,
+                "utf8_end": 5,
+                "utf8_start": 4
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 110.6820068359375,
+                  "right": 117.34600067138672,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 5,
+                "scalar_end": 6,
+                "scalar_start": 5,
+                "unicode_value": 101,
+                "utf16_end": 6,
+                "utf16_start": 5,
+                "utf8_end": 6,
+                "utf8_start": 5
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 118.39600372314453,
+                  "right": 124.89199829101562,
+                  "top": 710.052001953125
+                },
+                "pdf_char_index": 6,
+                "scalar_end": 7,
+                "scalar_start": 6,
+                "unicode_value": 100,
+                "utf16_end": 7,
+                "utf16_start": 6,
+                "utf8_end": 7,
+                "utf8_start": 6
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": null,
+                "pdf_char_index": 7,
+                "scalar_end": 8,
+                "scalar_start": 7,
+                "unicode_value": 32,
+                "utf16_end": 8,
+                "utf16_start": 7,
+                "utf8_end": 8,
+                "utf8_start": 7
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 130.14199829101562,
+                  "right": 136.39999389648438,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 8,
+                "scalar_end": 9,
+                "scalar_start": 8,
+                "unicode_value": 99,
+                "utf16_end": 9,
+                "utf16_start": 8,
+                "utf8_end": 9,
+                "utf8_start": 8
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8179931640625,
+                  "left": 137.07199096679688,
+                  "right": 143.87600708007812,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 9,
+                "scalar_end": 10,
+                "scalar_start": 9,
+                "unicode_value": 111,
+                "utf16_end": 10,
+                "utf16_start": 9,
+                "utf8_end": 10,
+                "utf8_start": 9
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 145.2760009765625,
+                  "right": 155.13198852539062,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 10,
+                "scalar_end": 11,
+                "scalar_start": 10,
+                "unicode_value": 109,
+                "utf16_end": 11,
+                "utf16_start": 10,
+                "utf8_end": 11,
+                "utf8_start": 10
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 697.1160278320312,
+                  "left": 156.83999633789062,
+                  "right": 163.2659912109375,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 11,
+                "scalar_end": 12,
+                "scalar_start": 11,
+                "unicode_value": 112,
+                "utf16_end": 12,
+                "utf16_start": 11,
+                "utf8_end": 12,
+                "utf8_start": 11
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8179931640625,
+                  "left": 164.302001953125,
+                  "right": 171.10598754882812,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 12,
+                "scalar_end": 13,
+                "scalar_start": 12,
+                "unicode_value": 111,
+                "utf16_end": 13,
+                "utf16_start": 12,
+                "utf8_end": 13,
+                "utf8_start": 12
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 172.50599670410156,
+                  "right": 178.47000122070312,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 13,
+                "scalar_end": 14,
+                "scalar_start": 13,
+                "unicode_value": 110,
+                "utf16_end": 14,
+                "utf16_start": 13,
+                "utf8_end": 14,
+                "utf8_start": 13
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 179.9399871826172,
+                  "right": 186.60398864746094,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 14,
+                "scalar_end": 15,
+                "scalar_start": 14,
+                "unicode_value": 101,
+                "utf16_end": 15,
+                "utf16_start": 14,
+                "utf8_end": 15,
+                "utf8_start": 14
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 188.07398986816406,
+                  "right": 194.03799438476562,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 15,
+                "scalar_end": 16,
+                "scalar_start": 15,
+                "unicode_value": 110,
+                "utf16_end": 16,
+                "utf16_start": 15,
+                "utf8_end": 16,
+                "utf8_start": 15
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.916015625,
+                  "left": 195.14398193359375,
+                  "right": 198.54598999023438,
+                  "top": 709.3660278320312
+                },
+                "pdf_char_index": 16,
+                "scalar_end": 17,
+                "scalar_start": 16,
+                "unicode_value": 116,
+                "utf16_end": 17,
+                "utf16_start": 16,
+                "utf8_end": 17,
+                "utf8_start": 16
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": null,
+                "pdf_char_index": 17,
+                "scalar_end": 18,
+                "scalar_start": 17,
+                "unicode_value": 32,
+                "utf16_end": 18,
+                "utf16_start": 17,
+                "utf8_end": 18,
+                "utf8_start": 17
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 203.1799774169922,
+                  "right": 209.2279815673828,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 18,
+                "scalar_end": 19,
+                "scalar_start": 18,
+                "unicode_value": 115,
+                "utf16_end": 19,
+                "utf16_start": 18,
+                "utf8_end": 19,
+                "utf8_start": 18
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8179931640625,
+                  "left": 210.22198486328125,
+                  "right": 217.02598571777344,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 19,
+                "scalar_end": 20,
+                "scalar_start": 19,
+                "unicode_value": 111,
+                "utf16_end": 20,
+                "utf16_start": 19,
+                "utf8_end": 20,
+                "utf8_start": 19
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 218.4679718017578,
+                  "right": 224.36196899414062,
+                  "top": 707.322021484375
+                },
+                "pdf_char_index": 20,
+                "scalar_end": 21,
+                "scalar_start": 20,
+                "unicode_value": 117,
+                "utf16_end": 21,
+                "utf16_start": 20,
+                "utf8_end": 21,
+                "utf8_start": 20
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 226.3779754638672,
+                  "right": 229.94796752929688,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 21,
+                "scalar_end": 22,
+                "scalar_start": 21,
+                "unicode_value": 114,
+                "utf16_end": 22,
+                "utf16_start": 21,
+                "utf8_end": 22,
+                "utf8_start": 21
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 230.52197265625,
+                  "right": 236.77996826171875,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 22,
+                "scalar_end": 23,
+                "scalar_start": 22,
+                "unicode_value": 99,
+                "utf16_end": 23,
+                "utf16_start": 22,
+                "utf8_end": 23,
+                "utf8_start": 22
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 237.52197265625,
+                  "right": 244.18597412109375,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 23,
+                "scalar_end": 24,
+                "scalar_start": 23,
+                "unicode_value": 101,
+                "utf16_end": 24,
+                "utf16_start": 23,
+                "utf8_end": 24,
+                "utf8_start": 23
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": null,
+                "pdf_char_index": 24,
+                "scalar_end": 25,
+                "scalar_start": 24,
+                "unicode_value": 32,
+                "utf16_end": 25,
+                "utf16_start": 24,
+                "utf8_end": 25,
+                "utf8_start": 24
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 697.1160278320312,
+                  "left": 249.44996643066406,
+                  "right": 255.8759765625,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 25,
+                "scalar_end": 26,
+                "scalar_start": 25,
+                "unicode_value": 112,
+                "utf16_end": 26,
+                "utf16_start": 25,
+                "utf8_end": 26,
+                "utf8_start": 25
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 256.92596435546875,
+                  "right": 263.84197998046875,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 26,
+                "scalar_end": 27,
+                "scalar_start": 26,
+                "unicode_value": 97,
+                "utf16_end": 27,
+                "utf16_start": 26,
+                "utf8_end": 27,
+                "utf8_start": 26
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 696.9340209960938,
+                  "left": 264.7659606933594,
+                  "right": 271.19195556640625,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 27,
+                "scalar_end": 28,
+                "scalar_start": 27,
+                "unicode_value": 103,
+                "utf16_end": 28,
+                "utf16_start": 27,
+                "utf8_end": 28,
+                "utf8_start": 27
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 699.8040161132812,
+                  "left": 272.5499572753906,
+                  "right": 279.2139587402344,
+                  "top": 707.531982421875
+                },
+                "pdf_char_index": 28,
+                "scalar_end": 29,
+                "scalar_start": 28,
+                "unicode_value": 101,
+                "utf16_end": 29,
+                "utf16_start": 28,
+                "utf8_end": 29,
+                "utf8_start": 28
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": null,
+                "pdf_char_index": 29,
+                "scalar_end": 30,
+                "scalar_start": 29,
+                "unicode_value": 32,
+                "utf16_end": 30,
+                "utf16_start": 29,
+                "utf8_end": 30,
+                "utf8_start": 29
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 700.0,
+                  "left": 285.0799560546875,
+                  "right": 288.69195556640625,
+                  "top": 709.8419799804688
+                },
+                "pdf_char_index": 30,
+                "scalar_end": 31,
+                "scalar_start": 30,
+                "unicode_value": 49,
+                "utf16_end": 31,
+                "utf16_start": 30,
+                "utf8_end": 31,
+                "utf8_start": 30
+              }
+            ],
+            "end": 31,
+            "exact": "Focused component source page 1",
+            "page_index": 0,
+            "start": 0,
+            "utf16_end": 31,
+            "utf16_start": 0
+          },
+          {
+            "anchor": {
+              "end": 67,
+              "exact": "A runtime selected local document.",
+              "extraction_revision": "7d0923a292de80901d3d0292f7a0a0741f806c1d64320fd036988e9593cf7e07",
+              "original_sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f",
+              "page_index": 0,
+              "page_text_sha256": "844bc09e83f936e4c12f46d6a1acc0f9a622b1200f0cfe47bdabad3808a60acf",
+              "protocol_version": 1,
+              "start": 33,
+              "unit": "unicode_scalar"
+            },
+            "byte_end": 67,
+            "byte_start": 33,
+            "characters": [
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 72.19599914550781,
+                  "right": 81.15599822998047,
+                  "top": 686.052001953125
+                },
+                "pdf_char_index": 33,
+                "scalar_end": 34,
+                "scalar_start": 33,
+                "unicode_value": 65,
+                "utf16_end": 34,
+                "utf16_start": 33,
+                "utf8_end": 34,
+                "utf8_start": 33
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": null,
+                "pdf_char_index": 34,
+                "scalar_end": 35,
+                "scalar_start": 34,
+                "unicode_value": 32,
+                "utf16_end": 35,
+                "utf16_start": 34,
+                "utf8_end": 35,
+                "utf8_start": 34
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 86.30799865722656,
+                  "right": 89.87799835205078,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 35,
+                "scalar_end": 36,
+                "scalar_start": 35,
+                "unicode_value": 114,
+                "utf16_end": 36,
+                "utf16_start": 35,
+                "utf8_end": 36,
+                "utf8_start": 35
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 90.84400177001953,
+                  "right": 96.73799896240234,
+                  "top": 683.322021484375
+                },
+                "pdf_char_index": 36,
+                "scalar_end": 37,
+                "scalar_start": 36,
+                "unicode_value": 117,
+                "utf16_end": 37,
+                "utf16_start": 36,
+                "utf8_end": 37,
+                "utf8_start": 36
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 98.58599853515625,
+                  "right": 104.55000305175781,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 37,
+                "scalar_end": 38,
+                "scalar_start": 37,
+                "unicode_value": 110,
+                "utf16_end": 38,
+                "utf16_start": 37,
+                "utf8_end": 38,
+                "utf8_start": 37
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.916015625,
+                  "left": 105.65599822998047,
+                  "right": 109.05799865722656,
+                  "top": 685.3660278320312
+                },
+                "pdf_char_index": 38,
+                "scalar_end": 39,
+                "scalar_start": 38,
+                "unicode_value": 116,
+                "utf16_end": 39,
+                "utf16_start": 38,
+                "utf8_end": 39,
+                "utf8_start": 38
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 110.28999328613281,
+                  "right": 111.5219955444336,
+                  "top": 686.052001953125
+                },
+                "pdf_char_index": 39,
+                "scalar_end": 40,
+                "scalar_start": 39,
+                "unicode_value": 105,
+                "utf16_end": 40,
+                "utf16_start": 39,
+                "utf8_end": 40,
+                "utf8_start": 39
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 113.3699951171875,
+                  "right": 123.22599792480469,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 40,
+                "scalar_end": 41,
+                "scalar_start": 40,
+                "unicode_value": 109,
+                "utf16_end": 41,
+                "utf16_start": 40,
+                "utf8_end": 41,
+                "utf8_start": 40
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 124.68199920654297,
+                  "right": 131.3459930419922,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 41,
+                "scalar_end": 42,
+                "scalar_start": 41,
+                "unicode_value": 101,
+                "utf16_end": 42,
+                "utf16_start": 41,
+                "utf8_end": 42,
+                "utf8_start": 41
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": null,
+                "pdf_char_index": 42,
+                "scalar_end": 43,
+                "scalar_start": 42,
+                "unicode_value": 32,
+                "utf16_end": 43,
+                "utf16_start": 42,
+                "utf8_end": 43,
+                "utf8_start": 42
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 136.24600219726562,
+                  "right": 142.29400634765625,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 43,
+                "scalar_end": 44,
+                "scalar_start": 43,
+                "unicode_value": 115,
+                "utf16_end": 44,
+                "utf16_start": 43,
+                "utf8_end": 44,
+                "utf8_start": 43
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 143.35800170898438,
+                  "right": 150.02200317382812,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 44,
+                "scalar_end": 45,
+                "scalar_start": 44,
+                "unicode_value": 101,
+                "utf16_end": 45,
+                "utf16_start": 44,
+                "utf8_end": 45,
+                "utf8_start": 44
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 151.51998901367188,
+                  "right": 152.75198364257812,
+                  "top": 686.052001953125
+                },
+                "pdf_char_index": 45,
+                "scalar_end": 46,
+                "scalar_start": 45,
+                "unicode_value": 108,
+                "utf16_end": 46,
+                "utf16_start": 45,
+                "utf8_end": 46,
+                "utf8_start": 45
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 154.25,
+                  "right": 160.91400146484375,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 46,
+                "scalar_end": 47,
+                "scalar_start": 46,
+                "unicode_value": 101,
+                "utf16_end": 47,
+                "utf16_start": 46,
+                "utf8_end": 47,
+                "utf8_start": 46
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 162.03399658203125,
+                  "right": 168.2919921875,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 47,
+                "scalar_end": 48,
+                "scalar_start": 47,
+                "unicode_value": 99,
+                "utf16_end": 48,
+                "utf16_start": 47,
+                "utf8_end": 48,
+                "utf8_start": 47
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.916015625,
+                  "left": 168.66998291015625,
+                  "right": 172.07199096679688,
+                  "top": 685.3660278320312
+                },
+                "pdf_char_index": 48,
+                "scalar_end": 49,
+                "scalar_start": 48,
+                "unicode_value": 116,
+                "utf16_end": 49,
+                "utf16_start": 48,
+                "utf8_end": 49,
+                "utf8_start": 48
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 172.92599487304688,
+                  "right": 179.58999633789062,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 49,
+                "scalar_end": 50,
+                "scalar_start": 49,
+                "unicode_value": 101,
+                "utf16_end": 50,
+                "utf16_start": 49,
+                "utf8_end": 50,
+                "utf8_start": 49
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 180.63998413085938,
+                  "right": 187.135986328125,
+                  "top": 686.052001953125
+                },
+                "pdf_char_index": 50,
+                "scalar_end": 51,
+                "scalar_start": 50,
+                "unicode_value": 100,
+                "utf16_end": 51,
+                "utf16_start": 50,
+                "utf8_end": 51,
+                "utf8_start": 50
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": null,
+                "pdf_char_index": 51,
+                "scalar_end": 52,
+                "scalar_start": 51,
+                "unicode_value": 32,
+                "utf16_end": 52,
+                "utf16_start": 51,
+                "utf8_end": 52,
+                "utf8_start": 51
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 192.76397705078125,
+                  "right": 193.9959716796875,
+                  "top": 686.052001953125
+                },
+                "pdf_char_index": 52,
+                "scalar_end": 53,
+                "scalar_start": 52,
+                "unicode_value": 108,
+                "utf16_end": 53,
+                "utf16_start": 52,
+                "utf8_end": 53,
+                "utf8_start": 52
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8179931640625,
+                  "left": 195.42398071289062,
+                  "right": 202.2279815673828,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 53,
+                "scalar_end": 54,
+                "scalar_start": 53,
+                "unicode_value": 111,
+                "utf16_end": 54,
+                "utf16_start": 53,
+                "utf8_end": 54,
+                "utf8_start": 53
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 203.27798461914062,
+                  "right": 209.53598022460938,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 54,
+                "scalar_end": 55,
+                "scalar_start": 54,
+                "unicode_value": 99,
+                "utf16_end": 55,
+                "utf16_start": 54,
+                "utf8_end": 55,
+                "utf8_start": 54
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 210.22198486328125,
+                  "right": 217.1379852294922,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 55,
+                "scalar_end": 56,
+                "scalar_start": 55,
+                "unicode_value": 97,
+                "utf16_end": 56,
+                "utf16_start": 55,
+                "utf8_end": 56,
+                "utf8_start": 55
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 218.4399871826172,
+                  "right": 219.67198181152344,
+                  "top": 686.052001953125
+                },
+                "pdf_char_index": 56,
+                "scalar_end": 57,
+                "scalar_start": 56,
+                "unicode_value": 108,
+                "utf16_end": 57,
+                "utf16_start": 56,
+                "utf8_end": 57,
+                "utf8_start": 56
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": null,
+                "pdf_char_index": 57,
+                "scalar_end": 58,
+                "scalar_start": 57,
+                "unicode_value": 32,
+                "utf16_end": 58,
+                "utf16_start": 57,
+                "utf8_end": 58,
+                "utf8_start": 57
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 224.9919891357422,
+                  "right": 231.48797607421875,
+                  "top": 686.052001953125
+                },
+                "pdf_char_index": 58,
+                "scalar_end": 59,
+                "scalar_start": 58,
+                "unicode_value": 100,
+                "utf16_end": 59,
+                "utf16_start": 58,
+                "utf8_end": 59,
+                "utf8_start": 58
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8179931640625,
+                  "left": 232.77598571777344,
+                  "right": 239.57998657226562,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 59,
+                "scalar_end": 60,
+                "scalar_start": 59,
+                "unicode_value": 111,
+                "utf16_end": 60,
+                "utf16_start": 59,
+                "utf8_end": 60,
+                "utf8_start": 59
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 240.62997436523438,
+                  "right": 246.88796997070312,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 60,
+                "scalar_end": 61,
+                "scalar_start": 60,
+                "unicode_value": 99,
+                "utf16_end": 61,
+                "utf16_start": 60,
+                "utf8_end": 61,
+                "utf8_start": 60
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 248.02197265625,
+                  "right": 253.9159698486328,
+                  "top": 683.322021484375
+                },
+                "pdf_char_index": 61,
+                "scalar_end": 62,
+                "scalar_start": 61,
+                "unicode_value": 117,
+                "utf16_end": 62,
+                "utf16_start": 61,
+                "utf8_end": 62,
+                "utf8_start": 61
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 255.76397705078125,
+                  "right": 265.6199951171875,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 62,
+                "scalar_end": 63,
+                "scalar_start": 62,
+                "unicode_value": 109,
+                "utf16_end": 63,
+                "utf16_start": 62,
+                "utf8_end": 63,
+                "utf8_start": 62
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.8040161132812,
+                  "left": 267.07598876953125,
+                  "right": 273.739990234375,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 63,
+                "scalar_end": 64,
+                "scalar_start": 63,
+                "unicode_value": 101,
+                "utf16_end": 64,
+                "utf16_start": 63,
+                "utf8_end": 64,
+                "utf8_start": 63
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 275.2099609375,
+                  "right": 281.1739501953125,
+                  "top": 683.531982421875
+                },
+                "pdf_char_index": 64,
+                "scalar_end": 65,
+                "scalar_start": 64,
+                "unicode_value": 110,
+                "utf16_end": 65,
+                "utf16_start": 64,
+                "utf8_end": 65,
+                "utf8_start": 64
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 675.916015625,
+                  "left": 282.27996826171875,
+                  "right": 285.6819763183594,
+                  "top": 685.3660278320312
+                },
+                "pdf_char_index": 65,
+                "scalar_end": 66,
+                "scalar_start": 65,
+                "unicode_value": 116,
+                "utf16_end": 66,
+                "utf16_start": 65,
+                "utf8_end": 66,
+                "utf8_start": 65
+              },
+              {
+                "generated": false,
+                "mapping": "scalar",
+                "pdf_bounds": {
+                  "bottom": 676.0,
+                  "left": 287.1939697265625,
+                  "right": 288.64996337890625,
+                  "top": 677.4840087890625
+                },
+                "pdf_char_index": 66,
+                "scalar_end": 67,
+                "scalar_start": 66,
+                "unicode_value": 46,
+                "utf16_end": 67,
+                "utf16_start": 66,
+                "utf8_end": 67,
+                "utf8_start": 66
+              }
+            ],
+            "end": 67,
+            "exact": "A runtime selected local document.",
+            "page_index": 0,
+            "start": 33,
+            "utf16_end": 67,
+            "utf16_start": 33
+          }
+        ]
+      }
+    }
+  ],
+  "originals": [
+    {
+      "document_id": 1,
+      "source": "experiments/nsh-reader/evidence/native-editor-ui-attempt-2/fixtures/runtime-three-pages.pdf",
+      "sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f"
+    }
+  ],
+  "archive_sha256": "7b31f06f911cf520fe0135664a1ef41ec339ab893cfceebfea2e8f899bce5527"
+}

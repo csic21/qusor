@@ -1,0 +1,21 @@
+{
+  "after_build": true,
+  "lines": [
+    [
+      "Frame retirement fresh source page 1",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ],
+    [
+      "Frame retirement fresh source page 2",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ],
+    [
+      "Frame retirement fresh source page 3",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ]
+  ],
+  "sha256": "c7f9c6a71e376f9922cd001fce97e1cc4a39c94999c838e947e2b3bd048978d9"
+}

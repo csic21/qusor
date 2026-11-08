@@ -1,12 +1,16 @@
 # 插件包、安装状态与运行恢复
 
+2026-11-08 平台兼容增量：安装前检查目标/渠道/profile，激活与恢复时重新选择并核对实现；升级缺少兼容实现时保留仍有效的旧配对，设备权限不跨设备继承。完整规则和待执行验收见 [平台兼容规格](plugin-platforms.md)。本段为新增设计，旧包格式与实际生产状态仍按各阶段证据记录。
+
 日期：2026-11-07。状态：生产生命周期设计；[独立实验](../../experiments/extension-package/RESULTS.md) 已验证完整签名、显式本地键绑定及禁用安装事务。正式安装器、信任 UI、持久授权和长驻恢复尚未完成。沿用 [ADR 0003](adr/0003-plugin-first-delivery.md) 的第三方独立包与第一方同权要求，以及 [ADR 0004](adr/0004-headless-extension-policy.md) 的升级后禁用、清空授权规则。相关行为规格见 [插件安装与恢复](../product/plugin-lifecycle.md)。
+
+后续 [ADR 0008](adr/0008-durable-grant-recovery-probe.md) 在同一独立实验中推进持续元数据授权与新策略会话恢复；仍不包含恢复后 Wasm 执行、正式知识事务或长驻监督，结果以实验记录为准。
 
 ## 1 目标与已有证据
 
 让独立作者仅用公开 SDK 工件构建包；用户取得包后，可以在不重编译宿主的情况下安装、授权、运行、重启、更新、恢复、禁用和卸载。官方阅读、资料库、笔记以及后续核心用户功能复用这条链路。插件管理与恢复属于 Host 职责，不依赖某个功能插件先运行。
 
-现有生产代码只有 0.1 协议与内存宿主策略。[Wasm 实验](../../experiments/extension-wasm/RESULTS.md) 已证明本机独立模块执行及部分预算/中止行为；包摘要只覆盖模块，未认证 manifest 或发布者，未证明安装持久化、并发替换防护或同一长驻管理进程恢复。本文中的状态与协议是后续实现约束，不能计作实验通过。
+实施前生产代码只有0.1协议与内存宿主策略；当前已落位版本协商、纯包/受限执行与持久适配器，最新C7记录见下方。[Wasm 实验](../../experiments/extension-wasm/RESULTS.md) 已证明本机独立模块执行及部分预算/中止行为；包摘要只覆盖模块，未认证 manifest 或发布者，未证明安装持久化、并发替换防护或同一长驻管理进程恢复。本文中的状态与协议是后续实现约束，不能计作实验通过。
 
 关联 F-EXT-01/03/05/06，实施拆分沿用 EXT-B02/B03/B04，验证沿用 EXT-P04/P06/P08/P11/P13；真实知识保留另依赖 EXT-B06 与 EXT-P03。
 
@@ -145,7 +149,16 @@ Host 管理状态事务和 Core 知识事务分开。将来真实写入必须由
 
 ## 当前实现进展
 
-[ADR 0007](adr/0007-signed-package-persistence-probe.md) 采用单容器 SQLite BLOB 候选，将完整包内容和管理记录放在同一事务中；这是有界实验，不是上文独立文件存储方案已验证。首次安装、更新与卸载的提交边界已做进程终止注入；外部作者仅用导出的公开格式/API构建两版本，完整签名及键接管拒绝已有证据。全部安装保持 disabled；未实现持续授权、新会话恢复、私有迁移/回滚、长驻监督或 Core 知识保留验收。详见 [结果与未覆盖项](../../experiments/extension-package/RESULTS.md)。
+最新实测以 [包实验结果](../../experiments/extension-package/RESULTS.md) 的分轮证据为准：
+
+- [ADR 0007](adr/0007-signed-package-persistence-probe.md)：单容器 SQLite BLOB 候选、完整签名与发布者绑定、仓库外作者、禁用安装事务。
+- [ADR 0008](adr/0008-durable-grant-recovery-probe.md) / [0009](adr/0009-restored-wasm-execution-probe.md)：持续元数据授权、新会话及同步受限执行。
+- [ADR 0010](adr/0010-paired-private-state-probe.md)：真实 Wasm 私有迁移/预检、成对切换/回滚、失败/中断终态。
+- [ADR 0011](adr/0011-persistent-supervisor-probe.md)：同一长驻父进程掌握授权、broker 和子进程句柄，验证双插件、撤权/取消、过期消息、隔离/reap、启动失败上限与确认关闭。协议与限制见 [监督实验](../../experiments/extension-package/SUPERVISION.md)。
+
+[ADR 0012](adr/0012-supervisor-crash-reconciliation.md) 随后验证了持久启动/绑定排他、GuardReady、Boot 前当前授权门、默认父死守卫和同身份活残留的 pidfd 清理。协议与限制见 [异常恢复](../../experiments/extension-package/ORPHAN_RECOVERY.md)；已尝试创建但无身份的同内核窗口不自动清理，仍禁止替代。
+
+这些均为独立本机实验；生产安装器/私有存储 SDK、未知 native 窗口的自动修复、任意同步父 provider I/O 取消、真实 Core 知识保留/提交/导出、NSH 与承诺平台仍待各自验收。当前不签完整 B2/M-1 通过；下一项按 [计划](../product/next-phase.md) 推进真实捕获资格切片。
 
 ## 11 最小实施顺序与证据
 
@@ -155,3 +168,7 @@ Host 管理状态事务和 Core 知识事务分开。将来真实写入必须由
 4. **生产集成与首个正式功能（EXT-B04/B06/B07）**：对应平台/profile 门槛通过后才接真实 Core 事务与官方功能；真实卸载保留/导出恢复和第一方同权分别完成 EXT-P03/P12。
 
 每阶段记录源码、格式/测试/构建、实际故障注入、操作系统与渠道、通过/失败/未执行项。下一阶段规格列出具体验收，不重新编号或降低 [原 EXT 门槛](extensions.md#12-第一阶段交付顺序与发布门槛)。首发平台、云行为、真实服务接入、生产密码库/存储实现和 SDK 兼容窗口仍按证据分别确定。
+
+## C7 生产落位增量
+
+[ADR 0025](adr/0025-durable-installation-authority.md) 与 [C7实际结果](../../experiments/extension-package/INSTALLATION_PRODUCTION_RESULTS.md) 已将完整SQL内核、统一Host恢复策略和Linux身份原语落入生产，并由旧CLI/监督/捕获/原生消费者复验。数据库只保存材料；同一Host重建新会话并在每次调用重读世代/范围/版本，Current不运行guest。当前metadata profile和完整安装/信任UI、通用权限恢复、完整进程controller的差距仍明确保留；不签完整B2/M-1通过。

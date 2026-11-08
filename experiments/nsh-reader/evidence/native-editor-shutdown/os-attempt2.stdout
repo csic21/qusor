@@ -1,0 +1,9 @@
+NATIVE_RETIREMENT_CASE {"actual_reaped":["5f3612f34f7efb1b74b5db2d79847772-1"],"case":"invocation","faults":1,"leases":0}
+NATIVE_RETIREMENT_CASE {"actual_reaped":["dfe88653663cfeffacc7687cd35d7b4f-1"],"case":"gate","faults":1,"leases":0}
+NATIVE_RETIREMENT_CASE {"actual_reaped":["895551d2c41f4023eb2d440bd9181186-1"],"case":"finish","faults":1,"leases":0}
+NATIVE_RETIREMENT_CASE {"actual_reaped":["3d729e63a561934bc4777171613129b6-1"],"case":"unknown_wait","faults":0,"leases":0}
+NATIVE_RETIREMENT_CASE {"actual_reaped":true,"case":"foreign_install","guarded":true,"lease_record_unchanged":true,"remaining_leases":0}
+NATIVE_RETIREMENT_CASE {"actual_reaped":true,"case":"same_install","guarded":true,"lease_record_unchanged":true,"remaining_leases":0}
+NATIVE_RETIREMENT_CASE {"actual_reaped":["305c4fc6fbc8b43c3fd2f1a394898ee7-1"],"busy_before":false,"case":"shutdown_idle_unknown","leases_after":0,"native_release_ack":false,"new_business_rejected":true,"service_closed_after_real_reap":true,"unconfirmed_service_and_lease_retained":false}
+NATIVE_RETIREMENT_CASE {"actual_reaped":["75ee9b6ef5d4867592a4ad490bc84bcd-1"],"busy_before":false,"case":"shutdown_live_guard","leases_after":0,"native_release_ack":false,"new_business_rejected":true,"service_closed_after_real_reap":true,"unconfirmed_service_and_lease_retained":true}
+NATIVE_RETIREMENT_PASSED cases=8 budgets=250ms/1000000fuel/8calls backpressure=unverified native_release_ack=unverified

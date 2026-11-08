@@ -1,0 +1,6 @@
+{
+  "exit_code": 0,
+  "source_inputs": 247,
+  "native_binary_sha256": "d3635e16248c805738c12615cbe4a8762e134650f5f9a5e49c37f4bc93956828",
+  "scope": "UI-only focus correction, same verified native binary and signed packages; real nsh bundle build"
+}

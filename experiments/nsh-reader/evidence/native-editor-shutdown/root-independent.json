@@ -1,0 +1,83 @@
+{
+  "exit_code": 0,
+  "executable": "experiments/nsh-reader/target/native-retirement-qualified/shutdown-final-qualification",
+  "executable_sha256": "5e3d5db355bec31eaad02ba62ce760fb6fc37470910b9b7ef0e044fd4018d61d",
+  "log": "root-independent.log",
+  "log_sha256": "6acc9773378d06858df577ce91bdd484bcf26f658f046410f0c01ff06e3ef118",
+  "cases": [
+    {
+      "actual_reaped": [
+        "6742304c6a8706c5016429433cae7abe-1"
+      ],
+      "case": "invocation",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "b6f3e2c50695b479cc7e627419f556e3-1"
+      ],
+      "case": "gate",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "613dafe65ba1223e40d4d491d0e418bd-1"
+      ],
+      "case": "finish",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "b99cb299b3dca7a254a355fb1403ce85-1"
+      ],
+      "case": "unknown_wait",
+      "faults": 0,
+      "leases": 0
+    },
+    {
+      "actual_reaped": true,
+      "case": "foreign_install",
+      "guarded": true,
+      "lease_record_unchanged": true,
+      "remaining_leases": 0
+    },
+    {
+      "actual_reaped": true,
+      "case": "same_install",
+      "guarded": true,
+      "lease_record_unchanged": true,
+      "remaining_leases": 0
+    },
+    {
+      "actual_reaped": [
+        "d4ef6dd1be9fbc344fa7cea0112b2896-1"
+      ],
+      "busy_before": false,
+      "case": "shutdown_idle_unknown",
+      "leases_after": 0,
+      "native_release_ack": false,
+      "new_business_rejected": true,
+      "service_closed_after_real_reap": true,
+      "unconfirmed_service_and_lease_retained": false
+    },
+    {
+      "actual_reaped": [
+        "8e2cd127ec2e780db54bff740c332eca-1"
+      ],
+      "busy_before": false,
+      "case": "shutdown_live_guard",
+      "leases_after": 0,
+      "native_release_ack": false,
+      "new_business_rejected": true,
+      "service_closed_after_real_reap": true,
+      "unconfirmed_service_and_lease_retained": true
+    }
+  ],
+  "completed_vm_count": 7,
+  "vm_calls": 23,
+  "actual_editor_reap_count": 12,
+  "scope": "Independent actual OS rerun of frozen qualification binary; new shutdown cases retain Service/lease while live, then actual Reaped and SQL finish. No GUI/native release ACK/terminate backpressure proof."
+}

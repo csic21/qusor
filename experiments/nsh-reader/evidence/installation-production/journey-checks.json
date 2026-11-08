@@ -1,0 +1,40 @@
+[
+  {
+    "command": [
+      "cargo",
+      "build",
+      "--manifest-path",
+      "experiments/capture-core/Cargo.toml",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "log": "core-query-build.log"
+  },
+  {
+    "command": [
+      "python3",
+      "experiments/nsh-reader/native-host/qualify_plugin_surface.py",
+      "--data",
+      "experiments/nsh-reader/target/installation-production-native-data",
+      "--evidence",
+      "experiments/nsh-reader/evidence/installation-production"
+    ],
+    "exit": 0,
+    "log": "interaction.log"
+  },
+  {
+    "command": [
+      "python3",
+      "experiments/nsh-reader/native-host/recover_plugin_surface.py",
+      "--interaction",
+      "experiments/nsh-reader/evidence/installation-production/plugin-surface-interaction.json",
+      "--restored",
+      "experiments/nsh-reader/target/installation-production-restored-core",
+      "--evidence",
+      "experiments/nsh-reader/evidence/installation-production/plugin-surface-recovery.json"
+    ],
+    "exit": 0,
+    "log": "recovery.log"
+  }
+]

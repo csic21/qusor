@@ -1,0 +1,14 @@
+MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+PDF_SURFACE {"error":"surface unavailable","ok":false}
+ERROR js bundle failed: Error: surface unavailable
+    at <anonymous> (App.tsx:9:30)
+
+ INFO nsh::perf commit: 0 ops, 438µs (list js 234µs), 1 mount items, 1 nodes
+ INFO nsh::perf first frame: eval 29132µs, total 32068µs
+WARNING: dzn is not a conformant Vulkan implementation, testing use only.
+ERROR nsh_platform_linux::surface Error: surface unavailable
+    at <anonymous> (App.tsx:9:30)
+
+ INFO nsh::perf event Window on view 1
+ INFO nsh::perf event js: 146µs

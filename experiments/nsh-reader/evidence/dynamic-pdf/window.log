@@ -1,0 +1,23 @@
+MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+ INFO nsh::perf commit: 89 ops, 100001µs (list js 311µs), 92 mount items, 32 nodes
+ INFO nsh::perf first frame: eval 5165µs, total 107683µs
+WARNING: dzn is not a conformant Vulkan implementation, testing use only.
+ INFO nsh::perf gc: 207µs
+ INFO nsh::perf commit: 0 ops, 876µs (list js 78µs), 21 mount items, 32 nodes
+ INFO nsh::perf turn: 949µs (timers and tasks 25µs)
+ INFO nsh::perf event Press on view 18
+ INFO nsh::perf event js: 1408µs
+ INFO nsh::perf commit: 98 ops, 2334µs (list js 21µs), 91 mount items, 38 nodes
+ INFO nsh::perf turn: 2440µs (timers and tasks 40µs)
+ INFO nsh::perf commit: 0 ops, 42µs (list js 14µs), 1 mount items, 38 nodes
+ INFO nsh::perf turn: 214µs (timers and tasks 148µs)
+ INFO nsh::perf gc: 250µs
+
+(org.qusor.nativeprobe:227354): Gtk-WARNING **: 13:42:51.521: Failed to load '/home/user/.config/gtk-3.0/bookmarks': Error opening file /home/user/.config/gtk-3.0/bookmarks: No such file or directory
+
+(org.qusor.nativeprobe:227354): Gtk-WARNING **: 13:42:51.521: Failed to load '/home/user/.config/gtk-3.0/bookmarks': Error opening file /home/user/.config/gtk-3.0/bookmarks: No such file or directory
+
+(org.qusor.nativeprobe:227354): Gtk-WARNING **: 13:42:51.521: Failed to load '/home/user/.config/gtk-3.0/bookmarks': Error opening file /home/user/.config/gtk-3.0/bookmarks: No such file or directory
+
+(org.qusor.nativeprobe:227354): Gtk-WARNING **: 13:42:51.521: Failed to load '/home/user/.config/gtk-3.0/bookmarks': Error opening file /home/user/.config/gtk-3.0/bookmarks: No such file or directory

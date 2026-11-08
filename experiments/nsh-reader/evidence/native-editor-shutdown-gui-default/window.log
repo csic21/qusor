@@ -1,0 +1,476 @@
+MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+ INFO nsh::perf commit: 91 ops, 56944µs (list js 89µs), 87 mount items, 27 nodes
+ INFO nsh::perf first frame: eval 5547µs, total 65264µs
+WARNING: dzn is not a conformant Vulkan implementation, testing use only.
+ INFO nsh::perf commit: 0 ops, 831µs (list js 71µs), 32 mount items, 27 nodes
+ INFO nsh::perf turn: 899µs (timers and tasks 26µs)
+ INFO nsh::perf gc: 328µs
+ INFO nsh::perf commit: 0 ops, 352µs (list js 32µs), 1 mount items, 27 nodes
+ INFO nsh::perf turn: 563µs (timers and tasks 87µs)
+ INFO nsh::perf event PressDown on view 12
+ INFO nsh::perf event PressUp on view 12
+ INFO nsh::perf event Press on view 12
+ INFO nsh::perf commit: 43 ops, 4883µs (list js 781µs), 35 mount items, 34 nodes
+ INFO nsh::perf turn: 4977µs (timers and tasks 37µs)
+ INFO nsh::perf commit: 0 ops, 35µs (list js 14µs), 1 mount items, 34 nodes
+ INFO nsh::perf turn: 246µs (timers and tasks 188µs)
+ INFO nsh::perf gc: 225µs
+
+(org.qusor.nativeprobe:477048): Gtk-WARNING **: 22:34:57.273: Failed to load '/home/user/.cache/qusor-shutdown-gui-run/config/gtk-3.0/bookmarks': Error opening file /home/user/.cache/qusor-shutdown-gui-run/config/gtk-3.0/bookmarks: No such file or directory
+
+(org.qusor.nativeprobe:477048): Gtk-WARNING **: 22:34:57.274: Failed to load '/home/user/.cache/qusor-shutdown-gui-run/config/gtk-3.0/bookmarks': Error opening file /home/user/.cache/qusor-shutdown-gui-run/config/gtk-3.0/bookmarks: No such file or directory
+
+(org.qusor.nativeprobe:477048): Gtk-WARNING **: 22:34:57.274: Failed to load '/home/user/.cache/qusor-shutdown-gui-run/config/gtk-3.0/bookmarks': Error opening file /home/user/.cache/qusor-shutdown-gui-run/config/gtk-3.0/bookmarks: No such file or directory
+
+(org.qusor.nativeprobe:477048): Gtk-WARNING **: 22:34:57.274: Failed to load '/home/user/.cache/qusor-shutdown-gui-run/config/gtk-3.0/bookmarks': Error opening file /home/user/.cache/qusor-shutdown-gui-run/config/gtk-3.0/bookmarks: No such file or directory
+ INFO nsh::perf event FileRequest on view 1
+DYNAMIC_WORKER_BOOT {"guard_ready":true,"identity_bound":true,"run_id":"pdf-bd9fd7d2071e2ce0b5eddfef7e5bd954-1","worker":{"boot_id":"2499728b-ecc2-47b6-b3eb-d2b4529b7dbd","exe_device":2096,"exe_inode":971979,"pid":478272,"run_id":"pdf-bd9fd7d2071e2ce0b5eddfef7e5bd954-1","start_time_ticks":5053865,"uid":1000}}
+READER_GUEST_RESULT {"api_version":{"major":0,"minor":2},"request_id":"reader-1ad7cca35d1fb4fa3c8f43a5f90fd80e-1","result":{"kind":"state","surface":{"frame":null,"generation":1,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","page_count":3,"page_index":0,"resource":{"document_id":"1","kind":"document","vault_id":"surface-vault"},"selection_lease":null,"source":{"extraction_revision":"3175672556cd965f26fee02b2390c68c36a13ddbe0c050d01431931c26a2b2ac","original_sha256":"f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403"},"status":"pending","zoom":1.0}},"surface_protocol":1}
+READER_NATIVE {"ok":true,"value":{"document_id":1,"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.2","generation":1,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","height":1488.0,"page":0,"pages":3,"report_digest":"c00d1be17bad0799de610456c0a70a8ec3e27ab2ac233375d7c4155fe37c0052","status":"pending","title":"input.pdf","width":1152.0,"zoom":1.0}}
+DYNAMIC_IMPORTED {"document_id":1,"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.2","generation":1,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","height":1488.0,"page":0,"pages":3,"report_digest":"c00d1be17bad0799de610456c0a70a8ec3e27ab2ac233375d7c4155fe37c0052","status":"pending","title":"input.pdf","width":1152.0,"zoom":1.0}
+READER_GUEST_RESULT {"api_version":{"major":0,"minor":2},"request_id":"reader-1ad7cca35d1fb4fa3c8f43a5f90fd80e-2","result":{"kind":"state","surface":{"frame":null,"generation":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","page_count":3,"page_index":0,"resource":{"document_id":"1","kind":"document","vault_id":"surface-vault"},"selection_lease":null,"source":{"extraction_revision":"3175672556cd965f26fee02b2390c68c36a13ddbe0c050d01431931c26a2b2ac","original_sha256":"f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403"},"status":"pending","zoom":0.5510752688172043}},"surface_protocol":1}
+READER_NATIVE {"ok":true,"value":{"document_id":1,"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","height":819.9999999999999,"page":0,"pages":3,"report_digest":"c00d1be17bad0799de610456c0a70a8ec3e27ab2ac233375d7c4155fe37c0052","status":"pending","title":"input.pdf","width":634.8387096774193,"zoom":0.5510752688172043}}
+ INFO nsh::perf commit: 130 ops, 69906µs (list js 65406µs), 102 mount items, 58 nodes
+ INFO nsh::perf turn: 70089µs (timers and tasks 120µs)
+ INFO nsh::perf gc: 258µs
+DYNAMIC_FRAME {"document_id":1,"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","height":819.9999999999999,"page":0,"pages":3,"report_digest":"c00d1be17bad0799de610456c0a70a8ec3e27ab2ac233375d7c4155fe37c0052","status":"pending","title":"input.pdf","width":634.8387096774193,"zoom":0.5510752688172043}
+ INFO nsh::perf commit: 97 ops, 5254µs (list js 3035µs), 73 mount items, 54 nodes
+ INFO nsh::perf turn: 5439µs (timers and tasks 95µs)
+ INFO nsh::perf event Load on view 126
+READER_NATIVE {"ok":true,"value":{"generation":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","ready":true}}
+ INFO nsh::perf event js: 29090µs
+ INFO nsh::perf commit: 1 ops, 729µs (list js 15µs), 8 mount items, 54 nodes
+ INFO nsh::perf turn: 800µs (timers and tasks 32µs)
+ INFO nsh::perf gc: 359µs
+ INFO nsh::perf commit: 6 ops, 310µs (list js 8µs), 4 mount items, 48 nodes
+ INFO nsh::perf gc: 324µs
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":1,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","text":""}}
+ INFO nsh::perf commit: 2 ops, 105µs (list js 15µs), 0 mount items, 48 nodes
+ INFO nsh::perf gc: 265µs
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[[60.067204301075265,63.37365591397849,8.817204301075265,12.123655913978489],[70.53763440860214,63.924731182795696,6.612903225806448,11.02150537634408],[79.35483870967741,66.68010752688171,6.612903225806448,8.266129032258064],[87.06989247311827,64.4758064516129,3.857526881720432,10.47043010752688],[92.0295698924731,63.924731182795696,7.163978494623663,11.02150537634408],[100.29569892473117,66.68010752688171,7.715053763440864,8.266129032258064],[108.56182795698923,66.68010752688171,11.021505376344095,8.266129032258064]],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":1,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","native_outcome":{"Dragging":{"gesture_id":1,"preview":{"binding":{"frame_report_sha256":"1c30cf87f4aafd6166dd84557245b58dcfc7c9d5e57c8795a32a13db0e9f5cb2","original_sha256":"f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403","page_index":0,"page_text_sha256":"80a1f511d6ea2486587dff1d0053af765762e4b294a578057d2b3d9454f3b323"},"committable_single_segment":true,"direction":"Forward","joined_text":"Shutdow","layout_profile":"qusor-plain-ltr-lines-v1","order_basis":"unrotated_pdf_user_space_line_bands","segments":[{"characters":[{"crop_normalized_quad":[[0.09494096785783768,0.0917365774512291],[0.10881944745779037,0.0917365774512291],[0.10881944745779037,0.07752957940101624],[0.09494096785783768,0.07752957940101624]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.7479858398438,"left":72.68599700927734,"right":80.68000030517578,"top":710.3179931640625},"pdf_char_index":0,"pixel_quad":[[109,137],[125,137],[125,115],[109,115]],"scalar_end":1,"scalar_start":0,"unicode_value":83,"utf16_end":1,"utf16_start":0,"utf8_end":1,"utf8_start":0},{"crop_normalized_quad":[[0.11154166609048843,0.09139785170555115],[0.12189582735300064,0.09139785170555115],[0.12189582735300064,0.07788709551095963],[0.11154166609048843,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":82.24800109863281,"right":88.21199798583984,"top":710.052001953125},"pdf_char_index":1,"pixel_quad":[[128,136],[140,136],[140,116],[128,116]],"scalar_end":2,"scalar_start":1,"unicode_value":104,"utf16_end":2,"utf16_start":1,"utf8_end":2,"utf8_start":1},{"crop_normalized_quad":[[0.12512846291065216,0.09166126698255539],[0.13536112010478973,0.09166126698255539],[0.13536112010478973,0.08155642449855804],[0.12512846291065216,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":90.0739974975586,"right":95.96800231933594,"top":707.322021484375},"pdf_char_index":2,"pixel_quad":[[144,136],[156,136],[156,121],[144,121]],"scalar_end":3,"scalar_start":2,"unicode_value":117,"utf16_end":3,"utf16_start":2,"utf8_end":3,"utf8_start":2},{"crop_normalized_quad":[[0.1373298615217209,0.09151072800159454],[0.14323610067367554,0.09151072800159454],[0.14323610067367554,0.07880910485982895],[0.1373298615217209,0.07880910485982895]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.916015625,"left":97.10199737548828,"right":100.50399780273438,"top":709.3660278320312},"pdf_char_index":3,"pixel_quad":[[158,136],[165,136],[165,117],[158,117]],"scalar_end":4,"scalar_start":3,"unicode_value":116,"utf16_end":4,"utf16_start":3,"utf8_end":4,"utf8_start":3},{"crop_normalized_quad":[[0.14459723234176636,0.09166126698255539],[0.15587499737739563,0.09166126698255539],[0.15587499737739563,0.07788709551095963],[0.14459723234176636,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":101.28800201416016,"right":107.78399658203125,"top":710.052001953125},"pdf_char_index":4,"pixel_quad":[[167,136],[180,136],[180,116],[167,116]],"scalar_end":5,"scalar_start":4,"unicode_value":100,"utf16_end":5,"utf16_start":4,"utf8_end":5,"utf8_start":4},{"crop_normalized_quad":[[0.15811112523078918,0.09164248406887054],[0.1699236035346985,0.09164248406887054],[0.1699236035346985,0.08127421885728836],[0.15811112523078918,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8179931640625,"left":109.07200622558594,"right":115.8759994506836,"top":707.531982421875},"pdf_char_index":5,"pixel_quad":[[182,136],[196,136],[196,121],[182,121]],"scalar_end":6,"scalar_start":5,"unicode_value":111,"utf16_end":6,"utf16_start":5,"utf8_end":6,"utf8_start":5},{"crop_normalized_quad":[[0.17111457884311676,0.09139785170555115],[0.1880069375038147,0.09139785170555115],[0.1880069375038147,0.08155642449855804],[0.17111457884311676,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":116.56199645996094,"right":126.29199981689453,"top":707.322021484375},"pdf_char_index":6,"pixel_quad":[[197,136],[217,136],[217,121],[197,121]],"scalar_end":7,"scalar_start":6,"unicode_value":119,"utf16_end":7,"utf16_start":6,"utf8_end":7,"utf8_start":6}],"end":7,"exact":"Shutdow","start":0}],"separator":"\n"}}},"text":"Shutdow"}}
+ INFO nsh::perf commit: 1 ops, 164µs (list js 28µs), 1 mount items, 48 nodes
+ INFO nsh::perf turn: 28302µs (timers and tasks 28026µs)
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"error":"NoHit: pointer does not intersect a visible glyph","ok":false}
+ INFO nsh::perf commit: 1 ops, 94µs (list js 16µs), 1 mount items, 48 nodes
+ INFO nsh::perf turn: 36874µs (timers and tasks 36712µs)
+
+(org.qusor.nativeprobe:477048): Gdk-WARNING **: 22:35:25.791: Vulkan: ../src/microsoft/vulkan/dzn_descriptor_set.c:2012: VK_ERROR_OUT_OF_POOL_MEMORY
+ INFO nsh::perf event Touch on view 1
+ INFO nsh::perf event Touch on view 1
+ INFO nsh::perf gc: 321µs
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","text":""}}
+ INFO nsh::perf commit: 2 ops, 101µs (list js 17µs), 0 mount items, 48 nodes
+ INFO nsh::perf gc: 293µs
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[[70.53763440860214,63.924731182795696,6.612903225806448,11.02150537634408],[79.35483870967741,66.68010752688171,6.612903225806448,8.266129032258064],[87.06989247311827,64.4758064516129,3.857526881720432,10.47043010752688],[92.0295698924731,63.924731182795696,7.163978494623663,11.02150537634408],[100.29569892473117,66.68010752688171,7.715053763440864,8.266129032258064],[108.56182795698923,66.68010752688171,11.021505376344095,8.266129032258064],[120.68548387096773,66.68010752688171,6.612903225806448,8.266129032258064]],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","native_outcome":{"Dragging":{"gesture_id":2,"preview":{"binding":{"frame_report_sha256":"1c30cf87f4aafd6166dd84557245b58dcfc7c9d5e57c8795a32a13db0e9f5cb2","original_sha256":"f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403","page_index":0,"page_text_sha256":"80a1f511d6ea2486587dff1d0053af765762e4b294a578057d2b3d9454f3b323"},"committable_single_segment":true,"direction":"Forward","joined_text":"hutdown","layout_profile":"qusor-plain-ltr-lines-v1","order_basis":"unrotated_pdf_user_space_line_bands","segments":[{"characters":[{"crop_normalized_quad":[[0.11154166609048843,0.09139785170555115],[0.12189582735300064,0.09139785170555115],[0.12189582735300064,0.07788709551095963],[0.11154166609048843,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":82.24800109863281,"right":88.21199798583984,"top":710.052001953125},"pdf_char_index":1,"pixel_quad":[[128,136],[140,136],[140,116],[128,116]],"scalar_end":2,"scalar_start":1,"unicode_value":104,"utf16_end":2,"utf16_start":1,"utf8_end":2,"utf8_start":1},{"crop_normalized_quad":[[0.12512846291065216,0.09166126698255539],[0.13536112010478973,0.09166126698255539],[0.13536112010478973,0.08155642449855804],[0.12512846291065216,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":90.0739974975586,"right":95.96800231933594,"top":707.322021484375},"pdf_char_index":2,"pixel_quad":[[144,136],[156,136],[156,121],[144,121]],"scalar_end":3,"scalar_start":2,"unicode_value":117,"utf16_end":3,"utf16_start":2,"utf8_end":3,"utf8_start":2},{"crop_normalized_quad":[[0.1373298615217209,0.09151072800159454],[0.14323610067367554,0.09151072800159454],[0.14323610067367554,0.07880910485982895],[0.1373298615217209,0.07880910485982895]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.916015625,"left":97.10199737548828,"right":100.50399780273438,"top":709.3660278320312},"pdf_char_index":3,"pixel_quad":[[158,136],[165,136],[165,117],[158,117]],"scalar_end":4,"scalar_start":3,"unicode_value":116,"utf16_end":4,"utf16_start":3,"utf8_end":4,"utf8_start":3},{"crop_normalized_quad":[[0.14459723234176636,0.09166126698255539],[0.15587499737739563,0.09166126698255539],[0.15587499737739563,0.07788709551095963],[0.14459723234176636,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":101.28800201416016,"right":107.78399658203125,"top":710.052001953125},"pdf_char_index":4,"pixel_quad":[[167,136],[180,136],[180,116],[167,116]],"scalar_end":5,"scalar_start":4,"unicode_value":100,"utf16_end":5,"utf16_start":4,"utf8_end":5,"utf8_start":4},{"crop_normalized_quad":[[0.15811112523078918,0.09164248406887054],[0.1699236035346985,0.09164248406887054],[0.1699236035346985,0.08127421885728836],[0.15811112523078918,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8179931640625,"left":109.07200622558594,"right":115.8759994506836,"top":707.531982421875},"pdf_char_index":5,"pixel_quad":[[182,136],[196,136],[196,121],[182,121]],"scalar_end":6,"scalar_start":5,"unicode_value":111,"utf16_end":6,"utf16_start":5,"utf8_end":6,"utf8_start":5},{"crop_normalized_quad":[[0.17111457884311676,0.09139785170555115],[0.1880069375038147,0.09139785170555115],[0.1880069375038147,0.08155642449855804],[0.17111457884311676,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":116.56199645996094,"right":126.29199981689453,"top":707.322021484375},"pdf_char_index":6,"pixel_quad":[[197,136],[217,136],[217,121],[197,121]],"scalar_end":7,"scalar_start":6,"unicode_value":119,"utf16_end":7,"utf16_start":6,"utf8_end":7,"utf8_start":6},{"crop_normalized_quad":[[0.18990278244018555,0.09139785170555115],[0.20025692880153656,0.09139785170555115],[0.20025692880153656,0.08127421885728836],[0.18990278244018555,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":127.38400268554688,"right":133.34799194335938,"top":707.531982421875},"pdf_char_index":7,"pixel_quad":[[219,136],[231,136],[231,121],[219,121]],"scalar_end":8,"scalar_start":7,"unicode_value":110,"utf16_end":8,"utf16_start":7,"utf8_end":8,"utf8_start":7}],"end":8,"exact":"hutdown","start":1}],"separator":"\n"}}},"text":"hutdown"}}
+ INFO nsh::perf commit: 1 ops, 96µs (list js 17µs), 1 mount items, 48 nodes
+ INFO nsh::perf turn: 29101µs (timers and tasks 28934µs)
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[[70.53763440860214,63.924731182795696,6.612903225806448,11.02150537634408],[79.35483870967741,66.68010752688171,6.612903225806448,8.266129032258064],[87.06989247311827,64.4758064516129,3.857526881720432,10.47043010752688],[92.0295698924731,63.924731182795696,7.163978494623663,11.02150537634408],[100.29569892473117,66.68010752688171,7.715053763440864,8.266129032258064],[108.56182795698923,66.68010752688171,11.021505376344095,8.266129032258064],[120.68548387096773,66.68010752688171,6.612903225806448,8.266129032258064],[132.80913978494624,63.924731182795696,3.8575268817204176,11.02150537634408],[137.76881720430106,66.68010752688171,3.857526881720446,8.266129032258064],[142.7284946236559,66.68010752688171,7.163978494623649,8.266129032258064],[150.99462365591395,66.68010752688171,6.612903225806463,8.266129032258064],[159.26075268817203,63.924731182795696,6.612903225806434,11.02150537634408],[171.38440860215053,66.68010752688171,6.612903225806434,8.266129032258064],[179.0994623655914,66.68010752688171,7.715053763440864,8.266129032258064],[188.46774193548384,66.68010752688171,6.612903225806463,8.266129032258064]],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","native_outcome":{"Dragging":{"gesture_id":2,"preview":{"binding":{"frame_report_sha256":"1c30cf87f4aafd6166dd84557245b58dcfc7c9d5e57c8795a32a13db0e9f5cb2","original_sha256":"f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403","page_index":0,"page_text_sha256":"80a1f511d6ea2486587dff1d0053af765762e4b294a578057d2b3d9454f3b323"},"committable_single_segment":true,"direction":"Forward","joined_text":"hutdown fresh sou","layout_profile":"qusor-plain-ltr-lines-v1","order_basis":"unrotated_pdf_user_space_line_bands","segments":[{"characters":[{"crop_normalized_quad":[[0.11154166609048843,0.09139785170555115],[0.12189582735300064,0.09139785170555115],[0.12189582735300064,0.07788709551095963],[0.11154166609048843,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":82.24800109863281,"right":88.21199798583984,"top":710.052001953125},"pdf_char_index":1,"pixel_quad":[[128,136],[140,136],[140,116],[128,116]],"scalar_end":2,"scalar_start":1,"unicode_value":104,"utf16_end":2,"utf16_start":1,"utf8_end":2,"utf8_start":1},{"crop_normalized_quad":[[0.12512846291065216,0.09166126698255539],[0.13536112010478973,0.09166126698255539],[0.13536112010478973,0.08155642449855804],[0.12512846291065216,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":90.0739974975586,"right":95.96800231933594,"top":707.322021484375},"pdf_char_index":2,"pixel_quad":[[144,136],[156,136],[156,121],[144,121]],"scalar_end":3,"scalar_start":2,"unicode_value":117,"utf16_end":3,"utf16_start":2,"utf8_end":3,"utf8_start":2},{"crop_normalized_quad":[[0.1373298615217209,0.09151072800159454],[0.14323610067367554,0.09151072800159454],[0.14323610067367554,0.07880910485982895],[0.1373298615217209,0.07880910485982895]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.916015625,"left":97.10199737548828,"right":100.50399780273438,"top":709.3660278320312},"pdf_char_index":3,"pixel_quad":[[158,136],[165,136],[165,117],[158,117]],"scalar_end":4,"scalar_start":3,"unicode_value":116,"utf16_end":4,"utf16_start":3,"utf8_end":4,"utf8_start":3},{"crop_normalized_quad":[[0.14459723234176636,0.09166126698255539],[0.15587499737739563,0.09166126698255539],[0.15587499737739563,0.07788709551095963],[0.14459723234176636,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":101.28800201416016,"right":107.78399658203125,"top":710.052001953125},"pdf_char_index":4,"pixel_quad":[[167,136],[180,136],[180,116],[167,116]],"scalar_end":5,"scalar_start":4,"unicode_value":100,"utf16_end":5,"utf16_start":4,"utf8_end":5,"utf8_start":4},{"crop_normalized_quad":[[0.15811112523078918,0.09164248406887054],[0.1699236035346985,0.09164248406887054],[0.1699236035346985,0.08127421885728836],[0.15811112523078918,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8179931640625,"left":109.07200622558594,"right":115.8759994506836,"top":707.531982421875},"pdf_char_index":5,"pixel_quad":[[182,136],[196,136],[196,121],[182,121]],"scalar_end":6,"scalar_start":5,"unicode_value":111,"utf16_end":6,"utf16_start":5,"utf8_end":6,"utf8_start":5},{"crop_normalized_quad":[[0.17111457884311676,0.09139785170555115],[0.1880069375038147,0.09139785170555115],[0.1880069375038147,0.08155642449855804],[0.17111457884311676,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":116.56199645996094,"right":126.29199981689453,"top":707.322021484375},"pdf_char_index":6,"pixel_quad":[[197,136],[217,136],[217,121],[197,121]],"scalar_end":7,"scalar_start":6,"unicode_value":119,"utf16_end":7,"utf16_start":6,"utf8_end":7,"utf8_start":6},{"crop_normalized_quad":[[0.18990278244018555,0.09139785170555115],[0.20025692880153656,0.09139785170555115],[0.20025692880153656,0.08127421885728836],[0.18990278244018555,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":127.38400268554688,"right":133.34799194335938,"top":707.531982421875},"pdf_char_index":7,"pixel_quad":[[219,136],[231,136],[231,121],[219,121]],"scalar_end":8,"scalar_start":7,"unicode_value":110,"utf16_end":8,"utf16_start":7,"utf8_end":8,"utf8_start":7},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":8,"pixel_quad":null,"scalar_end":9,"scalar_start":8,"unicode_value":32,"utf16_end":9,"utf16_start":8,"utf8_end":9,"utf8_start":8},{"crop_normalized_quad":[[0.20893403887748718,0.09139785170555115],[0.21496179699897766,0.09139785170555115],[0.21496179699897766,0.07769890129566193],[0.20893403887748718,0.07769890129566193]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":138.34600830078125,"right":141.8179931640625,"top":710.1920166015625},"pdf_char_index":9,"pixel_quad":[[241,136],[248,136],[248,116],[241,116]],"scalar_end":10,"scalar_start":9,"unicode_value":102,"utf16_end":10,"utf16_start":9,"utf8_end":10,"utf8_start":9},{"crop_normalized_quad":[[0.2172222137451172,0.09139785170555115],[0.2234201431274414,0.09139785170555115],[0.2234201431274414,0.08127421885728836],[0.2172222137451172,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":143.1199951171875,"right":146.69000244140625,"top":707.531982421875},"pdf_char_index":10,"pixel_quad":[[250,136],[257,136],[257,121],[250,121]],"scalar_end":11,"scalar_start":10,"unicode_value":114,"utf16_end":11,"utf16_start":10,"utf8_end":11,"utf8_start":10},{"crop_normalized_quad":[[0.22441667318344116,0.09166126698255539],[0.23598612844944,0.09166126698255539],[0.23598612844944,0.08127421885728836],[0.22441667318344116,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":147.26400756835938,"right":153.92800903320312,"top":707.531982421875},"pdf_char_index":11,"pixel_quad":[[259,136],[272,136],[272,121],[259,121]],"scalar_end":12,"scalar_start":11,"unicode_value":101,"utf16_end":12,"utf16_start":11,"utf8_end":12,"utf8_start":11},{"crop_normalized_quad":[[0.23773612082004547,0.09166126698255539],[0.24823611974716187,0.09166126698255539],[0.24823611974716187,0.08127421885728836],[0.23773612082004547,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":154.93600463867188,"right":160.9840087890625,"top":707.531982421875},"pdf_char_index":12,"pixel_quad":[[274,136],[286,136],[286,121],[274,121]],"scalar_end":13,"scalar_start":12,"unicode_value":115,"utf16_end":13,"utf16_start":12,"utf8_end":13,"utf8_start":12},{"crop_normalized_quad":[[0.2506909966468811,0.09139785170555115],[0.2610451281070709,0.09139785170555115],[0.2610451281070709,0.07788709551095963],[0.2506909966468811,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":162.39801025390625,"right":168.36199951171875,"top":710.052001953125},"pdf_char_index":13,"pixel_quad":[[289,136],[301,136],[301,116],[289,116]],"scalar_end":14,"scalar_start":13,"unicode_value":104,"utf16_end":14,"utf16_start":13,"utf8_end":14,"utf8_start":13},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":14,"pixel_quad":null,"scalar_end":15,"scalar_start":14,"unicode_value":32,"utf16_end":15,"utf16_start":14,"utf8_end":15,"utf8_start":14},{"crop_normalized_quad":[[0.2701597213745117,0.09166126698255539],[0.2806597352027893,0.09166126698255539],[0.2806597352027893,0.08127421885728836],[0.2701597213745117,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":173.61199951171875,"right":179.66000366210938,"top":707.531982421875},"pdf_char_index":15,"pixel_quad":[[311,136],[323,136],[323,121],[311,121]],"scalar_end":16,"scalar_start":15,"unicode_value":115,"utf16_end":16,"utf16_start":15,"utf8_end":16,"utf8_start":15},{"crop_normalized_quad":[[0.2823854088783264,0.09164248406887054],[0.2941979169845581,0.09164248406887054],[0.2941979169845581,0.08127421885728836],[0.2823854088783264,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8179931640625,"left":180.65399169921875,"right":187.45799255371094,"top":707.531982421875},"pdf_char_index":16,"pixel_quad":[[325,136],[339,136],[339,121],[325,121]],"scalar_end":17,"scalar_start":16,"unicode_value":111,"utf16_end":17,"utf16_start":16,"utf8_end":17,"utf8_start":16},{"crop_normalized_quad":[[0.2967013716697693,0.09166126698255539],[0.3069339990615845,0.09166126698255539],[0.3069339990615845,0.08155642449855804],[0.2967013716697693,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":188.89999389648438,"right":194.7939910888672,"top":707.322021484375},"pdf_char_index":17,"pixel_quad":[[342,136],[354,136],[354,121],[342,121]],"scalar_end":18,"scalar_start":17,"unicode_value":117,"utf16_end":18,"utf16_start":17,"utf8_end":18,"utf8_start":17}],"end":18,"exact":"hutdown fresh sou","start":1}],"separator":"\n"}}},"text":"hutdown fresh sou"}}
+ INFO nsh::perf commit: 1 ops, 96µs (list js 16µs), 1 mount items, 48 nodes
+ INFO nsh::perf turn: 28442µs (timers and tasks 28277µs)
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[[70.53763440860214,63.924731182795696,6.612903225806448,11.02150537634408],[79.35483870967741,66.68010752688171,6.612903225806448,8.266129032258064],[87.06989247311827,64.4758064516129,3.857526881720432,10.47043010752688],[92.0295698924731,63.924731182795696,7.163978494623663,11.02150537634408],[100.29569892473117,66.68010752688171,7.715053763440864,8.266129032258064],[108.56182795698923,66.68010752688171,11.021505376344095,8.266129032258064],[120.68548387096773,66.68010752688171,6.612903225806448,8.266129032258064],[132.80913978494624,63.924731182795696,3.8575268817204176,11.02150537634408],[137.76881720430106,66.68010752688171,3.857526881720446,8.266129032258064],[142.7284946236559,66.68010752688171,7.163978494623649,8.266129032258064],[150.99462365591395,66.68010752688171,6.612903225806463,8.266129032258064],[159.26075268817203,63.924731182795696,6.612903225806434,11.02150537634408],[171.38440860215053,66.68010752688171,6.612903225806434,8.266129032258064],[179.0994623655914,66.68010752688171,7.715053763440864,8.266129032258064],[188.46774193548384,66.68010752688171,6.612903225806463,8.266129032258064],[197.28494623655914,66.68010752688171,3.8575268817204176,8.266129032258064],[201.69354838709677,66.68010752688171,6.612903225806434,8.266129032258064],[209.4086021505376,66.68010752688171,7.163978494623677,8.266129032258064],[222.63440860215053,66.68010752688171,7.163978494623649,11.572580645161295],[230.90053763440858,66.68010752688171,7.715053763440864,8.266129032258064]],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","native_outcome":{"Dragging":{"gesture_id":2,"preview":{"binding":{"frame_report_sha256":"1c30cf87f4aafd6166dd84557245b58dcfc7c9d5e57c8795a32a13db0e9f5cb2","original_sha256":"f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403","page_index":0,"page_text_sha256":"80a1f511d6ea2486587dff1d0053af765762e4b294a578057d2b3d9454f3b323"},"committable_single_segment":true,"direction":"Forward","joined_text":"hutdown fresh source pa","layout_profile":"qusor-plain-ltr-lines-v1","order_basis":"unrotated_pdf_user_space_line_bands","segments":[{"characters":[{"crop_normalized_quad":[[0.11154166609048843,0.09139785170555115],[0.12189582735300064,0.09139785170555115],[0.12189582735300064,0.07788709551095963],[0.11154166609048843,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":82.24800109863281,"right":88.21199798583984,"top":710.052001953125},"pdf_char_index":1,"pixel_quad":[[128,136],[140,136],[140,116],[128,116]],"scalar_end":2,"scalar_start":1,"unicode_value":104,"utf16_end":2,"utf16_start":1,"utf8_end":2,"utf8_start":1},{"crop_normalized_quad":[[0.12512846291065216,0.09166126698255539],[0.13536112010478973,0.09166126698255539],[0.13536112010478973,0.08155642449855804],[0.12512846291065216,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":90.0739974975586,"right":95.96800231933594,"top":707.322021484375},"pdf_char_index":2,"pixel_quad":[[144,136],[156,136],[156,121],[144,121]],"scalar_end":3,"scalar_start":2,"unicode_value":117,"utf16_end":3,"utf16_start":2,"utf8_end":3,"utf8_start":2},{"crop_normalized_quad":[[0.1373298615217209,0.09151072800159454],[0.14323610067367554,0.09151072800159454],[0.14323610067367554,0.07880910485982895],[0.1373298615217209,0.07880910485982895]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.916015625,"left":97.10199737548828,"right":100.50399780273438,"top":709.3660278320312},"pdf_char_index":3,"pixel_quad":[[158,136],[165,136],[165,117],[158,117]],"scalar_end":4,"scalar_start":3,"unicode_value":116,"utf16_end":4,"utf16_start":3,"utf8_end":4,"utf8_start":3},{"crop_normalized_quad":[[0.14459723234176636,0.09166126698255539],[0.15587499737739563,0.09166126698255539],[0.15587499737739563,0.07788709551095963],[0.14459723234176636,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":101.28800201416016,"right":107.78399658203125,"top":710.052001953125},"pdf_char_index":4,"pixel_quad":[[167,136],[180,136],[180,116],[167,116]],"scalar_end":5,"scalar_start":4,"unicode_value":100,"utf16_end":5,"utf16_start":4,"utf8_end":5,"utf8_start":4},{"crop_normalized_quad":[[0.15811112523078918,0.09164248406887054],[0.1699236035346985,0.09164248406887054],[0.1699236035346985,0.08127421885728836],[0.15811112523078918,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8179931640625,"left":109.07200622558594,"right":115.8759994506836,"top":707.531982421875},"pdf_char_index":5,"pixel_quad":[[182,136],[196,136],[196,121],[182,121]],"scalar_end":6,"scalar_start":5,"unicode_value":111,"utf16_end":6,"utf16_start":5,"utf8_end":6,"utf8_start":5},{"crop_normalized_quad":[[0.17111457884311676,0.09139785170555115],[0.1880069375038147,0.09139785170555115],[0.1880069375038147,0.08155642449855804],[0.17111457884311676,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":116.56199645996094,"right":126.29199981689453,"top":707.322021484375},"pdf_char_index":6,"pixel_quad":[[197,136],[217,136],[217,121],[197,121]],"scalar_end":7,"scalar_start":6,"unicode_value":119,"utf16_end":7,"utf16_start":6,"utf8_end":7,"utf8_start":6},{"crop_normalized_quad":[[0.18990278244018555,0.09139785170555115],[0.20025692880153656,0.09139785170555115],[0.20025692880153656,0.08127421885728836],[0.18990278244018555,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":127.38400268554688,"right":133.34799194335938,"top":707.531982421875},"pdf_char_index":7,"pixel_quad":[[219,136],[231,136],[231,121],[219,121]],"scalar_end":8,"scalar_start":7,"unicode_value":110,"utf16_end":8,"utf16_start":7,"utf8_end":8,"utf8_start":7},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":8,"pixel_quad":null,"scalar_end":9,"scalar_start":8,"unicode_value":32,"utf16_end":9,"utf16_start":8,"utf8_end":9,"utf8_start":8},{"crop_normalized_quad":[[0.20893403887748718,0.09139785170555115],[0.21496179699897766,0.09139785170555115],[0.21496179699897766,0.07769890129566193],[0.20893403887748718,0.07769890129566193]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":138.34600830078125,"right":141.8179931640625,"top":710.1920166015625},"pdf_char_index":9,"pixel_quad":[[241,136],[248,136],[248,116],[241,116]],"scalar_end":10,"scalar_start":9,"unicode_value":102,"utf16_end":10,"utf16_start":9,"utf8_end":10,"utf8_start":9},{"crop_normalized_quad":[[0.2172222137451172,0.09139785170555115],[0.2234201431274414,0.09139785170555115],[0.2234201431274414,0.08127421885728836],[0.2172222137451172,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":143.1199951171875,"right":146.69000244140625,"top":707.531982421875},"pdf_char_index":10,"pixel_quad":[[250,136],[257,136],[257,121],[250,121]],"scalar_end":11,"scalar_start":10,"unicode_value":114,"utf16_end":11,"utf16_start":10,"utf8_end":11,"utf8_start":10},{"crop_normalized_quad":[[0.22441667318344116,0.09166126698255539],[0.23598612844944,0.09166126698255539],[0.23598612844944,0.08127421885728836],[0.22441667318344116,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":147.26400756835938,"right":153.92800903320312,"top":707.531982421875},"pdf_char_index":11,"pixel_quad":[[259,136],[272,136],[272,121],[259,121]],"scalar_end":12,"scalar_start":11,"unicode_value":101,"utf16_end":12,"utf16_start":11,"utf8_end":12,"utf8_start":11},{"crop_normalized_quad":[[0.23773612082004547,0.09166126698255539],[0.24823611974716187,0.09166126698255539],[0.24823611974716187,0.08127421885728836],[0.23773612082004547,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":154.93600463867188,"right":160.9840087890625,"top":707.531982421875},"pdf_char_index":12,"pixel_quad":[[274,136],[286,136],[286,121],[274,121]],"scalar_end":13,"scalar_start":12,"unicode_value":115,"utf16_end":13,"utf16_start":12,"utf8_end":13,"utf8_start":12},{"crop_normalized_quad":[[0.2506909966468811,0.09139785170555115],[0.2610451281070709,0.09139785170555115],[0.2610451281070709,0.07788709551095963],[0.2506909966468811,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":162.39801025390625,"right":168.36199951171875,"top":710.052001953125},"pdf_char_index":13,"pixel_quad":[[289,136],[301,136],[301,116],[289,116]],"scalar_end":14,"scalar_start":13,"unicode_value":104,"utf16_end":14,"utf16_start":13,"utf8_end":14,"utf8_start":13},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":14,"pixel_quad":null,"scalar_end":15,"scalar_start":14,"unicode_value":32,"utf16_end":15,"utf16_start":14,"utf8_end":15,"utf8_start":14},{"crop_normalized_quad":[[0.2701597213745117,0.09166126698255539],[0.2806597352027893,0.09166126698255539],[0.2806597352027893,0.08127421885728836],[0.2701597213745117,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":173.61199951171875,"right":179.66000366210938,"top":707.531982421875},"pdf_char_index":15,"pixel_quad":[[311,136],[323,136],[323,121],[311,121]],"scalar_end":16,"scalar_start":15,"unicode_value":115,"utf16_end":16,"utf16_start":15,"utf8_end":16,"utf8_start":15},{"crop_normalized_quad":[[0.2823854088783264,0.09164248406887054],[0.2941979169845581,0.09164248406887054],[0.2941979169845581,0.08127421885728836],[0.2823854088783264,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8179931640625,"left":180.65399169921875,"right":187.45799255371094,"top":707.531982421875},"pdf_char_index":16,"pixel_quad":[[325,136],[339,136],[339,121],[325,121]],"scalar_end":17,"scalar_start":16,"unicode_value":111,"utf16_end":17,"utf16_start":16,"utf8_end":17,"utf8_start":16},{"crop_normalized_quad":[[0.2967013716697693,0.09166126698255539],[0.3069339990615845,0.09166126698255539],[0.3069339990615845,0.08155642449855804],[0.2967013716697693,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":188.89999389648438,"right":194.7939910888672,"top":707.322021484375},"pdf_char_index":17,"pixel_quad":[[342,136],[354,136],[354,121],[342,121]],"scalar_end":18,"scalar_start":17,"unicode_value":117,"utf16_end":18,"utf16_start":17,"utf8_end":18,"utf8_start":17},{"crop_normalized_quad":[[0.3104340136051178,0.09139785170555115],[0.31663191318511963,0.09139785170555115],[0.31663191318511963,0.08127421885728836],[0.3104340136051178,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":196.80999755859375,"right":200.37998962402344,"top":707.531982421875},"pdf_char_index":18,"pixel_quad":[[358,136],[365,136],[365,121],[358,121]],"scalar_end":19,"scalar_start":18,"unicode_value":114,"utf16_end":19,"utf16_start":18,"utf8_end":19,"utf8_start":18},{"crop_normalized_quad":[[0.3176284432411194,0.09166126698255539],[0.32849299907684326,0.09166126698255539],[0.32849299907684326,0.08127421885728836],[0.3176284432411194,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":200.9539794921875,"right":207.21197509765625,"top":707.531982421875},"pdf_char_index":19,"pixel_quad":[[366,136],[378,136],[378,121],[366,121]],"scalar_end":20,"scalar_start":19,"unicode_value":99,"utf16_end":20,"utf16_start":19,"utf8_end":20,"utf8_start":19},{"crop_normalized_quad":[[0.3297812044620514,0.09166126698255539],[0.3413506746292114,0.09166126698255539],[0.3413506746292114,0.08127421885728836],[0.3297812044620514,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":207.9539794921875,"right":214.61798095703125,"top":707.531982421875},"pdf_char_index":20,"pixel_quad":[[380,136],[393,136],[393,121],[380,121]],"scalar_end":21,"scalar_start":20,"unicode_value":101,"utf16_end":21,"utf16_start":20,"utf8_end":21,"utf8_start":20},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":21,"pixel_quad":null,"scalar_end":22,"scalar_start":21,"unicode_value":32,"utf16_end":22,"utf16_start":21,"utf8_end":22,"utf8_start":21},{"crop_normalized_quad":[[0.3504895269870758,0.09527415782213211],[0.36164581775665283,0.09527415782213211],[0.36164581775665283,0.08127421885728836],[0.3504895269870758,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":697.1160278320312,"left":219.88197326660156,"right":226.3079833984375,"top":707.531982421875},"pdf_char_index":22,"pixel_quad":[[404,142],[417,142],[417,121],[404,121]],"scalar_end":23,"scalar_start":22,"unicode_value":112,"utf16_end":23,"utf16_start":22,"utf8_end":23,"utf8_start":22},{"crop_normalized_quad":[[0.3634687066078186,0.09166126698255539],[0.3754756450653076,0.09166126698255539],[0.3754756450653076,0.08127421885728836],[0.3634687066078186,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":227.35797119140625,"right":234.2739715576172,"top":707.531982421875},"pdf_char_index":23,"pixel_quad":[[419,136],[433,136],[433,121],[419,121]],"scalar_end":24,"scalar_start":23,"unicode_value":97,"utf16_end":24,"utf16_start":23,"utf8_end":24,"utf8_start":23}],"end":24,"exact":"hutdown fresh source pa","start":1}],"separator":"\n"}}},"text":"hutdown fresh source pa"}}
+ INFO nsh::perf commit: 1 ops, 97µs (list js 17µs), 1 mount items, 48 nodes
+ INFO nsh::perf turn: 28810µs (timers and tasks 28639µs)
+
+(org.qusor.nativeprobe:477048): Gdk-WARNING **: 22:36:11.633: Vulkan: ../src/microsoft/vulkan/dzn_descriptor_set.c:2012: VK_ERROR_OUT_OF_POOL_MEMORY
+ INFO nsh::perf event Touch on view 1
+READER_GUEST_RESULT {"candidate_id":"candidate-1ad7cca35d1fb4fa3c8f43a5f90fd80e-4","capture_protocol":1,"draft_hash":"225870ddc88dbc6e3dce443c7182485df54f4c49868f1bc22c8dbf9b6cee72e7","generation":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","kind":"candidate","text":"hutdown fresh source pa"}
+READER_NATIVE {"ok":true,"value":{"boxes":[[70.53763440860214,63.924731182795696,6.612903225806448,11.02150537634408],[79.35483870967741,66.68010752688171,6.612903225806448,8.266129032258064],[87.06989247311827,64.4758064516129,3.857526881720432,10.47043010752688],[92.0295698924731,63.924731182795696,7.163978494623663,11.02150537634408],[100.29569892473117,66.68010752688171,7.715053763440864,8.266129032258064],[108.56182795698923,66.68010752688171,11.021505376344095,8.266129032258064],[120.68548387096773,66.68010752688171,6.612903225806448,8.266129032258064],[132.80913978494624,63.924731182795696,3.8575268817204176,11.02150537634408],[137.76881720430106,66.68010752688171,3.857526881720446,8.266129032258064],[142.7284946236559,66.68010752688171,7.163978494623649,8.266129032258064],[150.99462365591395,66.68010752688171,6.612903225806463,8.266129032258064],[159.26075268817203,63.924731182795696,6.612903225806434,11.02150537634408],[171.38440860215053,66.68010752688171,6.612903225806434,8.266129032258064],[179.0994623655914,66.68010752688171,7.715053763440864,8.266129032258064],[188.46774193548384,66.68010752688171,6.612903225806463,8.266129032258064],[197.28494623655914,66.68010752688171,3.8575268817204176,8.266129032258064],[201.69354838709677,66.68010752688171,6.612903225806434,8.266129032258064],[209.4086021505376,66.68010752688171,7.163978494623677,8.266129032258064],[222.63440860215053,66.68010752688171,7.163978494623649,11.572580645161295],[230.90053763440858,66.68010752688171,7.715053763440864,8.266129032258064]],"candidate":{"candidate_id":"candidate-1ad7cca35d1fb4fa3c8f43a5f90fd80e-4","capture_protocol":1,"draft_hash":"225870ddc88dbc6e3dce443c7182485df54f4c49868f1bc22c8dbf9b6cee72e7","generation":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","kind":"candidate","text":"hutdown fresh source pa"},"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":null,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","native_outcome":{"Ready":{"selection":{"binding":{"frame_report_sha256":"1c30cf87f4aafd6166dd84557245b58dcfc7c9d5e57c8795a32a13db0e9f5cb2","original_sha256":"f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403","page_index":0,"page_text_sha256":"80a1f511d6ea2486587dff1d0053af765762e4b294a578057d2b3d9454f3b323"},"committable_single_segment":true,"direction":"Forward","joined_text":"hutdown fresh source pa","layout_profile":"qusor-plain-ltr-lines-v1","order_basis":"unrotated_pdf_user_space_line_bands","segments":[{"characters":[{"crop_normalized_quad":[[0.11154166609048843,0.09139785170555115],[0.12189582735300064,0.09139785170555115],[0.12189582735300064,0.07788709551095963],[0.11154166609048843,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":82.24800109863281,"right":88.21199798583984,"top":710.052001953125},"pdf_char_index":1,"pixel_quad":[[128,136],[140,136],[140,116],[128,116]],"scalar_end":2,"scalar_start":1,"unicode_value":104,"utf16_end":2,"utf16_start":1,"utf8_end":2,"utf8_start":1},{"crop_normalized_quad":[[0.12512846291065216,0.09166126698255539],[0.13536112010478973,0.09166126698255539],[0.13536112010478973,0.08155642449855804],[0.12512846291065216,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":90.0739974975586,"right":95.96800231933594,"top":707.322021484375},"pdf_char_index":2,"pixel_quad":[[144,136],[156,136],[156,121],[144,121]],"scalar_end":3,"scalar_start":2,"unicode_value":117,"utf16_end":3,"utf16_start":2,"utf8_end":3,"utf8_start":2},{"crop_normalized_quad":[[0.1373298615217209,0.09151072800159454],[0.14323610067367554,0.09151072800159454],[0.14323610067367554,0.07880910485982895],[0.1373298615217209,0.07880910485982895]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.916015625,"left":97.10199737548828,"right":100.50399780273438,"top":709.3660278320312},"pdf_char_index":3,"pixel_quad":[[158,136],[165,136],[165,117],[158,117]],"scalar_end":4,"scalar_start":3,"unicode_value":116,"utf16_end":4,"utf16_start":3,"utf8_end":4,"utf8_start":3},{"crop_normalized_quad":[[0.14459723234176636,0.09166126698255539],[0.15587499737739563,0.09166126698255539],[0.15587499737739563,0.07788709551095963],[0.14459723234176636,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":101.28800201416016,"right":107.78399658203125,"top":710.052001953125},"pdf_char_index":4,"pixel_quad":[[167,136],[180,136],[180,116],[167,116]],"scalar_end":5,"scalar_start":4,"unicode_value":100,"utf16_end":5,"utf16_start":4,"utf8_end":5,"utf8_start":4},{"crop_normalized_quad":[[0.15811112523078918,0.09164248406887054],[0.1699236035346985,0.09164248406887054],[0.1699236035346985,0.08127421885728836],[0.15811112523078918,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8179931640625,"left":109.07200622558594,"right":115.8759994506836,"top":707.531982421875},"pdf_char_index":5,"pixel_quad":[[182,136],[196,136],[196,121],[182,121]],"scalar_end":6,"scalar_start":5,"unicode_value":111,"utf16_end":6,"utf16_start":5,"utf8_end":6,"utf8_start":5},{"crop_normalized_quad":[[0.17111457884311676,0.09139785170555115],[0.1880069375038147,0.09139785170555115],[0.1880069375038147,0.08155642449855804],[0.17111457884311676,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":116.56199645996094,"right":126.29199981689453,"top":707.322021484375},"pdf_char_index":6,"pixel_quad":[[197,136],[217,136],[217,121],[197,121]],"scalar_end":7,"scalar_start":6,"unicode_value":119,"utf16_end":7,"utf16_start":6,"utf8_end":7,"utf8_start":6},{"crop_normalized_quad":[[0.18990278244018555,0.09139785170555115],[0.20025692880153656,0.09139785170555115],[0.20025692880153656,0.08127421885728836],[0.18990278244018555,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":127.38400268554688,"right":133.34799194335938,"top":707.531982421875},"pdf_char_index":7,"pixel_quad":[[219,136],[231,136],[231,121],[219,121]],"scalar_end":8,"scalar_start":7,"unicode_value":110,"utf16_end":8,"utf16_start":7,"utf8_end":8,"utf8_start":7},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":8,"pixel_quad":null,"scalar_end":9,"scalar_start":8,"unicode_value":32,"utf16_end":9,"utf16_start":8,"utf8_end":9,"utf8_start":8},{"crop_normalized_quad":[[0.20893403887748718,0.09139785170555115],[0.21496179699897766,0.09139785170555115],[0.21496179699897766,0.07769890129566193],[0.20893403887748718,0.07769890129566193]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":138.34600830078125,"right":141.8179931640625,"top":710.1920166015625},"pdf_char_index":9,"pixel_quad":[[241,136],[248,136],[248,116],[241,116]],"scalar_end":10,"scalar_start":9,"unicode_value":102,"utf16_end":10,"utf16_start":9,"utf8_end":10,"utf8_start":9},{"crop_normalized_quad":[[0.2172222137451172,0.09139785170555115],[0.2234201431274414,0.09139785170555115],[0.2234201431274414,0.08127421885728836],[0.2172222137451172,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":143.1199951171875,"right":146.69000244140625,"top":707.531982421875},"pdf_char_index":10,"pixel_quad":[[250,136],[257,136],[257,121],[250,121]],"scalar_end":11,"scalar_start":10,"unicode_value":114,"utf16_end":11,"utf16_start":10,"utf8_end":11,"utf8_start":10},{"crop_normalized_quad":[[0.22441667318344116,0.09166126698255539],[0.23598612844944,0.09166126698255539],[0.23598612844944,0.08127421885728836],[0.22441667318344116,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":147.26400756835938,"right":153.92800903320312,"top":707.531982421875},"pdf_char_index":11,"pixel_quad":[[259,136],[272,136],[272,121],[259,121]],"scalar_end":12,"scalar_start":11,"unicode_value":101,"utf16_end":12,"utf16_start":11,"utf8_end":12,"utf8_start":11},{"crop_normalized_quad":[[0.23773612082004547,0.09166126698255539],[0.24823611974716187,0.09166126698255539],[0.24823611974716187,0.08127421885728836],[0.23773612082004547,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":154.93600463867188,"right":160.9840087890625,"top":707.531982421875},"pdf_char_index":12,"pixel_quad":[[274,136],[286,136],[286,121],[274,121]],"scalar_end":13,"scalar_start":12,"unicode_value":115,"utf16_end":13,"utf16_start":12,"utf8_end":13,"utf8_start":12},{"crop_normalized_quad":[[0.2506909966468811,0.09139785170555115],[0.2610451281070709,0.09139785170555115],[0.2610451281070709,0.07788709551095963],[0.2506909966468811,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":162.39801025390625,"right":168.36199951171875,"top":710.052001953125},"pdf_char_index":13,"pixel_quad":[[289,136],[301,136],[301,116],[289,116]],"scalar_end":14,"scalar_start":13,"unicode_value":104,"utf16_end":14,"utf16_start":13,"utf8_end":14,"utf8_start":13},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":14,"pixel_quad":null,"scalar_end":15,"scalar_start":14,"unicode_value":32,"utf16_end":15,"utf16_start":14,"utf8_end":15,"utf8_start":14},{"crop_normalized_quad":[[0.2701597213745117,0.09166126698255539],[0.2806597352027893,0.09166126698255539],[0.2806597352027893,0.08127421885728836],[0.2701597213745117,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":173.61199951171875,"right":179.66000366210938,"top":707.531982421875},"pdf_char_index":15,"pixel_quad":[[311,136],[323,136],[323,121],[311,121]],"scalar_end":16,"scalar_start":15,"unicode_value":115,"utf16_end":16,"utf16_start":15,"utf8_end":16,"utf8_start":15},{"crop_normalized_quad":[[0.2823854088783264,0.09164248406887054],[0.2941979169845581,0.09164248406887054],[0.2941979169845581,0.08127421885728836],[0.2823854088783264,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8179931640625,"left":180.65399169921875,"right":187.45799255371094,"top":707.531982421875},"pdf_char_index":16,"pixel_quad":[[325,136],[339,136],[339,121],[325,121]],"scalar_end":17,"scalar_start":16,"unicode_value":111,"utf16_end":17,"utf16_start":16,"utf8_end":17,"utf8_start":16},{"crop_normalized_quad":[[0.2967013716697693,0.09166126698255539],[0.3069339990615845,0.09166126698255539],[0.3069339990615845,0.08155642449855804],[0.2967013716697693,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":188.89999389648438,"right":194.7939910888672,"top":707.322021484375},"pdf_char_index":17,"pixel_quad":[[342,136],[354,136],[354,121],[342,121]],"scalar_end":18,"scalar_start":17,"unicode_value":117,"utf16_end":18,"utf16_start":17,"utf8_end":18,"utf8_start":17},{"crop_normalized_quad":[[0.3104340136051178,0.09139785170555115],[0.31663191318511963,0.09139785170555115],[0.31663191318511963,0.08127421885728836],[0.3104340136051178,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":196.80999755859375,"right":200.37998962402344,"top":707.531982421875},"pdf_char_index":18,"pixel_quad":[[358,136],[365,136],[365,121],[358,121]],"scalar_end":19,"scalar_start":18,"unicode_value":114,"utf16_end":19,"utf16_start":18,"utf8_end":19,"utf8_start":18},{"crop_normalized_quad":[[0.3176284432411194,0.09166126698255539],[0.32849299907684326,0.09166126698255539],[0.32849299907684326,0.08127421885728836],[0.3176284432411194,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":200.9539794921875,"right":207.21197509765625,"top":707.531982421875},"pdf_char_index":19,"pixel_quad":[[366,136],[378,136],[378,121],[366,121]],"scalar_end":20,"scalar_start":19,"unicode_value":99,"utf16_end":20,"utf16_start":19,"utf8_end":20,"utf8_start":19},{"crop_normalized_quad":[[0.3297812044620514,0.09166126698255539],[0.3413506746292114,0.09166126698255539],[0.3413506746292114,0.08127421885728836],[0.3297812044620514,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":207.9539794921875,"right":214.61798095703125,"top":707.531982421875},"pdf_char_index":20,"pixel_quad":[[380,136],[393,136],[393,121],[380,121]],"scalar_end":21,"scalar_start":20,"unicode_value":101,"utf16_end":21,"utf16_start":20,"utf8_end":21,"utf8_start":20},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":21,"pixel_quad":null,"scalar_end":22,"scalar_start":21,"unicode_value":32,"utf16_end":22,"utf16_start":21,"utf8_end":22,"utf8_start":21},{"crop_normalized_quad":[[0.3504895269870758,0.09527415782213211],[0.36164581775665283,0.09527415782213211],[0.36164581775665283,0.08127421885728836],[0.3504895269870758,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":697.1160278320312,"left":219.88197326660156,"right":226.3079833984375,"top":707.531982421875},"pdf_char_index":22,"pixel_quad":[[404,142],[417,142],[417,121],[404,121]],"scalar_end":23,"scalar_start":22,"unicode_value":112,"utf16_end":23,"utf16_start":22,"utf8_end":23,"utf8_start":22},{"crop_normalized_quad":[[0.3634687066078186,0.09166126698255539],[0.3754756450653076,0.09166126698255539],[0.3754756450653076,0.08127421885728836],[0.3634687066078186,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":227.35797119140625,"right":234.2739715576172,"top":707.531982421875},"pdf_char_index":23,"pixel_quad":[[419,136],[433,136],[433,121],[419,121]],"scalar_end":24,"scalar_start":23,"unicode_value":97,"utf16_end":24,"utf16_start":23,"utf8_end":24,"utf8_start":23}],"end":24,"exact":"hutdown fresh source pa","start":1}],"separator":"\n"}}},"text":"hutdown fresh source pa"}}
+ INFO nsh::perf commit: 82 ops, 2487µs (list js 16µs), 31 mount items, 56 nodes
+ INFO nsh::perf turn: 2596µs (timers and tasks 28µs)
+ INFO nsh::perf gc: 573µs
+ INFO nsh::perf event MouseLeave on view 128
+ INFO nsh::perf event js: 89µs
+ INFO nsh::perf commit: 0 ops, 230µs (list js 21µs), 1 mount items, 56 nodes
+ INFO nsh::perf turn: 330µs (timers and tasks 47µs)
+ INFO nsh::perf event PressDown on view 140
+ INFO nsh::perf event PressUp on view 140
+ INFO nsh::perf event Press on view 140
+ INFO nsh::perf commit: 160 ops, 8207µs (list js 1779µs), 118 mount items, 83 nodes
+ INFO nsh::perf turn: 8320µs (timers and tasks 37µs)
+ INFO nsh::perf gc: 500µs
+ INFO nsh::perf commit: 6 ops, 172µs (list js 11µs), 4 mount items, 77 nodes
+NATIVE_EDITOR_BEGIN {"binding":"editor-1ad7cca35d1fb4fa3c8f43a5f90fd80e-6","capture_generation":2,"document_id":1,"package_sha256":"7769c10ae964187765e8e7de9c84ff6422d00da7426b7581ed961f18c6a030b8"}
+ INFO js EDITOR_FOCUS_SCHEDULED
+ INFO nsh::perf commit: 372 ops, 8369µs (list js 4218µs), 147 mount items, 100 nodes
+ INFO nsh::perf turn: 8612µs (timers and tasks 183µs)
+ INFO js EDITOR_FOCUS_REQUESTED
+ INFO nsh::perf commit: 1 ops, 103µs (list js 19µs), 1 mount items, 100 nodes
+ INFO nsh::perf turn: 344µs (timers and tasks 179µs)
+ INFO nsh::perf commit: 0 ops, 373µs (list js 12µs), 1 mount items, 100 nodes
+ INFO nsh::perf turn: 441µs (timers and tasks 23µs)
+ INFO nsh::perf gc: 448µs
+ INFO nsh::perf commit: 18 ops, 325µs (list js 18µs), 8 mount items, 82 nodes
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 2170µs
+ INFO nsh::perf commit: 129 ops, 2434µs (list js 13µs), 35 mount items, 91 nodes
+ INFO nsh::perf turn: 2509µs (timers and tasks 25µs)
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1338µs
+ INFO nsh::perf commit: 73 ops, 1297µs (list js 13µs), 0 mount items, 91 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":97850,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-1"}
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1267µs
+ INFO nsh::perf commit: 73 ops, 1201µs (list js 14µs), 0 mount items, 91 nodes
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-1"}
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1350µs
+ INFO nsh::perf commit: 73 ops, 1361µs (list js 14µs), 0 mount items, 91 nodes
+NATIVE_EDITOR_VM {"calls":4,"fuel":118688,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-2"}
+NATIVE_EDITOR_REAP {"calls":4,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-2"}
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1235µs
+ INFO nsh::perf commit: 73 ops, 1304µs (list js 14µs), 0 mount items, 91 nodes
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1220µs
+ INFO nsh::perf commit: 73 ops, 1169µs (list js 13µs), 0 mount items, 91 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":95354,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-3"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-3"}
+ INFO nsh::perf commit: 75 ops, 3124µs (list js 1444µs), 34 mount items, 97 nodes
+ INFO nsh::perf turn: 3361µs (timers and tasks 170µs)
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1198µs
+ INFO nsh::perf commit: 73 ops, 1007µs (list js 10µs), 0 mount items, 97 nodes
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1705µs
+ INFO nsh::perf commit: 73 ops, 1155µs (list js 14µs), 0 mount items, 97 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":97850,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-4"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-4"}
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1226µs
+ INFO nsh::perf commit: 73 ops, 1116µs (list js 15µs), 0 mount items, 97 nodes
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1369µs
+ INFO nsh::perf commit: 73 ops, 1159µs (list js 13µs), 0 mount items, 97 nodes
+NATIVE_EDITOR_VM {"calls":4,"fuel":118928,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-5"}
+NATIVE_EDITOR_REAP {"calls":4,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-5"}
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1618µs
+ INFO nsh::perf commit: 73 ops, 1427µs (list js 23µs), 0 mount items, 97 nodes
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1131µs
+ INFO nsh::perf commit: 73 ops, 1164µs (list js 13µs), 0 mount items, 97 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":95354,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-6"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-6"}
+ INFO nsh::perf commit: 75 ops, 2724µs (list js 1150µs), 34 mount items, 103 nodes
+ INFO nsh::perf turn: 2910µs (timers and tasks 126µs)
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1196µs
+ INFO nsh::perf commit: 73 ops, 1226µs (list js 14µs), 0 mount items, 103 nodes
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1396µs
+ INFO nsh::perf commit: 73 ops, 1265µs (list js 14µs), 0 mount items, 103 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":97985,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-7"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-7"}
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1389µs
+ INFO nsh::perf commit: 73 ops, 1190µs (list js 14µs), 0 mount items, 103 nodes
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1225µs
+ INFO nsh::perf commit: 73 ops, 1188µs (list js 14µs), 0 mount items, 103 nodes
+NATIVE_EDITOR_VM {"calls":4,"fuel":119470,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-8"}
+NATIVE_EDITOR_REAP {"calls":4,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-8"}
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1204µs
+ INFO nsh::perf commit: 73 ops, 1289µs (list js 15µs), 0 mount items, 103 nodes
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1531µs
+ INFO nsh::perf commit: 73 ops, 1392µs (list js 15µs), 0 mount items, 103 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":95718,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-9"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-9"}
+ INFO nsh::perf commit: 75 ops, 2745µs (list js 1144µs), 34 mount items, 109 nodes
+ INFO nsh::perf turn: 2951µs (timers and tasks 144µs)
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1249µs
+ INFO nsh::perf commit: 73 ops, 1143µs (list js 13µs), 0 mount items, 109 nodes
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1154µs
+ INFO nsh::perf commit: 73 ops, 1169µs (list js 13µs), 0 mount items, 109 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":97985,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-10"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-10"}
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1333µs
+ INFO nsh::perf commit: 73 ops, 1208µs (list js 53µs), 0 mount items, 109 nodes
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1226µs
+ INFO nsh::perf commit: 73 ops, 1176µs (list js 14µs), 0 mount items, 109 nodes
+NATIVE_EDITOR_VM {"calls":4,"fuel":119758,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-11"}
+NATIVE_EDITOR_REAP {"calls":4,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-11"}
+ INFO nsh::perf event ChangeText on view 284
+ INFO nsh::perf event js: 1165µs
+ INFO nsh::perf commit: 73 ops, 1234µs (list js 14µs), 0 mount items, 109 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":95718,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-12"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-12"}
+ INFO nsh::perf commit: 75 ops, 2690µs (list js 1089µs), 34 mount items, 115 nodes
+ INFO nsh::perf turn: 2875µs (timers and tasks 123µs)
+NATIVE_EDITOR_VM {"calls":3,"fuel":97985,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-13"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-13"}
+NATIVE_EDITOR_VM {"calls":4,"fuel":119998,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-14"}
+ INFO nsh::perf gc: 464µs
+ INFO nsh::perf commit: 24 ops, 418µs (list js 9µs), 24 mount items, 91 nodes
+NATIVE_EDITOR_REAP {"calls":4,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-14"}
+NATIVE_EDITOR_VM {"calls":3,"fuel":95718,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-15"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"1433ef3aa792df1d0b97ef482dc6afa2-15"}
+ INFO nsh::perf commit: 21 ops, 2189µs (list js 843µs), 11 mount items, 88 nodes
+ INFO nsh::perf turn: 2510µs (timers and tasks 203µs)
+ INFO nsh::perf gc: 436µs
+ INFO nsh::perf commit: 6 ops, 205µs (list js 9µs), 4 mount items, 82 nodes
+ INFO nsh::perf gc: 323µs
+ INFO nsh::perf commit: 0 ops, 448µs (list js 21µs), 1 mount items, 82 nodes
+ INFO nsh::perf turn: 579µs (timers and tasks 54µs)
+ INFO nsh::perf event PressDown on view 296
+ INFO nsh::perf commit: 0 ops, 333µs (list js 38µs), 1 mount items, 82 nodes
+ INFO nsh::perf turn: 422µs (timers and tasks 35µs)
+ INFO nsh::perf event PressUp on view 296
+ INFO nsh::perf event Press on view 296
+ INFO nsh::perf commit: 108 ops, 3351µs (list js 1324µs), 53 mount items, 79 nodes
+ INFO nsh::perf turn: 3447µs (timers and tasks 39µs)
+ INFO nsh::perf gc: 341µs
+ INFO nsh::perf commit: 6 ops, 175µs (list js 8µs), 4 mount items, 73 nodes
+ INFO nsh::perf commit: 0 ops, 357µs (list js 24µs), 1 mount items, 73 nodes
+ INFO nsh::perf turn: 487µs (timers and tasks 56µs)
+ INFO nsh::perf commit: 99 ops, 6191µs (list js 1934µs), 41 mount items, 81 nodes
+ INFO nsh::perf turn: 6503µs (timers and tasks 223µs)
+ INFO nsh::perf gc: 344µs
+ INFO nsh::perf commit: 0 ops, 333µs (list js 21µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 458µs (timers and tasks 60µs)
+ INFO nsh::perf event PressDown on view 430
+ INFO nsh::perf commit: 0 ops, 326µs (list js 39µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 404µs (timers and tasks 35µs)
+ INFO nsh::perf event PressUp on view 430
+ INFO nsh::perf event Press on view 430
+ INFO nsh::perf commit: 3 ops, 668µs (list js 282µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 759µs (timers and tasks 45µs)
+ INFO nsh::perf gc: 418µs
+ INFO nsh::perf commit: 265 ops, 5472µs (list js 2477µs), 105 mount items, 75 nodes
+ INFO nsh::perf turn: 5617µs (timers and tasks 87µs)
+ INFO nsh::perf commit: 1 ops, 29µs (list js 6µs), 1 mount items, 75 nodes
+ INFO nsh::perf turn: 95µs (timers and tasks 28µs)
+ INFO nsh::perf event Focus on view 124
+ INFO nsh::perf event js: 16µs
+ INFO nsh::perf gc: 552µs
+ INFO nsh::perf commit: 24 ops, 637µs (list js 22µs), 12 mount items, 51 nodes
+ INFO nsh::perf gc: 479µs
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":3,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","text":""}}
+ INFO nsh::perf commit: 3 ops, 339µs (list js 15µs), 2 mount items, 51 nodes
+ INFO nsh::perf turn: 439µs (timers and tasks 28µs)
+ INFO nsh::perf gc: 340µs
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"error":"NoHit: pointer does not intersect a visible glyph","ok":false}
+ INFO nsh::perf commit: 1 ops, 129µs (list js 22µs), 0 mount items, 51 nodes
+ INFO nsh::perf event Touch on view 1
+ INFO nsh::perf event Touch on view 1
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":4,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","text":""}}
+ INFO nsh::perf commit: 2 ops, 128µs (list js 19µs), 0 mount items, 51 nodes
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":null,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","native_outcome":"Click","text":""}}
+ INFO nsh::perf commit: 1 ops, 113µs (list js 16µs), 0 mount items, 51 nodes
+ INFO nsh::perf gc: 422µs
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":5,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","text":""}}
+ INFO nsh::perf commit: 2 ops, 108µs (list js 17µs), 0 mount items, 51 nodes
+ INFO nsh::perf gc: 631µs
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[[70.53763440860214,63.924731182795696,6.612903225806448,11.02150537634408],[79.35483870967741,66.68010752688171,6.612903225806448,8.266129032258064],[87.06989247311827,64.4758064516129,3.857526881720432,10.47043010752688],[92.0295698924731,63.924731182795696,7.163978494623663,11.02150537634408]],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":5,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","native_outcome":{"Dragging":{"gesture_id":5,"preview":{"binding":{"frame_report_sha256":"1c30cf87f4aafd6166dd84557245b58dcfc7c9d5e57c8795a32a13db0e9f5cb2","original_sha256":"f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403","page_index":0,"page_text_sha256":"80a1f511d6ea2486587dff1d0053af765762e4b294a578057d2b3d9454f3b323"},"committable_single_segment":true,"direction":"Forward","joined_text":"hutd","layout_profile":"qusor-plain-ltr-lines-v1","order_basis":"unrotated_pdf_user_space_line_bands","segments":[{"characters":[{"crop_normalized_quad":[[0.11154166609048843,0.09139785170555115],[0.12189582735300064,0.09139785170555115],[0.12189582735300064,0.07788709551095963],[0.11154166609048843,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":82.24800109863281,"right":88.21199798583984,"top":710.052001953125},"pdf_char_index":1,"pixel_quad":[[128,136],[140,136],[140,116],[128,116]],"scalar_end":2,"scalar_start":1,"unicode_value":104,"utf16_end":2,"utf16_start":1,"utf8_end":2,"utf8_start":1},{"crop_normalized_quad":[[0.12512846291065216,0.09166126698255539],[0.13536112010478973,0.09166126698255539],[0.13536112010478973,0.08155642449855804],[0.12512846291065216,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":90.0739974975586,"right":95.96800231933594,"top":707.322021484375},"pdf_char_index":2,"pixel_quad":[[144,136],[156,136],[156,121],[144,121]],"scalar_end":3,"scalar_start":2,"unicode_value":117,"utf16_end":3,"utf16_start":2,"utf8_end":3,"utf8_start":2},{"crop_normalized_quad":[[0.1373298615217209,0.09151072800159454],[0.14323610067367554,0.09151072800159454],[0.14323610067367554,0.07880910485982895],[0.1373298615217209,0.07880910485982895]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.916015625,"left":97.10199737548828,"right":100.50399780273438,"top":709.3660278320312},"pdf_char_index":3,"pixel_quad":[[158,136],[165,136],[165,117],[158,117]],"scalar_end":4,"scalar_start":3,"unicode_value":116,"utf16_end":4,"utf16_start":3,"utf8_end":4,"utf8_start":3},{"crop_normalized_quad":[[0.14459723234176636,0.09166126698255539],[0.15587499737739563,0.09166126698255539],[0.15587499737739563,0.07788709551095963],[0.14459723234176636,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":101.28800201416016,"right":107.78399658203125,"top":710.052001953125},"pdf_char_index":4,"pixel_quad":[[167,136],[180,136],[180,116],[167,116]],"scalar_end":5,"scalar_start":4,"unicode_value":100,"utf16_end":5,"utf16_start":4,"utf8_end":5,"utf8_start":4}],"end":5,"exact":"hutd","start":1}],"separator":"\n"}}},"text":"hutd"}}
+ INFO nsh::perf commit: 1 ops, 106µs (list js 17µs), 1 mount items, 51 nodes
+ INFO nsh::perf turn: 27457µs (timers and tasks 27283µs)
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[[70.53763440860214,63.924731182795696,6.612903225806448,11.02150537634408],[79.35483870967741,66.68010752688171,6.612903225806448,8.266129032258064],[87.06989247311827,64.4758064516129,3.857526881720432,10.47043010752688],[92.0295698924731,63.924731182795696,7.163978494623663,11.02150537634408],[100.29569892473117,66.68010752688171,7.715053763440864,8.266129032258064],[108.56182795698923,66.68010752688171,11.021505376344095,8.266129032258064]],"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":5,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","native_outcome":{"Dragging":{"gesture_id":5,"preview":{"binding":{"frame_report_sha256":"1c30cf87f4aafd6166dd84557245b58dcfc7c9d5e57c8795a32a13db0e9f5cb2","original_sha256":"f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403","page_index":0,"page_text_sha256":"80a1f511d6ea2486587dff1d0053af765762e4b294a578057d2b3d9454f3b323"},"committable_single_segment":true,"direction":"Forward","joined_text":"hutdow","layout_profile":"qusor-plain-ltr-lines-v1","order_basis":"unrotated_pdf_user_space_line_bands","segments":[{"characters":[{"crop_normalized_quad":[[0.11154166609048843,0.09139785170555115],[0.12189582735300064,0.09139785170555115],[0.12189582735300064,0.07788709551095963],[0.11154166609048843,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":82.24800109863281,"right":88.21199798583984,"top":710.052001953125},"pdf_char_index":1,"pixel_quad":[[128,136],[140,136],[140,116],[128,116]],"scalar_end":2,"scalar_start":1,"unicode_value":104,"utf16_end":2,"utf16_start":1,"utf8_end":2,"utf8_start":1},{"crop_normalized_quad":[[0.12512846291065216,0.09166126698255539],[0.13536112010478973,0.09166126698255539],[0.13536112010478973,0.08155642449855804],[0.12512846291065216,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":90.0739974975586,"right":95.96800231933594,"top":707.322021484375},"pdf_char_index":2,"pixel_quad":[[144,136],[156,136],[156,121],[144,121]],"scalar_end":3,"scalar_start":2,"unicode_value":117,"utf16_end":3,"utf16_start":2,"utf8_end":3,"utf8_start":2},{"crop_normalized_quad":[[0.1373298615217209,0.09151072800159454],[0.14323610067367554,0.09151072800159454],[0.14323610067367554,0.07880910485982895],[0.1373298615217209,0.07880910485982895]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.916015625,"left":97.10199737548828,"right":100.50399780273438,"top":709.3660278320312},"pdf_char_index":3,"pixel_quad":[[158,136],[165,136],[165,117],[158,117]],"scalar_end":4,"scalar_start":3,"unicode_value":116,"utf16_end":4,"utf16_start":3,"utf8_end":4,"utf8_start":3},{"crop_normalized_quad":[[0.14459723234176636,0.09166126698255539],[0.15587499737739563,0.09166126698255539],[0.15587499737739563,0.07788709551095963],[0.14459723234176636,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":101.28800201416016,"right":107.78399658203125,"top":710.052001953125},"pdf_char_index":4,"pixel_quad":[[167,136],[180,136],[180,116],[167,116]],"scalar_end":5,"scalar_start":4,"unicode_value":100,"utf16_end":5,"utf16_start":4,"utf8_end":5,"utf8_start":4},{"crop_normalized_quad":[[0.15811112523078918,0.09164248406887054],[0.1699236035346985,0.09164248406887054],[0.1699236035346985,0.08127421885728836],[0.15811112523078918,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8179931640625,"left":109.07200622558594,"right":115.8759994506836,"top":707.531982421875},"pdf_char_index":5,"pixel_quad":[[182,136],[196,136],[196,121],[182,121]],"scalar_end":6,"scalar_start":5,"unicode_value":111,"utf16_end":6,"utf16_start":5,"utf8_end":6,"utf8_start":5},{"crop_normalized_quad":[[0.17111457884311676,0.09139785170555115],[0.1880069375038147,0.09139785170555115],[0.1880069375038147,0.08155642449855804],[0.17111457884311676,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":116.56199645996094,"right":126.29199981689453,"top":707.322021484375},"pdf_char_index":6,"pixel_quad":[[197,136],[217,136],[217,121],[197,121]],"scalar_end":7,"scalar_start":6,"unicode_value":119,"utf16_end":7,"utf16_start":6,"utf8_end":7,"utf8_start":6}],"end":7,"exact":"hutdow","start":1}],"separator":"\n"}}},"text":"hutdow"}}
+ INFO nsh::perf commit: 1 ops, 106µs (list js 17µs), 1 mount items, 51 nodes
+ INFO nsh::perf turn: 27993µs (timers and tasks 27813µs)
+ INFO nsh::perf event Touch on view 1
+READER_GUEST_RESULT {"candidate_id":"candidate-1ad7cca35d1fb4fa3c8f43a5f90fd80e-8","capture_protocol":1,"draft_hash":"153bfabc3253871a12ae5f8088ab4b6935e784146387e820c177d69ee23dc205","generation":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","kind":"candidate","text":"hutdow"}
+READER_NATIVE {"ok":true,"value":{"boxes":[[70.53763440860214,63.924731182795696,6.612903225806448,11.02150537634408],[79.35483870967741,66.68010752688171,6.612903225806448,8.266129032258064],[87.06989247311827,64.4758064516129,3.857526881720432,10.47043010752688],[92.0295698924731,63.924731182795696,7.163978494623663,11.02150537634408],[100.29569892473117,66.68010752688171,7.715053763440864,8.266129032258064],[108.56182795698923,66.68010752688171,11.021505376344095,8.266129032258064]],"candidate":{"candidate_id":"candidate-1ad7cca35d1fb4fa3c8f43a5f90fd80e-8","capture_protocol":1,"draft_hash":"153bfabc3253871a12ae5f8088ab4b6935e784146387e820c177d69ee23dc205","generation":2,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","kind":"candidate","text":"hutdow"},"frame_id":"fr.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.4","generation":2,"gesture":null,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","native_outcome":{"Ready":{"selection":{"binding":{"frame_report_sha256":"1c30cf87f4aafd6166dd84557245b58dcfc7c9d5e57c8795a32a13db0e9f5cb2","original_sha256":"f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403","page_index":0,"page_text_sha256":"80a1f511d6ea2486587dff1d0053af765762e4b294a578057d2b3d9454f3b323"},"committable_single_segment":true,"direction":"Forward","joined_text":"hutdow","layout_profile":"qusor-plain-ltr-lines-v1","order_basis":"unrotated_pdf_user_space_line_bands","segments":[{"characters":[{"crop_normalized_quad":[[0.11154166609048843,0.09139785170555115],[0.12189582735300064,0.09139785170555115],[0.12189582735300064,0.07788709551095963],[0.11154166609048843,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":82.24800109863281,"right":88.21199798583984,"top":710.052001953125},"pdf_char_index":1,"pixel_quad":[[128,136],[140,136],[140,116],[128,116]],"scalar_end":2,"scalar_start":1,"unicode_value":104,"utf16_end":2,"utf16_start":1,"utf8_end":2,"utf8_start":1},{"crop_normalized_quad":[[0.12512846291065216,0.09166126698255539],[0.13536112010478973,0.09166126698255539],[0.13536112010478973,0.08155642449855804],[0.12512846291065216,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":90.0739974975586,"right":95.96800231933594,"top":707.322021484375},"pdf_char_index":2,"pixel_quad":[[144,136],[156,136],[156,121],[144,121]],"scalar_end":3,"scalar_start":2,"unicode_value":117,"utf16_end":3,"utf16_start":2,"utf8_end":3,"utf8_start":2},{"crop_normalized_quad":[[0.1373298615217209,0.09151072800159454],[0.14323610067367554,0.09151072800159454],[0.14323610067367554,0.07880910485982895],[0.1373298615217209,0.07880910485982895]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.916015625,"left":97.10199737548828,"right":100.50399780273438,"top":709.3660278320312},"pdf_char_index":3,"pixel_quad":[[158,136],[165,136],[165,117],[158,117]],"scalar_end":4,"scalar_start":3,"unicode_value":116,"utf16_end":4,"utf16_start":3,"utf8_end":4,"utf8_start":3},{"crop_normalized_quad":[[0.14459723234176636,0.09166126698255539],[0.15587499737739563,0.09166126698255539],[0.15587499737739563,0.07788709551095963],[0.14459723234176636,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":101.28800201416016,"right":107.78399658203125,"top":710.052001953125},"pdf_char_index":4,"pixel_quad":[[167,136],[180,136],[180,116],[167,116]],"scalar_end":5,"scalar_start":4,"unicode_value":100,"utf16_end":5,"utf16_start":4,"utf8_end":5,"utf8_start":4},{"crop_normalized_quad":[[0.15811112523078918,0.09164248406887054],[0.1699236035346985,0.09164248406887054],[0.1699236035346985,0.08127421885728836],[0.15811112523078918,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8179931640625,"left":109.07200622558594,"right":115.8759994506836,"top":707.531982421875},"pdf_char_index":5,"pixel_quad":[[182,136],[196,136],[196,121],[182,121]],"scalar_end":6,"scalar_start":5,"unicode_value":111,"utf16_end":6,"utf16_start":5,"utf8_end":6,"utf8_start":5},{"crop_normalized_quad":[[0.17111457884311676,0.09139785170555115],[0.1880069375038147,0.09139785170555115],[0.1880069375038147,0.08155642449855804],[0.17111457884311676,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":116.56199645996094,"right":126.29199981689453,"top":707.322021484375},"pdf_char_index":6,"pixel_quad":[[197,136],[217,136],[217,121],[197,121]],"scalar_end":7,"scalar_start":6,"unicode_value":119,"utf16_end":7,"utf16_start":6,"utf8_end":7,"utf8_start":6}],"end":7,"exact":"hutdow","start":1}],"separator":"\n"}}},"text":"hutdow"}}
+ INFO nsh::perf commit: 83 ops, 1702µs (list js 15µs), 34 mount items, 59 nodes
+ INFO nsh::perf turn: 1795µs (timers and tasks 27µs)
+ INFO nsh::perf gc: 399µs
+ INFO nsh::perf commit: 3 ops, 212µs (list js 10µs), 2 mount items, 56 nodes
+ INFO nsh::perf gc: 368µs
+ INFO nsh::perf event MouseLeave on view 128
+ INFO nsh::perf event js: 69µs
+ INFO nsh::perf commit: 0 ops, 204µs (list js 16µs), 1 mount items, 56 nodes
+ INFO nsh::perf turn: 273µs (timers and tasks 29µs)
+ INFO nsh::perf event PressDown on view 520
+ INFO nsh::perf event PressUp on view 520
+ INFO nsh::perf event Press on view 520
+ INFO nsh::perf commit: 168 ops, 4924µs (list js 1844µs), 118 mount items, 83 nodes
+ INFO nsh::perf turn: 5013µs (timers and tasks 34µs)
+ INFO nsh::perf gc: 332µs
+ INFO nsh::perf commit: 6 ops, 123µs (list js 7µs), 4 mount items, 77 nodes
+NATIVE_EDITOR_BEGIN {"binding":"editor-1ad7cca35d1fb4fa3c8f43a5f90fd80e-10","capture_generation":2,"document_id":1,"package_sha256":"7769c10ae964187765e8e7de9c84ff6422d00da7426b7581ed961f18c6a030b8"}
+ INFO js EDITOR_FOCUS_SCHEDULED
+ INFO nsh::perf commit: 372 ops, 8286µs (list js 4500µs), 147 mount items, 100 nodes
+ INFO nsh::perf turn: 8604µs (timers and tasks 257µs)
+ INFO js EDITOR_FOCUS_REQUESTED
+ INFO nsh::perf commit: 1 ops, 103µs (list js 18µs), 1 mount items, 100 nodes
+ INFO nsh::perf turn: 318µs (timers and tasks 157µs)
+ INFO nsh::perf event Blur on view 124
+ INFO nsh::perf event js: 21µs
+ INFO nsh::perf commit: 0 ops, 293µs (list js 8µs), 1 mount items, 100 nodes
+ INFO nsh::perf turn: 349µs (timers and tasks 15µs)
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1717µs
+ INFO nsh::perf commit: 129 ops, 2163µs (list js 12µs), 35 mount items, 109 nodes
+ INFO nsh::perf turn: 2219µs (timers and tasks 24µs)
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1308µs
+ INFO nsh::perf commit: 73 ops, 1243µs (list js 14µs), 0 mount items, 109 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":97850,"run_id":"25fae044cec9459cdc773505f0e11462-1"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"25fae044cec9459cdc773505f0e11462-1"}
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1231µs
+ INFO nsh::perf commit: 73 ops, 1186µs (list js 13µs), 0 mount items, 109 nodes
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1345µs
+ INFO nsh::perf commit: 73 ops, 1240µs (list js 14µs), 0 mount items, 109 nodes
+NATIVE_EDITOR_VM {"calls":4,"fuel":118688,"run_id":"25fae044cec9459cdc773505f0e11462-2"}
+NATIVE_EDITOR_REAP {"calls":4,"run_id":"25fae044cec9459cdc773505f0e11462-2"}
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1371µs
+ INFO nsh::perf commit: 73 ops, 1155µs (list js 14µs), 0 mount items, 109 nodes
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1268µs
+ INFO nsh::perf commit: 73 ops, 1194µs (list js 14µs), 0 mount items, 109 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":95354,"run_id":"25fae044cec9459cdc773505f0e11462-3"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"25fae044cec9459cdc773505f0e11462-3"}
+ INFO nsh::perf commit: 75 ops, 3088µs (list js 1379µs), 34 mount items, 115 nodes
+ INFO nsh::perf turn: 3323µs (timers and tasks 163µs)
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1290µs
+ INFO nsh::perf commit: 73 ops, 1148µs (list js 12µs), 0 mount items, 115 nodes
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1240µs
+ INFO nsh::perf commit: 73 ops, 1224µs (list js 15µs), 0 mount items, 115 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":97850,"run_id":"25fae044cec9459cdc773505f0e11462-4"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"25fae044cec9459cdc773505f0e11462-4"}
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1300µs
+ INFO nsh::perf commit: 73 ops, 1157µs (list js 15µs), 0 mount items, 115 nodes
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1715µs
+ INFO nsh::perf commit: 73 ops, 1806µs (list js 14µs), 0 mount items, 115 nodes
+NATIVE_EDITOR_VM {"calls":4,"fuel":118928,"run_id":"25fae044cec9459cdc773505f0e11462-5"}
+NATIVE_EDITOR_REAP {"calls":4,"run_id":"25fae044cec9459cdc773505f0e11462-5"}
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1410µs
+ INFO nsh::perf commit: 73 ops, 1411µs (list js 54µs), 0 mount items, 115 nodes
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1321µs
+ INFO nsh::perf commit: 73 ops, 1173µs (list js 13µs), 0 mount items, 115 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":95354,"run_id":"25fae044cec9459cdc773505f0e11462-6"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"25fae044cec9459cdc773505f0e11462-6"}
+ INFO nsh::perf commit: 75 ops, 2823µs (list js 1184µs), 34 mount items, 121 nodes
+ INFO nsh::perf turn: 3016µs (timers and tasks 128µs)
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1288µs
+ INFO nsh::perf commit: 73 ops, 1247µs (list js 13µs), 0 mount items, 121 nodes
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1471µs
+ INFO nsh::perf commit: 73 ops, 1178µs (list js 17µs), 0 mount items, 121 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":97985,"run_id":"25fae044cec9459cdc773505f0e11462-7"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"25fae044cec9459cdc773505f0e11462-7"}
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1282µs
+ INFO nsh::perf commit: 73 ops, 1296µs (list js 14µs), 0 mount items, 121 nodes
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1278µs
+ INFO nsh::perf commit: 73 ops, 1373µs (list js 13µs), 0 mount items, 121 nodes
+NATIVE_EDITOR_VM {"calls":4,"fuel":119470,"run_id":"25fae044cec9459cdc773505f0e11462-8"}
+NATIVE_EDITOR_REAP {"calls":4,"run_id":"25fae044cec9459cdc773505f0e11462-8"}
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1836µs
+ INFO nsh::perf commit: 73 ops, 1357µs (list js 15µs), 0 mount items, 121 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":95718,"run_id":"25fae044cec9459cdc773505f0e11462-9"}
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1281µs
+ INFO nsh::perf commit: 73 ops, 1342µs (list js 14µs), 0 mount items, 121 nodes
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"25fae044cec9459cdc773505f0e11462-9"}
+ INFO nsh::perf commit: 75 ops, 3059µs (list js 1297µs), 34 mount items, 127 nodes
+ INFO nsh::perf turn: 3294µs (timers and tasks 167µs)
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1319µs
+ INFO nsh::perf commit: 73 ops, 1288µs (list js 16µs), 0 mount items, 127 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":97985,"run_id":"25fae044cec9459cdc773505f0e11462-10"}
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1202µs
+ INFO nsh::perf commit: 73 ops, 1278µs (list js 14µs), 0 mount items, 127 nodes
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"25fae044cec9459cdc773505f0e11462-10"}
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1545µs
+ INFO nsh::perf commit: 73 ops, 1449µs (list js 17µs), 0 mount items, 127 nodes
+NATIVE_EDITOR_VM {"calls":4,"fuel":119758,"run_id":"25fae044cec9459cdc773505f0e11462-11"}
+ INFO nsh::perf event ChangeText on view 664
+ INFO nsh::perf event js: 1156µs
+NATIVE_EDITOR_REAP {"calls":4,"run_id":"25fae044cec9459cdc773505f0e11462-11"}
+ INFO nsh::perf commit: 73 ops, 1151µs (list js 14µs), 0 mount items, 127 nodes
+NATIVE_EDITOR_VM {"calls":3,"fuel":95718,"run_id":"25fae044cec9459cdc773505f0e11462-12"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"25fae044cec9459cdc773505f0e11462-12"}
+ INFO nsh::perf commit: 75 ops, 3053µs (list js 1269µs), 34 mount items, 133 nodes
+ INFO nsh::perf turn: 3257µs (timers and tasks 141µs)
+NATIVE_EDITOR_VM {"calls":3,"fuel":97985,"run_id":"25fae044cec9459cdc773505f0e11462-13"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"25fae044cec9459cdc773505f0e11462-13"}
+ INFO nsh::perf gc: 481µs
+ INFO nsh::perf commit: 42 ops, 470µs (list js 13µs), 32 mount items, 91 nodes
+NATIVE_EDITOR_VM {"calls":4,"fuel":119950,"run_id":"25fae044cec9459cdc773505f0e11462-14"}
+NATIVE_EDITOR_REAP {"calls":4,"run_id":"25fae044cec9459cdc773505f0e11462-14"}
+NATIVE_EDITOR_VM {"calls":3,"fuel":95718,"run_id":"25fae044cec9459cdc773505f0e11462-15"}
+NATIVE_EDITOR_REAP {"calls":3,"run_id":"25fae044cec9459cdc773505f0e11462-15"}
+ INFO nsh::perf commit: 21 ops, 1484µs (list js 606µs), 11 mount items, 88 nodes
+ INFO nsh::perf turn: 1699µs (timers and tasks 129µs)
+ INFO nsh::perf gc: 377µs
+ INFO nsh::perf commit: 6 ops, 206µs (list js 7µs), 4 mount items, 82 nodes
+ INFO nsh::perf gc: 455µs
+ INFO nsh::perf commit: 0 ops, 315µs (list js 18µs), 1 mount items, 82 nodes
+ INFO nsh::perf turn: 413µs (timers and tasks 43µs)
+ INFO nsh::perf event PressDown on view 682
+ INFO nsh::perf event PressUp on view 682
+ INFO nsh::perf event Press on view 682
+ INFO nsh::perf commit: 15 ops, 1770µs (list js 508µs), 8 mount items, 82 nodes
+ INFO nsh::perf turn: 1864µs (timers and tasks 37µs)
+ INFO nsh::perf commit: 0 ops, 53µs (list js 18µs), 1 mount items, 82 nodes
+ INFO nsh::perf turn: 234µs (timers and tasks 147µs)
+ INFO nsh::perf gc: 410µs
+ INFO nsh::perf commit: 0 ops, 319µs (list js 7µs), 1 mount items, 82 nodes
+ INFO nsh::perf turn: 384µs (timers and tasks 16µs)
+ INFO nsh::perf event Dialog on view 1
+ INFO nsh::perf commit: 14 ops, 1635µs (list js 430µs), 9 mount items, 82 nodes
+ INFO nsh::perf turn: 1834µs (timers and tasks 153µs)
+ INFO nsh::perf gc: 387µs
+ INFO nsh::perf commit: 0 ops, 564µs (list js 19µs), 1 mount items, 82 nodes
+ INFO nsh::perf turn: 724µs (timers and tasks 47µs)
+ INFO nsh::perf event PressDown on view 682
+ INFO nsh::perf event PressUp on view 682
+ INFO nsh::perf event Press on view 682
+ INFO nsh::perf commit: 15 ops, 1757µs (list js 470µs), 8 mount items, 82 nodes
+ INFO nsh::perf turn: 1840µs (timers and tasks 37µs)
+ INFO nsh::perf commit: 0 ops, 31µs (list js 9µs), 1 mount items, 82 nodes
+ INFO nsh::perf turn: 122µs (timers and tasks 67µs)
+ INFO nsh::perf commit: 0 ops, 208µs (list js 7µs), 1 mount items, 82 nodes
+ INFO nsh::perf turn: 255µs (timers and tasks 15µs)
+ INFO nsh::perf gc: 384µs
+ INFO nsh::perf event Dialog on view 1
+ INFO nsh::perf commit: 97 ops, 3144µs (list js 899µs), 77 mount items, 88 nodes
+ INFO nsh::perf turn: 3241µs (timers and tasks 57µs)
+ INFO nsh::perf commit: 240 ops, 5701µs (list js 2443µs), 109 mount items, 81 nodes
+ INFO nsh::perf turn: 5853µs (timers and tasks 72µs)
+ INFO nsh::perf commit: 1 ops, 45µs (list js 8µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 115µs (timers and tasks 36µs)
+ INFO nsh::perf event Focus on view 124
+ INFO nsh::perf event js: 20µs
+ INFO nsh::perf gc: 421µs
+ INFO nsh::perf commit: 30 ops, 367µs (list js 8µs), 18 mount items, 51 nodes
+ INFO nsh::perf gc: 394µs
+ INFO nsh::perf event Window on view 1
+ INFO nsh::perf event js: 116µs
+NATIVE_EDITOR_SHUTDOWN pending_owner=false retirement=not_needed
+READER_GUEST_RESULT {"api_version":{"major":0,"minor":2},"request_id":"reader-1ad7cca35d1fb4fa3c8f43a5f90fd80e-11","result":{"kind":"state","surface":{"frame":null,"generation":3,"handle":"sf.1ad7cca35d1fb4fa3c8f43a5f90fd80e.1.1","page_count":3,"page_index":0,"resource":{"document_id":"1","kind":"document","vault_id":"surface-vault"},"selection_lease":null,"source":{"extraction_revision":"3175672556cd965f26fee02b2390c68c36a13ddbe0c050d01431931c26a2b2ac","original_sha256":"f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403"},"status":"closing","zoom":0.5510752688172043}},"surface_protocol":1}
+READER_CLEANUP Object {"native_mount_release_ack": Bool(false), "pending_until_process_exit": Number(1)}

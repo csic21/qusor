@@ -1,0 +1,48 @@
+MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+PDF_SURFACE {"ok":true,"value":{"binding":{"frame_report_sha256":"bb62a3fded265b7616846384a47554cdba5280c51695968be4d01b589ed73abe","original_sha256":"7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c","page_index":0,"page_text_sha256":"68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6"},"generation":2,"height":892.8,"page":0,"pages":2,"width":691.1999999999999,"zoom":0.6}}
+PDF_SURFACE {"ok":true,"value":{"binding":{"frame_report_sha256":"bb62a3fded265b7616846384a47554cdba5280c51695968be4d01b589ed73abe","original_sha256":"7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c","page_index":0,"page_text_sha256":"68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6"},"generation":3,"height":372.0,"page":0,"pages":2,"width":288.0,"zoom":0.25}}
+ INFO nsh::perf commit: 149 ops, 27764µs (list js 1488µs), 138 mount items, 36 nodes
+ INFO nsh::perf first frame: eval 6843µs, total 39153µs
+WARNING: dzn is not a conformant Vulkan implementation, testing use only.
+PDF_SURFACE {"ok":true,"value":{"binding":{"frame_report_sha256":"bb62a3fded265b7616846384a47554cdba5280c51695968be4d01b589ed73abe","original_sha256":"7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c","page_index":0,"page_text_sha256":"68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6"},"generation":4,"height":892.8,"page":0,"pages":2,"width":691.1999999999999,"zoom":0.6}}
+ INFO nsh::perf commit: 39 ops, 3858µs (list js 1223µs), 55 mount items, 36 nodes
+ INFO nsh::perf turn: 3973µs (timers and tasks 49µs)
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event MouseLeave on view 52
+ INFO nsh::perf event js: 70µs
+ INFO nsh::perf gc: 201µs
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf event PressDown on view 52
+PDF_SURFACE {"ok":true,"value":{"boxes":[],"generation":4,"gesture":1,"outcome":{"Dragging":{"gesture_id":1,"preview":null}},"text":null}}
+ INFO nsh::perf event js: 9393µs
+ INFO nsh::perf commit: 2 ops, 142µs (list js 22µs), 0 mount items, 36 nodes
+ INFO nsh::perf gc: 317µs
+ INFO nsh::perf event PressUp on view 52
+PDF_SURFACE {"ok":true,"value":{"boxes":[[65.39999999999999,69.0,12.0,13.799999999999997],[79.2,69.6,9.599999999999994,12.600000000000009],[90.6,69.0,9.600000000000009,13.200000000000003]],"generation":4,"gesture":null,"outcome":{"Ready":{"selection":{"binding":{"frame_report_sha256":"bb62a3fded265b7616846384a47554cdba5280c51695968be4d01b589ed73abe","original_sha256":"7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c","page_index":0,"page_text_sha256":"68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6"},"committable_single_segment":true,"direction":"Forward","joined_text":"QUS","layout_profile":"qusor-plain-ltr-lines-v1","order_basis":"unrotated_pdf_user_space_line_bands","segments":[{"characters":[{"crop_normalized_quad":[[0.09469791501760483,0.09243281930685043],[0.11171180754899979,0.09243281930685043],[0.11171180754899979,0.07752957940101624],[0.09469791501760483,0.07752957940101624]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.22998046875,"left":72.5459976196289,"right":82.34600067138672,"top":710.3179931640625},"pdf_char_index":0,"pixel_quad":[[109,138],[129,138],[129,115],[109,115]],"scalar_end":1,"scalar_start":0,"unicode_value":81,"utf16_end":1,"utf16_start":0,"utf8_end":1,"utf8_start":0},{"crop_normalized_quad":[[0.11457986384630203,0.0917365774512291],[0.12831251323223114,0.0917365774512291],[0.12831251323223114,0.07788709551095963],[0.11457986384630203,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.7479858398438,"left":83.99800109863281,"right":91.90800476074219,"top":710.052001953125},"pdf_char_index":1,"pixel_quad":[[132,137],[148,137],[148,116],[132,116]],"scalar_end":2,"scalar_start":1,"unicode_value":85,"utf16_end":2,"utf16_start":1,"utf8_end":2,"utf8_start":1},{"crop_normalized_quad":[[0.13139931857585907,0.0917365774512291],[0.14527778327465057,0.0917365774512291],[0.14527778327465057,0.07752957940101624],[0.13139931857585907,0.07752957940101624]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.7479858398438,"left":93.68600463867188,"right":101.68000030517578,"top":710.3179931640625},"pdf_char_index":2,"pixel_quad":[[151,137],[167,137],[167,115],[151,115]],"scalar_end":3,"scalar_start":2,"unicode_value":83,"utf16_end":3,"utf16_start":2,"utf8_end":3,"utf8_start":2}],"end":3,"exact":"QUS","start":0}],"separator":"\n"}}},"text":"QUS"}}
+ INFO nsh::perf event js: 9636µs
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf commit: 3 ops, 1743µs (list js 52µs), 7 mount items, 36 nodes
+ INFO nsh::perf turn: 1888µs (timers and tasks 80µs)
+ INFO nsh::perf event MouseMove on view 52
+ INFO nsh::perf gc: 330µs
+ INFO nsh::perf event Window on view 1
+ INFO nsh::perf event js: 75µs
+ INFO nsh::perf event MouseLeave on view 52
+ INFO nsh::perf event js: 72µs

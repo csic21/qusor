@@ -1,0 +1,29 @@
+{
+  "app": {
+    "pid": 477048,
+    "start_ticks": 5049485
+  },
+  "xvfb": {
+    "pid": 477045,
+    "start_ticks": 5049384
+  },
+  "harness": {
+    "pid": 477044,
+    "start_ticks": 5049381
+  },
+  "display": ":115",
+  "bus": "unix:path=/tmp/dbus-NiAqTKmdYk,guid=be25909dad870d17ee7b6f2d6af08871",
+  "environment": {
+    "DISPLAY": ":115",
+    "HOME": "/home/user/.cache/qusor-shutdown-gui-run/home",
+    "XDG_RUNTIME_DIR": "/home/user/.cache/qusor-shutdown-gui-run/runtime",
+    "XDG_CONFIG_HOME": "/home/user/.cache/qusor-shutdown-gui-run/config",
+    "XDG_DATA_HOME": "/home/user/.cache/qusor-shutdown-gui-run/data",
+    "XDG_CACHE_HOME": "/home/user/.cache/qusor-shutdown-gui-run/cache",
+    "GTK_USE_PORTAL": "0",
+    "GTK_IM_MODULE": "simple"
+  },
+  "status": "terminal",
+  "app_exit": 0,
+  "xvfb_exit": 0
+}

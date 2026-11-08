@@ -1,0 +1,383 @@
+{
+  "status": "passed-new-weak-registry-source-41-core-image-tests-checks-and-nine-independent-observer-tests-partial-only",
+  "recorded_utc": "2026-11-08T16:06:07.570591+00:00",
+  "base_sha": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "lock_sha256": "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b",
+  "toolchain": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "source_before": {
+    "crates/nsh-core/src/image.rs": "5bf66214258ba26643b63b6ff84ac29b4ee180aef9135f225be6691aeece01f4",
+    "crates/nsh-core/src/image/decoded.rs": "37f791afea73c54c056af7fbcc98a0f90289d374b379f5b42b7e6b3444ca7be0",
+    "crates/nsh-core/src/image/loader.rs": "fdc1c15fa433d535eac1cfafbd7aeaa392caa0521f30d43f6745f2845d45b09c",
+    "crates/nsh-core/src/image/memory.rs": "bc77f7eb93f87d697902d6db3cf3454777cdc10ec56b540a6a2bc2f21b9a7cc8",
+    "crates/nsh-platform-linux/Cargo.toml": "06b53a5685d82565d786bdf1557c5b93f02d6fdd3ed03dabc98d07a3b42f69a6",
+    "crates/nsh-platform-linux/src/app.rs": "7b7b31feac5215230d43917f3e04c92a3030dacc8f1a9aab36c794b40b363a81",
+    "crates/nsh-platform-linux/src/image.rs": "6c816df59d7cf470f879d0c2ac89a76649f6877182810ee09e2d90d48ab714c2",
+    "crates/nsh-platform-linux/src/lib.rs": "c5554480ccd02c86ec766c9453e7a6e094ba6e3f6e5a2f0b20cb55c685f4d57c",
+    "crates/nsh-platform-linux/src/mount.rs": "de508e57da5044b500505d201fbab9549e122012dfaeb04ed9ba4bd78df7e074",
+    "crates/nsh-platform-linux/src/surface.rs": "e664eb1a50dfa56939afe51ae16962b7249ed3a126ac28ecb549a35ad9fc8e05",
+    "crates/nsh-platform-linux/src/view.rs": "91f1cba422c05972c81a43860561d286da6189a3dc4bcfac0dee117aabb6a5db",
+    "crates/nsh-platform-linux/src/retirement.rs": "50b5a49dec6f3b6c66a056ff5af4a4a615ba3f80fc678a2287161d596eafb72a",
+    "crates/nsh-platform-linux/src/retirement_work.rs": "c9a0d333863a99280fe2a0cd1fdc0da9d7637d9b48ab6cece95d587d4a19906b"
+  },
+  "source_after": {
+    "crates/nsh-core/src/image.rs": "5bf66214258ba26643b63b6ff84ac29b4ee180aef9135f225be6691aeece01f4",
+    "crates/nsh-core/src/image/decoded.rs": "37f791afea73c54c056af7fbcc98a0f90289d374b379f5b42b7e6b3444ca7be0",
+    "crates/nsh-core/src/image/loader.rs": "fdc1c15fa433d535eac1cfafbd7aeaa392caa0521f30d43f6745f2845d45b09c",
+    "crates/nsh-core/src/image/memory.rs": "bc77f7eb93f87d697902d6db3cf3454777cdc10ec56b540a6a2bc2f21b9a7cc8",
+    "crates/nsh-platform-linux/Cargo.toml": "06b53a5685d82565d786bdf1557c5b93f02d6fdd3ed03dabc98d07a3b42f69a6",
+    "crates/nsh-platform-linux/src/app.rs": "7b7b31feac5215230d43917f3e04c92a3030dacc8f1a9aab36c794b40b363a81",
+    "crates/nsh-platform-linux/src/image.rs": "6c816df59d7cf470f879d0c2ac89a76649f6877182810ee09e2d90d48ab714c2",
+    "crates/nsh-platform-linux/src/lib.rs": "c5554480ccd02c86ec766c9453e7a6e094ba6e3f6e5a2f0b20cb55c685f4d57c",
+    "crates/nsh-platform-linux/src/mount.rs": "de508e57da5044b500505d201fbab9549e122012dfaeb04ed9ba4bd78df7e074",
+    "crates/nsh-platform-linux/src/surface.rs": "e664eb1a50dfa56939afe51ae16962b7249ed3a126ac28ecb549a35ad9fc8e05",
+    "crates/nsh-platform-linux/src/view.rs": "91f1cba422c05972c81a43860561d286da6189a3dc4bcfac0dee117aabb6a5db",
+    "crates/nsh-platform-linux/src/retirement.rs": "50b5a49dec6f3b6c66a056ff5af4a4a615ba3f80fc678a2287161d596eafb72a",
+    "crates/nsh-platform-linux/src/retirement_work.rs": "c9a0d333863a99280fe2a0cd1fdc0da9d7637d9b48ab6cece95d587d4a19906b"
+  },
+  "source_unchanged": true,
+  "source_scope": "fixed base913 +13-file delta ZIP/patch; old9+40 artifact preserved separately",
+  "core_image_tests_passed": 41,
+  "observer_independent_tests_passed": 9,
+  "feature_on_check_exit": 0,
+  "feature_off_check_exit": 0,
+  "observer_binary": {
+    "path": "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+    "sha256": "6e10ebc7f9aca2ec442bd144c3522065b52a0aabfa7dd7e257e9c84c3551aafc",
+    "bytes": 460836720
+  },
+  "core_binary": {
+    "path": "/home/user/.cache/qusor-native-release-observer/image-weak-final-validation/core-image-tests",
+    "sha256": "b0f24193773ec5b06b93edec55c24e9940a9635c6ad7a6871113f3943420a9c2",
+    "bytes": 859476264
+  },
+  "xvfb": {
+    "pid": 498092,
+    "start_ticks": 5591193,
+    "display": ":114",
+    "exit_code": 0,
+    "terminal": true
+  },
+  "steps": [
+    {
+      "name": "core-image",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "/home/user/.cache/qusor-native-release-observer/nsh-913-image/Cargo.toml",
+        "-p",
+        "nsh-core",
+        "--no-default-features",
+        "--features",
+        "svg,loader",
+        "--locked",
+        "--offline",
+        "-j1",
+        "--lib",
+        "image::",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "pid": 496211,
+      "exit_code": 0,
+      "seconds": 43.54247277099785
+    },
+    {
+      "name": "check-on",
+      "command": [
+        "cargo",
+        "check",
+        "--manifest-path",
+        "/home/user/.cache/qusor-native-release-observer/nsh-913-image/Cargo.toml",
+        "-p",
+        "nsh-platform-linux",
+        "--no-default-features",
+        "--locked",
+        "--offline",
+        "-j1",
+        "--features",
+        "native-retirement-observer"
+      ],
+      "pid": 496932,
+      "exit_code": 0,
+      "seconds": 6.507397228997434
+    },
+    {
+      "name": "check-off",
+      "command": [
+        "cargo",
+        "check",
+        "--manifest-path",
+        "/home/user/.cache/qusor-native-release-observer/nsh-913-image/Cargo.toml",
+        "-p",
+        "nsh-platform-linux",
+        "--no-default-features",
+        "--locked",
+        "--offline",
+        "-j1"
+      ],
+      "pid": 496968,
+      "exit_code": 0,
+      "seconds": 1.0041903679957613
+    }
+  ],
+  "observer_compile": {
+    "exit_code": 0,
+    "seconds": 23.957791207998525
+  },
+  "observer_tests": [
+    {
+      "name": "image::retirement_image_tests::retirement_cancelled_queued_decode_drops_payload_outside_pool_lock",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "image::retirement_image_tests::retirement_cancelled_queued_decode_drops_payload_outside_pool_lock",
+        "--nocapture"
+      ],
+      "pid": 498096,
+      "start_ticks": 5591300,
+      "exit_code": 0,
+      "seconds": 0.016116254999360535
+    },
+    {
+      "name": "image::retirement_image_tests::retirement_decode_ticket_cancel_waits_for_real_running_decoder",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "image::retirement_image_tests::retirement_decode_ticket_cancel_waits_for_real_running_decoder",
+        "--nocapture"
+      ],
+      "pid": 498108,
+      "start_ticks": 5591302,
+      "exit_code": 0,
+      "seconds": 0.11428576600155793
+    },
+    {
+      "name": "image::retirement_image_tests::retirement_owner_cache_keeps_real_pixels_until_lease_and_cache_exit",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "image::retirement_image_tests::retirement_owner_cache_keeps_real_pixels_until_lease_and_cache_exit",
+        "--nocapture"
+      ],
+      "pid": 498151,
+      "start_ticks": 5591313,
+      "exit_code": 0,
+      "seconds": 0.0641197579971049
+    },
+    {
+      "name": "image::retirement_image_tests::retirement_queued_delivery_keeps_payload_after_subscription_cancel",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "image::retirement_image_tests::retirement_queued_delivery_keeps_payload_after_subscription_cancel",
+        "--nocapture"
+      ],
+      "pid": 498194,
+      "start_ticks": 5591320,
+      "exit_code": 0,
+      "seconds": 0.06412090900266776
+    },
+    {
+      "name": "retirement::tests::retirement_actual_image_snapshot_matches_exact_frame_identity",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "retirement::tests::retirement_actual_image_snapshot_matches_exact_frame_identity",
+        "--nocapture"
+      ],
+      "pid": 498228,
+      "start_ticks": 5591326,
+      "exit_code": 0,
+      "seconds": 0.11428915600117762
+    },
+    {
+      "name": "retirement::tests::retirement_frame_identity_and_payload_drop_are_owner_safe",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "retirement::tests::retirement_frame_identity_and_payload_drop_are_owner_safe",
+        "--nocapture"
+      ],
+      "pid": 498273,
+      "start_ticks": 5591338,
+      "exit_code": 0,
+      "seconds": 0.03223365499434294
+    },
+    {
+      "name": "retirement::tests::retirement_node_budget_counts_inflight_not_4353_historical_creates",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "retirement::tests::retirement_node_budget_counts_inflight_not_4353_historical_creates",
+        "--nocapture"
+      ],
+      "pid": 498275,
+      "start_ticks": 5591341,
+      "exit_code": 0,
+      "seconds": 0.2645671490026871
+    },
+    {
+      "name": "retirement::tests::retirement_one_shot_closed_admission_and_foreign_owner_fail_closed",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "retirement::tests::retirement_one_shot_closed_admission_and_foreign_owner_fail_closed",
+        "--nocapture"
+      ],
+      "pid": 498309,
+      "start_ticks": 5591367,
+      "exit_code": 0,
+      "seconds": 0.11498280199884903
+    },
+    {
+      "name": "retirement::tests::retirement_real_finalization_waits_for_clone_and_survives_dispose",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "retirement::tests::retirement_real_finalization_waits_for_clone_and_survives_dispose",
+        "--nocapture"
+      ],
+      "pid": 498343,
+      "start_ticks": 5591379,
+      "exit_code": 0,
+      "seconds": 0.11428543199872365
+    }
+  ],
+  "weak_registry_fix": "Registration prunes only Weak with strong_count==0; real live cache or lease remains registered. No-pressure/clear 4353 iterations assert <=2 entries while old real lease stays charged16, then new registration leaves1 after old lease dropped.",
+  "budgets": "same process image Budget; same per-owner work and in-flight node limits; no guest VM budgets changed",
+  "Host_ACK": false,
+  "unprovable": [
+    "native child object lifecycle",
+    "deferred/progress/playback not fully tracked",
+    "outro qualification",
+    "qdata notification is stage only, not complete finalizer-return fence",
+    "no physical screen present/GPU-memory fence claimed"
+  ],
+  "main_pin_unchanged": true,
+  "all_owned_processes_terminal": true,
+  "previous_stage": "../native-observer-image-attempt-1/record.json",
+  "artifacts": {
+    "REPLAY.md": {
+      "sha256": "19be015267c44ca44c0ea2d08925f4a94032234afdabfdf2241a51ed1371fab2",
+      "bytes": 2376
+    },
+    "weak-validation.py": {
+      "sha256": "65ae0951c257e88f71db1b6c893b5aa7ce80c238d1686f17297512bc5665cd3e",
+      "bytes": 3209
+    },
+    "weak-observer-tests.py": {
+      "sha256": "2f8b91eca55193024669f72eff29e69f5da400d7d69604a0cc823ddbdd718c4f",
+      "bytes": 5098
+    },
+    "observer/xvfb.log": {
+      "sha256": "b4c7eeeb685d357271d5d414216d2d02523a3720e8b721504d7b177ea6cc0713",
+      "bytes": 264
+    },
+    "observer/source.zip": {
+      "sha256": "f1eeaf490a57e9ae082d3e4e95e90d3b9edbb6ae77cae39c35eb7bcc6dc2ecab",
+      "bytes": 97909
+    },
+    "observer/test-3.log": {
+      "sha256": "59dcf0fdaaf360c00e2ec2c4c6a9050fbea17732304080a3f1764bd52a8760ac",
+      "bytes": 483
+    },
+    "observer/source-before.json": {
+      "sha256": "e920a4a13f3877e8d78f9e4d2b41125d34d0fbeb48770a54c83fd945f42fa125",
+      "bytes": 1450
+    },
+    "observer/test-5.log": {
+      "sha256": "4cb13479dc92aa3ab1baf42cc52563b89a8e349d1a3758c3a194f04024537c7d",
+      "bytes": 560
+    },
+    "observer/test-1.log": {
+      "sha256": "21126e29bb027254bad787a89b6470f55c680f45fd7240f2d9ddfc9a4ddadd7c",
+      "bytes": 334
+    },
+    "observer/test-7.log": {
+      "sha256": "5fdc9d8cdac96efc5ceb8591806f384201ed627e44226411669be58d5e18976b",
+      "bytes": 615
+    },
+    "observer/test-9.log": {
+      "sha256": "922e4e924641f2ad18a3156ea9b761838660ecc322d67b0fe46bde368eede10c",
+      "bytes": 620
+    },
+    "observer/source.patch": {
+      "sha256": "61a235f26bcfde1296758b506d8d0c59bfdd40d519eda5cf738934c4c5a15543",
+      "bytes": 78145
+    },
+    "observer/test-2.log": {
+      "sha256": "a71351feb4eadaffc71b903aea3036014abc566a0ec23a6151e024ec8e580309",
+      "bytes": 464
+    },
+    "observer/test-8.log": {
+      "sha256": "15ac410debd5bac27bdd77cb97f87ac8782db2e31df8c8eb338217f32290129c",
+      "bytes": 558
+    },
+    "observer/record.json": {
+      "sha256": "6f01546fedb562fe2b0b698b329079ea65f75719980fb22eb2d88801b0ca28e7",
+      "bytes": 8435
+    },
+    "observer/compile.jsonl": {
+      "sha256": "ca420fd4aa0b86d0331b717e7d8b19f4d94d8979dde8cfb77be43d5b15f6c070",
+      "bytes": 304251
+    },
+    "observer/compile.log": {
+      "sha256": "f429f04bf9d55bcb88cf2f770575a16b5bbdf7c9b2356cb9f0bb33318be9936f",
+      "bytes": 530
+    },
+    "observer/test-4.log": {
+      "sha256": "61397d62c1c4b17fa3b03d7969420b5248605c8131e31b7daed157ae284cb9db",
+      "bytes": 461
+    },
+    "observer/test-6.log": {
+      "sha256": "c98d22c709a2e85b8b9134322920dd548b8ce4b5c59c08d6513f577913fae330",
+      "bytes": 203
+    },
+    "validation/core-image.log": {
+      "sha256": "de0dfe6b5253864f9d33c06015163dcea3755adb6c59d7b24ad8ccefcfaf542d",
+      "bytes": 3480
+    },
+    "validation/upstream-text-input.rs": {
+      "sha256": "4f7a3706ea2013afa371a604b6588e50771f52189f7f611f60b343d663e80774",
+      "bytes": 75886
+    },
+    "validation/check-off.log": {
+      "sha256": "ccf4558852b97939a5ca79c1d29580f534f59279e90c447179ab42f85e926b34",
+      "bytes": 200
+    },
+    "validation/source.zip": {
+      "sha256": "f1eeaf490a57e9ae082d3e4e95e90d3b9edbb6ae77cae39c35eb7bcc6dc2ecab",
+      "bytes": 97909
+    },
+    "validation/source-before.json": {
+      "sha256": "e920a4a13f3877e8d78f9e4d2b41125d34d0fbeb48770a54c83fd945f42fa125",
+      "bytes": 1450
+    },
+    "validation/upstream-check.json": {
+      "sha256": "6833be672f2640f29cabbbaa999bff9176bb8e20049cac2bf3f1e9896d5ae40d",
+      "bytes": 1976
+    },
+    "validation/source.patch": {
+      "sha256": "61a235f26bcfde1296758b506d8d0c59bfdd40d519eda5cf738934c4c5a15543",
+      "bytes": 78145
+    },
+    "validation/record.json": {
+      "sha256": "452f5a35a245ffad312abc9698d71dc30540b205634995af4afec5e777642dd4",
+      "bytes": 4588
+    },
+    "validation/upstream.atom": {
+      "sha256": "d0502d5b2342980168688e6756d10d4841402258d3d95c8e714b6c29742db2a6",
+      "bytes": 58088
+    },
+    "validation/check-on.log": {
+      "sha256": "986c29d560eec1254f961c55656014a97451f15a18ce04ffde3157dc4117c067",
+      "bytes": 528
+    },
+    "validation/releases.html": {
+      "sha256": "e7e668837870a07e4c14befd49143f6bccbd76377e5bf783c456122601a6cff7",
+      "bytes": 499772
+    }
+  }
+}

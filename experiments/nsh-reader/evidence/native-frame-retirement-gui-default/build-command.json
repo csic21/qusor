@@ -1,0 +1,15 @@
+{
+  "native": [
+    "cargo",
+    "build",
+    "-j1",
+    "--manifest-path",
+    "/workspace/qusor/experiments/nsh-reader/native-host/Cargo.toml",
+    "--locked",
+    "--offline",
+    "--bin",
+    "qusor-nsh-dynamic-pdf-probe"
+  ],
+  "features": "default only; no native-qualification",
+  "jobs": 1
+}

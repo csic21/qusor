@@ -1,0 +1,19 @@
+{
+  "frame": {
+    "document_id": 1,
+    "frame_id": "fr.f01c1291215c0acf64535dbb2b5fa8d6.1.6",
+    "generation": 4,
+    "handle": "sf.f01c1291215c0acf64535dbb2b5fa8d6.1.1",
+    "height": 819.9999999999999,
+    "page": 2,
+    "pages": 3,
+    "report_digest": "f2a4005c19b11b436e1110fe28ac8d730e32b3ea567dcbe4d1eb049897e75e4a",
+    "status": "pending",
+    "title": "runtime-three-pages.pdf",
+    "width": 634.8387096774193,
+    "zoom": 0.5510752688172043
+  },
+  "frame_jobs": 3,
+  "no_new_frame_from_editor_or_resize": true,
+  "ready_after_continue": true
+}

@@ -1,0 +1,17 @@
+{
+  "status": "failed-preparation",
+  "run": "/home/user/.cache/qusor-ime/runs/native-ime-1-1794142930",
+  "display": ":111",
+  "session_bus": "unix:path=/tmp/dbus-EweOzHXiDI,guid=e14d38b8a6b2d483511200ac6af073b2",
+  "engine_wrapper": "bwrap engine only; not a product sandbox",
+  "personal_configuration_read": false,
+  "xvfb": {
+    "pid": 461925,
+    "start_ticks": 4518277
+  },
+  "ibus": {
+    "pid": 461928,
+    "start_ticks": 4518377
+  },
+  "error": "RuntimeError('engine activation not ready; no app started')"
+}

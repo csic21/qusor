@@ -1,0 +1,8 @@
+{
+  "exit_code": 0,
+  "tests_passed": 13,
+  "executable_sha256": "1a0a2115e410d74f4755ef1c3ee3d794a6d8f5859aad88cd309d8810fc0eab10",
+  "log_sha256": "ce3100702608f344f433229458a4d76392856c4e36affb88aa5b23126c8d6ea3",
+  "source_archive_sha256": "259d844a04331fbeab5673dc302d09aef4850df336f76e09caef6614e1d4d1f1",
+  "scope": "Independent std thread and shared-container ownership model; not NSH/GUI/decoder/Host native ACK or new main shutdown race proof."
+}

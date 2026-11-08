@@ -1,0 +1,30 @@
+{
+  "status": "passed-native-A-input-focus-save-and-restore",
+  "autofocus_passed": true,
+  "no_input_field_click": true,
+  "body": "ready component thought",
+  "actual_editor_vms": 15,
+  "actual_editor_calls": 50,
+  "owned_workers_reaped": 15,
+  "max_fuel": 119998,
+  "max_calls_per_vm": 4,
+  "core_reopen_restore_exact": true,
+  "normal_wm_close_observed": true,
+  "worker_leases_empty": true,
+  "native_release_ack_proven": false,
+  "ime_proven": false,
+  "source_inputs": 247,
+  "source_identity_checked_at_attempt_end": true,
+  "source_archive_sha256": "af2b31f79cc7bb1b72ad6756f15690235418c184269b1f8dc21cc178bf0ad838",
+  "native_binary_sha256": "d3635e16248c805738c12615cbe4a8762e134650f5f9a5e49c37f4bc93956828",
+  "bundle_sha256": "35333d69f9e76e8ffb16a8f8a5a93a0ab3169c37525ed8b58d4ab866ce3ae0b7",
+  "focus_diagnostics": [
+    " INFO js EDITOR_FOCUS_SCHEDULED",
+    " INFO js EDITOR_FOCUS_REQUESTED"
+  ],
+  "library_tests": 15,
+  "artifact_scope": "Frozen bundle/source archive/current native binary hashes from this completed run; later tree changes are not covered",
+  "native_binary_archive_sha256": "1eb65e9911501a250959b46f3733324de06794586f03d9bb620a27329a15adb4",
+  "native_binary_archive": "../../target/qualified-native-editor-a/native-binary.gz",
+  "native_binary_archive_scope": "Lossless local qualification artifact in ignored target; avoid putting a298MiB debug binary archive into source control"
+}

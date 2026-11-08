@@ -1,0 +1,12 @@
+   Compiling qusor-capture-probe v0.1.0 (/workspace/qusor/experiments/capture-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s
+     Running tests/component_edit.rs (experiments/capture-core/target/debug/deps/component_edit-f14bc393b0159500)
+
+running 4 tests
+test denied_admission_has_no_effect_or_clock_renewal ... ok
+test bootstrap_and_read_context_use_explicit_edit_purpose ... ok
+test replacement_epoch_and_other_service_reject_old_invocations ... ok
+test invalid_input_and_source_offsets_do_not_renew_activity ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+

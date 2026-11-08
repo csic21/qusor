@@ -1,0 +1,187 @@
+{
+  "status": "three-GTK4-backend-tests-passed-partial-observer-only",
+  "base_sha": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "base_lock_sha256": "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b",
+  "base_lock_unchanged": true,
+  "toolchain": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "prefix": "/workspace/qusor/experiments/nsh-reader/target/native-prefix",
+  "prefix_manifest": "/workspace/qusor/experiments/nsh-reader/evidence/linux-native-prefix.json",
+  "prefix_manifest_sha256": "a66c2df27bdd6cff009236f1c4bcd61fcd7fca111eaedeeb2f8602aab796170e",
+  "gtk4_pc_sha256": "af8838bb3ade8e83c69386ad59c935a89e3896df3a643443022095506a186089",
+  "pkgconfig_gtk_version": "4.22.4",
+  "xvfb_binary": "/tmp/qusor-xvfb-prefix/usr/bin/Xvfb-local",
+  "xvfb_sha256": "e9dc13c8c0520d57f4680cee4816c86607ed35347c5d651cd3fba9f9daf31ac5",
+  "feature_off_check_exit": 0,
+  "warning_fixed_feature_on_check_exit": 0,
+  "tests_passed": 3,
+  "GTK4_test_execution_seconds": 0.22,
+  "test_executable": "/home/user/.cache/qusor-native-release-observer/gtk-attempt-2/observer-gtk-tests",
+  "test_executable_sha256": "7270d6b725f4d30072aff01fea738942f1e43f0c160b8e79b28a7bb9e7b07f8d",
+  "test_executable_bytes": 455278768,
+  "runtime_env": {
+    "LD_LIBRARY_PATH": "/workspace/qusor/experiments/nsh-reader/target/native-prefix/usr/lib/x86_64-linux-gnu",
+    "GSK_RENDERER": "cairo",
+    "GSETTINGS_BACKEND": "memory",
+    "GIO_USE_VFS": "local",
+    "GTK_USE_PORTAL": "0",
+    "CARGO_BUILD_JOBS": "1",
+    "RUSTUP_TOOLCHAIN": "1.97.1",
+    "TMPDIR": "/home/user/.cache/qusor-native-release-observer/tmp"
+  },
+  "replay_test_arguments": [
+    "retirement_",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "source_hash_scope": "base fixed git SHA + patch/sourceZIP changed files only; no whole dependency-tree claim; no production Rust or SDK changes",
+  "source_before": {
+    "crates/nsh-platform-linux/Cargo.toml": "06b53a5685d82565d786bdf1557c5b93f02d6fdd3ed03dabc98d07a3b42f69a6",
+    "crates/nsh-platform-linux/src/app.rs": "7b7b31feac5215230d43917f3e04c92a3030dacc8f1a9aab36c794b40b363a81",
+    "crates/nsh-platform-linux/src/image.rs": "dcdb53765ec3d915c76fac645679b5961a38da72a03d6e1dafe0b87555709482",
+    "crates/nsh-platform-linux/src/lib.rs": "09d8bdd850a81fb28f90e8b85430851fbef5781d9b13c0c24bef8fcc84132ea8",
+    "crates/nsh-platform-linux/src/mount.rs": "de508e57da5044b500505d201fbab9549e122012dfaeb04ed9ba4bd78df7e074",
+    "crates/nsh-platform-linux/src/surface.rs": "e664eb1a50dfa56939afe51ae16962b7249ed3a126ac28ecb549a35ad9fc8e05",
+    "crates/nsh-platform-linux/src/view.rs": "91f1cba422c05972c81a43860561d286da6189a3dc4bcfac0dee117aabb6a5db",
+    "crates/nsh-platform-linux/src/retirement.rs": "735584285fae9f9146f3efd7d384dc2012d9f5be8be852085a4d807d0ad5e1e8"
+  },
+  "source_after": {
+    "crates/nsh-platform-linux/Cargo.toml": "06b53a5685d82565d786bdf1557c5b93f02d6fdd3ed03dabc98d07a3b42f69a6",
+    "crates/nsh-platform-linux/src/app.rs": "7b7b31feac5215230d43917f3e04c92a3030dacc8f1a9aab36c794b40b363a81",
+    "crates/nsh-platform-linux/src/image.rs": "dcdb53765ec3d915c76fac645679b5961a38da72a03d6e1dafe0b87555709482",
+    "crates/nsh-platform-linux/src/lib.rs": "09d8bdd850a81fb28f90e8b85430851fbef5781d9b13c0c24bef8fcc84132ea8",
+    "crates/nsh-platform-linux/src/mount.rs": "de508e57da5044b500505d201fbab9549e122012dfaeb04ed9ba4bd78df7e074",
+    "crates/nsh-platform-linux/src/surface.rs": "e664eb1a50dfa56939afe51ae16962b7249ed3a126ac28ecb549a35ad9fc8e05",
+    "crates/nsh-platform-linux/src/view.rs": "91f1cba422c05972c81a43860561d286da6189a3dc4bcfac0dee117aabb6a5db",
+    "crates/nsh-platform-linux/src/retirement.rs": "735584285fae9f9146f3efd7d384dc2012d9f5be8be852085a4d807d0ad5e1e8"
+  },
+  "all_sessions_terminal": true,
+  "main_pin_unchanged": true,
+  "limits": [
+    "qdata finalization-stage notification is not a finalizer-return fence",
+    "native child objects, tasks, decode, cache and texture lifecycle unclosed",
+    "all statuses remain Unprovable; no Host ACK interface",
+    "snapshot append participation only, not physical screen present",
+    "component boundary factory successful-instantiation proof and outro scenarios remain to extend"
+  ],
+  "artifacts": {
+    "gtk-check-2.py": {
+      "sha256": "e18b6c51f0dbe6ead85f07a0815493367e524e530550517cda70098a41f6646f",
+      "bytes": 3300
+    },
+    "REPLAY.md": {
+      "sha256": "9486668a820d1f1be2d253dafe79cc6a974f955c7b817427d3248e06c15e0b98",
+      "bytes": 2363
+    },
+    "check-off.log": {
+      "sha256": "7e47f7a58e73da22bb8c94e6671a1b29e82a1805d09bf865a3877063a4aeb8cf",
+      "bytes": 719
+    },
+    "implementation-status.json": {
+      "sha256": "15d71b55da1836677d8080520f9a0eabff7470f694ac327769989a6409aab28f",
+      "bytes": 1908
+    },
+    "observer-initial-sources.zip": {
+      "sha256": "6ed12d7b527e62a559ecde0df12566d39ed0455fe5c9882caa555f73e241fc53",
+      "bytes": 60855
+    },
+    "fixture.json": {
+      "sha256": "123b330507641c25b6ac2a00f07db627d0b503ccb269721c4288a0174668efe9",
+      "bytes": 328
+    },
+    "gtk-check.py": {
+      "sha256": "3e27ac8e856606d8e87b695f10d6c03b81ee838cdbd61dcda1d4bdf7a6cec472",
+      "bytes": 3043
+    },
+    "source-scope.json": {
+      "sha256": "46a1c679be986f60765d0ceffee6e81b76f7d70a44faedfa8f47e49eacafd94a",
+      "bytes": 1289
+    },
+    "observer-initial.patch": {
+      "sha256": "b5b82a44d73dc8fd3abd2b385d1dcd407c5f8ed39e5fe25b882f07c08602c221",
+      "bytes": 29579
+    },
+    "IMPLEMENTATION.md": {
+      "sha256": "4341e0091af8c19529a7d41939571b35ef30837f98ad582efc9f36fbe0990743",
+      "bytes": 15654
+    },
+    "check-on.log": {
+      "sha256": "a16e85d3397af46bae39bb2b581cf7ee2f563d60ef67aa07ca883f3fc6aeeada",
+      "bytes": 2727
+    },
+    "check-results.json": {
+      "sha256": "64baa3dbacda23e5870503cbf2b52ae99a08ecfffc21464713c3d80bae76ee3c",
+      "bytes": 768
+    },
+    "gtk4-tests/xvfb.log": {
+      "sha256": "b4c7eeeb685d357271d5d414216d2d02523a3720e8b721504d7b177ea6cc0713",
+      "bytes": 264
+    },
+    "gtk4-tests/observer-sources.zip": {
+      "sha256": "6ed12d7b527e62a559ecde0df12566d39ed0455fe5c9882caa555f73e241fc53",
+      "bytes": 60855
+    },
+    "gtk4-tests/check.log": {
+      "sha256": "f2066ca264b9a8598ecd436c70919e1efe1acea4098ad2a13b5d82d67bc049ec",
+      "bytes": 72
+    },
+    "gtk4-tests/observer.patch": {
+      "sha256": "b5b82a44d73dc8fd3abd2b385d1dcd407c5f8ed39e5fe25b882f07c08602c221",
+      "bytes": 29579
+    },
+    "gtk4-tests/driver.py": {
+      "sha256": "e18b6c51f0dbe6ead85f07a0815493367e524e530550517cda70098a41f6646f",
+      "bytes": 3300
+    },
+    "gtk4-tests/test.log": {
+      "sha256": "964687a116977f3a3ac32fc0fba124770d63cb589b8fb0840375ce1d2c8d33e7",
+      "bytes": 1987
+    },
+    "gtk4-tests/record.json": {
+      "sha256": "c0299feaea61f52879c32b79def4679a96e77588cfa1f51882f5c41988f1ea9c",
+      "bytes": 2785
+    },
+    "xvfb-auto-failed/xvfb.log.gz": {
+      "sha256": "50a74d0da21fe943060eea060a5dca28fcaee9f9214dc1d30751646b13155482",
+      "bytes": 44159
+    },
+    "xvfb-auto-failed/check.log": {
+      "sha256": "13ec79eca61de37ce28d131308146fb79c36cb3b051de7d499790be4a2527517",
+      "bytes": 194
+    },
+    "xvfb-auto-failed/record.json": {
+      "sha256": "d3aab9b6b41401ca13c319efc4ce3eb4479274b00ff8276648c0a52cd1a2da24",
+      "bytes": 808
+    },
+    "checked-with-warnings/check-off.log": {
+      "sha256": "7e47f7a58e73da22bb8c94e6671a1b29e82a1805d09bf865a3877063a4aeb8cf",
+      "bytes": 719
+    },
+    "checked-with-warnings/implementation-status.json": {
+      "sha256": "0fef9a3eeefe702a128e3fd3ad0ea47b6b6af95153fd6efd6b792d7ab7e53570",
+      "bytes": 1820
+    },
+    "checked-with-warnings/observer-initial-sources.zip": {
+      "sha256": "17c77d7373555f6a8f35c3eea7e23edcd56ff023da3df89cbae4f92cf05d0987",
+      "bytes": 60640
+    },
+    "checked-with-warnings/record.json": {
+      "sha256": "afcc477ca7d105492f0da1d7d4319338ddf3f7ac8c5d328a4483a43c2ba06da2",
+      "bytes": 698
+    },
+    "checked-with-warnings/observer-initial.patch": {
+      "sha256": "eaf27889cd91128e40b430a55f97c909b3f669722edfe1a85b65038c0cb75503",
+      "bytes": 28927
+    },
+    "checked-with-warnings/check-on.log": {
+      "sha256": "a16e85d3397af46bae39bb2b581cf7ee2f563d60ef67aa07ca883f3fc6aeeada",
+      "bytes": 2727
+    },
+    "checked-with-warnings/check-results.json": {
+      "sha256": "64baa3dbacda23e5870503cbf2b52ae99a08ecfffc21464713c3d80bae76ee3c",
+      "bytes": 768
+    }
+  },
+  "patch_header_correction": "Normalized git no-index new-file a/ and b/ prefixes after export; source contents unchanged.",
+  "patch_apply_check_exit": 0
+}

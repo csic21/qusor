@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1000" viewBox="0 0 1440 1000" role="img">
+<title>分区与扩展 · 稳定区域，可替换提供者</title><desc>区域负责放置，角色负责能力，提供者负责实现；正式数据与来源始终归 Core</desc>
+<defs><clipPath id="body"><rect x="120" y="168" width="1256" height="684"/></clipPath></defs>
+<g font-family="Noto Sans CJK SC, sans-serif">
+<rect x="0" y="0" width="1440" height="1000" rx="0" fill="#E6E8E1"/>
+<text x="64" y="49" font-size="26" fill="#242824" font-weight="600">分区与扩展 · 稳定区域，可替换提供者</text>
+<text x="64" y="78" font-size="14" fill="#596159" font-weight="400">区域负责放置，角色负责能力，提供者负责实现；正式数据与来源始终归 Core</text>
+<rect x="64" y="112" width="1312" height="792" rx="12" fill="#F4F3EF" stroke="#C9CFC5"/>
+<rect x="88" y="140" width="188" height="572" rx="8" fill="#DFE7DC"/>
+<text x="108" y="175" font-size="18" fill="#315B46" font-weight="500">工作区导航</text>
+<text x="108" y="206" font-size="13" fill="#596159" font-weight="400">shell.workspaces</text>
+<text x="108" y="258" font-size="15" fill="#242824" font-weight="400">资料库</text>
+<text x="108" y="307" font-size="15" fill="#242824" font-weight="400">阅读</text>
+<text x="108" y="356" font-size="15" fill="#242824" font-weight="400">笔记</text>
+<text x="108" y="405" font-size="15" fill="#242824" font-weight="400">其他已安装工作区</text>
+<text x="108" y="637" font-size="13" fill="#596159" font-weight="400">插件贡献入口</text>
+<text x="108" y="663" font-size="13" fill="#596159" font-weight="400">宿主统一呈现与路由</text>
+<rect x="296" y="140" width="1056" height="76" rx="8" fill="#DFE7DC"/>
+<text x="318" y="171" font-size="17" fill="#315B46" font-weight="500">工作区工具栏</text>
+<text x="318" y="198" font-size="13" fill="#596159" font-weight="400">workspace.toolbar · 当前对象 / 返回 / 常用动作</text>
+<rect x="296" y="236" width="176" height="418" rx="8" fill="#F1F2EC" stroke="#D9DDD5"/>
+<text x="316" y="270" font-size="17" fill="#242824" font-weight="500">局部导航</text>
+<text x="316" y="300" font-size="12" fill="#596159" font-weight="400">workspace.leading</text>
+<text x="316" y="349" font-size="13" fill="#596159" font-weight="400">目录 / 筛选 / 书签</text>
+<text x="316" y="580" font-size="13" fill="#315B46" font-weight="400">按需展开</text>
+<text x="316" y="609" font-size="12" fill="#596159" font-weight="400">兼容提供者可选择</text>
+<rect x="492" y="236" width="550" height="418" rx="8" fill="#FFFFFF" stroke="#D9DDD5"/>
+<text x="516" y="270" font-size="18" fill="#242824" font-weight="500">主内容</text>
+<text x="516" y="301" font-size="13" fill="#596159" font-weight="400">workspace.content</text>
+<text x="516" y="351" font-size="16" fill="#242824" font-weight="400">角色：文档阅读 / 笔记编辑</text>
+<text x="516" y="382" font-size="14" fill="#596159" font-weight="400">实现：兼容阅读器 / 编辑器提供者</text>
+<text x="516" y="412" font-size="14" fill="#596159" font-weight="400">输入：实体、版本与来源锚点</text>
+<rect x="548" y="465" width="436" height="64" rx="6" fill="#EDF0E7" stroke="#D9DDD5"/>
+<text x="568" y="491" font-size="15" fill="#315B46" font-weight="500">上下文动作</text>
+<text x="568" y="516" font-size="12" fill="#596159" font-weight="400">workspace.context-actions · 选段后出现</text>
+<text x="516" y="609" font-size="14" fill="#596159" font-weight="400">替换提供者时保留正文、来源与兼容状态</text>
+<rect x="1062" y="236" width="290" height="418" rx="8" fill="#F1F2EC" stroke="#D9DDD5"/>
+<text x="1084" y="270" font-size="17" fill="#242824" font-weight="500">辅助面板</text>
+<text x="1084" y="301" font-size="13" fill="#596159" font-weight="400">workspace.auxiliary</text>
+<text x="1084" y="350" font-size="15" fill="#242824" font-weight="400">引用 / 想法 / 资料信息</text>
+<text x="1084" y="385" font-size="13" fill="#596159" font-weight="400">默认关闭，按任务打开</text>
+<text x="1084" y="580" font-size="13" fill="#315B46" font-weight="400">一个当前工具</text>
+<text x="1084" y="609" font-size="13" fill="#596159" font-weight="400">允许选择兼容组件</text>
+<rect x="296" y="674" width="1056" height="38" rx="6" fill="#DFE7DC"/>
+<text x="316" y="699" font-size="13" fill="#315B46" font-weight="400">对象状态：跟随当前对象就地呈现 · workspace.object-status（示意位置，非常驻全局状态条）</text>
+<path d="M88 741L1352 741" stroke="#D9DDD5" fill="none"/>
+<rect x="88" y="768" width="268" height="106" rx="8" fill="#FFFFFF" stroke="#D9DDD5"/>
+<text x="106" y="803" font-size="17" fill="#242824" font-weight="500">工作区插件</text>
+<text x="106" y="842" font-size="13" fill="#596159" font-weight="400">组织流程与区域</text>
+<text x="373" y="824" font-size="22" fill="#315B46" font-weight="400">→</text>
+<rect x="412" y="768" width="268" height="106" rx="8" fill="#FFFFFF" stroke="#D9DDD5"/>
+<text x="430" y="803" font-size="17" fill="#242824" font-weight="500">组件提供者</text>
+<text x="430" y="842" font-size="13" fill="#596159" font-weight="400">按角色、格式与版本匹配</text>
+<text x="697" y="824" font-size="22" fill="#315B46" font-weight="400">→</text>
+<rect x="736" y="768" width="268" height="106" rx="8" fill="#FFFFFF" stroke="#D9DDD5"/>
+<text x="754" y="803" font-size="17" fill="#242824" font-weight="500">Host 公开能力</text>
+<text x="754" y="842" font-size="13" fill="#596159" font-weight="400">原生承载 / 权限 / 资源</text>
+<text x="1021" y="824" font-size="22" fill="#315B46" font-weight="400">→</text>
+<rect x="1060" y="768" width="268" height="106" rx="8" fill="#FFFFFF" stroke="#D9DDD5"/>
+<text x="1078" y="803" font-size="17" fill="#242824" font-weight="500">Core</text>
+<text x="1078" y="842" font-size="13" fill="#596159" font-weight="400">实体 / 引用 / 持久事务</text>
+<text x="64" y="942" font-size="14" fill="#596159" font-weight="400">宿主管理整体布局、焦点与受信提示；普通插件经同一公开契约接入。图中名称为设计语义，尚非已发布 API。</text>
+<text x="64" y="970" font-size="12" fill="#596159" font-weight="400">设计工作基线 v0.1 · 自拟示例内容 · 非运行截图 · 功能、长书与原生平台能力仍须分别验收</text>
+</g></svg>

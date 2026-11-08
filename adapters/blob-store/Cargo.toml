@@ -1,0 +1,18 @@
+[package]
+name = "blob-store"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+core-api = { path = "../../crates/core-api" }
+
+[target.'cfg(unix)'.dependencies]
+fs2 = "=0.4.3"
+libc = "=0.2.191"
+
+[lints]
+workspace = true

@@ -1,0 +1,15 @@
+{
+  "binary": "experiments/nsh-reader/target/native-retirement-qualified/attempt2",
+  "binary_sha256": "01c9afb142977ee5aeb2e2e33dc3fc8ee8c555cd95195d97ea579458c721f59f",
+  "source_snapshot": "/home/user/.cache/qusor-native-editor-retirement-candidate/os-attempt2-source.zip",
+  "qualification": "selected sources captured after run before lint-only changes; not full dependency/build input freeze",
+  "files": {
+    "experiments/nsh-reader/native-host/native_editor.rs": "9a762b157274dfbc21e2b7c7c77b89fd9f07618e4908653a84b4cfca67b394bd",
+    "experiments/nsh-reader/native-host/native_editor_fixture.rs": "bcc507f86e7efebcf57bbdff64bcf26823ee31e8b1eb053accf2e47f0d7950e0",
+    "experiments/nsh-reader/native-host/native_editor_qualification.rs": "a97d67448cbae51011dd91b0bc4f05f0034c3ea60126a2eecaf5096a46d44ffe",
+    "experiments/nsh-reader/native-host/plugin_surface.rs": "45de55bc186745f46ac7a389b1e7b7c62ad86cda17c89f26f2e638147de64c4f",
+    "experiments/nsh-reader/native-host/Cargo.toml": "641d92fe99af86d769276609c71fe342b16744c51bc47288b34289238328858e",
+    "experiments/nsh-reader/native-host/Cargo.lock": "803ac6466d8543dda9d26e3fc469924e69f2c5ad6a7784af3ba182e5e521cd0a",
+    "experiments/nsh-reader/native-host/tests/native_editor_retirement.rs": "774c17487c602a5cb763a866493ac0df22bc7635766f8720330ef0901e91f47c"
+  }
+}

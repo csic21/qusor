@@ -1,0 +1,38 @@
+{
+  "a_b_a_same_draft": 20,
+  "boundary_rejections": 4,
+  "calls": 681,
+  "capture_fixture_module_executed": false,
+  "cases": 20,
+  "default_deadline_ms": 250,
+  "direct_draft_writes_rejected": 1,
+  "fixture_lost_replies": 3,
+  "knowledge_saves": 20,
+  "max_call_us": 29503,
+  "max_completed_vm_fuel": 523563,
+  "max_vm_calls": 5,
+  "native_widgets_mounted": false,
+  "ok": true,
+  "owned_workers_reaped": 183,
+  "source": "synthetic_Core_snapshot_not_parser_or_Surface_lease_evidence",
+  "sqlite_reopen_and_empty_restore": true,
+  "uninstall_preserves_knowledge": true,
+  "vms": 183,
+  "exit_code": 0,
+  "command": "cargo test --manifest-path experiments/capture-core/Cargo.toml --test component_paragraph_consumer --locked --offline",
+  "package_source": "Default stable signed evidence/component-author-{a,b}, no environment overrides",
+  "source_archive": "paragraph-switch-source-archive.json",
+  "consumer_sha256": "3608eda4cc70f56a97e4a0f02c0df947f8a0bf6d300780acebadb64ad1e62448",
+  "artifacts": {
+    "experiments/capture-core/evidence/component-author-a/provider-a.qpk": "7769c10ae964187765e8e7de9c84ff6422d00da7426b7581ed961f18c6a030b8",
+    "experiments/capture-core/evidence/component-author-b/provider-b.qpk": "7bbb96ca215909cd632d74b3885591deb69f7116271eb3ed32a700db69d12f33",
+    "experiments/capture-core/evidence/component-author-b/module.wasm": "85227fff8c1a5ee28b1ad65436ef144585001c769cc8ec3e38dacc4e33cd3eff",
+    "experiments/capture-core/evidence/component-author-a/capture-identity.qpk": "dd35cd58c9b16e857193c8c98369d6e32cb89ce9554ee899cc92905aa3fa3c50"
+  },
+  "not_verified": [
+    "Native widget/IME/Esc/resource ack",
+    "B 1MiB full real-process chain",
+    "Full library/reader/notes product journey",
+    "Cross-platform and mobile distribution"
+  ]
+}

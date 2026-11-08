@@ -1,0 +1,28 @@
+{
+  "status": "passed-local-profile-and-workspace",
+  "scope": "Original signed projected B; in-process profile case6 after exact-material cache. Native metadata reads may warm cache before VM: not a cold-read benchmark. Single debug samples, not statistical UX qualification. OS8 runs recorded separately.",
+  "workspace_tests": 223,
+  "workspace_exit_code": 0,
+  "clippy_exit_code": 0,
+  "profile_vms": 4,
+  "profile_calls": 22,
+  "profile_runtime_errors": 0,
+  "vm_wall_us": [
+    47109,
+    50910,
+    61866,
+    61414
+  ],
+  "vm_host_us": [
+    2758,
+    2600,
+    4430,
+    3822
+  ],
+  "artifacts_sha256": {
+    "profile.stdout": "a9760f95d897bf9b76e5a722bffe79bde19a90a275567e2310a1bafc2437b9a8",
+    "profile.stderr": "08c1c798e5ac08ca5c9caf5229ced0b15e2339d960c0584194915f0e1104d8f0",
+    "workspace-tests.log": "b48366adfa3024417ab22a73d3ba2b257c81c979552a43345c9b208df73671c4",
+    "clippy.log": "af5489d62728a6c93bc8b2b0bc7f287dd88cca9cfcbe273b2a9aef0b649cbb4b"
+  }
+}

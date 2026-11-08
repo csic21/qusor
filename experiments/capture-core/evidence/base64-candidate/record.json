@@ -1,0 +1,41 @@
+{
+  "tool": "@deepseek-ai/dsh",
+  "version": "0.2.2-rc.1",
+  "exit_code": 0,
+  "scope": "Function-only candidate produced in temporary files; repository function and stable signed package unchanged",
+  "equivalence_checks": {
+    "signed_char_bytes": 256,
+    "unsigned_char_bytes": 256,
+    "exit_codes": [
+      0,
+      0
+    ]
+  },
+  "status": "not-adopted",
+  "reason": "Root initial assumption of a linear-search hotspot was incorrect: current original function already used bounded ranges. Candidate mapped bytes correctly but did not improve the measured pipeline, which remained dominated by fresh host package verification.",
+  "measurements": {
+    "candidate_vm2_us": {
+      "wall": 262136,
+      "host": 201216,
+      "calls": 6,
+      "result": "deadline_exceeded"
+    },
+    "baseline_vm2_us": {
+      "wall": 250263,
+      "host": 189218,
+      "calls": 6,
+      "result": "deadline_exceeded"
+    },
+    "limitation": "Single debug samples, different timing/load; not a performance guarantee or statistically valid speedup comparison. Candidate whole8 run failed bounded retry, not qualified."
+  },
+  "files": {
+    "baseline-profile.stderr": "f4ce1a2a488a16669aec1b8df70ab31f86d01100c5c6cbd8561d57fcb36f37bb",
+    "candidate-profile.stderr": "b7b34b07947e642b7d8a14f830b5bd58c353123ba7039b1a40bc59f3c1f59a0a",
+    "candidate-profile.stdout": "f1bb56ae47cda8a2e9bc225ac074ffd7fc194d26e86af0a5129edb8484066765",
+    "baseline-profile.stdout": "13be8b63befe515c65b93593abf02eb6ac46fcd8eb51b21595959f5666c8bbf1",
+    "candidate.c": "3d4c3365b5acc7581cf8a2d9ea4ed217670e64e09cca08ed043bddb85b4a69fc",
+    "original.c": "1f543feb225b0e5c48427721a0888585efeb2ee033251c9373fd33b261fffb2e",
+    "verify.c": "b8fe2ec2626771d71a3055b81b5a955b22cf7f63a532b05a475c7bbd083b236a",
+    "candidate-full-failure.stderr": "6d020d9d3976668ca02989cd6d09f5027ed882a176bcee18c66925368d247d96"
+  }
+}

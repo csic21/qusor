@@ -1,0 +1,14 @@
+    Checking extension-runtime-api v0.0.0 (/workspace/qusor/crates/extension-runtime-api)
+ Documenting extension-runtime-api v0.0.0 (/workspace/qusor/crates/extension-runtime-api)
+ Documenting core-api v0.0.0 (/workspace/qusor/crates/core-api)
+ Documenting extension-api v0.0.0 (/workspace/qusor/crates/extension-api)
+ Documenting learning-domain v0.0.0 (/workspace/qusor/crates/learning-domain)
+ Documenting learning-ports v0.0.0 (/workspace/qusor/crates/learning-ports)
+ Documenting extension-host v0.0.0 (/workspace/qusor/crates/extension-host)
+ Documenting blob-store v0.0.0 (/workspace/qusor/adapters/blob-store)
+ Documenting extension-package v0.0.0 (/workspace/qusor/crates/extension-package)
+ Documenting storage-sqlite v0.0.0 (/workspace/qusor/adapters/storage-sqlite)
+ Documenting learning-application v0.0.0 (/workspace/qusor/crates/learning-application)
+ Documenting runtime-wasm v0.0.0 (/workspace/qusor/adapters/runtime-wasm)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.25s
+   Generated /workspace/qusor/target/doc/blob_store/index.html and 10 other files

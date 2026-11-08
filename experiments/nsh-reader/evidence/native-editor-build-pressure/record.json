@@ -1,0 +1,13 @@
+{
+  "status": "controlled-interruption-for-measured-resource-pressure",
+  "not_a_code_or_UI_result": true,
+  "reason": "Four parallel owned links caused sustained major faults and zero free swap. Confirmed owned process identities before termination; child exit confirmation retained.",
+  "next_build": "CARGO_BUILD_JOBS=1",
+  "artifacts_sha256": {
+    "sample1.json": "0319c89dece5195b13b5bc4db9687acba6d6df1b6a0359378eeb8f4d5a948dff",
+    "sample2.json": "93314669fab50ad92a5068b48bfef863e475a42713b4a6373bd1430374b4ddea",
+    "interrupted.json": "6f668fbe38f046b802a9afd5b5899137c8990146e84d629ec5dfaa459f303a43",
+    "exit-confirmation.json": "28dbc3f165f92502946a4fe6398f3a975dcf2ee90506fe0316dc860b3a9eb677",
+    "prepare-interrupted.log": "dd52c01ad83ecde9d5e21157a01d1a5a40abf2ab29edfd755b388f502f83f9be"
+  }
+}

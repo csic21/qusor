@@ -1,0 +1,8 @@
+{
+  "reviewed_C6_baselines": {
+    "experiments/extension-package/evidence/installation-production-baselines/package-c6.lock": "ead77652970dd5d2c77204b2045682e573b2887854532a08f2cc3fd6f986ec79",
+    "experiments/extension-package/evidence/installation-production-baselines/capture-author-c6.lock": "e2c8ba72512d7341c5ef5b577a095afa33b9bbb04f284a31e9725e41bb808dd2"
+  },
+  "root_sha256": "7c79571aa95cccdee3a61dc21984855ae04dcf07a491a54fcbe16152f8a9c42b",
+  "unknown_registry_records": []
+}

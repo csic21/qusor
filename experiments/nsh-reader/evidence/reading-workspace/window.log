@@ -1,0 +1,346 @@
+MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+
+(org.qusor.nativeprobe:274563): Gtk-WARNING **: 15:04:53.876: Unable to acquire session bus: Could not connect: No such file or directory
+ INFO nsh::perf commit: 91 ops, 68067µs (list js 142µs), 87 mount items, 27 nodes
+ INFO nsh::perf first frame: eval 6752µs, total 77343µs
+WARNING: dzn is not a conformant Vulkan implementation, testing use only.
+ INFO nsh::perf gc: 397µs
+ INFO nsh::perf commit: 0 ops, 871µs (list js 70µs), 32 mount items, 27 nodes
+ INFO nsh::perf turn: 945µs (timers and tasks 24µs)
+ INFO nsh::perf commit: 1 ops, 1684µs (list js 393µs), 19 mount items, 27 nodes
+ INFO nsh::perf turn: 2534µs (timers and tasks 34µs)
+ INFO nsh::perf gc: 719µs
+ INFO nsh::perf event Focus on view 12
+ INFO nsh::perf event js: 72µs
+ INFO nsh::perf commit: 0 ops, 580µs (list js 18µs), 1 mount items, 27 nodes
+ INFO nsh::perf turn: 665µs (timers and tasks 32µs)
+ INFO nsh::perf commit: 0 ops, 344µs (list js 25µs), 1 mount items, 27 nodes
+ INFO nsh::perf turn: 474µs (timers and tasks 64µs)
+ INFO nsh::perf event PressDown on view 12
+ INFO nsh::perf event PressUp on view 12
+ INFO nsh::perf event Press on view 12
+ INFO nsh::perf commit: 43 ops, 6718µs (list js 966µs), 35 mount items, 34 nodes
+ INFO nsh::perf turn: 7044µs (timers and tasks 59µs)
+ INFO nsh::perf commit: 0 ops, 91µs (list js 38µs), 1 mount items, 34 nodes
+ INFO nsh::perf turn: 1002µs (timers and tasks 862µs)
+ INFO nsh::perf gc: 394µs
+ INFO nsh::perf event FileRequest on view 1
+DYNAMIC_PICK_CANCELLED 1
+ INFO nsh::perf commit: 20 ops, 1828µs (list js 537µs), 18 mount items, 30 nodes
+ INFO nsh::perf turn: 2064µs (timers and tasks 175µs)
+ INFO nsh::perf gc: 275µs
+ INFO nsh::perf commit: 3 ops, 248µs (list js 15µs), 2 mount items, 27 nodes
+ INFO nsh::perf commit: 0 ops, 336µs (list js 17µs), 1 mount items, 27 nodes
+ INFO nsh::perf turn: 457µs (timers and tasks 45µs)
+ INFO nsh::perf event PressDown on view 12
+ INFO nsh::perf event PressUp on view 12
+ INFO nsh::perf event Press on view 12
+ INFO nsh::perf commit: 43 ops, 2835µs (list js 780µs), 35 mount items, 34 nodes
+ INFO nsh::perf turn: 2946µs (timers and tasks 46µs)
+ INFO nsh::perf commit: 0 ops, 36µs (list js 13µs), 1 mount items, 34 nodes
+ INFO nsh::perf turn: 156µs (timers and tasks 91µs)
+ INFO nsh::perf gc: 330µs
+ INFO nsh::perf event FileRequest on view 1
+DYNAMIC_WORKER_BOOT {"guard_ready":true,"identity_bound":true,"run_id":"pdf-8aafb02b54576eda10487a0d2ff996c6-2","worker":{"boot_id":"2499728b-ecc2-47b6-b3eb-d2b4529b7dbd","exe_device":2096,"exe_inode":859481,"pid":274848,"run_id":"pdf-8aafb02b54576eda10487a0d2ff996c6-2","start_time_ticks":2356636,"uid":1000}}
+READER_GUEST_RESULT {"api_version":{"major":0,"minor":2},"request_id":"reader-137b8b06e05796bb67fcda17a21d8d0c-1","result":{"kind":"state","surface":{"frame":null,"generation":1,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","page_count":3,"page_index":0,"resource":{"document_id":"1","kind":"document","vault_id":"surface-vault"},"selection_lease":null,"source":{"extraction_revision":"948a298f216db32586c087fcd3e5991f583a9c39436cce7160d8439aa037e472","original_sha256":"51923c92150ecc9ffeaaadb3c6a7599e262e38914f63323c78ae67bec0f89829"},"status":"pending","zoom":1.0}},"surface_protocol":1}
+READER_NATIVE {"ok":true,"value":{"document_id":1,"frame_id":"fr.137b8b06e05796bb67fcda17a21d8d0c.1.2","generation":1,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","height":1488.0,"page":0,"pages":3,"report_digest":"385cb3f0a2d4165ad75866e43654c781eee8823b3e9a7829060474b5c31dedcf","status":"pending","title":"runtime-three-pages.pdf","width":1152.0,"zoom":1.0}}
+DYNAMIC_IMPORTED {"document_id":1,"frame_id":"fr.137b8b06e05796bb67fcda17a21d8d0c.1.2","generation":1,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","height":1488.0,"page":0,"pages":3,"report_digest":"385cb3f0a2d4165ad75866e43654c781eee8823b3e9a7829060474b5c31dedcf","status":"pending","title":"runtime-three-pages.pdf","width":1152.0,"zoom":1.0}
+READER_GUEST_RESULT {"api_version":{"major":0,"minor":2},"request_id":"reader-137b8b06e05796bb67fcda17a21d8d0c-2","result":{"kind":"state","surface":{"frame":null,"generation":2,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","page_count":3,"page_index":0,"resource":{"document_id":"1","kind":"document","vault_id":"surface-vault"},"selection_lease":null,"source":{"extraction_revision":"948a298f216db32586c087fcd3e5991f583a9c39436cce7160d8439aa037e472","original_sha256":"51923c92150ecc9ffeaaadb3c6a7599e262e38914f63323c78ae67bec0f89829"},"status":"pending","zoom":0.5510752688172043}},"surface_protocol":1}
+READER_NATIVE {"ok":true,"value":{"document_id":1,"frame_id":"fr.137b8b06e05796bb67fcda17a21d8d0c.1.4","generation":2,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","height":819.9999999999999,"page":0,"pages":3,"report_digest":"385cb3f0a2d4165ad75866e43654c781eee8823b3e9a7829060474b5c31dedcf","status":"pending","title":"runtime-three-pages.pdf","width":634.8387096774193,"zoom":0.5510752688172043}}
+ INFO nsh::perf commit: 130 ops, 94717µs (list js 86438µs), 102 mount items, 58 nodes
+ INFO nsh::perf turn: 95041µs (timers and tasks 164µs)
+ INFO nsh::perf gc: 401µs
+DYNAMIC_FRAME {"document_id":1,"frame_id":"fr.137b8b06e05796bb67fcda17a21d8d0c.1.4","generation":2,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","height":819.9999999999999,"page":0,"pages":3,"report_digest":"385cb3f0a2d4165ad75866e43654c781eee8823b3e9a7829060474b5c31dedcf","status":"pending","title":"runtime-three-pages.pdf","width":634.8387096774193,"zoom":0.5510752688172043}
+ INFO nsh::perf commit: 92 ops, 12449µs (list js 5114µs), 68 mount items, 53 nodes
+ INFO nsh::perf turn: 12692µs (timers and tasks 126µs)
+ INFO nsh::perf event Load on view 138
+READER_NATIVE {"ok":true,"value":{"generation":2,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","ready":true}}
+ INFO nsh::perf event js: 47824µs
+ INFO nsh::perf commit: 1 ops, 1177µs (list js 32µs), 7 mount items, 53 nodes
+ INFO nsh::perf turn: 1293µs (timers and tasks 56µs)
+ INFO nsh::perf gc: 612µs
+ INFO nsh::perf commit: 6 ops, 510µs (list js 17µs), 4 mount items, 47 nodes
+ INFO nsh::perf gc: 1843µs
+ INFO nsh::perf commit: 0 ops, 550µs (list js 28µs), 1 mount items, 47 nodes
+ INFO nsh::perf turn: 821µs (timers and tasks 185µs)
+ INFO nsh::perf event PressDown on view 96
+ INFO nsh::perf event PressUp on view 96
+ INFO nsh::perf event Press on view 96
+READER_GUEST_RESULT {"api_version":{"major":0,"minor":2},"request_id":"reader-137b8b06e05796bb67fcda17a21d8d0c-3","result":{"kind":"state","surface":{"frame":null,"generation":3,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","page_count":3,"page_index":1,"resource":{"document_id":"1","kind":"document","vault_id":"surface-vault"},"selection_lease":null,"source":{"extraction_revision":"948a298f216db32586c087fcd3e5991f583a9c39436cce7160d8439aa037e472","original_sha256":"51923c92150ecc9ffeaaadb3c6a7599e262e38914f63323c78ae67bec0f89829"},"status":"pending","zoom":0.5510752688172043}},"surface_protocol":1}
+READER_NATIVE {"ok":true,"value":{"document_id":1,"frame_id":"fr.137b8b06e05796bb67fcda17a21d8d0c.1.5","generation":3,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","height":819.9999999999999,"page":1,"pages":3,"report_digest":"385cb3f0a2d4165ad75866e43654c781eee8823b3e9a7829060474b5c31dedcf","status":"pending","title":"runtime-three-pages.pdf","width":634.8387096774193,"zoom":0.5510752688172043}}
+ INFO nsh::perf commit: 88 ops, 87131µs (list js 83735µs), 37 mount items, 54 nodes
+ INFO nsh::perf turn: 87293µs (timers and tasks 38µs)
+ INFO nsh::perf gc: 836µs
+ INFO nsh::perf event PressDown on view 96
+DYNAMIC_FRAME {"document_id":1,"frame_id":"fr.137b8b06e05796bb67fcda17a21d8d0c.1.5","generation":3,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","height":819.9999999999999,"page":1,"pages":3,"report_digest":"385cb3f0a2d4165ad75866e43654c781eee8823b3e9a7829060474b5c31dedcf","status":"pending","title":"runtime-three-pages.pdf","width":634.8387096774193,"zoom":0.5510752688172043}
+ INFO nsh::perf commit: 42 ops, 3153µs (list js 2231µs), 43 mount items, 50 nodes
+ INFO nsh::perf turn: 3367µs (timers and tasks 104µs)
+ INFO nsh::perf event PressUp on view 96
+ INFO nsh::perf event Press on view 96
+READER_GUEST_RESULT {"api_version":{"major":0,"minor":2},"request_id":"reader-137b8b06e05796bb67fcda17a21d8d0c-4","result":{"kind":"state","surface":{"frame":null,"generation":4,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","page_count":3,"page_index":2,"resource":{"document_id":"1","kind":"document","vault_id":"surface-vault"},"selection_lease":null,"source":{"extraction_revision":"948a298f216db32586c087fcd3e5991f583a9c39436cce7160d8439aa037e472","original_sha256":"51923c92150ecc9ffeaaadb3c6a7599e262e38914f63323c78ae67bec0f89829"},"status":"pending","zoom":0.5510752688172043}},"surface_protocol":1}
+READER_NATIVE {"ok":true,"value":{"document_id":1,"frame_id":"fr.137b8b06e05796bb67fcda17a21d8d0c.1.6","generation":4,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","height":819.9999999999999,"page":2,"pages":3,"report_digest":"385cb3f0a2d4165ad75866e43654c781eee8823b3e9a7829060474b5c31dedcf","status":"pending","title":"runtime-three-pages.pdf","width":634.8387096774193,"zoom":0.5510752688172043}}
+ INFO nsh::perf commit: 87 ops, 85394µs (list js 80123µs), 41 mount items, 57 nodes
+ INFO nsh::perf turn: 85552µs (timers and tasks 39µs)
+ INFO nsh::perf event Load on view 170
+ INFO nsh::perf event js: 277µs
+DYNAMIC_FRAME {"document_id":1,"frame_id":"fr.137b8b06e05796bb67fcda17a21d8d0c.1.6","generation":4,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","height":819.9999999999999,"page":2,"pages":3,"report_digest":"385cb3f0a2d4165ad75866e43654c781eee8823b3e9a7829060474b5c31dedcf","status":"pending","title":"runtime-three-pages.pdf","width":634.8387096774193,"zoom":0.5510752688172043}
+ INFO nsh::perf commit: 42 ops, 2973µs (list js 1861µs), 43 mount items, 53 nodes
+ INFO nsh::perf turn: 3246µs (timers and tasks 163µs)
+ INFO nsh::perf gc: 579µs
+ INFO nsh::perf commit: 6 ops, 236µs (list js 14µs), 5 mount items, 47 nodes
+ INFO nsh::perf event Load on view 202
+READER_NATIVE {"ok":true,"value":{"generation":4,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","ready":true}}
+ INFO nsh::perf event js: 34637µs
+ INFO nsh::perf commit: 1 ops, 1746µs (list js 60µs), 7 mount items, 47 nodes
+ INFO nsh::perf turn: 1920µs (timers and tasks 82µs)
+ INFO nsh::perf gc: 367µs
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[],"frame_id":"fr.137b8b06e05796bb67fcda17a21d8d0c.1.6","generation":4,"gesture":1,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","text":""}}
+ INFO nsh::perf commit: 2 ops, 199µs (list js 23µs), 0 mount items, 47 nodes
+ INFO nsh::perf gc: 303µs
+ INFO nsh::perf event Touch on view 1
+READER_NATIVE {"ok":true,"value":{"boxes":[[60.618279569892465,63.924731182795696,8.817204301075265,11.02150537634408],[71.08870967741935,66.68010752688171,7.715053763440864,8.266129032258064],[79.35483870967741,64.4758064516129,3.857526881720432,10.47043010752688],[84.31451612903226,63.924731182795696,1.6532258064516014,11.02150537634408],[87.06989247311827,66.68010752688171,7.715053763440864,8.266129032258064],[95.33602150537634,66.68010752688171,7.163978494623649,8.266129032258064],[108.56182795698923,66.68010752688171,3.857526881720432,8.266129032258064],[113.52150537634408,66.68010752688171,7.163978494623649,8.266129032258064],[121.78763440860214,66.68010752688171,7.715053763440864,8.266129032258064],[130.6048387096774,63.924731182795696,7.163978494623649,11.02150537634408],[139.42204301075267,63.924731182795696,1.6532258064516157,11.02150537634408],[142.7284946236559,66.68010752688171,6.612903225806434,8.266129032258064],[150.99462365591395,66.68010752688171,7.163978494623677,11.572580645161295],[164.22043010752688,66.68010752688171,7.163978494623649,11.572580645161295],[172.48655913978493,66.68010752688171,7.715053763440864,8.266129032258064],[181.3037634408602,66.68010752688171,6.612903225806463,11.572580645161295],[189.56989247311827,66.68010752688171,7.163978494623649,8.266129032258064],[202.24462365591395,63.924731182795696,7.715053763440864,11.572580645161281]],"frame_id":"fr.137b8b06e05796bb67fcda17a21d8d0c.1.6","generation":4,"gesture":1,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","native_outcome":{"Dragging":{"gesture_id":1,"preview":{"binding":{"frame_report_sha256":"c380d42d14ce80a6e32196c7fe58a68c062aea07b072adff49b2de4fb32e0d93","original_sha256":"51923c92150ecc9ffeaaadb3c6a7599e262e38914f63323c78ae67bec0f89829","page_index":2,"page_text_sha256":"f0cb7dfb256dd72f360ca71677f092d10af5acbbe457d2098d11ad1c56495c09"},"committable_single_segment":true,"direction":"Forward","joined_text":"Native reading page 3","layout_profile":"qusor-plain-ltr-lines-v1","order_basis":"unrotated_pdf_user_space_line_bands","segments":[{"characters":[{"crop_normalized_quad":[[0.09559722989797592,0.09139785170555115],[0.10945138335227966,0.09139785170555115],[0.10945138335227966,0.07788709551095963],[0.09559722989797592,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":73.06400299072266,"right":81.04399871826172,"top":710.052001953125},"pdf_char_index":0,"pixel_quad":[[110,136],[126,136],[126,116],[110,116]],"scalar_end":1,"scalar_start":0,"unicode_value":78,"utf16_end":1,"utf16_start":0,"utf8_end":1,"utf8_start":0},{"crop_normalized_quad":[[0.11217360943555832,0.09166126698255539],[0.12418055534362793,0.09166126698255539],[0.12418055534362793,0.08127421885728836],[0.11217360943555832,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":82.61199951171875,"right":89.52799987792969,"top":707.531982421875},"pdf_char_index":1,"pixel_quad":[[129,136],[143,136],[143,121],[129,121]],"scalar_end":2,"scalar_start":1,"unicode_value":97,"utf16_end":2,"utf16_start":1,"utf8_end":2,"utf8_start":1},{"crop_normalized_quad":[[0.12515276670455933,0.09151072800159454],[0.13105902075767517,0.09151072800159454],[0.13105902075767517,0.07880910485982895],[0.12515276670455933,0.07880910485982895]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.916015625,"left":90.08799743652344,"right":93.48999786376953,"top":709.3660278320312},"pdf_char_index":2,"pixel_quad":[[144,136],[151,136],[151,117],[144,117]],"scalar_end":3,"scalar_start":2,"unicode_value":116,"utf16_end":3,"utf16_start":2,"utf8_end":3,"utf8_start":2},{"crop_normalized_quad":[[0.13319791853427887,0.09139785170555115],[0.13533681631088257,0.09139785170555115],[0.13533681631088257,0.07788709551095963],[0.13319791853427887,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":94.72200012207031,"right":95.9540023803711,"top":710.052001953125},"pdf_char_index":3,"pixel_quad":[[153,136],[156,136],[156,116],[153,116]],"scalar_end":4,"scalar_start":3,"unicode_value":105,"utf16_end":4,"utf16_start":3,"utf8_end":4,"utf8_start":3},{"crop_normalized_quad":[[0.13715972006320953,0.09139785170555115],[0.1489236056804657,0.09139785170555115],[0.1489236056804657,0.08155642449855804],[0.13715972006320953,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":97.00399780273438,"right":103.77999877929688,"top":707.322021484375},"pdf_char_index":4,"pixel_quad":[[158,136],[172,136],[172,121],[158,121]],"scalar_end":5,"scalar_start":4,"unicode_value":118,"utf16_end":5,"utf16_start":4,"utf8_end":5,"utf8_start":4},{"crop_normalized_quad":[[0.1500902771949768,0.09166126698255539],[0.16165971755981445,0.09166126698255539],[0.16165971755981445,0.08127421885728836],[0.1500902771949768,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":104.45199584960938,"right":111.11599731445312,"top":707.531982421875},"pdf_char_index":5,"pixel_quad":[[173,136],[186,136],[186,121],[173,121]],"scalar_end":6,"scalar_start":5,"unicode_value":101,"utf16_end":6,"utf16_start":5,"utf8_end":6,"utf8_start":5},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":6,"pixel_quad":null,"scalar_end":7,"scalar_start":6,"unicode_value":32,"utf16_end":7,"utf16_start":6,"utf8_end":7,"utf8_start":6},{"crop_normalized_quad":[[0.17126041650772095,0.09139785170555115],[0.17745833098888397,0.09139785170555115],[0.17745833098888397,0.08127421885728836],[0.17126041650772095,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":116.64599609375,"right":120.21599578857422,"top":707.531982421875},"pdf_char_index":7,"pixel_quad":[[197,136],[204,136],[204,121],[197,121]],"scalar_end":8,"scalar_start":7,"unicode_value":114,"utf16_end":8,"utf16_start":7,"utf8_end":8,"utf8_start":7},{"crop_normalized_quad":[[0.17845484614372253,0.09166126698255539],[0.19002430140972137,0.09166126698255539],[0.19002430140972137,0.08127421885728836],[0.17845484614372253,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":120.78999328613281,"right":127.45399475097656,"top":707.531982421875},"pdf_char_index":8,"pixel_quad":[[206,136],[219,136],[219,121],[206,121]],"scalar_end":9,"scalar_start":8,"unicode_value":101,"utf16_end":9,"utf16_start":8,"utf8_end":9,"utf8_start":8},{"crop_normalized_quad":[[0.1918715387582779,0.09166126698255539],[0.2038784623146057,0.09166126698255539],[0.2038784623146057,0.08127421885728836],[0.1918715387582779,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":128.51800537109375,"right":135.43399047851562,"top":707.531982421875},"pdf_char_index":9,"pixel_quad":[[221,136],[235,136],[235,121],[221,121]],"scalar_end":10,"scalar_start":9,"unicode_value":97,"utf16_end":10,"utf16_start":9,"utf8_end":10,"utf8_start":9},{"crop_normalized_quad":[[0.20536109805107117,0.09166126698255539],[0.21663887798786163,0.09166126698255539],[0.21663887798786163,0.07788709551095963],[0.20536109805107117,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":136.28799438476562,"right":142.78399658203125,"top":710.052001953125},"pdf_char_index":10,"pixel_quad":[[237,136],[250,136],[250,116],[237,116]],"scalar_end":11,"scalar_start":10,"unicode_value":100,"utf16_end":11,"utf16_start":10,"utf8_end":11,"utf8_start":10},{"crop_normalized_quad":[[0.21965275704860687,0.09139785170555115],[0.22179163992404938,0.09139785170555115],[0.22179163992404938,0.07788709551095963],[0.21965275704860687,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":144.51998901367188,"right":145.75198364257812,"top":710.052001953125},"pdf_char_index":11,"pixel_quad":[[253,136],[256,136],[256,116],[253,116]],"scalar_end":12,"scalar_start":11,"unicode_value":105,"utf16_end":12,"utf16_start":11,"utf8_end":12,"utf8_start":11},{"crop_normalized_quad":[[0.22500000894069672,0.09139785170555115],[0.23535415530204773,0.09139785170555115],[0.23535415530204773,0.08127421885728836],[0.22500000894069672,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":147.60000610351562,"right":153.56399536132812,"top":707.531982421875},"pdf_char_index":12,"pixel_quad":[[259,136],[271,136],[271,121],[259,121]],"scalar_end":13,"scalar_start":12,"unicode_value":110,"utf16_end":13,"utf16_start":12,"utf8_end":13,"utf8_start":12},{"crop_normalized_quad":[[0.23790624737739563,0.09551879018545151],[0.24906247854232788,0.09551879018545151],[0.24906247854232788,0.08127421885728836],[0.23790624737739563,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":696.9340209960938,"left":155.03399658203125,"right":161.45999145507812,"top":707.531982421875},"pdf_char_index":13,"pixel_quad":[[274,142],[287,142],[287,121],[274,121]],"scalar_end":14,"scalar_start":13,"unicode_value":103,"utf16_end":14,"utf16_start":13,"utf8_end":14,"utf8_start":13},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":14,"pixel_quad":null,"scalar_end":15,"scalar_start":14,"unicode_value":32,"utf16_end":15,"utf16_start":14,"utf8_end":15,"utf8_start":14},{"crop_normalized_quad":[[0.25861454010009766,0.09527415782213211],[0.2697708010673523,0.09527415782213211],[0.2697708010673523,0.08127421885728836],[0.25861454010009766,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":697.1160278320312,"left":166.96197509765625,"right":173.3879852294922,"top":707.531982421875},"pdf_char_index":15,"pixel_quad":[[298,142],[311,142],[311,121],[298,121]],"scalar_end":16,"scalar_start":15,"unicode_value":112,"utf16_end":16,"utf16_start":15,"utf8_end":16,"utf8_start":15},{"crop_normalized_quad":[[0.27159371972084045,0.09166126698255539],[0.28360065817832947,0.09166126698255539],[0.28360065817832947,0.08127421885728836],[0.27159371972084045,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":174.43798828125,"right":181.35397338867188,"top":707.531982421875},"pdf_char_index":16,"pixel_quad":[[313,136],[327,136],[327,121],[313,121]],"scalar_end":17,"scalar_start":16,"unicode_value":97,"utf16_end":17,"utf16_start":16,"utf8_end":17,"utf8_start":16},{"crop_normalized_quad":[[0.28520482778549194,0.09551879018545151],[0.2963610887527466,0.09551879018545151],[0.2963610887527466,0.08127421885728836],[0.28520482778549194,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":696.9340209960938,"left":182.27798461914062,"right":188.7039794921875,"top":707.531982421875},"pdf_char_index":17,"pixel_quad":[[329,142],[341,142],[341,121],[329,121]],"scalar_end":18,"scalar_start":17,"unicode_value":103,"utf16_end":18,"utf16_start":17,"utf8_end":18,"utf8_start":17},{"crop_normalized_quad":[[0.29871872067451477,0.09166126698255539],[0.3102881610393524,0.09166126698255539],[0.3102881610393524,0.08127421885728836],[0.29871872067451477,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":190.06198120117188,"right":196.72598266601562,"top":707.531982421875},"pdf_char_index":18,"pixel_quad":[[344,136],[357,136],[357,121],[344,121]],"scalar_end":19,"scalar_start":18,"unicode_value":101,"utf16_end":19,"utf16_start":18,"utf8_end":19,"utf8_start":18},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":19,"pixel_quad":null,"scalar_end":20,"scalar_start":19,"unicode_value":32,"utf16_end":20,"utf16_start":19,"utf8_end":20,"utf8_start":19},{"crop_normalized_quad":[[0.3188437223434448,0.0917365774512291],[0.33070480823516846,0.0917365774512291],[0.33070480823516846,0.07816938310861588],[0.3188437223434448,0.07816938310861588]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.7479858398438,"left":201.6539764404297,"right":208.48597717285156,"top":709.8419799804688},"pdf_char_index":20,"pixel_quad":[[367,137],[381,137],[381,116],[367,116]],"scalar_end":21,"scalar_start":20,"unicode_value":51,"utf16_end":21,"utf16_start":20,"utf8_end":21,"utf8_start":20}],"end":21,"exact":"Native reading page 3","start":0}],"separator":"\n"}}},"text":"Native reading page 3"}}
+ INFO nsh::perf commit: 1 ops, 124µs (list js 19µs), 1 mount items, 47 nodes
+ INFO nsh::perf turn: 34606µs (timers and tasks 34395µs)
+ INFO nsh::perf event Touch on view 1
+READER_GUEST_RESULT {"candidate_id":"candidate-137b8b06e05796bb67fcda17a21d8d0c-6","capture_protocol":1,"draft_hash":"a90d2bc53e4a221494ab88e8bfbfa8de7a5a2d2d2c86597fe5989f816dadf43c","generation":4,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","kind":"candidate","text":"Native reading page 3"}
+READER_NATIVE {"ok":true,"value":{"boxes":[[60.618279569892465,63.924731182795696,8.817204301075265,11.02150537634408],[71.08870967741935,66.68010752688171,7.715053763440864,8.266129032258064],[79.35483870967741,64.4758064516129,3.857526881720432,10.47043010752688],[84.31451612903226,63.924731182795696,1.6532258064516014,11.02150537634408],[87.06989247311827,66.68010752688171,7.715053763440864,8.266129032258064],[95.33602150537634,66.68010752688171,7.163978494623649,8.266129032258064],[108.56182795698923,66.68010752688171,3.857526881720432,8.266129032258064],[113.52150537634408,66.68010752688171,7.163978494623649,8.266129032258064],[121.78763440860214,66.68010752688171,7.715053763440864,8.266129032258064],[130.6048387096774,63.924731182795696,7.163978494623649,11.02150537634408],[139.42204301075267,63.924731182795696,1.6532258064516157,11.02150537634408],[142.7284946236559,66.68010752688171,6.612903225806434,8.266129032258064],[150.99462365591395,66.68010752688171,7.163978494623677,11.572580645161295],[164.22043010752688,66.68010752688171,7.163978494623649,11.572580645161295],[172.48655913978493,66.68010752688171,7.715053763440864,8.266129032258064],[181.3037634408602,66.68010752688171,6.612903225806463,11.572580645161295],[189.56989247311827,66.68010752688171,7.163978494623649,8.266129032258064],[202.24462365591395,63.924731182795696,7.715053763440864,11.572580645161281]],"candidate":{"candidate_id":"candidate-137b8b06e05796bb67fcda17a21d8d0c-6","capture_protocol":1,"draft_hash":"a90d2bc53e4a221494ab88e8bfbfa8de7a5a2d2d2c86597fe5989f816dadf43c","generation":4,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","kind":"candidate","text":"Native reading page 3"},"frame_id":"fr.137b8b06e05796bb67fcda17a21d8d0c.1.6","generation":4,"gesture":null,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","native_outcome":{"Ready":{"selection":{"binding":{"frame_report_sha256":"c380d42d14ce80a6e32196c7fe58a68c062aea07b072adff49b2de4fb32e0d93","original_sha256":"51923c92150ecc9ffeaaadb3c6a7599e262e38914f63323c78ae67bec0f89829","page_index":2,"page_text_sha256":"f0cb7dfb256dd72f360ca71677f092d10af5acbbe457d2098d11ad1c56495c09"},"committable_single_segment":true,"direction":"Forward","joined_text":"Native reading page 3","layout_profile":"qusor-plain-ltr-lines-v1","order_basis":"unrotated_pdf_user_space_line_bands","segments":[{"characters":[{"crop_normalized_quad":[[0.09559722989797592,0.09139785170555115],[0.10945138335227966,0.09139785170555115],[0.10945138335227966,0.07788709551095963],[0.09559722989797592,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":73.06400299072266,"right":81.04399871826172,"top":710.052001953125},"pdf_char_index":0,"pixel_quad":[[110,136],[126,136],[126,116],[110,116]],"scalar_end":1,"scalar_start":0,"unicode_value":78,"utf16_end":1,"utf16_start":0,"utf8_end":1,"utf8_start":0},{"crop_normalized_quad":[[0.11217360943555832,0.09166126698255539],[0.12418055534362793,0.09166126698255539],[0.12418055534362793,0.08127421885728836],[0.11217360943555832,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":82.61199951171875,"right":89.52799987792969,"top":707.531982421875},"pdf_char_index":1,"pixel_quad":[[129,136],[143,136],[143,121],[129,121]],"scalar_end":2,"scalar_start":1,"unicode_value":97,"utf16_end":2,"utf16_start":1,"utf8_end":2,"utf8_start":1},{"crop_normalized_quad":[[0.12515276670455933,0.09151072800159454],[0.13105902075767517,0.09151072800159454],[0.13105902075767517,0.07880910485982895],[0.12515276670455933,0.07880910485982895]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.916015625,"left":90.08799743652344,"right":93.48999786376953,"top":709.3660278320312},"pdf_char_index":2,"pixel_quad":[[144,136],[151,136],[151,117],[144,117]],"scalar_end":3,"scalar_start":2,"unicode_value":116,"utf16_end":3,"utf16_start":2,"utf8_end":3,"utf8_start":2},{"crop_normalized_quad":[[0.13319791853427887,0.09139785170555115],[0.13533681631088257,0.09139785170555115],[0.13533681631088257,0.07788709551095963],[0.13319791853427887,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":94.72200012207031,"right":95.9540023803711,"top":710.052001953125},"pdf_char_index":3,"pixel_quad":[[153,136],[156,136],[156,116],[153,116]],"scalar_end":4,"scalar_start":3,"unicode_value":105,"utf16_end":4,"utf16_start":3,"utf8_end":4,"utf8_start":3},{"crop_normalized_quad":[[0.13715972006320953,0.09139785170555115],[0.1489236056804657,0.09139785170555115],[0.1489236056804657,0.08155642449855804],[0.13715972006320953,0.08155642449855804]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":97.00399780273438,"right":103.77999877929688,"top":707.322021484375},"pdf_char_index":4,"pixel_quad":[[158,136],[172,136],[172,121],[158,121]],"scalar_end":5,"scalar_start":4,"unicode_value":118,"utf16_end":5,"utf16_start":4,"utf8_end":5,"utf8_start":4},{"crop_normalized_quad":[[0.1500902771949768,0.09166126698255539],[0.16165971755981445,0.09166126698255539],[0.16165971755981445,0.08127421885728836],[0.1500902771949768,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":104.45199584960938,"right":111.11599731445312,"top":707.531982421875},"pdf_char_index":5,"pixel_quad":[[173,136],[186,136],[186,121],[173,121]],"scalar_end":6,"scalar_start":5,"unicode_value":101,"utf16_end":6,"utf16_start":5,"utf8_end":6,"utf8_start":5},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":6,"pixel_quad":null,"scalar_end":7,"scalar_start":6,"unicode_value":32,"utf16_end":7,"utf16_start":6,"utf8_end":7,"utf8_start":6},{"crop_normalized_quad":[[0.17126041650772095,0.09139785170555115],[0.17745833098888397,0.09139785170555115],[0.17745833098888397,0.08127421885728836],[0.17126041650772095,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":116.64599609375,"right":120.21599578857422,"top":707.531982421875},"pdf_char_index":7,"pixel_quad":[[197,136],[204,136],[204,121],[197,121]],"scalar_end":8,"scalar_start":7,"unicode_value":114,"utf16_end":8,"utf16_start":7,"utf8_end":8,"utf8_start":7},{"crop_normalized_quad":[[0.17845484614372253,0.09166126698255539],[0.19002430140972137,0.09166126698255539],[0.19002430140972137,0.08127421885728836],[0.17845484614372253,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":120.78999328613281,"right":127.45399475097656,"top":707.531982421875},"pdf_char_index":8,"pixel_quad":[[206,136],[219,136],[219,121],[206,121]],"scalar_end":9,"scalar_start":8,"unicode_value":101,"utf16_end":9,"utf16_start":8,"utf8_end":9,"utf8_start":8},{"crop_normalized_quad":[[0.1918715387582779,0.09166126698255539],[0.2038784623146057,0.09166126698255539],[0.2038784623146057,0.08127421885728836],[0.1918715387582779,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":128.51800537109375,"right":135.43399047851562,"top":707.531982421875},"pdf_char_index":9,"pixel_quad":[[221,136],[235,136],[235,121],[221,121]],"scalar_end":10,"scalar_start":9,"unicode_value":97,"utf16_end":10,"utf16_start":9,"utf8_end":10,"utf8_start":9},{"crop_normalized_quad":[[0.20536109805107117,0.09166126698255539],[0.21663887798786163,0.09166126698255539],[0.21663887798786163,0.07788709551095963],[0.20536109805107117,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":136.28799438476562,"right":142.78399658203125,"top":710.052001953125},"pdf_char_index":10,"pixel_quad":[[237,136],[250,136],[250,116],[237,116]],"scalar_end":11,"scalar_start":10,"unicode_value":100,"utf16_end":11,"utf16_start":10,"utf8_end":11,"utf8_start":10},{"crop_normalized_quad":[[0.21965275704860687,0.09139785170555115],[0.22179163992404938,0.09139785170555115],[0.22179163992404938,0.07788709551095963],[0.21965275704860687,0.07788709551095963]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":144.51998901367188,"right":145.75198364257812,"top":710.052001953125},"pdf_char_index":11,"pixel_quad":[[253,136],[256,136],[256,116],[253,116]],"scalar_end":12,"scalar_start":11,"unicode_value":105,"utf16_end":12,"utf16_start":11,"utf8_end":12,"utf8_start":11},{"crop_normalized_quad":[[0.22500000894069672,0.09139785170555115],[0.23535415530204773,0.09139785170555115],[0.23535415530204773,0.08127421885728836],[0.22500000894069672,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":700.0,"left":147.60000610351562,"right":153.56399536132812,"top":707.531982421875},"pdf_char_index":12,"pixel_quad":[[259,136],[271,136],[271,121],[259,121]],"scalar_end":13,"scalar_start":12,"unicode_value":110,"utf16_end":13,"utf16_start":12,"utf8_end":13,"utf8_start":12},{"crop_normalized_quad":[[0.23790624737739563,0.09551879018545151],[0.24906247854232788,0.09551879018545151],[0.24906247854232788,0.08127421885728836],[0.23790624737739563,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":696.9340209960938,"left":155.03399658203125,"right":161.45999145507812,"top":707.531982421875},"pdf_char_index":13,"pixel_quad":[[274,142],[287,142],[287,121],[274,121]],"scalar_end":14,"scalar_start":13,"unicode_value":103,"utf16_end":14,"utf16_start":13,"utf8_end":14,"utf8_start":13},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":14,"pixel_quad":null,"scalar_end":15,"scalar_start":14,"unicode_value":32,"utf16_end":15,"utf16_start":14,"utf8_end":15,"utf8_start":14},{"crop_normalized_quad":[[0.25861454010009766,0.09527415782213211],[0.2697708010673523,0.09527415782213211],[0.2697708010673523,0.08127421885728836],[0.25861454010009766,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":697.1160278320312,"left":166.96197509765625,"right":173.3879852294922,"top":707.531982421875},"pdf_char_index":15,"pixel_quad":[[298,142],[311,142],[311,121],[298,121]],"scalar_end":16,"scalar_start":15,"unicode_value":112,"utf16_end":16,"utf16_start":15,"utf8_end":16,"utf8_start":15},{"crop_normalized_quad":[[0.27159371972084045,0.09166126698255539],[0.28360065817832947,0.09166126698255539],[0.28360065817832947,0.08127421885728836],[0.27159371972084045,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":174.43798828125,"right":181.35397338867188,"top":707.531982421875},"pdf_char_index":16,"pixel_quad":[[313,136],[327,136],[327,121],[313,121]],"scalar_end":17,"scalar_start":16,"unicode_value":97,"utf16_end":17,"utf16_start":16,"utf8_end":17,"utf8_start":16},{"crop_normalized_quad":[[0.28520482778549194,0.09551879018545151],[0.2963610887527466,0.09551879018545151],[0.2963610887527466,0.08127421885728836],[0.28520482778549194,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":696.9340209960938,"left":182.27798461914062,"right":188.7039794921875,"top":707.531982421875},"pdf_char_index":17,"pixel_quad":[[329,142],[341,142],[341,121],[329,121]],"scalar_end":18,"scalar_start":17,"unicode_value":103,"utf16_end":18,"utf16_start":17,"utf8_end":18,"utf8_start":17},{"crop_normalized_quad":[[0.29871872067451477,0.09166126698255539],[0.3102881610393524,0.09166126698255539],[0.3102881610393524,0.08127421885728836],[0.29871872067451477,0.08127421885728836]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.8040161132812,"left":190.06198120117188,"right":196.72598266601562,"top":707.531982421875},"pdf_char_index":18,"pixel_quad":[[344,136],[357,136],[357,121],[344,121]],"scalar_end":19,"scalar_start":18,"unicode_value":101,"utf16_end":19,"utf16_start":18,"utf8_end":19,"utf8_start":18},{"crop_normalized_quad":null,"generated":false,"mapping":"scalar","pdf_bounds":null,"pdf_char_index":19,"pixel_quad":null,"scalar_end":20,"scalar_start":19,"unicode_value":32,"utf16_end":20,"utf16_start":19,"utf8_end":20,"utf8_start":19},{"crop_normalized_quad":[[0.3188437223434448,0.0917365774512291],[0.33070480823516846,0.0917365774512291],[0.33070480823516846,0.07816938310861588],[0.3188437223434448,0.07816938310861588]],"generated":false,"mapping":"scalar","pdf_bounds":{"bottom":699.7479858398438,"left":201.6539764404297,"right":208.48597717285156,"top":709.8419799804688},"pdf_char_index":20,"pixel_quad":[[367,137],[381,137],[381,116],[367,116]],"scalar_end":21,"scalar_start":20,"unicode_value":51,"utf16_end":21,"utf16_start":20,"utf8_end":21,"utf8_start":20}],"end":21,"exact":"Native reading page 3","start":0}],"separator":"\n"}}},"text":"Native reading page 3"}}
+ INFO nsh::perf commit: 82 ops, 2925µs (list js 30µs), 31 mount items, 55 nodes
+ INFO nsh::perf turn: 3056µs (timers and tasks 44µs)
+ INFO nsh::perf gc: 722µs
+ INFO nsh::perf event MouseLeave on view 204
+ INFO nsh::perf event js: 94µs
+ INFO nsh::perf commit: 0 ops, 315µs (list js 21µs), 1 mount items, 55 nodes
+ INFO nsh::perf turn: 395µs (timers and tasks 40µs)
+ INFO nsh::perf event PressDown on view 216
+ INFO nsh::perf event PressUp on view 216
+ INFO nsh::perf event Press on view 216
+ INFO nsh::perf commit: 227 ops, 12960µs (list js 3400µs), 158 mount items, 93 nodes
+ INFO nsh::perf turn: 13126µs (timers and tasks 56µs)
+ INFO nsh::perf gc: 538µs
+ INFO nsh::perf commit: 12 ops, 278µs (list js 22µs), 6 mount items, 81 nodes
+ INFO nsh::perf event Blur on view 12
+ INFO nsh::perf event js: 65µs
+ INFO nsh::perf commit: 0 ops, 939µs (list js 29µs), 2 mount items, 81 nodes
+ INFO nsh::perf turn: 1020µs (timers and tasks 45µs)
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 990µs
+ INFO nsh::perf commit: 53 ops, 1110µs (list js 17µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1603µs
+ INFO nsh::perf commit: 53 ops, 1129µs (list js 18µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1245µs
+ INFO nsh::perf commit: 53 ops, 1123µs (list js 14µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1593µs
+ INFO nsh::perf commit: 53 ops, 1080µs (list js 15µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1079µs
+ INFO nsh::perf commit: 53 ops, 1172µs (list js 17µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1179µs
+ INFO nsh::perf commit: 53 ops, 1443µs (list js 19µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1630µs
+ INFO nsh::perf commit: 53 ops, 1175µs (list js 15µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1066µs
+ INFO nsh::perf commit: 53 ops, 1051µs (list js 13µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1376µs
+ INFO nsh::perf commit: 53 ops, 1610µs (list js 21µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1461µs
+ INFO nsh::perf commit: 53 ops, 1206µs (list js 16µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1140µs
+ INFO nsh::perf commit: 53 ops, 1344µs (list js 18µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1559µs
+ INFO nsh::perf commit: 53 ops, 1362µs (list js 26µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1342µs
+ INFO nsh::perf commit: 53 ops, 1573µs (list js 22µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1175µs
+ INFO nsh::perf commit: 53 ops, 1568µs (list js 21µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1577µs
+ INFO nsh::perf commit: 53 ops, 1645µs (list js 25µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 2125µs
+ INFO nsh::perf commit: 53 ops, 3086µs (list js 76µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1484µs
+ INFO nsh::perf commit: 53 ops, 1672µs (list js 26µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1765µs
+ INFO nsh::perf commit: 53 ops, 1733µs (list js 25µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1751µs
+ INFO nsh::perf commit: 53 ops, 1361µs (list js 26µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1652µs
+ INFO nsh::perf commit: 53 ops, 1725µs (list js 22µs), 0 mount items, 81 nodes
+ INFO nsh::perf gc: 342µs
+ INFO nsh::perf commit: 2 ops, 2741µs (list js 444µs), 50 mount items, 81 nodes
+ INFO nsh::perf turn: 2885µs (timers and tasks 40µs)
+ INFO nsh::perf gc: 628µs
+ INFO nsh::perf event MouseLeave on view 204
+ INFO nsh::perf event js: 98µs
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1718µs
+ INFO nsh::perf commit: 53 ops, 1742µs (list js 31µs), 0 mount items, 81 nodes
+ INFO nsh::perf gc: 593µs
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1474µs
+ INFO nsh::perf commit: 53 ops, 1355µs (list js 22µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1475µs
+ INFO nsh::perf commit: 53 ops, 1097µs (list js 18µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1752µs
+ INFO nsh::perf commit: 53 ops, 1215µs (list js 24µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1423µs
+ INFO nsh::perf commit: 53 ops, 1526µs (list js 46µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1111µs
+ INFO nsh::perf commit: 53 ops, 1307µs (list js 14µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1221µs
+ INFO nsh::perf commit: 53 ops, 1798µs (list js 17µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 1232µs
+ INFO nsh::perf commit: 53 ops, 1269µs (list js 21µs), 0 mount items, 81 nodes
+ INFO nsh::perf event ChangeText on view 280
+ INFO nsh::perf event js: 897µs
+ INFO nsh::perf commit: 53 ops, 1150µs (list js 14µs), 0 mount items, 81 nodes
+ INFO nsh::perf commit: 0 ops, 479µs (list js 31µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 633µs (timers and tasks 69µs)
+ INFO nsh::perf event PressDown on view 260
+ INFO nsh::perf event PressUp on view 260
+ INFO nsh::perf event Press on view 260
+ INFO nsh::perf commit: 66 ops, 3257µs (list js 948µs), 50 mount items, 69 nodes
+ INFO nsh::perf turn: 3390µs (timers and tasks 43µs)
+ INFO nsh::perf commit: 1 ops, 44µs (list js 13µs), 1 mount items, 69 nodes
+ INFO nsh::perf turn: 136µs (timers and tasks 64µs)
+ INFO nsh::perf event Focus on view 200
+ INFO nsh::perf event js: 36µs
+ INFO nsh::perf gc: 524µs
+ INFO nsh::perf commit: 9 ops, 390µs (list js 16µs), 6 mount items, 60 nodes
+ INFO nsh::perf event Blur on view 200
+ INFO nsh::perf event js: 49µs
+ INFO nsh::perf event Focus on view 316
+ INFO nsh::perf event js: 23µs
+ INFO nsh::perf commit: 0 ops, 342µs (list js 17µs), 1 mount items, 60 nodes
+ INFO nsh::perf turn: 408µs (timers and tasks 27µs)
+ INFO nsh::perf gc: 557µs
+ INFO nsh::perf commit: 0 ops, 464µs (list js 27µs), 1 mount items, 60 nodes
+ INFO nsh::perf turn: 588µs (timers and tasks 64µs)
+ INFO nsh::perf event PressDown on view 222
+ INFO nsh::perf event PressUp on view 222
+ INFO nsh::perf event Press on view 222
+ INFO nsh::perf commit: 121 ops, 5128µs (list js 1685µs), 103 mount items, 87 nodes
+ INFO nsh::perf turn: 5282µs (timers and tasks 43µs)
+ INFO nsh::perf event Blur on view 316
+ INFO nsh::perf event js: 67µs
+ INFO nsh::perf commit: 0 ops, 325µs (list js 17µs), 2 mount items, 87 nodes
+ INFO nsh::perf turn: 383µs (timers and tasks 27µs)
+ INFO nsh::perf gc: 455µs
+ INFO nsh::perf commit: 6 ops, 258µs (list js 17µs), 4 mount items, 81 nodes
+ INFO nsh::perf commit: 2 ops, 2509µs (list js 232µs), 51 mount items, 81 nodes
+ INFO nsh::perf turn: 2631µs (timers and tasks 33µs)
+ INFO nsh::perf gc: 595µs
+ INFO nsh::perf commit: 0 ops, 516µs (list js 42µs), 2 mount items, 81 nodes
+ INFO nsh::perf turn: 715µs (timers and tasks 95µs)
+ INFO nsh::perf event PressDown on view 12
+ INFO nsh::perf event PressUp on view 12
+ INFO nsh::perf event Press on view 12
+ INFO nsh::perf commit: 1 ops, 744µs (list js 302µs), 0 mount items, 81 nodes
+ INFO nsh::perf commit: 0 ops, 43µs (list js 14µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 265µs (timers and tasks 152µs)
+ INFO nsh::perf gc: 549µs
+ INFO nsh::perf commit: 0 ops, 232µs (list js 5µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 273µs (timers and tasks 11µs)
+ INFO nsh::perf commit: 0 ops, 293µs (list js 28µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 423µs (timers and tasks 54µs)
+ INFO nsh::perf event Dialog on view 1
+ INFO nsh::perf commit: 71 ops, 4941µs (list js 1630µs), 27 mount items, 88 nodes
+ INFO nsh::perf turn: 5198µs (timers and tasks 178µs)
+ INFO nsh::perf commit: 0 ops, 120µs (list js 81µs), 1 mount items, 88 nodes
+ INFO nsh::perf turn: 299µs (timers and tasks 143µs)
+ INFO nsh::perf gc: 775µs
+ INFO nsh::perf event FileRequest on view 1
+DYNAMIC_PICK_CANCELLED 3
+ INFO nsh::perf commit: 48 ops, 2497µs (list js 888µs), 9 mount items, 84 nodes
+ INFO nsh::perf turn: 2680µs (timers and tasks 124µs)
+ INFO nsh::perf gc: 634µs
+ INFO nsh::perf commit: 3 ops, 273µs (list js 14µs), 2 mount items, 81 nodes
+ INFO nsh::perf gc: 681µs
+ INFO nsh::perf commit: 0 ops, 371µs (list js 21µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 501µs (timers and tasks 51µs)
+ INFO nsh::perf event PressDown on view 12
+ INFO nsh::perf event PressUp on view 12
+ INFO nsh::perf event Press on view 12
+ INFO nsh::perf commit: 1 ops, 618µs (list js 241µs), 0 mount items, 81 nodes
+ INFO nsh::perf commit: 0 ops, 58µs (list js 18µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 261µs (timers and tasks 137µs)
+ INFO nsh::perf commit: 0 ops, 482µs (list js 12µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 535µs (timers and tasks 21µs)
+ INFO nsh::perf commit: 0 ops, 356µs (list js 28µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 548µs (timers and tasks 62µs)
+ INFO nsh::perf gc: 635µs
+ INFO nsh::perf event Dialog on view 1
+ INFO nsh::perf commit: 71 ops, 4412µs (list js 1363µs), 27 mount items, 88 nodes
+ INFO nsh::perf turn: 4572µs (timers and tasks 73µs)
+ INFO nsh::perf commit: 0 ops, 54µs (list js 23µs), 1 mount items, 88 nodes
+ INFO nsh::perf turn: 210µs (timers and tasks 126µs)
+ INFO nsh::perf gc: 602µs
+ INFO nsh::perf event FileRequest on view 1
+DYNAMIC_WORKER_BOOT {"guard_ready":true,"identity_bound":true,"run_id":"pdf-8aafb02b54576eda10487a0d2ff996c6-4","worker":{"boot_id":"2499728b-ecc2-47b6-b3eb-d2b4529b7dbd","exe_device":2096,"exe_inode":859481,"pid":277289,"run_id":"pdf-8aafb02b54576eda10487a0d2ff996c6-4","start_time_ticks":2379823,"uid":1000}}
+DYNAMIC_FAILURE PdfiumLibraryInternalError(
+    FormatError,
+)
+ INFO nsh::perf commit: 49 ops, 3554µs (list js 1327µs), 18 mount items, 84 nodes
+ INFO nsh::perf turn: 3824µs (timers and tasks 203µs)
+ INFO nsh::perf gc: 815µs
+ INFO nsh::perf commit: 3 ops, 326µs (list js 25µs), 2 mount items, 81 nodes
+ INFO nsh::perf gc: 530µs
+ INFO nsh::perf commit: 0 ops, 467µs (list js 31µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 624µs (timers and tasks 75µs)
+ INFO nsh::perf event PressDown on view 374
+ INFO nsh::perf commit: 0 ops, 637µs (list js 65µs), 1 mount items, 81 nodes
+ INFO nsh::perf turn: 739µs (timers and tasks 55µs)
+ INFO nsh::perf event PressUp on view 374
+ INFO nsh::perf event Press on view 374
+ INFO nsh::perf commit: 67 ops, 4611µs (list js 1822µs), 18 mount items, 78 nodes
+ INFO nsh::perf turn: 4765µs (timers and tasks 62µs)
+ INFO nsh::perf gc: 464µs
+ INFO nsh::perf commit: 6 ops, 201µs (list js 11µs), 4 mount items, 72 nodes
+READER_NATIVE {"ok":true,"value":{"candidate_id":"candidate-137b8b06e05796bb67fcda17a21d8d0c-6","receipt":{"capture_id":1,"commit_rev":2,"document_id":1,"draft_hash":"a90d2bc53e4a221494ab88e8bfbfa8de7a5a2d2d2c86597fe5989f816dadf43c","extraction_revision":"948a298f216db32586c087fcd3e5991f583a9c39436cce7160d8439aa037e472","operation_id":"surface-save-137b8b06e05796bb67fcda17a21d8d0c-7","original_sha256":"51923c92150ecc9ffeaaadb3c6a7599e262e38914f63323c78ae67bec0f89829"},"saved":true}}
+ INFO nsh::perf commit: 87 ops, 5224µs (list js 1547µs), 50 mount items, 77 nodes
+ INFO nsh::perf turn: 5467µs (timers and tasks 127µs)
+ INFO nsh::perf gc: 529µs
+ INFO nsh::perf commit: 0 ops, 382µs (list js 10µs), 1 mount items, 77 nodes
+ INFO nsh::perf turn: 478µs (timers and tasks 21µs)
+ INFO nsh::perf event PressDown on view 426
+ INFO nsh::perf commit: 0 ops, 351µs (list js 41µs), 1 mount items, 77 nodes
+ INFO nsh::perf turn: 446µs (timers and tasks 38µs)
+ INFO nsh::perf event PressUp on view 426
+ INFO nsh::perf event Press on view 426
+ INFO nsh::perf commit: 84 ops, 3309µs (list js 1112µs), 38 mount items, 59 nodes
+ INFO nsh::perf turn: 3418µs (timers and tasks 42µs)
+ INFO nsh::perf gc: 441µs
+ INFO nsh::perf commit: 9 ops, 322µs (list js 13µs), 6 mount items, 50 nodes
+ INFO nsh::perf commit: 1 ops, 39µs (list js 9µs), 1 mount items, 50 nodes
+ INFO nsh::perf turn: 115µs (timers and tasks 53µs)
+ INFO nsh::perf event Focus on view 200
+ INFO nsh::perf event js: 23µs
+ INFO nsh::perf gc: 473µs
+ INFO nsh::perf event Window on view 1
+ INFO nsh::perf event js: 85µs
+READER_GUEST_RESULT {"api_version":{"major":0,"minor":2},"request_id":"reader-137b8b06e05796bb67fcda17a21d8d0c-8","result":{"kind":"state","surface":{"frame":null,"generation":5,"handle":"sf.137b8b06e05796bb67fcda17a21d8d0c.1.1","page_count":3,"page_index":2,"resource":{"document_id":"1","kind":"document","vault_id":"surface-vault"},"selection_lease":null,"source":{"extraction_revision":"948a298f216db32586c087fcd3e5991f583a9c39436cce7160d8439aa037e472","original_sha256":"51923c92150ecc9ffeaaadb3c6a7599e262e38914f63323c78ae67bec0f89829"},"status":"closing","zoom":0.5510752688172043}},"surface_protocol":1}
+READER_CLEANUP Object {"native_mount_release_ack": Bool(false), "pending_until_process_exit": Number(1)}

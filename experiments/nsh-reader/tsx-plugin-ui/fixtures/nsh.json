@@ -1,0 +1,7 @@
+{
+  "name": "QUSOR TSX UI Research Fixture",
+  "id": "org.qusor.research.tsx-ui",
+  "capabilities": {
+    "host": ["qusor.probe.echo"]
+  }
+}

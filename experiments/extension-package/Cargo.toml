@@ -11,15 +11,24 @@ publish = false
 description = "Isolated signed package and persistence experiment; not a production installer."
 
 [dependencies]
+extension-store = { path = "../../adapters/extension-store" }
+extension-runtime-api = { path = "../../crates/extension-runtime-api" }
+runtime-process = { path = "../../adapters/runtime-process" }
+extension-package = { path = "../../crates/extension-package" }
 libc = "=0.2.191"
-ed25519-dalek = { version = "=2.2.0", default-features = false, features = ["std"] }
 extension-api = { path = "../../crates/extension-api" }
+extension-host = { path = "../../crates/extension-host" }
 fs2 = "=0.4.3"
 qusor-wasm-probe = { path = "../extension-wasm/runner" }
 rusqlite = { version = "=0.32.1", features = ["bundled"] }
+# Linux-only process identity/pidfd cleanup and parent-death guard, through safe APIs.
+rustix = { version = "=1.1.4", default-features = false, features = ["std", "process", "event"] }
 serde = { version = "=1.0.228", features = ["derive"] }
 serde_json = "=1.0.149"
 sha2 = "=0.10.9"
+
+[dev-dependencies]
+wat = "=1.228.0"
 
 [lints.rust]
 unsafe_code = "forbid"

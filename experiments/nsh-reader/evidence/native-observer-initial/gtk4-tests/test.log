@@ -1,0 +1,30 @@
+   Compiling usvg v0.46.0
+   Compiling tiny-skia v0.11.4
+   Compiling nsh-macros v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-macros)
+   Compiling resvg v0.46.0
+   Compiling nsh-updater v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-updater)
+   Compiling nsh-core v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-core)
+   Compiling regex-automata v0.4.18
+   Compiling zune-core v0.5.3
+   Compiling zune-jpeg v0.5.15
+   Compiling regex v1.13.1
+   Compiling png v0.18.1
+   Compiling nsh-base v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-base)
+   Compiling image v0.25.10
+   Compiling nsh-engine v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-engine)
+   Compiling nsh-platform-linux v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-platform-linux)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 20s
+     Running unittests src/lib.rs (/workspace/qusor/experiments/nsh-reader/target/nsh/target/debug/deps/nsh_platform_linux-9c5e1e0a036bee78)
+
+running 3 tests
+test retirement::tests::retirement_actual_image_snapshot_matches_exact_frame_identity ... MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+OBSERVER_SNAPSHOT actual_append=true exact_identity=true physical_present_claimed=false
+ok
+test retirement::tests::retirement_one_shot_closed_admission_and_foreign_owner_fail_closed ... OBSERVER_ADMISSION one_shot=true late_create_rejected=true foreign_isolated=true
+ok
+test retirement::tests::retirement_real_finalization_waits_for_clone_and_survives_dispose ... OBSERVER_REAL_FINALIZATION clones_blocked=true dispose_not_ack=true qdata_finalization_reached=2 finalizer_return_claimed=false unprovable=true
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 128 filtered out; finished in 0.22s
+

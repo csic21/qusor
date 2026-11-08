@@ -1,0 +1,204 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (target/debug/deps/blob_store-752c4f525668c43c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/core_api-7421ba1b1e71e737)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/contract.rs (target/debug/deps/contract-c1178772676d350a)
+
+running 8 tests
+test duplicate_quotes_never_choose_a_match ... ok
+test anchor_requires_identical_version_and_bytes ... ok
+test malformed_ranges_and_missing_quotes_are_typed ... ok
+test graphemes_cannot_be_split_even_at_scalar_boundaries ... ok
+test rejects_unknown_duplicate_and_authority_fields ... ok
+test uri_metadata_has_no_credential_or_navigation_authority ... ok
+test preserves_raw_text_and_scalar_byte_coordinates ... ok
+test request_budget_and_canonical_digest_are_deterministic ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/pdf_compound.rs (target/debug/deps/pdf_compound-cb9b94ebc21c7a23)
+
+running 8 tests
+test version_profile_separator_segment_count_and_composed_quote_are_strict ... ok
+test cross_page_order_is_explicit_and_local_ranges_can_repeat_on_different_pages ... ok
+test typed_json_rejects_unknown_duplicate_and_native_authority_fields ... ok
+test every_segment_is_bound_to_the_same_immutable_tuple ... ok
+test pairwise_overlap_and_duplicate_ranges_are_rejected_but_adjacent_are_valid ... ok
+test each_segment_enforces_grapheme_and_mapping_rules ... ok
+test rotated_lines_keep_explicit_order_without_fabricating_source_separators ... ok
+test both_actual_draft_and_envelope_must_fit_the_wire_budget ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/pdf_contract.rs (target/debug/deps/pdf_contract-0023c9dd55d7e449)
+
+running 10 tests
+test strict_json_and_profile_reject_unknown_duplicate_and_render_fields ... ok
+test validates_all_map_offsets_and_raw_unicode ... ok
+test geometry_is_finite_ordered_pdf_space_and_generated_gaps_stay_explicit ... ok
+test no_text_pages_and_invalid_selectors_are_explicit ... ok
+test unknown_mappings_are_explicit_evidence_never_exact_anchors ... ok
+test refuses_partial_graphemes_including_emoji_flags_and_crlf ... ok
+test immutable_raw_stream_and_every_coordinate_round_trip ... ok
+test semantic_revision_excludes_only_render_report_provenance ... ok
+test all_hash_constraints_are_required_without_fallback ... ok
+test budgeted_request_has_no_approval_identity_or_storage_fields ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/lib.rs (target/debug/deps/extension_api-e6b9d2f3bb92ec32)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/wire.rs (target/debug/deps/wire-20c9b85d9e2a29fc)
+
+running 21 tests
+test api_range_has_inclusive_minor_bounds_and_never_crosses_major_versions ... ok
+test contributions_cannot_require_undeclared_capabilities ... ok
+test contribution_and_capability_list_limits_apply_to_in_memory_values ... ok
+test duplicates_are_rejected_in_json_objects_and_declarations ... ok
+test display_title_limits_count_utf8_bytes_and_reject_blank_or_control_text ... ok
+test manifest_parsing_keeps_host_compatibility_separate_from_structure ... ok
+test malformed_utf8_trailing_documents_and_missing_fields_are_rejected ... ok
+test namespace_containment_uses_a_segment_boundary ... ok
+test package_version_orders_numeric_components_without_loss ... ok
+test opaque_ids_are_bounded_and_never_accept_paths_or_whitespace ... ok
+test parser_errors_do_not_echo_untrusted_fields_or_payload_values ... ok
+test manifest_rejects_unknown_fields_at_every_object_level ... ok
+test request_requires_the_implemented_protocol_version ... ok
+test published_fixtures_round_trip_through_validated_wire_entries ... ok
+test wire_error_messages_are_bounded_and_codes_are_closed ... ok
+test request_rejects_unknown_fields_and_self_reported_identity ... ok
+test resource_variants_are_closed_and_require_their_own_identifiers ... ok
+test unsigned_numeric_types_reject_overflow_fractional_and_string_encodings ... ok
+test unknown_capabilities_and_contribution_kinds_are_rejected ... ok
+test namespace_fields_are_bounded_ascii_and_not_display_names ... ok
+test wire_limits_count_all_bytes_before_deserialization ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/extension_host-ed908b8d05926ac6)
+
+running 2 tests
+test internal_tests::exhausted_identifiers_fail_without_reuse ... ok
+test internal_tests::exhausted_epoch_revocation_fails_closed ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/policy.rs (target/debug/deps/policy-b57dde50b7612355)
+
+running 12 tests
+test dispatch_binds_identity_and_only_exposes_authorized_contributions ... ok
+test exact_scope_cannot_read_other_selection_vault_or_optional_capability ... ok
+test handles_and_management_ids_cannot_cross_hosts_even_in_same_vault ... ok
+test every_revocation_path_prevents_an_in_flight_callback ... ok
+test incompatible_and_identity_changing_updates_leave_old_session_alive ... ok
+test invalid_grants_leave_live_authorization_unchanged ... ok
+test metadata_vault_scope_only_covers_metadata_in_its_vault ... ok
+test independent_packages_follow_the_same_policy ... ok
+test registration_is_not_authorization_or_activation ... ok
+test request_version_is_checked_on_typed_entrypoint_too ... ok
+test successful_update_never_inherits_old_or_expanded_permissions ... ok
+test unavailable_required_capability_rejects_but_optional_can_degrade ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/learning_application-4caaf9079141be85)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/learning_domain-47843fd37326a344)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/learning_ports-68be69cef0458241)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/storage_sqlite-837ddb0cbbc0bb97)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/transactions.rs (target/debug/deps/transactions-9f6185606219985e)
+
+running 10 tests
+test oversized_restore_is_a_budget_failure_before_json_parsing ... ok
+test application_reports_actionable_error_categories ... ok
+test restore_rechecks_empty_inside_its_transaction ... ok
+test malformed_plan_is_rejected_before_blob_publication ... ok
+test corrupt_and_missing_referenced_blobs_prevent_reads_and_retries ... ok
+test idempotence_ignores_later_global_revisions_and_detects_changed_payload ... ok
+test self_consistent_forged_history_is_not_an_append ... ok
+test transaction_rechecks_the_validated_input_hash_history ... ok
+test stale_and_bulk_plans_cannot_partially_commit ... ok
+test mixed_operations_share_identity_and_retries_keep_original_receipts ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+   Doc-tests blob_store
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests core_api
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests extension_api
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests extension_host
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests learning_application
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests learning_domain
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests learning_ports
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests storage_sqlite
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

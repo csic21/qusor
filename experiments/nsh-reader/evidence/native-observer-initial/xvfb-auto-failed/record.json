@@ -1,0 +1,24 @@
+{
+  "check_exit": 0,
+  "check_command": [
+    "cargo",
+    "check",
+    "--manifest-path",
+    "/home/user/.cache/qusor-native-release-observer/nsh-913/Cargo.toml",
+    "-p",
+    "nsh-platform-linux",
+    "--no-default-features",
+    "--features",
+    "native-retirement-observer",
+    "--locked",
+    "--offline",
+    "-j1"
+  ],
+  "source_sha256": "735584285fae9f9146f3efd7d384dc2012d9f5be8be852085a4d807d0ad5e1e8",
+  "status": "environment-failure-before-GTK-tests-no-display-assigned",
+  "manager_exit": 1,
+  "test_executed": false,
+  "xvfb_exit_code_observed": null,
+  "xvfb_identity_retained": false,
+  "xvfb_failure_evidence": "Fatal server error in complete preserved log; harness pipe EOF, manager exit1; subsequent ps found no live Xvfb-local. Original harness did not wait/record Xvfb exit code."
+}

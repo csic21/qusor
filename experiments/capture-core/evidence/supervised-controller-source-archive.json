@@ -1,0 +1,7 @@
+{
+  "archive": "experiments/capture-core/target/supervised-controller-qualified-sources.zip",
+  "archive_sha256": "320e7e952c27042b7fa597ba10e293a18eab46c9dd8e219e03882734e3058df5",
+  "files": 108,
+  "verified_against": "linux-supervised-controller.json",
+  "source_bytes_match": true
+}

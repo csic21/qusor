@@ -1,0 +1,5 @@
+TRACE "invalid-move-from" vm=0 calls=3 fuel=305506 {"reason":"index","status":"rejected"}
+TRACE "invalid-move-to" vm=0 calls=3 fuel=305506 {"reason":"index","status":"rejected"}
+TRACE "invalid-noop-index" vm=0 calls=3 fuel=297600 {"reason":"index","status":"rejected"}
+TRACE "invalid-replace-index" vm=0 calls=3 fuel=305095 {"reason":"index","status":"rejected"}
+TRACE "replace-output-over-budget" vm=0 calls=3 fuel=309042 {"reason":"text_budget","status":"rejected"}

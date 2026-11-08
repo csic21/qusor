@@ -1,0 +1,13 @@
+
+running 3 tests
+test retirement::tests::retirement_actual_image_snapshot_matches_exact_frame_identity ... MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+OBSERVER_SNAPSHOT actual_append=true exact_identity=true physical_present_claimed=false
+ok
+test retirement::tests::retirement_one_shot_closed_admission_and_foreign_owner_fail_closed ... OBSERVER_ADMISSION one_shot=true late_create_rejected=true foreign_isolated=true
+ok
+test retirement::tests::retirement_real_finalization_waits_for_clone_and_survives_dispose ... OBSERVER_REAL_FINALIZATION clones_blocked=true dispose_not_ack=true qdata_finalization_reached=2 finalizer_return_claimed=false unprovable=true
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 128 filtered out; finished in 0.13s
+

@@ -1,6 +1,6 @@
 # B2 独立签名包实验格式 v1
 
-本格式仅用于本机包完整性、发布者键绑定及冻结内容实验，不是生产安装器或稳定发行 SDK。关联 F-EXT-01/03/05/06、EXT-B02/B04 与 EXT-P04/P08/P11；阶段与未覆盖项沿用[生命周期规格](../../docs/product/plugin-lifecycle.md)。实现入口是 [package.rs](src/package.rs)，反例与固定向量在[验证测试](tests/package.rs)。
+本格式的纯验证实现已迁入生产契约 crate，仍用于本机包完整性、发布者键绑定及冻结内容资格验证，不是生产安装器或稳定发行 SDK。关联 F-EXT-01/03/05/06、EXT-B02/B04 与 EXT-P04/P08/P11；阶段与未覆盖项沿用[生命周期规格](../../docs/product/plugin-lifecycle.md)。实现入口是 [package.rs](../../crates/extension-package/src/package.rs)，反例与固定向量在[验证测试](../../crates/extension-package/tests/package.rs)。
 
 ## 容器和规范化
 
@@ -81,7 +81,7 @@ let verified = verify(&package, &trusted_key)?;
 
 ## 固定向量和实际覆盖
 
-[deterministic_package_binds_frozen_bytes_and_all_files](tests/package.rs) 固定以下输入，并对完整包摘要做常量断言：
+[deterministic_package_binds_frozen_bytes_and_all_files](../../crates/extension-package/tests/package.rs) 固定以下输入，并对完整包摘要做常量断言：
 
 - seed 为 32 个 `07` 字节，仅供测试。
 - 公钥：`ea4a6c63e29c520abef5507b132ec5f9954776aebebe7b92421eea691446d22c`。

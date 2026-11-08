@@ -1,0 +1,146 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+    Checking qusor-nsh-native-host-probe v0.1.0 (/workspace/qusor/experiments/nsh-reader/native-host)
+error: try not to call a closure in the expression where it is declared
+   --> native_editor.rs:605:15
+    |
+605 |           match (|| {
+    |  _______________^
+606 | |             #[cfg(feature = "native-qualification")]
+607 | |             qualification::fault("invocation")?;
+608 | |             e.service.invocation(Some(&p.run_id)).map_err(text)
+609 | |         })() {
+    | |____________^ help: try doing something like: `e.service.invocation(Some(&p.run_id)).map_err(text)`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#redundant_closure_call
+    = note: `-D clippy::redundant-closure-call` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::redundant_closure_call)]`
+
+error: try not to call a closure in the expression where it is declared
+  --> frame_owner_map.rs:38:29
+   |
+38 |                   let owner = (|| {
+   |  _____________________________^
+39 | |                     self.scheduler.new_owner(Binding {
+40 | |                         mount: key.mount_id.clone(),
+41 | |                         generation: key.generation,
+42 | |                         frame: key.frame_id.clone(),
+43 | |                     })
+44 | |                 })()?;
+   | |____________________^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#redundant_closure_call
+help: try doing something like
+   |
+38 ~                 let owner = self.scheduler.new_owner(Binding {
+39 +                         mount: key.mount_id.clone(),
+40 +                         generation: key.generation,
+41 +                         frame: key.frame_id.clone(),
+42 ~                     })?;
+   |
+
+error: this `if` statement can be collapsed
+   --> retirement_owner.rs:127:40
+    |
+127 |   ...                   } else if !matches!(slot.phase(), Phase::Unknown(_)) {
+    |  ______________________________^
+128 | | ...                       if let Ok(mut p) = slot.phase.lock() {
+129 | | ...                           *p = Phase::Joined;
+130 | | ...                       }
+131 | | ...                   }
+    | |_______________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+127 ~                                 } else if !matches!(slot.phase(), Phase::Unknown(_))
+128 ~                                     && let Ok(mut p) = slot.phase.lock() {
+129 |                                         *p = Phase::Joined;
+130 ~                                     }
+    |
+
+error: this `if` statement can be collapsed
+   --> retirement_owner.rs:132:33
+    |
+132 | / ...                   if joined && !matches!(slot.phase(), Phase::Unknown(_)) {
+133 | | ...                       if let Ok(mut c) = slot.cleanup.lock() {
+134 | | ...                           *c = None;
+135 | | ...                       }
+136 | | ...                   }
+    | |_______________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+132 ~                                 if joined && !matches!(slot.phase(), Phase::Unknown(_))
+133 ~                                     && let Ok(mut c) = slot.cleanup.lock() {
+134 |                                         *c = None;
+135 ~                                     }
+    |
+
+error: this `if` statement can be collapsed
+   --> frame_scheduler.rs:375:5
+    |
+375 | /     if let Some(w) = wake {
+376 | |         if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| w.wake())).is_err() {
+377 | |             owner.0.uncertain.store(true, Ordering::SeqCst);
+378 | |         }
+379 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+375 ~     if let Some(w) = wake
+376 ~         && std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| w.wake())).is_err() {
+377 |             owner.0.uncertain.store(true, Ordering::SeqCst);
+378 ~         }
+    |
+
+error: this `if` statement can be collapsed
+   --> frame_scheduler.rs:402:5
+    |
+402 | /     if let Some(w) = wake {
+403 | |         if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| w.wake())).is_err() {
+404 | |             owner.0.uncertain.store(true, Ordering::SeqCst);
+405 | |         }
+406 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+402 ~     if let Some(w) = wake
+403 ~         && std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| w.wake())).is_err() {
+404 |             owner.0.uncertain.store(true, Ordering::SeqCst);
+405 ~         }
+    |
+
+error: this `if` statement can be collapsed
+   --> frame_scheduler.rs:627:13
+    |
+627 | /             if let Some(r) = &q.running {
+628 | |                 if Arc::ptr_eq(&r.owner.0, &owner.0) {
+629 | |                     r.task.store(true, Ordering::SeqCst);
+630 | |                 }
+631 | |             }
+    | |_____________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+627 ~             if let Some(r) = &q.running
+628 ~                 && Arc::ptr_eq(&r.owner.0, &owner.0) {
+629 |                     r.task.store(true, Ordering::SeqCst);
+630 ~                 }
+    |
+
+error: could not compile `qusor-nsh-native-host-probe` (lib) due to 7 previous errors

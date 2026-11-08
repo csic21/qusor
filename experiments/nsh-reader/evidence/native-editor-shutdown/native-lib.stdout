@@ -1,0 +1,10 @@
+
+running 5 tests
+test plugin_surface::native_editor::tests::busy_duplicate_retains_unknown_effect_and_does_not_enter_job ... ok
+test plugin_surface::native_editor::tests::committed_frozen_save_is_reconciled_after_original_capture_revocation ... ok
+test plugin_surface::native_editor::tests::latched_shutdown_rejects_business_but_allows_explicit_discard ... ok
+test plugin_surface::native_editor::tests::repeated_begin_preserves_body_binding_and_original_source_metadata ... ok
+test plugin_surface::native_editor::tests::uncommitted_frozen_save_cannot_write_after_capture_revocation ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 4.85s
+

@@ -1,0 +1,72 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+    Checking qusor-nsh-native-host-probe v0.1.0 (/workspace/qusor/experiments/nsh-reader/native-host)
+error: this `if` statement can be collapsed
+   --> native_editor.rs:451:5
+    |
+451 | /     if p.start_fact == StartFact::NotCalled && p.fatal.is_none() && !p.poisoned {
+452 | |         if let Err(error) = prepare_and_start(e, &mut p) {
+453 | |             p.fatal = Some(error);
+454 | |         }
+455 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+451 ~     if p.start_fact == StartFact::NotCalled && p.fatal.is_none() && !p.poisoned
+452 ~         && let Err(error) = prepare_and_start(e, &mut p) {
+453 |             p.fatal = Some(error);
+454 ~         }
+    |
+
+error: this `if` statement can be collapsed
+   --> native_editor.rs:476:13
+    |
+476 | /             if let Some(e) = slot.as_ref() {
+477 | |                 if let Some(owner) = &e.pending_run {
+478 | |                     let mut p = owner.lock().unwrap_or_else(|poison| poison.into_inner());
+479 | |                     p.poisoned = true;
+...   |
+482 | |             }
+    | |_____________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+476 ~             if let Some(e) = slot.as_ref()
+477 ~                 && let Some(owner) = &e.pending_run {
+478 |                     let mut p = owner.lock().unwrap_or_else(|poison| poison.into_inner());
+479 |                     p.poisoned = true;
+480 |                     p.fatal = Some("editor panicked; retirement only".into());
+481 ~                 }
+    |
+
+error: this `if` statement can be collapsed
+   --> native_editor_qualification.rs:222:13
+    |
+222 | /             if let ProcessEvent::Reaped { handle: h, .. } = event {
+223 | |                 if h.run_id() == run {
+224 | |                     reaped = true;
+225 | |                 }
+226 | |             }
+    | |_____________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+222 ~             if let ProcessEvent::Reaped { handle: h, .. } = event
+223 ~                 && h.run_id() == run {
+224 |                     reaped = true;
+225 ~                 }
+    |
+
+error: could not compile `qusor-nsh-native-host-probe` (lib) due to 3 previous errors

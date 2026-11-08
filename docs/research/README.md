@@ -19,6 +19,8 @@
 | [05 本地优先 Supabase 同步](./05-local-first-sync.md) | 原子outbox、每库CAS/head、幂等、pull/snapshot、冲突、RLS/认证、隐私 |
 | [06 阶段任务 风险与验收](./06-milestones-risks.md) | 14项M-1、14项M0、13项M1任务，依赖/责任/投入，16项风险和Go/No-Go |
 | [07 UI / UX 设计参考研究](./07-ui-ux-design-study.md) | 官方案例、视觉观察、交互机制、QUSOR设计假设与待验证任务 |
+| [08 微信读书插件研究](./08-weread-plugin-study.md) | dsh-weread 固定源码、Agent Gateway 候选入口、QUSOR 插件接入与验收 |
+| [09 TSX 插件原生 UI 通路](./09-tsx-plugin-native-ui.md) | 最新固定 NSH 源码、独立 VM/原生嵌入/宿主桥、权限与字节码边界、仓库外构建实测及剩余验证 |
 
 协议冲突时：来源定位与实体定义以03为准；云同步wire/服务端表以05为准；运行支持承诺以06的设备证据为准。实施前按M-1结果统一修改并冻结v1，不能各模块独立解释同一字段。
 

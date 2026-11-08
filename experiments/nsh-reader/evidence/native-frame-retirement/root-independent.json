@@ -1,0 +1,21 @@
+{
+  "runs": [
+    {
+      "name": "default-native-lib",
+      "executable_sha256": "eeab2b8fd117e8949d5eaeee600c3c39c6887ab006f025dda626ae27d4a9bd8a",
+      "exit_code": 0,
+      "log": "root-default-native-lib.log",
+      "log_sha256": "49197a5f9e9cc94064e6e1b5a6df4ed83fa7dbe60bc89da209812bd30d4829b1"
+    },
+    {
+      "name": "feature-native-editor-retirement",
+      "executable_sha256": "e06f4fda55aff23f8bf8855ba8b7bb95f23a45c119475803415c333f12f8f7ec",
+      "exit_code": 0,
+      "log": "root-feature-native-editor-retirement.log",
+      "log_sha256": "7805d4d3293cbbb456a633134bd32b8e147445796171959d719886b950b832f6"
+    }
+  ],
+  "source_after_matches": true,
+  "source_scope": "Nine selected native Rust sources; frozen exact test executables, not full dependency provenance.",
+  "scope": "Default native library 29 and feature real OS 8 independently rerun. No new GUI/native decode or Host release ACK proof."
+}

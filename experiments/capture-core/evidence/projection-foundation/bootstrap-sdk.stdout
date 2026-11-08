@@ -1,0 +1,2 @@
+{"kind":"read_context","api_version":{"major":0,"minor":3},"projection_protocol":1,"request_id":"ordinary-probe"}
+{"api_version":{"major":0,"minor":3},"component_invocation_protocol":1,"request_id":"purpose","operation":{"kind":"read_context"}}

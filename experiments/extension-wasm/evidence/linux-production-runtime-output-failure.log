@@ -1,0 +1,71 @@
++ cargo metadata --manifest-path /workspace/qusor/experiments/extension-wasm/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo metadata --manifest-path /workspace/qusor/experiments/extension-wasm/author/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo metadata --manifest-path /workspace/qusor/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo fmt --all -- --check
++ cargo test -p runtime-wasm --locked --offline
++ cargo clippy -p extension-runtime-api -p runtime-wasm --all-targets --locked --offline -- -D warnings
++ cargo fmt --manifest-path /workspace/qusor/experiments/extension-wasm/Cargo.toml --all -- --check
++ cargo build --manifest-path /workspace/qusor/experiments/extension-wasm/Cargo.toml --all-targets --locked --offline
++ cargo fmt --manifest-path /workspace/qusor/experiments/extension-wasm/author/Cargo.toml --all -- --check
++ cargo build --manifest-path /workspace/qusor/experiments/extension-wasm/author/Cargo.toml --all-targets --locked --offline
++ cargo metadata --manifest-path /tmp/qusor-independent-author-2uqjelrx/author/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo build --manifest-path /tmp/qusor-independent-author-2uqjelrx/author/Cargo.toml --locked --offline
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/ambient-import.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/ambient-import
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/cross-selection.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/cross-selection
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/cross-vault.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/cross-vault
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/deep-recursion.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/deep-recursion
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/infinite-loop.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/infinite-loop
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/initial-memory.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/initial-memory
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/invalid-output-pointer.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/invalid-output-pointer
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/invalid-pointer.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/invalid-pointer
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/max-escaped-output.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/max-escaped-output
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/memory-grow.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/memory-grow
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/multiple-calls.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/multiple-calls
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/oversized-output.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/oversized-output
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/oversized-request.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/oversized-request
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/start-function.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/start-function
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/table-grow.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/table-grow
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/unauthorized-capture.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/unauthorized-capture
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/valid-v2.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest-v2.json /workspace/qusor/experiments/extension-wasm/packages/valid-v2
++ /tmp/qusor-independent-author-2uqjelrx/target/debug/build-plugin /tmp/qusor-independent-author-2uqjelrx/fixtures/valid.wat /tmp/qusor-independent-author-2uqjelrx/fixtures/manifest.json /workspace/qusor/experiments/extension-wasm/packages/valid
++ cargo test --manifest-path /workspace/qusor/experiments/extension-wasm/Cargo.toml --locked --offline
++ cargo clippy --manifest-path /workspace/qusor/experiments/extension-wasm/Cargo.toml --all-targets --locked --offline -- -D warnings
++ cargo test --manifest-path /workspace/qusor/experiments/extension-wasm/author/Cargo.toml --locked --offline
++ cargo clippy --manifest-path /workspace/qusor/experiments/extension-wasm/author/Cargo.toml --all-targets --locked --offline -- -D warnings
+valid: ok
+valid-v2: ok
+multiple-calls: ok
+max-escaped-output: ok
+cross-vault: permission_denied
+cross-selection: permission_denied
+unauthorized-capture: permission_denied
+infinite-loop: fuel_exhausted
+memory-grow: vm_trap
+initial-memory: instantiate_failed
+table-grow: vm_trap
+deep-recursion: vm_trap
+ambient-import: unknown_import
+start-function: invalid_module
+invalid-pointer: invalid_pointer
+invalid-output-pointer: invalid_pointer
+oversized-request: host_buffer_limit
+oversized-output: output_size_limit
+valid (blocked host): watchdog_timeout
+valid: ok
++ rustc -Vv
+Traceback (most recent call last):
+  File "/workspace/qusor/experiments/extension-wasm/validate.py", line 207, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/qusor/experiments/extension-wasm/validate.py", line 200, in main
+    options.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              encoding="utf-8")
+                              ^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 810, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 772, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'experiments/extension-wasm/evidence/linux-production-runtime.json'

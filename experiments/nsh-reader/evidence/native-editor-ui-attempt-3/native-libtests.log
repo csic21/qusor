@@ -1,0 +1,30 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+     Running unittests pdf_module.rs (experiments/nsh-reader/target/nsh/target/debug/deps/qusor_nsh_native_host_probe-d29af105397334f7)
+
+running 15 tests
+test dynamic_module::dynamic_tests::frame_queue_keeps_only_latest_pending_request ... ok
+test dynamic_worker::tests::selected_fifo_or_symlink_is_rejected_without_blocking_the_worker ... ok
+test dynamic_worker::tests::owned_parser_termination_is_confirmed_before_its_slot_is_reused ... ok
+test dynamic_worker::tests::exited_child_without_bound_identity_keeps_durable_quarantine ... ok
+test plugin_surface::reader_guest_tests::signed_guest_preserves_complete_json_escapes_and_rejects_invalid_surrogates ... ok
+test tests::invalid_endpoint_clears_gesture_and_closed_surface_rejects_all_events ... ok
+test plugin_surface::native_editor::tests::committed_frozen_save_is_reconciled_after_original_capture_revocation ... ok
+test tests::page_and_zoom_changes_reject_old_events_without_cancelling_successor ... ok
+test plugin_surface::native_editor::tests::busy_duplicate_retains_unknown_effect_and_does_not_enter_job ... ok
+test tests::startup_budget_and_display_digest_are_enforced ... ok
+test plugin_surface::native_editor::tests::repeated_begin_preserves_body_binding_and_original_source_metadata ... ok
+test plugin_surface::native_editor::tests::uncommitted_frozen_save_cannot_write_after_capture_revocation ... ok
+test plugin_surface::reader_guest_tests::native_approval_retries_notes_distinct_operations_and_revoke ... ok
+test plugin_surface::reader_guest_tests::persisted_reader_set_restores_without_renewal_but_never_restores_old_frames_or_disable ... ok
+test plugin_surface::reader_guest_tests::signed_guest_trap_and_timeout_close_unmounted_open ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.61s
+

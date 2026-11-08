@@ -1,0 +1,12 @@
+{
+  "status": "feature-off-and-on-check-passed-before-doc-import-warning-fix",
+  "tests_executed": 0,
+  "artifacts": {
+    "check-off.log": "7e47f7a58e73da22bb8c94e6671a1b29e82a1805d09bf865a3877063a4aeb8cf",
+    "implementation-status.json": "0fef9a3eeefe702a128e3fd3ad0ea47b6b6af95153fd6efd6b792d7ab7e53570",
+    "observer-initial-sources.zip": "17c77d7373555f6a8f35c3eea7e23edcd56ff023da3df89cbae4f92cf05d0987",
+    "observer-initial.patch": "eaf27889cd91128e40b430a55f97c909b3f669722edfe1a85b65038c0cb75503",
+    "check-on.log": "a16e85d3397af46bae39bb2b581cf7ee2f563d60ef67aa07ca883f3fc6aeeada",
+    "check-results.json": "64baa3dbacda23e5870503cbf2b52ae99a08ecfffc21464713c3d80bae76ee3c"
+  }
+}

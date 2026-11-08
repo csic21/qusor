@@ -1,0 +1,95 @@
+{
+  "check_exit": 0,
+  "check_command": [
+    "cargo",
+    "check",
+    "--manifest-path",
+    "/home/user/.cache/qusor-native-release-observer/nsh-913/Cargo.toml",
+    "-p",
+    "nsh-platform-linux",
+    "--no-default-features",
+    "--features",
+    "native-retirement-observer",
+    "--locked",
+    "--offline",
+    "-j1"
+  ],
+  "source_sha256": "735584285fae9f9146f3efd7d384dc2012d9f5be8be852085a4d807d0ad5e1e8",
+  "xvfb": {
+    "pid": 481171,
+    "start_ticks": 5178084,
+    "display": ":114",
+    "exit_code": 0,
+    "terminal": true
+  },
+  "test": {
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/home/user/.cache/qusor-native-release-observer/nsh-913/Cargo.toml",
+      "-p",
+      "nsh-platform-linux",
+      "--no-default-features",
+      "--features",
+      "native-retirement-observer",
+      "--locked",
+      "--offline",
+      "-j1",
+      "--lib",
+      "retirement_",
+      "--",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "status": "terminal",
+    "cargo_pid": 481185,
+    "exit_code": 0,
+    "seconds": 141.02832072199817
+  },
+  "status": "passed-three-real-GTK-tests-partial-observer-no-release-ACK",
+  "tests_passed": 3,
+  "test_binary_sha256": "7270d6b725f4d30072aff01fea738942f1e43f0c160b8e79b28a7bb9e7b07f8d",
+  "test_binary_bytes": 455278768,
+  "feature_off_passed_before_warning_fix": true,
+  "feature_on_warning_fix_passed": true,
+  "main_pin_unchanged": true,
+  "qdata_scope": "finalization stage reached; not complete finalizer return",
+  "remaining_unprovable": [
+    "native child object retirement",
+    "jobs and queued callbacks",
+    "private decoded cache and textures",
+    "outro regression and actual component factory binding confirmation"
+  ],
+  "artifacts": {
+    "xvfb.log": {
+      "sha256": "b4c7eeeb685d357271d5d414216d2d02523a3720e8b721504d7b177ea6cc0713",
+      "bytes": 264
+    },
+    "observer-sources.zip": {
+      "sha256": "6ed12d7b527e62a559ecde0df12566d39ed0455fe5c9882caa555f73e241fc53",
+      "bytes": 60855
+    },
+    "check.log": {
+      "sha256": "f2066ca264b9a8598ecd436c70919e1efe1acea4098ad2a13b5d82d67bc049ec",
+      "bytes": 72
+    },
+    "observer.patch": {
+      "sha256": "b5b82a44d73dc8fd3abd2b385d1dcd407c5f8ed39e5fe25b882f07c08602c221",
+      "bytes": 29579
+    },
+    "driver.py": {
+      "sha256": "e18b6c51f0dbe6ead85f07a0815493367e524e530550517cda70098a41f6646f",
+      "bytes": 3300
+    },
+    "test.log": {
+      "sha256": "964687a116977f3a3ac32fc0fba124770d63cb589b8fb0840375ce1d2c8d33e7",
+      "bytes": 1987
+    },
+    "observer-gtk-tests": {
+      "sha256": "7270d6b725f4d30072aff01fea738942f1e43f0c160b8e79b28a7bb9e7b07f8d",
+      "bytes": 455278768
+    }
+  },
+  "patch_header_correction": "New-file git path prefix corrected only; source/binary unchanged"
+}

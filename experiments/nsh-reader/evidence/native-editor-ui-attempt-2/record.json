@@ -1,0 +1,17 @@
+{
+  "status": "multiline-native-A-save-restore-passed-autofocus-still-failed",
+  "autofocus_passed": false,
+  "explicit_field_click_required": true,
+  "body": "focused component thought",
+  "compound_segments": 2,
+  "actual_editor_vms": 15,
+  "actual_editor_calls": 50,
+  "actual_reaps": 15,
+  "max_fuel": 120094,
+  "core_reopen_restore_exact": true,
+  "native_release_ack_proven": false,
+  "ime_proven": false,
+  "source_inputs": 247,
+  "source_identity_checked_at_attempt_end": true,
+  "scope": "Same native binary/package; timer-only autofocus correction failed; new compound-source actual native save and empty restore verified"
+}

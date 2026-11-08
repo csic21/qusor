@@ -1,0 +1,14 @@
+   Compiling projection-wasm-smoke v0.1.0 (/tmp/qusor-projection-wasm-smoke)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.69s
+     Running `experiments/capture-core/target/debug/projection-wasm-smoke`
+CASE 0 passed 0
+CASE 1 passed 0
+CASE 2 passed 0
+CASE 3 passed 0
+CASE 4 passed 0
+CASE 5 passed 0
+CASE 6 passed 3
+
+thread 'main' (410278) panicked at src/main.rs:30:303:
+case7 vm16: RuntimeError { code: "deadline_exceeded" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

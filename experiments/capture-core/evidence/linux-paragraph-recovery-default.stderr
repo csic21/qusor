@@ -1,0 +1,28 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/component_paragraph_consumer.rs (experiments/capture-core/target/debug/deps/component_paragraph_consumer-00d2d83acfbc95a0)
+TRUSTED_FIXTURE_FAULT begin_reply_lost after applied checkpoint/effect; action=DropReply
+PROCESS_FAILURE run=3a7f027ad2c044b6b839cfa763c0124a-3 error=ProcessError { kind: Cancelled, code: "process_cancelled" } status=Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: "process_cancelled" }), pid: Some(389827), pending_call: None, exit: None })
+TRUSTED_FIXTURE_FAULT append_reply_lost after applied checkpoint/effect; action=DropReply
+PROCESS_FAILURE run=3a7f027ad2c044b6b839cfa763c0124a-4 error=ProcessError { kind: Cancelled, code: "process_cancelled" } status=Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: "process_cancelled" }), pid: Some(389831), pending_call: None, exit: None })
+TRUSTED_FIXTURE_FAULT commit_reply_lost after applied checkpoint/effect; action=DropReply
+PROCESS_FAILURE run=3a7f027ad2c044b6b839cfa763c0124a-5 error=ProcessError { kind: Cancelled, code: "process_cancelled" } status=Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: "process_cancelled" }), pid: Some(389835), pending_call: None, exit: None })
+PARAGRAPH_CASE_PASSED empty-text-replace vms=8
+PARAGRAPH_CASE_PASSED empty-text-same-move vms=13
+PARAGRAPH_CASE_PASSED empty-body-emoji-nul vms=24
+PARAGRAPH_CASE_PASSED crlf-only-replace vms=33
+PARAGRAPH_CASE_PASSED empty-body-lone-cr vms=45
+PARAGRAPH_CASE_PASSED lone-cr-same-move vms=52
+PARAGRAPH_CASE_PASSED repeated-cr-move vms=63
+PARAGRAPH_CASE_PASSED repeated-cr-inverse vms=74
+PARAGRAPH_CASE_PASSED mix-move-0-2 vms=85
+PARAGRAPH_CASE_PASSED mix-move-inverse vms=96
+PARAGRAPH_CASE_PASSED mix-same-index vms=103
+PARAGRAPH_CASE_PASSED lf-crlf-replace vms=114
+PARAGRAPH_CASE_PASSED emoji-move vms=125
+PARAGRAPH_CASE_PASSED nul-content-move vms=136
+PARAGRAPH_CASE_PASSED empty-body-move vms=146
+PARAGRAPH_CASE_PASSED no-trim-nul-replace vms=155
+PARAGRAPH_CASE_PASSED reject-lone-cr-absorbed-by-tail vms=162
+PARAGRAPH_CASE_PASSED reject-eof-cr-absorbed-by-slot vms=169
+PARAGRAPH_CASE_PASSED reject-empty-body-becomes-tail vms=176
+PARAGRAPH_CASE_PASSED reject-shifted-body-cr vms=183

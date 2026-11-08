@@ -1,0 +1,1 @@
+{"composition_protocol":1,"api_version":{"major":0,"minor":3},"contribution_id":"ordinary.paragraph-editor.input","role":"annotation.plain-text-editor","contract":"annotation.plain-text-editor/v1","view":{"kind":"paragraph_editor","label":"Paragraphs","placeholder":"Write your thought"}}

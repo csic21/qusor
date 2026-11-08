@@ -1,0 +1,34 @@
+{
+  "pid": 191957,
+  "display": ":98",
+  "command": [
+    "/tmp/qusor-xvfb-prefix/usr/bin/Xvfb-local",
+    ":98",
+    "-screen",
+    "0",
+    "1280x1100x24",
+    "-ac",
+    "-nolisten",
+    "tcp"
+  ],
+  "environment": {
+    "LD_LIBRARY_PATH": "/tmp/qusor-xvfb-prefix/usr/lib/x86_64-linux-gnu"
+  },
+  "binary_sha256": "e9dc13c8c0520d57f4680cee4816c86607ed35347c5d651cd3fba9f9daf31ac5",
+  "prior_xvfb": {
+    "deb_sha256": {
+      "xvfb_2%3a21.1.22-1ubuntu1.3_amd64.deb": "e46d389ef552dfd557df22a49a1071fef2ab499951633e9857ebb763d7ae7d24",
+      "xserver-common_2%3a21.1.22-1ubuntu1.3_all.deb": "d4ea6392708347a8e89c3cb0421820ae0fbf45d47e78c49876e119db3225aa07",
+      "libxfont2_1%3a2.0.6-2ubuntu0.2_amd64.deb": "eeca46a661876466a8f96469054427f0b18a10a758c4c69d2c5f20b290f6f056",
+      "x11-xkb-utils_7.7+9build1_amd64.deb": "f17d61317a9f0db99db7a2c7b81d462a35008c85089fb573d2175ed504f6157b",
+      "libunwind8_1.8.3-0ubuntu1_amd64.deb": "7a9978fadf0940f45500ced0fba219cb5954f322a31068b7b32ad04f3ddc5c3f",
+      "libfontenc1_1%3a1.1.8-1build2_amd64.deb": "1fab0e125d793da45d91b346c334c496776d69709a7ea78c3b34d5db6db69eab"
+    },
+    "download": "apt-get download xvfb xserver-common libxfont2 x11-xkb-utils libunwind8 libfontenc1; dpkg-deb -x each /tmp/qusor-xvfb-prefix",
+    "original_binary_sha256": "4adf27968d6f78f329f88beb71cbd3d181fa2018850a95ae3716afae2ae236c9",
+    "local_test_binary_sha256": "e9dc13c8c0520d57f4680cee4816c86607ed35347c5d651cd3fba9f9daf31ac5",
+    "local_test_binary_change": "one equal-length /usr/bin\u2192/tmp/bin replacement solely to find extracted xkbcomp without installing system files; /tmp/bin/xkbcomp symlinks extracted official executable",
+    "command": "LD_LIBRARY_PATH=/tmp/qusor-xvfb-prefix/usr/lib/x86_64-linux-gnu /tmp/qusor-xvfb-prefix/usr/bin/Xvfb-local :98 -screen 0 1280x1100x24 -ac -nolisten tcp",
+    "scope": "virtual X11 display, real GTK widgets and XTest key path; no physical keyboard/IME claim"
+  }
+}

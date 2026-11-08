@@ -1,0 +1,17 @@
+[package]
+name="projection-wasm-smoke"
+version="0.1.0"
+edition="2024"
+[workspace]
+[dependencies]
+qusor-capture-probe={path="/workspace/qusor/experiments/capture-core"}
+extension-api={path="/workspace/qusor/crates/extension-api"}
+extension-host={path="/workspace/qusor/crates/extension-host"}
+extension-store={path="/workspace/qusor/adapters/extension-store"}
+extension-package={path="/workspace/qusor/crates/extension-package"}
+extension-runtime-api={path="/workspace/qusor/crates/extension-runtime-api"}
+runtime-wasm={path="/workspace/qusor/adapters/runtime-wasm"}
+learning-application={path="/workspace/qusor/crates/learning-application"}
+storage-sqlite={path="/workspace/qusor/adapters/storage-sqlite"}
+core-api={path="/workspace/qusor/crates/core-api"}
+serde_json="=1.0.149"

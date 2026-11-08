@@ -11,7 +11,7 @@ license = "MIT"
 description = "Independent author consuming the QUSOR experimental package SDK."
 
 [dependencies]
-qusor-package-probe = { path = ".." }
+qusor-package-probe = { package = "extension-package", path = "../../../crates/extension-package" }
 extension-api = { path = "../../../crates/extension-api" }
 wat = "=1.228.0"
 

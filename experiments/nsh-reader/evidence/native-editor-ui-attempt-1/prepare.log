@@ -1,0 +1,328 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+     Locking 55 packages to latest Rust 1.97.1 compatible versions
+      Adding serde v1.0.228 (available: v1.0.229)
+      Adding serde_core v1.0.228 (available: v1.0.229)
+      Adding serde_derive v1.0.228 (available: v1.0.229)
+      Adding serde_json v1.0.149 (available: v1.0.154)
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling version_check v0.9.5
+   Compiling unicode-ident v1.0.27
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling syn v2.0.119
+   Compiling serde_core v1.0.228
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling semver v1.0.28
+   Compiling memchr v2.8.3
+   Compiling zmij v1.0.23
+   Compiling rustc_version v0.4.1
+   Compiling digest v0.10.7
+   Compiling cfg-if v1.0.5
+   Compiling serde_json v1.0.149
+   Compiling cpufeatures v0.2.17
+   Compiling serde v1.0.228
+   Compiling curve25519-dalek v4.1.3
+   Compiling serde_derive v1.0.228
+   Compiling itoa v1.0.18
+   Compiling wasm-encoder v0.228.0
+   Compiling sha2 v0.10.9
+   Compiling curve25519-dalek-derive v0.1.1
+   Compiling signature v2.2.0
+   Compiling zeroize v1.9.1
+   Compiling leb128fmt v0.1.0
+   Compiling subtle v2.6.1
+   Compiling ed25519 v2.2.3
+   Compiling base64 v0.22.1
+   Compiling bumpalo v3.20.3
+   Compiling unicode-width v0.2.3
+   Compiling wast v228.0.0
+   Compiling extension-api v0.0.0 (/home/user/.cache/qusor-validation-tmp/qusor-reader-sdk-nnejtju4/sdk/api)
+   Compiling ed25519-dalek v2.2.0
+   Compiling unicode-segmentation v1.13.3
+   Compiling core-api v0.0.0 (/home/user/.cache/qusor-validation-tmp/qusor-reader-sdk-nnejtju4/sdk/capture)
+   Compiling extension-package v0.0.0 (/home/user/.cache/qusor-validation-tmp/qusor-reader-sdk-nnejtju4/sdk/package)
+   Compiling wat v1.228.0
+   Compiling build-surface-plugin v0.1.0 (/home/user/.cache/qusor-validation-tmp/qusor-reader-sdk-nnejtju4/sdk/author)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 24.72s
+    Checking typenum v1.20.1
+    Checking generic-array v0.14.7
+    Checking block-buffer v0.10.4
+    Checking crypto-common v0.1.7
+    Checking memchr v2.8.3
+    Checking digest v0.10.7
+    Checking serde_core v1.0.228
+    Checking cpufeatures v0.2.17
+    Checking cfg-if v1.0.5
+    Checking zmij v1.0.23
+    Checking itoa v1.0.18
+    Checking serde_json v1.0.149
+    Checking serde v1.0.228
+    Checking sha2 v0.10.9
+    Checking signature v2.2.0
+    Checking leb128fmt v0.1.0
+    Checking zeroize v1.9.1
+    Checking subtle v2.6.1
+    Checking curve25519-dalek v4.1.3
+    Checking wasm-encoder v0.228.0
+    Checking ed25519 v2.2.3
+    Checking unicode-width v0.2.3
+    Checking bumpalo v3.20.3
+    Checking base64 v0.22.1
+    Checking extension-api v0.0.0 (/home/user/.cache/qusor-validation-tmp/qusor-reader-sdk-nnejtju4/sdk/api)
+    Checking wast v228.0.0
+    Checking ed25519-dalek v2.2.0
+    Checking unicode-segmentation v1.13.3
+    Checking core-api v0.0.0 (/home/user/.cache/qusor-validation-tmp/qusor-reader-sdk-nnejtju4/sdk/capture)
+    Checking extension-package v0.0.0 (/home/user/.cache/qusor-validation-tmp/qusor-reader-sdk-nnejtju4/sdk/package)
+    Checking wat v1.228.0
+    Checking build-surface-plugin v0.1.0 (/home/user/.cache/qusor-validation-tmp/qusor-reader-sdk-nnejtju4/sdk/author)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.36s
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+   Compiling qusor-nsh-native-host-probe v0.1.0 (/workspace/qusor/experiments/nsh-reader/native-host)
+   Compiling nsh-app-qusor-nsh-native-host-probe-describe v0.0.0 (/workspace/qusor/experiments/nsh-reader/dynamic-pdf/.nsh/rust/describe)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.66s
+✓ built the Rust crate qusor-nsh-native-host-probe (3.7s)
+warn qusor/pdf-surface exports items without a doc comment, which TSX sees in its declarations: DynamicReader, DynamicReader.choose, DynamicReader.reopen, DynamicReader.cancel, DynamicReader.frame, DynamicReader.save, NativeEditor, NativeEditor.begin, NativeEditor.apply, NativeEditor.save, NativeEditor.discard, NativeEditor.status, NativeEditor.read, ReaderSurface, ReaderSurface.open, ReaderSurface.configure, ReaderSurface.ready, ReaderSurface.down, ReaderSurface.motion, ReaderSurface.up, ReaderSurface.cancel, ReaderSurface.save, ReaderSurface.failed, ReaderSurface.disable, ReaderSurface.close
+✓ built experiments/nsh-reader/dynamic-pdf/App.tsx into experiments/nsh-reader/target/dynamic-pdf-bundle (53.7 KB js, 186.4 KB bytecode, 105ms)
+{
+  "sdk_sources": {
+    "capture/contract.rs": "5f2a41176927913eac86859c2a7c724996cecfab0b030b50306324c0d3f8532b",
+    "capture/pdf_contract.rs": "7673e004999b75d37fbe43e038df8e48803838493b066e907ce296a421f83609",
+    "capture/pdf_compound.rs": "59634bfd7055df2a2886ed74fe5871ecf04311cb3d6d87ed3e1bdfa4c48e761d",
+    "package/package.rs": "4de3ba3784a111d47683f41ceff6f625868fbb5d61148a0cfbfca70787d066f2",
+    "api/src/component_invocation.rs": "a432b7d6876d3705c6ecbfdf27ed3df34ce1e80a7b2ff97295c2bb7b8f7dbbf9",
+    "api/src/composition.rs": "32bb8f741fd78113af905cf7574c30360848f2b54a402bdb7cca09f98ed24f0c",
+    "api/src/continuation.rs": "fffcb559ceade8671a103484ba562fc3200f535dca160745acdd12513d33e036",
+    "api/src/draft.rs": "c89c51d1f1bc9d135a6143d1cfdd335152b151d084fa4d03732d3654790bacf6",
+    "api/src/invocation.rs": "56a2da6b501b750476db54b4c89f0edfff8d27965ff574f651a38a4f1e057955",
+    "api/src/lib.rs": "db3adfc7ced0316e1943994ffac3a130729591a67ac0720982b29165caed6111",
+    "api/src/projection.rs": "8d7a1a83d839ffc2482328d127b8a392198b88deff5ee0c525ef70ba4dfcfbb2",
+    "api/src/surface.rs": "b4c0ea070e5e86734fd1f8131bd00ea1dffdbba81b5633b930c7fbf3ccc387b6",
+    "api/schema/component-context-v1.schema.json": "339a2b6ec996d471ff6cc0a92b4d4a77e00fd78dfa1b0cb81c71884cfadcb06d",
+    "api/schema/component-invocation-v1.schema.json": "2c4d017dcfe9be621b4d737d3b63a4fe0ad99325b91f42ce18155afade4b58dd",
+    "api/schema/composition-v1.schema.json": "3a75b6840ae47a322bedc3866869863cc11405d554de72fbed28aca4c4674b83",
+    "api/schema/continuation-v1.schema.json": "e58ed374c8974394c33297667025da4953291dfe714200428251f9b6ce164458",
+    "api/schema/draft-v1.schema.json": "90ed8de0bd92577325f2a2bbb364557d91859bddd937eec014d5e7bf2b5d88fd",
+    "api/schema/paragraph-projection-v1.schema.json": "17eeff4b2da272e2530c386c0f9960c7d7c12842afcf5fd685c4d51ed88283ab",
+    "api/schema/policy-v0.1.schema.json": "a9ec0d843fa58b3835f14fd24a27211a4b40c7cb62aeecb0ee7973124335947b",
+    "api/schema/policy-v0.2.schema.json": "1cb65514f75c56864848d6c9cb760b8ddf494fe040f283c18c9835ab98f707de",
+    "api/schema/policy-v0.3.schema.json": "909b434bbafe126e4208b18f0ad2fa7a2330a6ba2ee3a149d06310e4b873bdaf",
+    "api/schema/surface-v1.schema.json": "e56d9c3379eb4b1e87ec96750655740ac0a9819c0f7840cd17015407feb4de4a",
+    "author/src/bin/component_author.rs": "2f414b38c73b788fc016a0fd3afd8f57e67969a58f6c75a9957c5a95f2b687f3",
+    "author/src/bin/component_paragraph_author.rs": "9ea4426732fe84504bc61da3b16ff8002158433f812b0922bc1ae37640d043af",
+    "author/src/bin/component_paragraph_projected_author.rs": "29a39cf0b0f64f279dc0a8bc33a3b0122ea90d81b195cc2aa09b8669dc63a842",
+    "author/src/component_paragraph.c": "bea64b7630c3ef28c29db08fdd3bda3383db683a9c25aa357a882b8a4bda6222",
+    "author/src/component_paragraph_entry.s": "cbe7bb988a2ba77c9a2f22593631e5e9c21e909997495dc38112e9c1dea7cdd4",
+    "author/src/component_paragraph_projected.c": "e1d78640bdde781ff7b5a4766a3b1dda948c5e522f694e9549eff32fd6eeb765",
+    "author/src/component_text.wat": "9bfec0cd13241bae659f3813f977ae0539f0877e0e19f7aa572a442de33aaa01",
+    "author/src/main.rs": "c1ba01d2963dccb2cf0412c3cc8c5c29797e3fc8cb6bd65d7c68496e7479dc74"
+  },
+  "packages": [
+    "base64",
+    "base64ct",
+    "bitflags",
+    "block-buffer",
+    "build-surface-plugin",
+    "bumpalo",
+    "cfg-if",
+    "const-oid",
+    "core-api",
+    "cpufeatures",
+    "crypto-common",
+    "curve25519-dalek",
+    "curve25519-dalek-derive",
+    "der",
+    "digest",
+    "ed25519",
+    "ed25519-dalek",
+    "equivalent",
+    "extension-api",
+    "extension-package",
+    "fiat-crypto",
+    "generic-array",
+    "getrandom",
+    "hashbrown",
+    "indexmap",
+    "itoa",
+    "leb128fmt",
+    "libc",
+    "memchr",
+    "pkcs8",
+    "proc-macro2",
+    "quote",
+    "rand_core",
+    "rustc_version",
+    "semver",
+    "serde",
+    "serde_core",
+    "serde_derive",
+    "serde_json",
+    "sha2",
+    "signature",
+    "spki",
+    "subtle",
+    "syn",
+    "typenum",
+    "unicode-ident",
+    "unicode-segmentation",
+    "unicode-width",
+    "version_check",
+    "wasi",
+    "wasm-encoder",
+    "wasmparser",
+    "wast",
+    "wat",
+    "zeroize",
+    "zmij"
+  ],
+  "author_source_sha256": {
+    "main.rs": "4ec0ad8af677cdc17f41819e3dd55f63debe3a921eca70b054956718977638e6",
+    "reader.wat": "fed326b03ab5f507ba442778e400ba1a09415191e267c52224034b2dce0f4756"
+  },
+  "package_sha256": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+  "failure_packages": {
+    "trap": "4fb62966cfb63f2aa0bd52cdf4ab8dff9c9ec35538b0c592157245a267b72c8c",
+    "timeout": "610f70682f146b8dda5a5f00a7d8a80434c7193e502eb83025d9fbb8470f74e7",
+    "wrong": "8627f1597bfd583555f3cf13b21e1ef52afc3eea07a23c1df638902cd4900661",
+    "repeat": "4ee4b7672d31aaf48b3c3e19ef65ab6644f2582d41dd20f6540f0b3c0bfe4d0b"
+  },
+  "publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+  "local_sources_all_inside_sdk": true,
+  "package_file": "/workspace/qusor/experiments/nsh-reader/target/plugin-surface-resources/reader.package"
+}
+{
+  "artifacts": {
+    "experiments/nsh-reader/target/nsh/target/debug/qusor-nsh-dynamic-pdf-probe": "d3635e16248c805738c12615cbe4a8762e134650f5f9a5e49c37f4bc93956828",
+    "experiments/nsh-reader/target/dynamic-pdf-bundle/bundle.nshc": "f768dbc837006ab60c31167a5bb7bcca7b868cf6f90bfb709a1d46ca21a01fb8",
+    "experiments/nsh-reader/target/dynamic-pdf-resources/reader.package": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff"
+  },
+  "author_proof": {
+    "sdk_sources": {
+      "capture/contract.rs": "5f2a41176927913eac86859c2a7c724996cecfab0b030b50306324c0d3f8532b",
+      "capture/pdf_contract.rs": "7673e004999b75d37fbe43e038df8e48803838493b066e907ce296a421f83609",
+      "capture/pdf_compound.rs": "59634bfd7055df2a2886ed74fe5871ecf04311cb3d6d87ed3e1bdfa4c48e761d",
+      "package/package.rs": "4de3ba3784a111d47683f41ceff6f625868fbb5d61148a0cfbfca70787d066f2",
+      "api/src/component_invocation.rs": "a432b7d6876d3705c6ecbfdf27ed3df34ce1e80a7b2ff97295c2bb7b8f7dbbf9",
+      "api/src/composition.rs": "32bb8f741fd78113af905cf7574c30360848f2b54a402bdb7cca09f98ed24f0c",
+      "api/src/continuation.rs": "fffcb559ceade8671a103484ba562fc3200f535dca160745acdd12513d33e036",
+      "api/src/draft.rs": "c89c51d1f1bc9d135a6143d1cfdd335152b151d084fa4d03732d3654790bacf6",
+      "api/src/invocation.rs": "56a2da6b501b750476db54b4c89f0edfff8d27965ff574f651a38a4f1e057955",
+      "api/src/lib.rs": "db3adfc7ced0316e1943994ffac3a130729591a67ac0720982b29165caed6111",
+      "api/src/projection.rs": "8d7a1a83d839ffc2482328d127b8a392198b88deff5ee0c525ef70ba4dfcfbb2",
+      "api/src/surface.rs": "b4c0ea070e5e86734fd1f8131bd00ea1dffdbba81b5633b930c7fbf3ccc387b6",
+      "api/schema/component-context-v1.schema.json": "339a2b6ec996d471ff6cc0a92b4d4a77e00fd78dfa1b0cb81c71884cfadcb06d",
+      "api/schema/component-invocation-v1.schema.json": "2c4d017dcfe9be621b4d737d3b63a4fe0ad99325b91f42ce18155afade4b58dd",
+      "api/schema/composition-v1.schema.json": "3a75b6840ae47a322bedc3866869863cc11405d554de72fbed28aca4c4674b83",
+      "api/schema/continuation-v1.schema.json": "e58ed374c8974394c33297667025da4953291dfe714200428251f9b6ce164458",
+      "api/schema/draft-v1.schema.json": "90ed8de0bd92577325f2a2bbb364557d91859bddd937eec014d5e7bf2b5d88fd",
+      "api/schema/paragraph-projection-v1.schema.json": "17eeff4b2da272e2530c386c0f9960c7d7c12842afcf5fd685c4d51ed88283ab",
+      "api/schema/policy-v0.1.schema.json": "a9ec0d843fa58b3835f14fd24a27211a4b40c7cb62aeecb0ee7973124335947b",
+      "api/schema/policy-v0.2.schema.json": "1cb65514f75c56864848d6c9cb760b8ddf494fe040f283c18c9835ab98f707de",
+      "api/schema/policy-v0.3.schema.json": "909b434bbafe126e4208b18f0ad2fa7a2330a6ba2ee3a149d06310e4b873bdaf",
+      "api/schema/surface-v1.schema.json": "e56d9c3379eb4b1e87ec96750655740ac0a9819c0f7840cd17015407feb4de4a",
+      "author/src/bin/component_author.rs": "2f414b38c73b788fc016a0fd3afd8f57e67969a58f6c75a9957c5a95f2b687f3",
+      "author/src/bin/component_paragraph_author.rs": "9ea4426732fe84504bc61da3b16ff8002158433f812b0922bc1ae37640d043af",
+      "author/src/bin/component_paragraph_projected_author.rs": "29a39cf0b0f64f279dc0a8bc33a3b0122ea90d81b195cc2aa09b8669dc63a842",
+      "author/src/component_paragraph.c": "bea64b7630c3ef28c29db08fdd3bda3383db683a9c25aa357a882b8a4bda6222",
+      "author/src/component_paragraph_entry.s": "cbe7bb988a2ba77c9a2f22593631e5e9c21e909997495dc38112e9c1dea7cdd4",
+      "author/src/component_paragraph_projected.c": "e1d78640bdde781ff7b5a4766a3b1dda948c5e522f694e9549eff32fd6eeb765",
+      "author/src/component_text.wat": "9bfec0cd13241bae659f3813f977ae0539f0877e0e19f7aa572a442de33aaa01",
+      "author/src/main.rs": "c1ba01d2963dccb2cf0412c3cc8c5c29797e3fc8cb6bd65d7c68496e7479dc74"
+    },
+    "packages": [
+      "base64",
+      "base64ct",
+      "bitflags",
+      "block-buffer",
+      "build-surface-plugin",
+      "bumpalo",
+      "cfg-if",
+      "const-oid",
+      "core-api",
+      "cpufeatures",
+      "crypto-common",
+      "curve25519-dalek",
+      "curve25519-dalek-derive",
+      "der",
+      "digest",
+      "ed25519",
+      "ed25519-dalek",
+      "equivalent",
+      "extension-api",
+      "extension-package",
+      "fiat-crypto",
+      "generic-array",
+      "getrandom",
+      "hashbrown",
+      "indexmap",
+      "itoa",
+      "leb128fmt",
+      "libc",
+      "memchr",
+      "pkcs8",
+      "proc-macro2",
+      "quote",
+      "rand_core",
+      "rustc_version",
+      "semver",
+      "serde",
+      "serde_core",
+      "serde_derive",
+      "serde_json",
+      "sha2",
+      "signature",
+      "spki",
+      "subtle",
+      "syn",
+      "typenum",
+      "unicode-ident",
+      "unicode-segmentation",
+      "unicode-width",
+      "version_check",
+      "wasi",
+      "wasm-encoder",
+      "wasmparser",
+      "wast",
+      "wat",
+      "zeroize",
+      "zmij"
+    ],
+    "author_source_sha256": {
+      "main.rs": "4ec0ad8af677cdc17f41819e3dd55f63debe3a921eca70b054956718977638e6",
+      "reader.wat": "fed326b03ab5f507ba442778e400ba1a09415191e267c52224034b2dce0f4756"
+    },
+    "package_sha256": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+    "failure_packages": {
+      "trap": "4fb62966cfb63f2aa0bd52cdf4ab8dff9c9ec35538b0c592157245a267b72c8c",
+      "timeout": "610f70682f146b8dda5a5f00a7d8a80434c7193e502eb83025d9fbb8470f74e7",
+      "wrong": "8627f1597bfd583555f3cf13b21e1ef52afc3eea07a23c1df638902cd4900661",
+      "repeat": "4ee4b7672d31aaf48b3c3e19ef65ab6644f2582d41dd20f6540f0b3c0bfe4d0b"
+    },
+    "publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+    "local_sources_all_inside_sdk": true,
+    "package_file": "/workspace/qusor/experiments/nsh-reader/target/plugin-surface-resources/reader.package"
+  },
+  "editor_author_proof": {
+    "package_sha256": "7769c10ae964187765e8e7de9c84ff6422d00da7426b7581ed961f18c6a030b8",
+    "publisher_public_key": "2152f8d19b791d24453242e15f2eab6cb7cffa7b6a5ed30097960e069881db12",
+    "author_record_sha256": "04b3a05ade7874848d71f7e2330da0c44ce0353e4b4849abafb5889e1a562549",
+    "authority": "ordinary SDK; exact Draft approval still required at use"
+  },
+  "helper_registry_drift": [],
+  "document_resources": [],
+  "local_gtk_schema_sha256": "5066bdcc9ec35e8359585ae8444b53c6b7c389e038ecfc1e816b5e884cca459d",
+  "qualification_requires_post_build_fixtures": true
+}

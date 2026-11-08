@@ -1,0 +1,18 @@
+{
+  "status": "passed-local-service-boundaries",
+  "scope": "Memory ComponentAuthoritySource, real AnnotationDrafts/ProviderEvents and synthetic SQLite snapshot; no guest, OSworker or native UI claimed",
+  "tests": 4,
+  "checked_cases": [
+    "invalid UTF8/offset reads do not renew at29s; expire at30s",
+    "denied admission no effect/checkpoint/renewal",
+    "old generation and other service invocation rejected",
+    "public bootstrap/context edit purpose"
+  ],
+  "source_sha256": {
+    "experiments/capture-core/src/component_edit.rs": "61f898fe3222fca04c4970b50051b703a132dae7abc895da93c70922a87c8df0",
+    "experiments/capture-core/tests/component_edit.rs": "8f4050878622d9db97ed776a905a5804bcdbcb093eafdf2ef5831881e35fe9c2"
+  },
+  "independent_full_regression": "../linux-projection-cache-compound.json",
+  "full_regression_source_archive": "../projection-cache-compound-source-archive.json",
+  "next_gate": "Same signed guest editing and projecting through shared services and real lifecycle; then native UI"
+}

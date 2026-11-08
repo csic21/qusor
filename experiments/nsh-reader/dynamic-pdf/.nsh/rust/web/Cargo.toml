@@ -1,0 +1,26 @@
+[package]
+name = "nsh-app-qusor-nsh-native-host-probe-web"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[lib]
+name = "nsh_app_qusor_nsh_native_host_probe_web"
+path = "lib.rs"
+crate-type = ["cdylib"]
+
+[features]
+# The runtime of published apps: TSX on the browser's JavaScript engine.
+browser = ["nsh-platform-web/browser"]
+# The development host's: hot updates, and what `nsh test --target web` asks about.
+dev = ["nsh-platform-web/dev"]
+                 # What `nsh package` links the app's runtime from (its relocations kept).
+linkable = ["nsh-platform-web/linkable"]
+
+[dependencies]
+nsh-core = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-core" }
+nsh-base = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-base", features = ["highlight"] }
+app_qusor_nsh_native_host_probe = { package = "qusor-nsh-native-host-probe", path = "/workspace/qusor/experiments/nsh-reader/native-host" }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+nsh-platform-web = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web", default-features = false }

@@ -1,0 +1,52 @@
+{
+  "license": "MIT synthetic QUSOR fixtures",
+  "generator_sha256": "98d59d0aaa8f99e5ffa129b49c789be668ac5e2dc05b9f9f1f40c0b9c8b03252",
+  "fixtures": [
+    {
+      "path": "selection-two-columns.pdf",
+      "sha256": "528503dc763f30257363af1d0bb4f6879d556c1e2da1363e5e513805d0f6a1c9",
+      "source_operators": [
+        [
+          72,
+          700,
+          "Left column first."
+        ],
+        [
+          330,
+          700,
+          "Right column first."
+        ],
+        [
+          72,
+          670,
+          "Left column second."
+        ],
+        [
+          330,
+          670,
+          "Right column second."
+        ]
+      ],
+      "expected_rejection": "UnsupportedLayout",
+      "reason": "Distinct columns must not be guessed into a single paragraph."
+    },
+    {
+      "path": "selection-overlap.pdf",
+      "sha256": "e946a76328783e87a24ecad8487c2d2fea5173b2509a4d9c6c08ad0e9eed9037",
+      "source_operators": [
+        [
+          72,
+          700,
+          "A"
+        ],
+        [
+          72,
+          700,
+          "B"
+        ]
+      ],
+      "expected_rejection": "Ambiguous",
+      "reason": "Different glyphs have overlapping physical boxes; never select the nearest one."
+    }
+  ]
+}

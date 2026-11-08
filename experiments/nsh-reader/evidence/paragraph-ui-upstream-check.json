@@ -1,0 +1,48 @@
+{
+  "checked_date": "2026-11-08",
+  "purpose": "Paragraph editor UX and upcoming native integration",
+  "release": {
+    "stable": "v0.4.0",
+    "nightly": "f81b965",
+    "url": "https://github.com/longbridge/nsh/releases"
+  },
+  "recent_commits": [
+    {
+      "sha": "71d0b11b13001c9a2394b585ef924473cef36fcb",
+      "title": "web: Regenerate the browser bootstrap after moving fetch out of tests (#1295)",
+      "date": "2026-11-08T08:03:08Z",
+      "url": "https://github.com/longbridge/nsh/commit/71d0b11b13001c9a2394b585ef924473cef36fcb"
+    },
+    {
+      "sha": "893fb84db625045f36363ae9de1f999f588d25fd",
+      "title": "editor: Show syntax colors as soon as an editor opens (#1293)",
+      "date": "2026-11-08T07:19:09Z",
+      "url": "https://github.com/longbridge/nsh/commit/893fb84db625045f36363ae9de1f999f588d25fd"
+    },
+    {
+      "sha": "1662115e30b4a86ca2e5eaf216e165c93bbdbee9",
+      "title": "core: Keep the tables of nodes by id in pages freed when they empty (#1261)",
+      "date": "2026-11-08T06:57:15Z",
+      "url": "https://github.com/longbridge/nsh/commit/1662115e30b4a86ca2e5eaf216e165c93bbdbee9"
+    },
+    {
+      "sha": "9a6ae4e0b8611b8656433d05c4d8c0fe81407d28",
+      "title": "core: Work out pointer-events regions once a commit (#1292)",
+      "date": "2026-11-08T06:35:45Z",
+      "url": "https://github.com/longbridge/nsh/commit/9a6ae4e0b8611b8656433d05c4d8c0fe81407d28"
+    },
+    {
+      "sha": "1042a80d876adcc3b9f86e75ebdf52bef4352083",
+      "title": "engine: Show the JS heap and the nodes alive on the performance monitor (#1262)",
+      "date": "2026-11-08T06:05:30Z",
+      "url": "https://github.com/longbridge/nsh/commit/1042a80d876adcc3b9f86e75ebdf52bef4352083"
+    }
+  ],
+  "linux_doc": {
+    "blob": "8435e469d34353d948356453faa68cc49274859e",
+    "url": "https://github.com/longbridge/nsh/blob/main/docs/dev/linux.md"
+  },
+  "qualification_pin": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "impact": "Keep existing qualification pin. Recent editor first-paint and pointer-event batching changes are candidates for isolated performance comparison; paged node tables are relevant to repeated editor replacement. No upstream claim substitutes for local IME/Esc, windowed long-text focus or actual native resource-release qualification. Native GTK/Pango path and optional WebView remain documented.",
+  "performed": "Read official releases, latest five commit summaries and Linux backend build/architecture documentation; no upstream source, dependencies or build modified."
+}

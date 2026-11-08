@@ -1,0 +1,34 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+    Checking qusor-nsh-native-host-probe v0.1.0 (/workspace/qusor/experiments/nsh-reader/native-host)
+warning: methods `same_owner` and `owner_snapshot` are never used
+   --> encoded_bytes.rs:103:12
+    |
+ 66 | impl TrackedEncodedBytes {
+    | ------------------------ methods in this implementation
+...
+103 |     pub fn same_owner(&self, other: &Self) -> bool {
+    |            ^^^^^^^^^^
+...
+107 |     pub fn owner_snapshot(&self) -> Result<Snapshot> {
+    |            ^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `same_identity` is never used
+  --> frame_scheduler.rs:99:12
+   |
+59 | impl Owner {
+   | ---------- method in this implementation
+...
+99 |     pub fn same_identity(&self, other: &Owner) -> bool {
+   |            ^^^^^^^^^^^^^
+
+warning: `qusor-nsh-native-host-probe` (lib test) generated 2 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.16s

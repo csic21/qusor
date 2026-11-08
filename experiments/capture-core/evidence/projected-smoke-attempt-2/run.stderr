@@ -1,0 +1,16 @@
+   Compiling projection-wasm-smoke v0.1.0 (/tmp/qusor-projection-wasm-smoke)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.98s
+     Running `experiments/capture-core/target/debug/projection-wasm-smoke`
+CASE 0 passed 0
+CASE 1 passed 0
+CASE 2 passed 0
+CASE 3 passed 0
+CASE 4 passed 0
+CASE 5 passed 0
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":6,"checkpoint_after":4,"checkpoint_before":3,"code":"deadline_exceeded","state_after":"Active","vm":2}
+CASE 6 passed 3
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":24,"checkpoint_before":23,"code":"deadline_exceeded","state_after":"Active","vm":22}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":46,"checkpoint_before":45,"code":"deadline_exceeded","state_after":"Active","vm":44}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":60,"checkpoint_before":59,"code":"deadline_exceeded","state_after":"Active","vm":58}
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":7,"checkpoint_after":64,"checkpoint_before":63,"code":"deadline_exceeded","state_after":"Active","vm":62}
+CASE 7 passed 64

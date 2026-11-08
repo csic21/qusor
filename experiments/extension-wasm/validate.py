@@ -50,12 +50,22 @@ def require(condition: bool, message: str):
         raise RuntimeError(message)
 
 
+def production_runtime_fingerprints():
+    paths = [ROOT / "Cargo.toml", ROOT / "Cargo.lock", ROOT / "config/architecture.toml"]
+    for crate in (ROOT / "crates/extension-runtime-api", ROOT / "adapters/runtime-wasm",
+                  ROOT / "crates/extension-api", ROOT / "crates/extension-host"):
+        paths += [crate / "Cargo.toml", *sorted((crate / "src").rglob("*.rs")),
+                  *sorted((crate / "tests").rglob("*.rs"))]
+    return {str(path.relative_to(ROOT)): digest(path) for path in paths}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, help="write a detailed JSON evidence file")
     options = parser.parse_args()
     if platform.system() != "Linux":
         parser.error("this validation profile is Linux/WSL only")
+    production_sources = production_runtime_fingerprints()
     policy = tomllib.loads((ROOT / "config/architecture.toml").read_text())
     manifests = [HERE / "Cargo.toml", HERE / "author/Cargo.toml"]
     metas = [metadata(manifest) for manifest in manifests]
@@ -64,11 +74,37 @@ def main() -> int:
         require(not errors, "\n".join(errors))
     root_meta = metadata(ROOT / "Cargo.toml")
     require(not validate_graph(root_meta, policy, ROOT), "production dependency policy failed")
-    require(not ({"wasmi", "wat", "sha2"} & {p["name"] for p in root_meta["packages"]}),
-            "experiment dependencies leaked into production")
+    # Qualified runtime infrastructure is now a root adapter. Its presence must
+    # not introduce execution or platform dependencies into Core/protocol/policy.
+    nodes = {node["id"]: node for node in root_meta["resolve"]["nodes"]}
+    packages_by_id = {package["id"]: package for package in root_meta["packages"]}
+    pure = {"learning-domain", "core-api", "learning-ports", "learning-application",
+            "extension-api", "extension-host", "extension-package", "extension-runtime-api"}
+    forbidden = {"wasmi", "wat", "runtime-wasm", "qusor-wasm-probe"}
+    for package in root_meta["packages"]:
+        if package["name"] not in pure:
+            continue
+        pending, closure = [package["id"]], set()
+        while pending:
+            package_id = pending.pop()
+            if package_id in closure:
+                continue
+            closure.add(package_id)
+            pending.extend(dep["pkg"] for dep in nodes[package_id]["deps"])
+        require(not any(packages_by_id[package_id]["name"] in forbidden or
+                        packages_by_id[package_id]["name"].startswith("nsh-")
+                        for package_id in closure),
+                f"runtime/platform dependency leaked into {package['name']}")
+    command(["cargo", "fmt", "--all", "--", "--check"], cwd=ROOT)
+    command(["cargo", "test", "-p", "runtime-wasm", "--locked", "--offline", "--", "--test-threads=1"], cwd=ROOT)
+    command(["cargo", "clippy", "-p", "extension-runtime-api", "-p", "runtime-wasm",
+             "--all-targets", "--locked", "--offline", "--", "-D", "warnings"], cwd=ROOT)
     for manifest in manifests:
         command(["cargo", "fmt", "--manifest-path", manifest, "--all", "--", "--check"])
-        command(["cargo", "build", "--manifest-path", manifest, "--locked", "--offline"])
+        # Include dev targets before freezing the executable: test-only WAT shares
+        # wasmparser with Wasmi, so Cargo's dev feature unification can otherwise
+        # rebuild the CLI when the later integration tests run.
+        command(["cargo", "build", "--manifest-path", manifest, "--all-targets", "--locked", "--offline"])
     runner = Path(metas[0]["target_directory"]) / "debug/qusor-wasm-probe"
     host_before = digest(runner)
     packages = HERE / "packages"
@@ -93,7 +129,7 @@ def main() -> int:
                 "manifest-v2.json" if fixture.stem == "valid-v2" else "manifest.json")
             command([builder, fixture, manifest, packages / fixture.stem])
     for manifest in manifests:
-        command(["cargo", "test", "--manifest-path", manifest, "--locked", "--offline"])
+        command(["cargo", "test", "--manifest-path", manifest, "--locked", "--offline", "--", "--test-threads=1"])
         command(["cargo", "clippy", "--manifest-path", manifest, "--all-targets",
                  "--locked", "--offline", "--", "-D", "warnings"])
     scenarios = []
@@ -140,20 +176,28 @@ def main() -> int:
     require(digest(packages / "valid/module.wasm") != digest(packages / "valid-v2/module.wasm"),
             "author versions produced identical modules")
     hashed = [HERE / "Cargo.lock", HERE / "author/Cargo.lock",
-              *sorted((HERE / "fixtures").glob("*"))]
+              HERE / "Cargo.toml", HERE / "runner/Cargo.toml", HERE / "author/Cargo.toml",
+              HERE / "validate.py", *sorted((HERE / "runner/src").glob("*.rs")),
+              *sorted((HERE / "runner/tests").glob("*.rs")),
+              *sorted((HERE / "author/src").glob("*.rs")),
+              *sorted((HERE / "fixtures").glob("*")),
+              *sorted((ROOT / "experiments/extension-package/fixtures").glob("private-*.wat"))]
     hashed += [p for p in packages.glob("*/*") if p.is_file()]
+    require(production_runtime_fingerprints() == production_sources, "production runtime source changed during qualification")
     report = {
         "status": "passed", "date_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "environment": {"platform": platform.platform(), "machine": platform.machine(),
                         "rustc": command(["rustc", "-Vv"]).stdout,
                         "os_release": Path("/etc/os-release").read_text(),
-                        "mode": "debug/unoptimized"},
+                        "mode": "debug/unoptimized", "test_threads": 1},
+        "production_runtime_sources": production_sources,
         "independent_author": True, "host_sha256_before": host_before,
         "host_sha256_after": host_after,
         "hashes": {str(p.relative_to(ROOT)): digest(p) for p in hashed},
         "checks": CHECKS, "scenarios": scenarios,
     }
     if options.output:
+        options.output.parent.mkdir(parents=True, exist_ok=True)
         options.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
                                   encoding="utf-8")
     print(f"PASS: {len(scenarios)} supervised scenarios; independent author; fixed host {host_after}")

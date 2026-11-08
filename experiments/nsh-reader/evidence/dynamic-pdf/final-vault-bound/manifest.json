@@ -1,0 +1,22 @@
+{
+  "license": "MIT synthetic fixtures by QUSOR contributors",
+  "generated_after_final_binary_bundle": true,
+  "documents": {
+    "too-many-pages.pdf": {
+      "sha256": "05adb8f395ebc801dbeb486c4e12648ce07ec32d414102cd9b1e5a28f9970145",
+      "bytes": 7308
+    },
+    "other-four-pages.pdf": {
+      "sha256": "5c5938de35f7d3e84421bc2baab749156bb822688490e433a92f4ddff93175db",
+      "bytes": 1978
+    },
+    "broken.pdf": {
+      "sha256": "a5276830059cc66cc1cc9f0e4b56102271e6b00dc990dd501c8dd79c8c2b4f05",
+      "bytes": 41
+    },
+    "runtime-three-pages.pdf": {
+      "sha256": "a08f1fa594f6263e9fc7e3c49c396167b430b4146ec74652020b2d2e7b7ceb40",
+      "bytes": 1558
+    }
+  }
+}

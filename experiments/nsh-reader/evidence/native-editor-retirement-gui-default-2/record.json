@@ -1,0 +1,297 @@
+{
+  "status": "passed-default-feature-native-GUI-save-discard-close-Core-reopen-empty-restore",
+  "recorded_at": "2026-11-08T14:17:53.494208+00:00",
+  "build": {
+    "command": [
+      "cargo",
+      "build",
+      "--manifest-path",
+      "/workspace/qusor/experiments/nsh-reader/native-host/Cargo.toml",
+      "--locked",
+      "--offline",
+      "-j1",
+      "--bin",
+      "qusor-nsh-dynamic-pdf-probe"
+    ],
+    "features": "default=[]; no native-qualification",
+    "env": {
+      "TMPDIR": "/home/user/.cache/qusor-native-retirement/tmp",
+      "CARGO_BUILD_JOBS": "1",
+      "CARGO_TARGET_DIR": "/workspace/qusor/experiments/nsh-reader/target/nsh/target",
+      "RUSTUP_TOOLCHAIN": "1.97.1"
+    }
+  },
+  "source_inputs": 150,
+  "source_scope": "Rust/TSX/TS/config/manifests/locks archived; docs, evidence and unrelated later investigation excluded",
+  "source_identity_checked_at_end": true,
+  "source_archive_sha256": "12e6a922155694d9bbbb01639b7f63df964757d90d5c3a1d3aa61a6726a935db",
+  "native_binary_sha256": "7e52ffd15c223237f94985bc11c74017425a76a87c4682f6f7ffdf70cbd31883",
+  "bundle_sha256": "35333d69f9e76e8ffb16a8f8a5a93a0ab3169c37525ed8b58d4ab866ce3ae0b7",
+  "fixture_generated_after_build": true,
+  "fixture_sha256": "1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3",
+  "actual_editor_vms": 33,
+  "actual_editor_calls": 110,
+  "actual_owned_reaps": 33,
+  "max_fuel": 120142,
+  "max_calls_per_vm": 4,
+  "autofocus_without_field_click": true,
+  "saved_text": "default retirement thought",
+  "discard_confirmation_cancel_preserves_text": true,
+  "discard_confirmed_returns_to_reading": true,
+  "pause_retry_GUI_qualified": false,
+  "normal_app_close_exit": 0,
+  "shutdown_pending_operation": false,
+  "native_mount_release_ack_proven": false,
+  "native_mount_release_ack_actual": false,
+  "worker_leases": 0,
+  "core_reopen_and_empty_restore_exact": true,
+  "original_pdf_restored_exact": true,
+  "IME_qualified_this_build": false,
+  "chooser_backend": "actual GTK3 xdg-desktop-portal-gtk on private DBus; GTK_USE_PORTAL=0 did not disable portal",
+  "previous_attempt": "../native-editor-retirement-gui-default/record.json: portal activation env failure retained; SIGTERM only after normal close unresponsive",
+  "upstream": {
+    "checked_date": "2026-11-08",
+    "fixed_commit": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+    "main_ls_remote": "760a025bbb2c50f83734c145c810930251a6e946",
+    "recent_official_commits": [
+      {
+        "id": "tag:github.com,2008:Grit::Commit/760a025bbb2c50f83734c145c810930251a6e946",
+        "title": "\n        cli: Build an optimized development host with nsh run --release (#1317)\n    ",
+        "updated": "2026-11-08T14:04:07Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/d990c807753fbe08659177b409a0547f5fc3f812",
+        "title": "\n        core: Picture a backdrop again only when what draws under it changed …\n    ",
+        "updated": "2026-11-08T14:03:50Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/71aeb06a80be70477c829b5614f65414372ff7d7",
+        "title": "\n        js: Unwrap every accessor a NavStack route renders down to its screen…\n    ",
+        "updated": "2026-11-08T13:45:46Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/94464cf1851f869f7f420dd4befd0748027aae28",
+        "title": "\n        text_view: Avoid quadratic code-span searches in TeX preprocessing (#…\n    ",
+        "updated": "2026-11-08T13:36:51Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/5dfb1b1268bd9b9e07f5c6149eedf0d8099c4193",
+        "title": "\n        windows: Read window data only from the app's own windows (#1301)\n    ",
+        "updated": "2026-11-08T13:36:33Z"
+      }
+    ],
+    "release": "nightly f81b965 2026-11-08; v0.4.0 latest stable 2026-11-04",
+    "api_failure": "GitHub API rate limited; official atom/release page/raw docs checked instead",
+    "impact": "No upgrade; current frozen native GTK text input/bridge regression only"
+  },
+  "limitations": [
+    "Linux Xvfb functional GUI, not physical-device or other-platform qualification",
+    "No IME run for this rebuilt binary; earlier IME evidence remains tied to older artifact",
+    "Pause/retry unavailable in naturally completed short input; not qualified",
+    "Native mount release acknowledgment remains false and is not claimed",
+    "No fault injection enabled in default binary"
+  ],
+  "artifacts": {
+    "selected-3.png": {
+      "sha256": "72e74ca237796ee127a544840d341648440a73e4e68835732a52dc4f2da63c67",
+      "bytes": 36207
+    },
+    "build-command.json": {
+      "sha256": "3248d934f456ccfb0159f18c8f3a7116c2b4d783fc38ce83fb767f7fc7ea65c4",
+      "bytes": 528
+    },
+    "window.log": {
+      "sha256": "3ecb1b29437dcc1d61f5c925a40f6affff5c66301f0c85bd883c715acc8ef1ed",
+      "bytes": 126778
+    },
+    "build-sources.zip": {
+      "sha256": "12e6a922155694d9bbbb01639b7f63df964757d90d5c3a1d3aa61a6726a935db",
+      "bytes": 404203
+    },
+    "gui.py": {
+      "sha256": "ddee2b618a2008020b1dda311c68ef8cb0f3430c02254f27bec28a8826ea13f4",
+      "bytes": 2079
+    },
+    "xvfb.log": {
+      "sha256": "b4c7eeeb685d357271d5d414216d2d02523a3720e8b721504d7b177ea6cc0713",
+      "bytes": 264
+    },
+    "bundle.nshc": {
+      "sha256": "35333d69f9e76e8ffb16a8f8a5a93a0ab3169c37525ed8b58d4ab866ce3ae0b7",
+      "bytes": 194097
+    },
+    "typing-without-field-click.json": {
+      "sha256": "9b7f9f6099e039d36918ed75bbb51525abe55f0aaa153c035f8ab942dc73ee79",
+      "bytes": 176
+    },
+    "discard-cancelled.png": {
+      "sha256": "3cca2488de98f582434912de07fd67279feea26fbaa52d62369743e859cb6aec",
+      "bytes": 33867
+    },
+    "core-recovery.json": {
+      "sha256": "64f6bcad9c1d7b92dd7ca5e6db0fe480220407bbdb885cc98d011163898e496e",
+      "bytes": 12565
+    },
+    "document.png": {
+      "sha256": "72e74ca237796ee127a544840d341648440a73e4e68835732a52dc4f2da63c67",
+      "bytes": 36207
+    },
+    "source-before.json": {
+      "sha256": "230a51971bca7f82148f68ac9e09f81a3533ad0bab88470f2edf4b287be71ee4",
+      "bytes": 17395
+    },
+    "selection-drag-2.json": {
+      "sha256": "90da7821693f7c22128ca00a26eb452a930f11afa1cb8ab3e33824d7d0493a6e",
+      "bytes": 275
+    },
+    "gui2.py": {
+      "sha256": "8aa5c7fc14a4d15210b7fdecde6d8d102b7f22e158c6fb78287ab7c94d234ab8",
+      "bytes": 2082
+    },
+    "selection-drag-3.json": {
+      "sha256": "ffc5bce9f84b6e942a18ea7f5a1f3f87c851a6dc11c008988648f3f29dd2b21b",
+      "bytes": 275
+    },
+    "native-build.log": {
+      "sha256": "b0dd45cf8c2884a629dbf4a3665f9fe9c563afb0d1f40373954e6b89dbc89702",
+      "bytes": 1146
+    },
+    "selection-drag.json": {
+      "sha256": "f937ba3b24d1efe1c7b4baecbddd3b93eced9dff5f061aaa414f39302aaa57ad",
+      "bytes": 275
+    },
+    "selected-final.png": {
+      "sha256": "2bb615f94ab6135ae7bb7baf2aba847399e71b4ad91589d2656fd02e9add305b",
+      "bytes": 26953
+    },
+    "selected-2.png": {
+      "sha256": "72e74ca237796ee127a544840d341648440a73e4e68835732a52dc4f2da63c67",
+      "bytes": 36207
+    },
+    "autofocus.png": {
+      "sha256": "4d8bb06d07dbfb61d9e5e04b7ebbd3458156eb352267030b5fb5558e8a20f625",
+      "bytes": 34892
+    },
+    "after-continue.png": {
+      "sha256": "6b601a66494d59b3c9230dbd1b5839fcd13ba7e65ecc5d728dc40f48bb42eaa1",
+      "bytes": 35980
+    },
+    "bundle-build.log": {
+      "sha256": "b23dee075677efd7a7684c311751d50e6d62fcbfc90a45fde8985491677ebd44",
+      "bytes": 1614
+    },
+    "saved.png": {
+      "sha256": "f87b416f54face981305ae3728b6d1fc8cf9a4241743952e267083518e2ba4e9",
+      "bytes": 35114
+    },
+    "upstream.atom": {
+      "sha256": "9ace9234104fa3c6da0d7d16012dd7d9f2692277c5734c1f98c156c4a5ed797d",
+      "bytes": 56040
+    },
+    "discard-confirm.png": {
+      "sha256": "05ab88cb3882d6e93769ef7e243cfd5c7026bcb98f09d5858e0034395dd9db98",
+      "bytes": 47393
+    },
+    "typed.png": {
+      "sha256": "c896a66422bb5efee316231f75d87cff9acc053d088a11221e241a2ea4a8354c",
+      "bytes": 34136
+    },
+    "discarded.png": {
+      "sha256": "6b601a66494d59b3c9230dbd1b5839fcd13ba7e65ecc5d728dc40f48bb42eaa1",
+      "bytes": 35980
+    },
+    "live.json": {
+      "sha256": "49f2cf0ca02dd8a7fcafb3a0ebfd385fbb96f2e4cd0dba076c45b5013c1f5583",
+      "bytes": 2914
+    },
+    "selected.png": {
+      "sha256": "72e74ca237796ee127a544840d341648440a73e4e68835732a52dc4f2da63c67",
+      "bytes": 36207
+    },
+    "portal_keys.py": {
+      "sha256": "909800897d2d85ac6aea6d5a1661a49acd7f1cec57aaf54a503894379f905c68",
+      "bytes": 3038
+    },
+    "fixtures/input.pdf": {
+      "sha256": "1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3",
+      "bytes": 1594
+    },
+    "fixtures/manifest.json": {
+      "sha256": "fb3a2af1cf82ad4dd387c0664176b17337848d1e450588ccfe6389c9f9eee701",
+      "bytes": 557
+    },
+    "restored-artifacts/original-1.pdf": {
+      "sha256": "1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3",
+      "bytes": 1594
+    },
+    "restored-artifacts/archive.json": {
+      "sha256": "3a3c1a69245f46c2f010dfcfcf9d4ac0cd0f30afc407272001d3fb0c845ed819",
+      "bytes": 105311
+    },
+    "restored-artifacts/draft-1.json": {
+      "sha256": "a6cddd4cedda33b50df6fadf6e3585da672cfd603f5ef0086605eb59dfae0820",
+      "bytes": 387
+    },
+    "restored/core.sqlite": {
+      "sha256": "c46b792c804e35fb999b32a3833b7ebcd9a41a85aeb08eb7e3cb27724f62d097",
+      "bytes": 266240
+    },
+    "restored/writer.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "restored/blobs/1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3": {
+      "sha256": "1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3",
+      "bytes": 1594
+    },
+    "data/knowledge/core.sqlite": {
+      "sha256": "3c950ffc2a89e05165cfb57d41a464ca3a4879acf447c8fd4f6740ccdc99a87d",
+      "bytes": 266240
+    },
+    "data/knowledge/writer.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "data/packages/state.sqlite3": {
+      "sha256": "1c9f313aff79e70eadb44ef1de55107b30233978d89957b349f305dab56d2db0",
+      "bytes": 110592
+    },
+    "data/packages/writer.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "data/native-jobs/e2d0388eee4889c8030033446eadeb8e-1/page-1.ppm": {
+      "sha256": "52e1726aba2cab43bb7e02ae0da28aebf6488edb5874188b5167e64c42555d30",
+      "bytes": 5142545
+    },
+    "data/native-jobs/e2d0388eee4889c8030033446eadeb8e-1/page-0.ppm": {
+      "sha256": "7c0fb794b53f9ec8a1917f77fc2278ced4309ad80a21ef5d4cd6d0e63d03859b",
+      "bytes": 5142545
+    },
+    "data/native-jobs/e2d0388eee4889c8030033446eadeb8e-1/page-2.ppm": {
+      "sha256": "6d5d4bebb3cc3add5cf5678128cc338725a4929e1539d9256a3f76d22d704330",
+      "bytes": 5142545
+    },
+    "data/native-jobs/e2d0388eee4889c8030033446eadeb8e-1/report.json": {
+      "sha256": "8fc763c3c152b85c2c4a7654cd524a988fb5c88813072e9dcef0ff36f541cfeb",
+      "bytes": 130038
+    },
+    "data/native-jobs/e2d0388eee4889c8030033446eadeb8e-1/stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "data/native-jobs/e2d0388eee4889c8030033446eadeb8e-1/original.pdf": {
+      "sha256": "1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3",
+      "bytes": 1594
+    },
+    "data/knowledge/blobs/1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3": {
+      "sha256": "1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3",
+      "bytes": 1594
+    }
+  },
+  "pdf_capture_count_after_discard": 1,
+  "owned_processes_terminal": true,
+  "native_binary_archive": "../../target/qualified-native-retirement-gui-default-2/native-binary.gz",
+  "native_binary_archive_sha256": "f6f34228f5f2900de724fd250a4e083108aafb62bde3d035375f61f218ae36c0",
+  "native_binary_bytes": 1324621144
+}

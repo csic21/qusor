@@ -26,20 +26,27 @@ SOURCE_FILES = (
     "examples/rust-exports/nsh.json", "examples/rust-exports/App.tsx",
 )
 # Fixed docs/dev/linux.md and platform manifests, not guessed from OS version.
-PKG_REQUIREMENTS = (
+NATIVE_PKG_REQUIREMENTS = (
     ("gtk4", "4.14"), ("pango", "1.50"), ("pangocairo", None),
     ("cairo", None), ("graphene-gobject-1.0", None),
     ("gstreamer-1.0", None), ("gstreamer-app-1.0", None),
-    ("gstreamer-audio-1.0", None), ("webkitgtk-6.0", "2.40"),
+    ("gstreamer-audio-1.0", None),
 )
+WEBVIEW_PKG_REQUIREMENTS = NATIVE_PKG_REQUIREMENTS + (("webkitgtk-6.0", "2.40"),)
+PROFILES = {
+    "native": {"packages": NATIVE_PKG_REQUIREMENTS, "features": "js",
+               "scope": "Linux native NSH + JS prerequisites; WebView excluded; not reading or platform acceptance"},
+    "webview": {"packages": WEBVIEW_PKG_REQUIREMENTS, "features": "js,webview",
+                "scope": "Linux native NSH + JS + WebView prerequisites; not reading or platform acceptance"},
+}
 
 
-def run(argv: list[str], cwd: Path | None = None, timeout: int = 15) -> dict:
+def run(argv: list[str], cwd: Path | None = None, timeout: int = 15, env: dict | None = None) -> dict:
     """Capture evidence; a timed-out Cargo check also stops its compiler children."""
     try:
         process = subprocess.Popen(
             argv, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            text=True, encoding="utf-8", errors="replace", start_new_session=os.name == "posix",
+            text=True, encoding="utf-8", errors="replace", start_new_session=os.name == "posix", env=env,
         )
     except OSError as exc:
         return {"command": argv, "exit_code": None, "error": str(exc)}
@@ -131,7 +138,20 @@ def probe_libclang() -> dict:
             "attempts": attempts}
 
 
-def collect(source: Path, cargo_check: bool) -> dict:
+def collect(source: Path, cargo_check: bool, profile: str = "native", native_prefix: Path | None = None) -> dict:
+    if profile not in PROFILES:
+        raise ValueError(f"Unknown NSH preflight profile: {profile}")
+    selected = PROFILES[profile]
+    native_env = None
+    prefix_evidence = None
+    if native_prefix is not None:
+        from native_prefix import runtime_environment
+        native_prefix = native_prefix.resolve()
+        native_env = runtime_environment(native_prefix)
+        prefix_evidence = {"directory": str(native_prefix),
+                           "environment": {name: native_env.get(name) for name in
+                                           ("PKG_CONFIG_PATH", "LD_LIBRARY_PATH")},
+                           "scope": "User-local extracted development/runtime files; system packages unchanged"}
     blockers: list[str] = []
     linux = sys.platform.startswith("linux")
     if not linux:
@@ -162,9 +182,9 @@ def collect(source: Path, cargo_check: bool) -> dict:
         blockers.append("Loadable libclang C API could not be verified; clang executable alone is insufficient.")
 
     packages = {}
-    for package, minimum in PKG_REQUIREMENTS:
-        version = run(["pkg-config", "--modversion", package])
-        check = run(["pkg-config", f"--atleast-version={minimum}", package]) if minimum else None
+    for package, minimum in selected["packages"]:
+        version = run(["pkg-config", "--modversion", package], env=native_env)
+        check = run(["pkg-config", f"--atleast-version={minimum}", package], env=native_env) if minimum else None
         usable = version["exit_code"] == 0 and (check is None or check["exit_code"] == 0)
         packages[package] = {"minimum": minimum, "version": version,
                              "minimum_check": check, "usable": usable}
@@ -184,8 +204,8 @@ def collect(source: Path, cargo_check: bool) -> dict:
     compile_check: dict = {"status": "not_run"}
     if cargo_check and source_ok and linux and rust["exit_code"] == 0 and cargo["exit_code"] == 0:
         command = ["rustup", "run", RUST_TOOLCHAIN, "cargo", "check", "-p", "nsh-platform-linux",
-                   "--no-default-features", "--features", "js,webview", "--locked", "--offline"]
-        result = run(command, cwd=source, timeout=45)
+                   "--no-default-features", "--features", selected["features"], "--locked", "--offline"]
+        result = run(command, cwd=source, timeout=45, env=native_env)
         compile_check = {"status": "passed" if result["exit_code"] == 0 else "failed", **result}
         if result["exit_code"] != 0:
             blockers.append("Offline Cargo check failed; recorded output identifies the first failure.")
@@ -194,10 +214,11 @@ def collect(source: Path, cargo_check: bool) -> dict:
 
     os_release = Path("/etc/os-release")
     return {
-        "schema_version": 1, "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
+        "schema_version": 3, "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
         "task_ids": ["P01", "P02"],
+        "profile": profile, "cargo_features": selected["features"].split(","),
         "status": "blocked" if blockers else "prerequisites_ready",
-        "scope": "Linux native + JS + WebView prerequisites; not reading or platform acceptance",
+        "scope": selected["scope"],
         "system": {
             "system": platform.system(), "kernel": platform.release(), "machine": platform.machine(),
             "os_release": os_release.read_text(encoding="utf-8") if os_release.is_file() else None,
@@ -206,23 +227,32 @@ def collect(source: Path, cargo_check: bool) -> dict:
         "source": {"directory": str(source), "expected_sha": NSH_SHA, "revision": revision,
                    "tracked_cleanliness": cleanliness, "sha256": source_hashes},
         "tools": tools, "rust": rust, "cargo": cargo, "libclang": libclang,
-        "native_packages": packages, "display": display,
+        "native_packages": packages, "native_prefix": prefix_evidence, "display": display,
         "fixture": {"path": "fixtures/selection.txt", "sha256": digest(BASE / "fixtures/selection.txt"),
                     "status": "prepared_only_not_rendered"},
         "cargo_check": compile_check, "blockers": blockers,
         "unverified": ["full application compile/link", "package/install", "window startup",
                        "Rust/TSX round trip", "IME", "PDF/EPUB rendering", "selection/anchors",
-                       "offline subresources/bridge isolation", "close/reopen recovery", "other platforms"],
+                       "offline subresources/bridge isolation", "close/reopen recovery", "other platforms"]
+                      + (["WebView build/embedding (excluded by native profile)"] if profile == "native" else []),
     }
 
 
-def main() -> int:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, default=BASE / "target/nsh")
     parser.add_argument("--output", type=Path, help="Optional JSON evidence file; stdout always receives the report.")
     parser.add_argument("--cargo-check", action="store_true", help="Attempt bounded offline check in pinned upstream workspace.")
-    args = parser.parse_args()
-    report = collect(args.source.resolve(), args.cargo_check)
+    parser.add_argument("--profile", choices=tuple(PROFILES), default="native",
+                        help="Native UI first (default); webview additionally checks WebKit and enables its feature.")
+    parser.add_argument("--native-prefix", type=Path,
+                        help="Use a verified, user-local extracted native dependency prefix; no install is performed.")
+    return parser.parse_args(argv)
+
+
+def main() -> int:
+    args = parse_args()
+    report = collect(args.source.resolve(), args.cargo_check, args.profile, args.native_prefix)
     encoded = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

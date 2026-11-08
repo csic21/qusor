@@ -1,0 +1,384 @@
+{
+  "ok": true,
+  "qualification": "Linux production Controller/worker_main + ManagedRun + Store/DurableHost + actual Core",
+  "source_inputs": {
+    "Cargo.lock": "1440658848cf073f65f1a3024a6baacd0dd83b3c91f525e27db866a147531917",
+    "Cargo.toml": "3146a1adc3d7ce9dc64523eb3829e0341583ede6a7f351613b808738b482847d",
+    "adapters/blob-store/Cargo.toml": "1613c31c3f84f5cab98a8424d1c21e26c01d110949cf564d06962365c0cb88b1",
+    "adapters/blob-store/src/lib.rs": "1d549218c0395e31510001149dd75207d8b1396666bc43954010214def635c99",
+    "adapters/blob-store/src/unix.rs": "109c2c449b3537aa79bdfb38492e60e7d43b92ae337e9338aad99559498df1cb",
+    "adapters/extension-store/Cargo.toml": "f0f0cefc468a2384c9bcd2affe72d4b1e133460f88a96bd511065a6db9cec0ef",
+    "adapters/extension-store/src/component.rs": "a23e0c6471f3e85be67ad0af5d5cc424971c87efb1d8b1bda70397415edecdde",
+    "adapters/extension-store/src/error.rs": "87f4d437ac93737ee8a6e9108092717c34b5e55c929ff210739d3564df024032",
+    "adapters/extension-store/src/grant_set.rs": "30fda23bc1b10ac60b21a04a0ff5af4b9198d91b6f2af0713f094f3944913dae",
+    "adapters/extension-store/src/lib.rs": "7b39f80271a624499918eac7e8db145294791d63f613853d0f67e7ea8ad40273",
+    "adapters/extension-store/src/private_lifecycle.rs": "f4ef568eeefed6a1da3d8b5dbd26a4f5628bf6bbeb033fab5b2faa1dfdaa0c3c",
+    "adapters/extension-store/src/services.rs": "e7800ad5c1cf5ca43b17382f123a2081160782baf9b8b92b03961f2f89439a8c",
+    "adapters/extension-store/src/worker_leases.rs": "fc6176a6d4417267e74416021324d697d63d3caca3a6a4fdaa353db4bf81c0fa",
+    "adapters/extension-store/tests/component.rs": "eff79b586b88914a39b18c7c21b074917660eeff80154d17e3ba8215cea65a0e",
+    "adapters/extension-store/tests/grant_sets.rs": "ecf0070e2ec47c203446d16d273d2dcd4c71c14003995cda162abab323bd3404",
+    "adapters/extension-store/tests/ports.rs": "c014bb0e2354a4a03e88c65b52150e7aa5b2400129b1fd8501a3f08b597cb8a4",
+    "adapters/runtime-process/Cargo.toml": "0847e056f137cd6becea1532cb72205c3e2d58669cf8e127947e810e4c0544de",
+    "adapters/runtime-process/src/controller.rs": "e2b669377be2aff41b7eee5abf3f7245f56e3ea71e6d9327b02737f871619c2e",
+    "adapters/runtime-process/src/lib.rs": "f25d2662287b240c3d019cbc26128d901ba8e64dd1702ec9665429965da34ba5",
+    "adapters/runtime-process/src/linux.rs": "62ee8e74a87497c4cbed71d6e60578e52f27ee724732d7ad407678028d6da904",
+    "adapters/runtime-process/src/protocol.rs": "cc268f9523e40366465312fee45b2eaac022ef8096422ff35f0105a7b3d9ffcf",
+    "adapters/runtime-process/src/transport.rs": "c50ea7d39c87e038a3182741d5adee55f9c1f0677e4feb90c36a489ef6c05cce",
+    "adapters/runtime-process/src/worker.rs": "6f48993ca5b709c30fd00cbce098eaaf7f70830ee71e4f388733c49c377dba9e",
+    "adapters/runtime-process/tests/controller.rs": "b4aeebac24eeae29f7d9484bc6ea0831219016a340f4ad02c24f32582ca57850",
+    "adapters/runtime-wasm/Cargo.toml": "34aa47fdcacb89112230dfda03019d315ece9009bd2b97e33d8d2828431a2de9",
+    "adapters/runtime-wasm/src/lib.rs": "7f3ff050b1418a6ee3b9ee42d26c34c83a23973033efc00e6e27634514fbcd60",
+    "adapters/runtime-wasm/src/managed.rs": "be3bd877b5aa3e76be1f22cd461f3a14e96c40a5e9a24f8659b570ae80bb06ff",
+    "adapters/runtime-wasm/src/private_runtime.rs": "fc297f158f67d53654519c05ac062f371c1dc01054fc8795e1f0ec97fd165bb2",
+    "adapters/runtime-wasm/tests/port.rs": "255d9df74a51f61d23333cc4f153864cba635de17824efdb24fd617af5fcb7a6",
+    "adapters/storage-sqlite/Cargo.toml": "951bed9d3f95cb069aafea2d6ebbe69833069f15a2538a20ba38bce3d5d52e39",
+    "adapters/storage-sqlite/src/lib.rs": "daaddff77ba64a81561edc7327b487d6f158d3ef28aefb8ac9132a3fe87f6006",
+    "adapters/storage-sqlite/src/unix.rs": "c769da9f562782250ddc72ce11882c56e5a35a8722c10999a787e81ab35d444c",
+    "adapters/storage-sqlite/src/unsupported.rs": "78fcb4476a0ee8c6faf4546dfaf9e638db379226545e6d1fdc01ffb671f1a30c",
+    "adapters/storage-sqlite/tests/transactions.rs": "4db6f8f656fcc4ddfe1b809d0a11a7ce0af2ab0dbd67936c48c102c25f95080e",
+    "config/architecture.toml": "faef8621c4f1217f20cacf07088a3553d7f68a0ffc08a9ee6ba5aa1809a12177",
+    "crates/core-api/Cargo.toml": "d8027ef6b91901ebb360e8857299830c126710b039a32c425c3ebd4e87e7b842",
+    "crates/core-api/src/contract.rs": "5f2a41176927913eac86859c2a7c724996cecfab0b030b50306324c0d3f8532b",
+    "crates/core-api/src/error.rs": "75394e7aa3d7750d5c50b49f0855b8a41ee615499b0a168579689b4f586a15fe",
+    "crates/core-api/src/knowledge.rs": "579a1ba4e400219ff34a64182229b0aa92b2703a992445dffd0c75554a01dfce",
+    "crates/core-api/src/lib.rs": "d587a55ce90d374972555fc8fdb66dceaf0c1e9af0a4a196ac02202fd6d4176d",
+    "crates/core-api/src/pdf_compound.rs": "59634bfd7055df2a2886ed74fe5871ecf04311cb3d6d87ed3e1bdfa4c48e761d",
+    "crates/core-api/src/pdf_contract.rs": "7673e004999b75d37fbe43e038df8e48803838493b066e907ce296a421f83609",
+    "crates/core-api/tests/contract.rs": "ebc242498b99b6f4b787b0a6bb577b1b9f113999255c57aa4fe9d739148f50d2",
+    "crates/core-api/tests/pdf_compound.rs": "4c12ed07bfe24236627e6b4b19fb84f078955b6af5789e686794b16817e51565",
+    "crates/core-api/tests/pdf_contract.rs": "55277fb27ae3dadf56bb7636264e4c429fa9f89fe6021bd48ea5df5de5a434e0",
+    "crates/extension-api/Cargo.toml": "9a9cc6bfef1380411818edc293935c96a0933348cc12e63825f754eb09540ed8",
+    "crates/extension-api/src/composition.rs": "8e3611a943af810d8fd1a3e75b268c8bb8bcc5fd42a0a1f4d1fea4e87059b98c",
+    "crates/extension-api/src/continuation.rs": "fffcb559ceade8671a103484ba562fc3200f535dca160745acdd12513d33e036",
+    "crates/extension-api/src/draft.rs": "c89c51d1f1bc9d135a6143d1cfdd335152b151d084fa4d03732d3654790bacf6",
+    "crates/extension-api/src/invocation.rs": "56a2da6b501b750476db54b4c89f0edfff8d27965ff574f651a38a4f1e057955",
+    "crates/extension-api/src/lib.rs": "52f241562a46aa1f876842b0a072b45cbe8cf5b2f60a591dec8abd0608b25120",
+    "crates/extension-api/src/surface.rs": "b4c0ea070e5e86734fd1f8131bd00ea1dffdbba81b5633b930c7fbf3ccc387b6",
+    "crates/extension-api/tests/component.rs": "aa5239d73edbc99e87fc0484b0eb612e8afc8d1e569af115797edcf58d4281ab",
+    "crates/extension-api/tests/continuation.rs": "eac96f77f285759c2ef314640befc872020522766322776251dbbf88286e9faf",
+    "crates/extension-api/tests/surface.rs": "2258364486df76ff2105baf5883fc8e478a41178c7df9e583b6a50919bea7d2a",
+    "crates/extension-api/tests/wire.rs": "e539a7a1e440d587b115d5f3cebe7b3782ce793b1f1a4ffda1269f29d6b512cd",
+    "crates/extension-host/Cargo.toml": "61fe4d54e27d09279e5cdbd67c66d577fbee89cde65188bcc92a6cc2e6498e0e",
+    "crates/extension-host/examples/policy_walkthrough.rs": "10e7f18b7364422e10c10c83a9c6529f017eb662ee6c799f69beb9f66f388ae5",
+    "crates/extension-host/src/component.rs": "3eea106ac17a3cf46fa1808586eadf8cca0e2c97c3ffa8ddd8f641e82cb74fe5",
+    "crates/extension-host/src/durable.rs": "11b3203f72a2ac90195484cf9ae7abc15b8559ddd80a4a330a8f128f0532ba71",
+    "crates/extension-host/src/durable_component.rs": "afb6b5cb350f4a08c6ea582736e63b4c0f9757bdccac3ecdc1c6f7285b2b028f",
+    "crates/extension-host/src/durable_run.rs": "874ba7e3aa00817f6ee3b8b88341f81c25eaeb32a864b0680777338741dcb6fe",
+    "crates/extension-host/src/durable_surface.rs": "3b064a6ccabd502e6c0047527fb0ccc219d0958bfd408545d8aeef7198e98b6d",
+    "crates/extension-host/src/lib.rs": "b572aa41f7f8901e276c1dc86215ac46c4aed066d7257cd3cac8dfda2c017835",
+    "crates/extension-host/src/surface.rs": "dcff673e5209f3411070fb4c5a1016dc1856a231416356f907ef8eee8c159a6d",
+    "crates/extension-host/tests/component.rs": "18fa1ed40abec1ec7deabcacb389a9cc3e0fa68670fd5baa50a87fa824eb2cc6",
+    "crates/extension-host/tests/component_context.rs": "077cf4cbc317e378dbe0260d897253b206725ef54477ac48032bcb3991bb7c32",
+    "crates/extension-host/tests/durable.rs": "f276e67d955f2f7582d5beaa5a5b0d4e921cf99c1ce733d7670fa66204927fbb",
+    "crates/extension-host/tests/durable_component.rs": "3d3a3d9b4cca673bbdf6a6d0a9775695fabdf9fffa1ab3f09149b805b5ef4845",
+    "crates/extension-host/tests/durable_surface.rs": "f76fd1138a0a62e98e5d4f1b61b8e46222989cbde17276d95a453d7f7ecfa1b9",
+    "crates/extension-host/tests/policy.rs": "e5a0ce64396744a973ddf557821137005e1a3ec2342750fbfbe9e0f49767e487",
+    "crates/extension-host/tests/surface.rs": "8815d2bf9ac93703244e65fdff6132a0f6a24283de9e6291e781f14b4089d42d",
+    "crates/extension-package/Cargo.toml": "deb5558eebe9a3d5c2952c88e67691fc1d76206a008c6ad5307617f057585cd0",
+    "crates/extension-package/src/lib.rs": "4bef272e73fa6b08a17c4f8586462b00d362ec3d9b45ea3da0d3cedfb6a7c9ca",
+    "crates/extension-package/src/package.rs": "4de3ba3784a111d47683f41ceff6f625868fbb5d61148a0cfbfca70787d066f2",
+    "crates/extension-package/tests/package.rs": "7dea5481e3d3157953672048ccee6fc62f890c5181bcc5a197c2517f82430901",
+    "crates/extension-runtime-api/Cargo.toml": "d55d3d8861a44a90b24152d3a6debbe73c6c32a29b3397805f1f51144c91b13b",
+    "crates/extension-runtime-api/src/lib.rs": "cd33ab8b01fd052d5a03393308a59dbb57d05a31b79fe3c565d6e1feff49cefd",
+    "crates/extension-runtime-api/src/process.rs": "c8af4950858ec67a9412eee19584a7b6e50689b509696fa4bc32649866c7a2ac",
+    "crates/learning-application/Cargo.toml": "95ebe47f4919b118eba8e9962004d62a842188346c9dafd96b7a26c4fcd9756d",
+    "crates/learning-application/src/annotation_draft.rs": "f6eb1e4286e048eeef2e29ce8ec485a26953c78e78bc34d445462322c87eba2b",
+    "crates/learning-application/src/annotation_source.rs": "d2870ad724b493a5d328f0b8c222882804e42a184738ccc167b919480997e2ab",
+    "crates/learning-application/src/draft_text.rs": "7607fe18bb6257c6321bac97d939013be437b989d1951e4fc2829f34d4be4d9c",
+    "crates/learning-application/src/lib.rs": "2cbe397a867bd817e37de11b3a27530dc74182b1b4462ec165b249c5804b7d64",
+    "crates/learning-application/src/provider_events.rs": "dfecff184cea5001a62157cb4f637abb14087c644e608b98dea2111eb497471c",
+    "crates/learning-application/tests/annotation_draft.rs": "d67169a9fa303ea61e3b38f03c14b5b611ba2e4bceb8e4050bfd69bb0411ca3d",
+    "crates/learning-application/tests/annotation_source.rs": "f1e45da455978edece2ead3e92e46a4ef0357dbb435a06d2d8914c36b9a66607",
+    "crates/learning-application/tests/common/mod.rs": "1b1200b4e016082f6512cb601057a2ae1180ca68bfdaf1fa43844aa6a0a60e97",
+    "crates/learning-application/tests/draft_text.rs": "01270233bb023a0441282390b4ac3b07003857779b28d531a1f43cd0227b19d0",
+    "crates/learning-application/tests/provider_events.rs": "168a3d60248e8d7ef4a44b8c96b10e30663d08f4937ae83e46aaf4da65634d28",
+    "crates/learning-domain/Cargo.toml": "f8de3fcbd9807b478e1e186d88b7295bbc1da442faa8cc131c121bc06e970eee",
+    "crates/learning-domain/src/lib.rs": "4d43e49c15ecf2d88fbc9b799036d4b40d6269ce41700043d76af63abb9b3e0d",
+    "crates/learning-ports/Cargo.toml": "377a7d7900d4518ef779c7e88fe87b9164243c43341bdb8a45dc0173163ac12c",
+    "crates/learning-ports/src/lib.rs": "10a00942ac83fe3685317a38dd018df92a3bbe25de369a15573b3781f102d4ef",
+    "experiments/capture-core/Cargo.lock": "80f289e6a7852961c4b643aea2c3fa9f174d9c5729d00576cfa1dd9037cc115d",
+    "experiments/capture-core/Cargo.toml": "89803302414486b193fec136456d92907792515f7676ad8aa5aeeae83f1f64c7",
+    "experiments/capture-core/src/contract.rs": "8ae96f8a1a898e5ee8bf4e73f264ee579c53eab4070b6f64cce254d8f94f58e1",
+    "experiments/capture-core/src/core.rs": "a78e900b2db7445d37346c70d94eb8b2b7e3c2b1f1554774afb64d4d81a7bd65",
+    "experiments/capture-core/src/host.rs": "8a5ecf41d3f0e786e5bd06d4b6a07790316323b0a53b439e454e57c5dbe91d36",
+    "experiments/capture-core/src/lib.rs": "11d327b054394e9b5af9233c2223e0d4fb356bec2b9c4fe157942e327b606b8e",
+    "experiments/capture-core/src/main.rs": "15a1bfa84e50cee96cce8fdca2ca4c12d515c5a02e043a01aa4c8ec8609bc498",
+    "experiments/capture-core/src/pdf_compound.rs": "8c2e5c486ac783a7967b22f0094da6ea1e12780b8115c6ab7ab0736919156b1a",
+    "experiments/capture-core/src/pdf_contract.rs": "3530822f6c5c5f8724209c39780351b9dc2b97959e5e67be43b70cae0b25893f",
+    "experiments/capture-core/src/pdf_host.rs": "7576ec5e1e94c55eb83c8674bdc0d13f854d1e888f721b360e08df6f2284d331",
+    "experiments/capture-core/supervised_validate.py": "f80457edd9580b2d7041ccbec4fe2723a353efbb369c3a76d0fab7812bca1bf0",
+    "experiments/capture-core/tests/component_support/fixture.rs": "fc0af2fbf6772786b3aefe9608a75979a075570c9de92985acde7fc70deacb6b",
+    "experiments/capture-core/tests/component_support/save_gate.rs": "377b53327764735d295f3b486e33b4bd872a06cca7bdc0a8343255628773f417",
+    "experiments/capture-core/tests/component_text_consumer.rs": "460e75bda7b25e0ed54364b3b592bae18a9ecc01d6ca3d7222e48d8354a3204b",
+    "experiments/capture-core/tests/core.rs": "c713901852939be3d85e2412acb188158406cd436dfe69bd42664d5011dc5739",
+    "experiments/capture-core/tests/durable_installation.rs": "e7edcae01b9d1332ecdb931e98a40a3bff641412aa209efd6761938a72eaa4d4",
+    "experiments/capture-core/tests/host.rs": "571ebcd039e830bdfb0fff86cd761ed032924a9dfd481b5fb07cd5477d245d86",
+    "experiments/capture-core/tests/pdf_compound_core.rs": "7bafc99862ead04a123d0aa5132e1fca096f89a9e71ebc6aacbbeac4314567c6",
+    "experiments/capture-core/tests/pdf_compound_host.rs": "746e1d30ba413c7e7f09b8c4925493710aa34c6b9aadca6fdb5334ca9d2c91d6",
+    "experiments/capture-core/tests/pdf_core.rs": "d62de382bc084bfd0be426c098a5fbba27baf396c211f695ec661ab40e77610a",
+    "experiments/capture-core/tests/pdf_host.rs": "109d3dcd5439c619611f4e306bee6ec04a97e34dc3eb9cfb4de3f441f235c50f",
+    "experiments/capture-core/tests/supervised_consumer.rs": "0db9a28004433aa02aa952703884c44d2feb052821b8a9e66a66660e75ed2cb1",
+    "experiments/capture-core/tests/supervised_support/mod.rs": "2909f41171f04476f38277decdd51e3c576fbe1b1e5247a8a72c0aa343050314",
+    "experiments/extension-package/Cargo.lock": "58f77d73d453a03c00895ed2045f9e595666dbe574de686a2633f919a942e7f4",
+    "experiments/extension-package/Cargo.toml": "c014c37fa19ab427d146fe94eccf198bec7b0d70115531168ca5132fdbd8128d",
+    "experiments/extension-package/src/lib.rs": "1fae9823c94918602e243f319e823dcd659480dbdf0de5eec4fd50c4916dd0a9",
+    "experiments/extension-package/src/main.rs": "1b4e889fe71b3fa6616d65f52f51f62da0dbf0e4c9864f1bcca625b6a3a9768d",
+    "experiments/extension-package/src/package.rs": "8a31baac4462e27bec93ebbf3956b1a32b715803210dc385ef7ee8eb21f7a3c8",
+    "experiments/extension-package/src/process_identity.rs": "410c893b68a884262248399cc636c77ad193d582b872d4dfaf0fc3d78bb6d963",
+    "experiments/extension-package/src/store/managed.rs": "ac5f2e11991092aa1130f2767050d1eb39eb154cd2a74bdcded812095c8afaff",
+    "experiments/extension-package/src/store.rs": "03b83b54cd0738d54cf75ab90746b3aa0616adb7eac526380f9d94ff9dadf713",
+    "experiments/extension-package/src/supervisor.rs": "ab137c9ab3a9e76fceb5a290111c38709ffb19978ed3d9a474ca190671b502a5",
+    "experiments/extension-wasm/Cargo.lock": "79ecc7cf3edeec809a997a1d78e11e8b169c2a7872dde29108a856ea1b0656b6",
+    "experiments/extension-wasm/runner/Cargo.toml": "a76f78fffa1825020268144f7236d158ec986c997028ccbf35d417a75c239192",
+    "experiments/extension-wasm/runner/src/lib.rs": "4b53a2364d7624f84b35aed60027409ab1f998de219f1b69c9060b536e096e36",
+    "experiments/extension-wasm/runner/src/main.rs": "7ad1a4ec015a2563d0984f8aef1c42d4bd1ed00e5283a5dfe70d5b135835a8a7",
+    "experiments/extension-wasm/runner/src/managed_runtime.rs": "b14c83584029caf682068c82b41d9e94fe7c4fa67ac16747639c7eb44f8ce268",
+    "experiments/extension-wasm/runner/src/private_runtime.rs": "b1d62b4cdcb64d14decd1fbfb03dcce37d4b0070447e3533f80eb950a9c8b3a1"
+  },
+  "source_inputs_unchanged": true,
+  "executable": "experiments/capture-core/target/debug/deps/supervised_consumer-451ccbd8862867e4",
+  "executable_sha256": "56683de8354039758d3d8a2b20595d2fd17752ceaf2f7eeba0f6bebfb84b2acc",
+  "executable_unchanged": true,
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "/workspace/qusor/experiments/capture-core/Cargo.toml",
+        "--test",
+        "supervised_consumer",
+        "--locked",
+        "--offline",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.068,
+      "stdout": "experiments/capture-core/evidence/event-continuation-supervised-build.stdout",
+      "stdout_sha256": "e228966ace663e3121ae0cd5e9623a6dbdf28729b42fcaeb2ff1a20e9a331022",
+      "stderr": "experiments/capture-core/evidence/event-continuation-supervised-build.stderr",
+      "stderr_sha256": "84665cd69cf2ee7880b9da312b6d9f0bb8c946832af82968c8d8f3e5516808c3"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--manifest-path",
+        "/workspace/qusor/experiments/capture-core/Cargo.toml",
+        "--test",
+        "supervised_consumer",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 0.122,
+      "stdout": "experiments/capture-core/evidence/event-continuation-supervised-clippy.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "experiments/capture-core/evidence/event-continuation-supervised-clippy.stderr",
+      "stderr_sha256": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+    },
+    {
+      "command": [
+        "/workspace/qusor/experiments/capture-core/target/debug/deps/supervised_consumer-451ccbd8862867e4"
+      ],
+      "exit_code": 0,
+      "seconds": 8.561,
+      "stdout": "experiments/capture-core/evidence/event-continuation-supervised-run.stdout",
+      "stdout_sha256": "b75c55486d433c262f6b353e9d4f8c9301658c9b91196bc9b9428cac790cda4f",
+      "stderr": "experiments/capture-core/evidence/event-continuation-supervised-run.stderr",
+      "stderr_sha256": "2e73628d04772e1daa6b154e7e0e05a970005785a43eb888095819a2caa30016"
+    }
+  ],
+  "result": {
+    "ok": true,
+    "process_controller_consumer": [
+      {
+        "case": "two_ordinary_signed_apis_and_8_9_calls",
+        "runs": [
+          {
+            "api_minor": 1,
+            "broker_calls": 1,
+            "call_microseconds": [
+              11464
+            ],
+            "default_deadline_qualified": true,
+            "failure": null,
+            "guest_calls": 1,
+            "reaped": true,
+            "total_milliseconds": 60,
+            "vm_deadline_ms": 250
+          },
+          {
+            "api_minor": 2,
+            "broker_calls": 1,
+            "call_microseconds": [
+              11785
+            ],
+            "default_deadline_qualified": true,
+            "failure": null,
+            "guest_calls": 1,
+            "reaped": true,
+            "total_milliseconds": 61,
+            "vm_deadline_ms": 250
+          },
+          {
+            "api_minor": 1,
+            "broker_calls": 8,
+            "call_microseconds": [
+              11568,
+              11623,
+              12291,
+              12239,
+              13145,
+              12230,
+              12003,
+              12086
+            ],
+            "default_deadline_qualified": true,
+            "failure": null,
+            "guest_calls": 8,
+            "reaped": true,
+            "total_milliseconds": 203,
+            "vm_deadline_ms": 250
+          },
+          {
+            "api_minor": 1,
+            "broker_calls": 8,
+            "call_microseconds": [
+              11448,
+              11834,
+              11346,
+              11183,
+              11723,
+              11661,
+              11599,
+              11572
+            ],
+            "default_deadline_qualified": true,
+            "failure": "host_call_limit",
+            "guest_calls": 9,
+            "reaped": true,
+            "total_milliseconds": 201,
+            "vm_deadline_ms": 250
+          }
+        ]
+      },
+      {
+        "case": "worst_json_64k_raw_request",
+        "note": "transport payload test; not a synthetic Core metadata service",
+        "request_bytes": 65536,
+        "response_bytes": 4096
+      },
+      {
+        "case": "default_250ms_raw_8_9_call_budget",
+        "runs": [
+          {
+            "broker": "transport-only, no Core/capability service accessed",
+            "calls": 8,
+            "failure": null,
+            "requested_calls": 8,
+            "total_milliseconds": 124,
+            "vm_default_deadline_ms": 250
+          },
+          {
+            "broker": "transport-only, no Core/capability service accessed",
+            "calls": 8,
+            "failure": "host_call_limit",
+            "requested_calls": 9,
+            "total_milliseconds": 122,
+            "vm_default_deadline_ms": 250
+          }
+        ]
+      },
+      {
+        "case": "revocation_prevents_boot_and_rejects_received_result",
+        "passed": true
+      },
+      {
+        "case": "blocked_native_broker_independent_watchdog_and_management",
+        "lease_retained_until_reaped_and_callback_returned": true,
+        "management_committed_while_broker_blocked": true,
+        "milliseconds": 315
+      },
+      {
+        "case": "real_sqlite_cleanup_busy_keeps_exclusion",
+        "finished_after_rollback": true,
+        "helper_quarantined": true,
+        "passed": true,
+        "sqlite_error": "database is locked"
+      },
+      {
+        "case": "nonterminating_wasm_independent_process_deadline",
+        "failure": "ProcessError { kind: Timeout, code: \"watchdog_timeout\" }",
+        "milliseconds": 133
+      },
+      {
+        "attempted_unknown_lease_survived_restart": true,
+        "case": "real_parent_exit_between_spawn_and_persistent_identity_bind",
+        "lease_not_automatically_cleared": true,
+        "observer": {
+          "fixture_directory": "/tmp/qusor-supervised-core-352924-1794126900050351774",
+          "package": "org.supervised.orphan",
+          "run_id": "0123456789abcdef0123456789abcdef-11",
+          "store": "/tmp/qusor-supervised-core-352924-1794126900050351774/packages",
+          "worker_observer_identity": {
+            "boot_id": "2499728b-ecc2-47b6-b3eb-d2b4529b7dbd",
+            "exe_device": 2096,
+            "exe_inode": 878786,
+            "pid": 352926,
+            "run_id": "0123456789abcdef0123456789abcdef-11",
+            "start_time_ticks": 2892858,
+            "uid": 1000
+          }
+        },
+        "observer_pidfd_cleanup": "Terminated",
+        "orphan_reaped_by_test": false,
+        "parent_exit_code": 73,
+        "replacement_rejected": true,
+        "unknown_lease_before_and_after_cleanup": [
+          {
+            "fenced": null,
+            "installation": {
+              "digest": "39f26c72e8a19f21d147c330fb158e86bbb120e2301d7a9596c234af67b52bdf",
+              "generation": 2,
+              "installation_id": 1,
+              "operation_id": "",
+              "package_id": "org.supervised.orphan",
+              "revision": 2,
+              "status": "disabled"
+            },
+            "owner": {
+              "boot_id": "2499728b-ecc2-47b6-b3eb-d2b4529b7dbd",
+              "exe_device": 2096,
+              "exe_inode": 878786,
+              "pid": 352924,
+              "run_id": "",
+              "start_time_ticks": 2892847,
+              "uid": 1000
+            },
+            "run_id": "0123456789abcdef0123456789abcdef-11",
+            "spawn_attempted": true,
+            "supervisor_boot": "0123456789abcdef0123456789abcdef",
+            "worker": null
+          }
+        ]
+      },
+      {
+        "case": "real_core_source_version_mismatch_rejected",
+        "grant_other_actual_source_version": "07f5e2ec97d534a4284e6c7e377c34a64b8b108c7a21fea6821ad775d728e2d3",
+        "requested_document_current_version": "3421540780324ff2838fd83a75769f98550c8fdbf5c71ee9c4a474bc81002ea5",
+        "returned_metadata": false
+      }
+    ]
+  },
+  "limits": [
+    "not a sandbox",
+    "not NSH or other-platform qualification",
+    "64KiB is request-only; response remains 4096 bytes",
+    "unknown-spawn observer cleanup does not automatically clear the production lease or claim original-parent reaping"
+  ]
+}

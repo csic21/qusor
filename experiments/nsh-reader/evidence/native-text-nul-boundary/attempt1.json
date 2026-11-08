@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "stage": "before native API call",
+  "error": "Assumed prefix libglib-2.0.so.0 path does not exist; no GLib/GTK behavior tested."
+}

@@ -1,0 +1,41 @@
+{
+  "exit_code": 0,
+  "scope": "Pinned native binding source inspection and actual GLib validator only; no GTK TextBuffer/Input release or lossless-editing qualification.",
+  "nsh_pin": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "glib_library": "/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0.8800.0",
+  "glib_version": [
+    2,
+    88,
+    0
+  ],
+  "glib_library_sha256": "3cc1aeae827f436a296ec488b80e6c45c150dccfb4525e7db275cc08772d322f",
+  "samples": [
+    {
+      "utf8_hex": "4142",
+      "bytes": 2,
+      "unicode_utf8_decode_succeeds": true,
+      "glib_validate_with_explicit_length": true,
+      "end_offset": 2
+    },
+    {
+      "utf8_hex": "410042",
+      "bytes": 3,
+      "unicode_utf8_decode_succeeds": true,
+      "glib_validate_with_explicit_length": false,
+      "end_offset": 1
+    },
+    {
+      "utf8_hex": "e4bda0f09f9982",
+      "bytes": 7,
+      "unicode_utf8_decode_succeeds": true,
+      "glib_validate_with_explicit_length": true,
+      "end_offset": 7
+    }
+  ],
+  "source_hashes": {
+    "experiments/nsh-reader/target/nsh/crates/nsh-platform-linux/src/text_input.rs": "4f7a3706ea2013afa371a604b6588e50771f52189f7f611f60b343d663e80774",
+    "/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gtk4-0.11.5/src/auto/text_buffer.rs": "64987f98376ab2b654a8f3d48c633b4003a3c657312ab7014ad12d0aa05f49df",
+    "/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/glib-0.22.10/src/translate.rs": "0fc16e39211711e0b2b4b14ab23bae16b29f9bc565593607d965ad58597b8a3e"
+  },
+  "finding": "NSH Editor.set_text forwards to gtk-rs; gtk-rs uses ToGlibPtr for str; current Rust GLib debug-assertion branch checks interior NUL and unwraps. Do not silently strip NUL or feed raw NUL to unsupported display/input/clipboard paths. Full legal-UTF8 editing remains unresolved."
+}

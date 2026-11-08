@@ -1,0 +1,5 @@
+{
+  "pid": 495756,
+  "start_ticks": 5556361,
+  "command": "npx --offline --yes @deepseek-ai/dsh@0.2.2-rc.1 --profile headless <task.txt>"
+}

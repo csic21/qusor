@@ -1,0 +1,1 @@
+{"calls":22,"cases":1,"max_fuel":705254,"native_widgets":false,"ok":true,"os_workers":false,"partial_seen":false,"real_store":true,"runtime_errors":[{"calls_observed":6,"case":0,"checkpoint_after":4,"checkpoint_before":3,"code":"deadline_exceeded","state_after":"Active","vm":2}],"vms":4}

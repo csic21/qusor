@@ -1,0 +1,21 @@
+{
+  "status": "functional-native-A-save-restore-passed-autofocus-failed",
+  "source_inputs": 247,
+  "scope": "New native fulltext A integration; no GUI result yet",
+  "prepare_exit_code": 0,
+  "source_identity": "All247 measured inputs match pre-build hashes; ZIP independently populated from those exact current bytes",
+  "source_archive_sha256": "f517ecc2814faaabd93751a9f5f7c72298597fd7f87f30adac873c6e0c889c2a",
+  "gui_actual_component_execution": true,
+  "autofocus_passed": false,
+  "explicit_field_click_required": true,
+  "core_reopened_and_restored": true,
+  "expected_note": "native component thought",
+  "source_quote": "Native component capture page 1",
+  "native_release_ack_proven": false,
+  "ime_proven": false,
+  "actual_editor_vms": 15,
+  "actual_editor_calls": 50,
+  "owned_workers_reaped": 15,
+  "max_fuel": 120046,
+  "source_inputs_still_equal": true
+}

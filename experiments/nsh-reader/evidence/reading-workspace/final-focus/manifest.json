@@ -1,0 +1,10 @@
+{
+  "license": "MIT synthetic QUSOR contributors",
+  "generated_after_final_focus_bundle": true,
+  "files": {
+    "too-many-pages.pdf": "05adb8f395ebc801dbeb486c4e12648ce07ec32d414102cd9b1e5a28f9970145",
+    "other-four-pages.pdf": "87ca7469a652d723dcd1e6ca12b0529d0db34aa49a4738498e275a879b06b126",
+    "broken.pdf": "a5276830059cc66cc1cc9f0e4b56102271e6b00dc990dd501c8dd79c8c2b4f05",
+    "runtime-three-pages.pdf": "9107c5172f74e9a205ceb2fb5d5800799632a549d47f8c629521bb0a552b045b"
+  }
+}

@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1000" viewBox="0 0 1440 1000" role="img">
+<title>写想法 · 引用、观点与状态分开</title><desc>④ 辅助面板由用户主动打开；当前编辑器可通过更多菜单选择兼容提供者</desc>
+<defs><clipPath id="body"><rect x="120" y="168" width="1256" height="684"/></clipPath></defs>
+<g font-family="Noto Sans CJK SC, sans-serif">
+<rect x="0" y="0" width="1440" height="1000" rx="0" fill="#E6E8E1"/>
+<text x="64" y="49" font-size="26" fill="#242824" font-weight="600">写想法 · 引用、观点与状态分开</text>
+<text x="64" y="78" font-size="14" fill="#596159" font-weight="400">④ 辅助面板由用户主动打开；当前编辑器可通过更多菜单选择兼容提供者</text>
+<rect x="64" y="112" width="1312" height="792" rx="12" fill="#F4F3EF" stroke="#C9CFC5"/>
+<rect x="64" y="112" width="56" height="792" rx="12" fill="#ECEDE8"/>
+<path transform="translate(82 137) scale(.75)" d="M2 3H9L12 5L15 3H22V20H15L12 22L9 20H2ZM12 5V22" stroke="#315B46" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<rect x="74" y="187" width="36" height="36" rx="8" fill="#DCE4D8"/>
+<path transform="translate(82 196) scale(.75)" d="M2 3H9L12 5L15 3H22V20H15L12 22L9 20H2ZM12 5V22" stroke="#315B46" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<path transform="translate(82 249) scale(.75)" d="M4 2H17L21 6V22H4ZM17 2V7H21M8 11H17M8 15H17" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<path d="M120 112L120 904" stroke="#D9DDD5" fill="none"/>
+<rect x="120" y="112" width="1256" height="56" rx="0" fill="#FBFBF8"/>
+<path transform="translate(142 131) scale(.75)" d="M15 4L7 12L15 20M7 12H23" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<text x="168" y="147" font-size="14" fill="#596159" font-weight="400">资料库</text>
+<path d="M229 129L229 151" stroke="#D9DDD5" fill="none"/>
+<text x="249" y="147" font-size="15" fill="#242824" font-weight="500">阅读与思考：如何理解材料</text>
+<rect x="1111" y="123" width="76" height="36" rx="6" fill="#FFFFFF" stroke="#D9DDD5"/>
+<text x="1125" y="147" font-size="14" fill="#242824" font-weight="500">目录</text>
+<rect x="1199" y="123" width="153" height="36" rx="6" fill="#FFFFFF" stroke="#D9DDD5"/>
+<text x="1213" y="147" font-size="14" fill="#242824" font-weight="500">摘录与笔记</text>
+<path d="M120 168L1376 168" stroke="#D9DDD5" fill="none"/>
+<g clip-path="url(#body)">
+<rect x="213" y="192" width="736" height="970" rx="1" fill="#FFFFFF" stroke="#E5E5DE"/>
+<text x="269" y="245" font-size="12" fill="#596159" font-weight="400">第二章  阅读与理解</text>
+<path d="M269 262L893 262" stroke="#D9DDD5" fill="none"/>
+<text x="269" y="318" font-size="27" fill="#242824" font-weight="500">理解，始于建立联系</text>
+<text x="269" y="367" font-size="16" fill="#303630" font-weight="400">阅读时，我们常常把注意力放在信息本身：一句话说了什么，</text>
+<text x="269" y="399" font-size="16" fill="#303630" font-weight="400">一段论证得出了怎样的结论。然而，理解还需要另一个过程。</text>
+<text x="269" y="431" font-size="16" fill="#303630" font-weight="400">它要求我们把新材料放回自己的问题与经验之中。</text>
+<rect x="265" y="464" width="426.4" height="27" rx="2" fill="#F5DF8B"/>
+<text x="269" y="483" font-size="16" fill="#303630" font-weight="400">理解不是把句子存起来，而是知道它与已有经验如何联系。</text>
+<text x="269" y="515" font-size="16" fill="#303630" font-weight="400">当我们能够说明这份联系，也就更容易发现遗漏与分歧。</text>
+<text x="269" y="567" font-size="16" fill="#303630" font-weight="400">因此，一段摘录应当保留来处，一份想法应当表达自己的判断。</text>
+<text x="269" y="599" font-size="16" fill="#303630" font-weight="400">两者相互关联，又能够分别被检查。回到原文核对时，我们</text>
+<text x="269" y="631" font-size="16" fill="#303630" font-weight="400">需要看到当时的上下文，而不只是孤立的一句话。</text>
+<text x="269" y="683" font-size="16" fill="#303630" font-weight="400">这种工作方式并不要求在每次阅读后写下很多文字。一个具体</text>
+<text x="269" y="715" font-size="16" fill="#303630" font-weight="400">的问题、一条反例，或者一个尚未确定的联系，已经足以让</text>
+<text x="269" y="747" font-size="16" fill="#303630" font-weight="400">阅读向前走一步。</text>
+<text x="269" y="819" font-size="18" fill="#242824" font-weight="500">阅读札记</text>
+<text x="269" y="855" font-size="16" fill="#242824" font-weight="400">哪些地方与你原先的理解一致？哪些地方值得重新核对？</text>
+</g>
+<rect x="1040" y="168" width="336" height="736" rx="0" fill="#FFFFFF"/>
+<path d="M1040 168L1040 904" stroke="#D9DDD5" fill="none"/>
+<text x="1064" y="207" font-size="17" fill="#242824" font-weight="500">想法</text>
+<path transform="translate(1290 191) scale(.75)" d="M4 12H5M11 12H12M18 12H19" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<path transform="translate(1333 191) scale(.75)" d="M6 6L18 18M18 6L6 18" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<path d="M1064 229L1352 229" stroke="#D9DDD5" fill="none"/>
+<text x="1064" y="263" font-size="14" fill="#242824" font-weight="500">阅读与思考</text>
+<text x="1064" y="288" font-size="13" fill="#596159" font-weight="400">第 12 页</text>
+<rect x="1142" y="267" width="114" height="32" rx="4" fill="#F1F4EE"/>
+<text x="1154" y="288" font-size="13" fill="#315B46" font-weight="400">回到选段</text>
+<rect x="1064" y="309" width="288" height="148" rx="6" fill="#F7F7F2"/>
+<rect x="1064" y="321" width="3" height="122" rx="1" fill="#D4BA62"/>
+<text x="1082" y="343" font-size="16" fill="#242824" font-weight="400">理解不是把句子存起来，</text>
+<text x="1082" y="371" font-size="16" fill="#242824" font-weight="400">而是知道它与已有经验</text>
+<text x="1082" y="399" font-size="16" fill="#242824" font-weight="400">如何联系。</text>
+<text x="1064" y="498" font-size="14" fill="#242824" font-weight="500">我的想法</text>
+<rect x="1064" y="514" width="288" height="184" rx="6" fill="#FFFFFF" stroke="#315B46"/>
+<text x="1078" y="545" font-size="14" fill="#242824" font-weight="400">可以把一个新概念和已有的</text>
+<text x="1078" y="571" font-size="14" fill="#242824" font-weight="400">问题放在一起核对：它改变了</text>
+<text x="1078" y="597" font-size="14" fill="#242824" font-weight="400">什么，又留下了哪些疑问？</text>
+<path d="M1260 580L1260 600" stroke="#315B46" fill="none"/>
+<text x="1064" y="729" font-size="12" fill="#596159" font-weight="400">未保存</text>
+<rect x="1242" y="708" width="110" height="36" rx="6" fill="#315B46"/>
+<text x="1256" y="732" font-size="14" fill="#FFFFFF" font-weight="500">保存想法</text>
+<path d="M1064 775L1352 775" stroke="#D9DDD5" fill="none"/>
+<text x="1064" y="807" font-size="12" fill="#596159" font-weight="400">保存后可继续阅读或查看笔记</text>
+<rect x="120" y="852" width="920" height="52" rx="0" fill="#FBFBF8"/>
+<path d="M120 852L1040 852" stroke="#D9DDD5" fill="none"/>
+<text x="144" y="884" font-size="13" fill="#596159" font-weight="400">第 12 页 / 共 128 页</text>
+<text x="512" y="884" font-size="15" fill="#242824" font-weight="400">‹     12     ›</text>
+<text x="848" y="884" font-size="13" fill="#596159" font-weight="400">适合宽度  ⌄</text>
+<text x="970" y="884" font-size="16" fill="#596159" font-weight="400">−   ＋</text>
+<text x="64" y="942" font-size="14" fill="#596159" font-weight="400">引用与来源归Core，编辑器提供者可替换；保存成功须有真实回执。关闭面板回到原选段，不丢输入与位置。</text>
+<text x="64" y="970" font-size="12" fill="#596159" font-weight="400">设计工作基线 v0.1 · 自拟示例内容 · 非运行截图 · 功能、长书与原生平台能力仍须分别验收</text>
+</g></svg>

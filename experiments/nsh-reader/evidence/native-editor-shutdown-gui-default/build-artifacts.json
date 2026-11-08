@@ -1,0 +1,6 @@
+{
+  "native_binary": "/workspace/qusor/experiments/nsh-reader/target/qualified-native-shutdown-gui-default/native-binary",
+  "native_binary_sha256": "59d2febbe03057061b6e4b7a2d996451fdcc40f4f224907a156b80fecd4da549",
+  "bundle_sha256": "93a8d4079ac3df9949c4ebf2a6e9f197687c6c1f674b49a40508a6d8559f3a83",
+  "source_fingerprints": 150
+}

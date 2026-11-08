@@ -1,0 +1,56 @@
+{
+  "exit_code": 0,
+  "executable": "experiments/nsh-reader/target/native-retirement-qualified/final-qualification",
+  "executable_sha256": "bba3c2d7a79e801ab6298799ea0be4f6ba8ac02ce71394d65c9ea0c69d3dd84d",
+  "log": "root-independent.log",
+  "log_sha256": "fca5767962b7213204b007e4aee4a799eaf22fa19f035f41b523f48f2e459474",
+  "cases": [
+    {
+      "actual_reaped": [
+        "1991ef5142bac7d136a21245a1a085c7-1"
+      ],
+      "case": "invocation",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "c69bb4a63c89110bafe2cdd081239e9a-1"
+      ],
+      "case": "gate",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "a23e13a17d37a513de2582ed3ca00fa6-1"
+      ],
+      "case": "finish",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "6e7f59d65572b6dce56db555fb7b008a-1"
+      ],
+      "case": "unknown_wait",
+      "faults": 0,
+      "leases": 0
+    },
+    {
+      "actual_reaped": true,
+      "case": "foreign_install",
+      "guarded": true,
+      "lease_record_unchanged": true,
+      "remaining_leases": 0
+    },
+    {
+      "actual_reaped": true,
+      "case": "same_install",
+      "guarded": true,
+      "lease_record_unchanged": true,
+      "remaining_leases": 0
+    }
+  ],
+  "scope": "Independent rerun of frozen qualification executable; no GUI, native release ack or terminate backpressure qualification."
+}

@@ -1,0 +1,18 @@
+
+running 13 tests
+test caller_tests::actual_caller_preserves_latest_pending_queue_regression ... ok
+test caller_tests::more_than64_deliver_close_reclaim_with_an_old_encoded_guard_still_alive ... ok
+test caller_tests::shared_full_slice_retainer_and_decoded_copy_have_distinct_lifetimes ... ok
+test frame_scheduler::tests::abandoned_completed_future_physically_drops_its_local_payload ... ok
+test frame_scheduler::tests::abandoned_future_keeps_running_charge_until_actual_work_returns ... ok
+test frame_scheduler::tests::blocked_worker_close_remains_pending_until_real_exit_and_join ... ok
+test frame_scheduler::tests::closing_owner_drops_unpolled_payload_even_when_future_stays_alive ... ok
+test frame_scheduler::tests::delivered_local_lease_and_bridge_boundary_are_distinct ... ok
+test frame_scheduler::tests::last_state_arc_dropped_by_work_requests_retirement_without_self_join ... ok
+test frame_scheduler::tests::old_owner_close_and_late_result_do_not_cancel_successor ... ok
+test frame_scheduler::tests::panic_work_is_settled_and_foreign_owner_cannot_release_local_work ... ok
+test frame_scheduler::tests::pending_closure_drop_can_reenter_scheduler_without_queue_lock_deadlock ... ok
+test frame_scheduler::tests::scheduler_drop_while_caller_holds_gate_does_not_wait_or_drop_user_closures ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+

@@ -1,0 +1,398 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-08T13:22:12.586233+00:00",
+  "status": "passed-real-IBus-libpinyin-GTK4-NSH-native-A-commit-save-reopen-and-empty-restore",
+  "native_binary_sha256": "d3635e16248c805738c12615cbe4a8762e134650f5f9a5e49c37f4bc93956828",
+  "bundle_sha256": "35333d69f9e76e8ffb16a8f8a5a93a0ab3169c37525ed8b58d4ab866ce3ae0b7",
+  "reused_qualification": "../native-editor-ui-attempt-3/record.json",
+  "source_archive_sha256": "af2b31f79cc7bb1b72ad6756f15690235418c184269b1f8dc21cc178bf0ad838",
+  "source_modified": false,
+  "rust_tsx_bundle_modified": false,
+  "fixture_generated_after_build": true,
+  "fixture_sha256": "6106a34f00c0e596aae5c44bba27a0bedfc6172ec214ea72f930097aba9823f0",
+  "synthetic_source": true,
+  "input": {
+    "method": "XTest Latin pinyin key events -> actual private IBus libpinyin -> GTK4 Input preedit/commit",
+    "pinyin_keys": "nihao",
+    "commit_key": "Space",
+    "committed_text": "你好",
+    "committed_utf8_hex": "e4bda0e5a5bd",
+    "clipboard_used": false,
+    "unicode_key_injection_used": false,
+    "direct_insert_text_used": false,
+    "manually_emitted_composition_signal": false
+  },
+  "composition": {
+    "trace_events": [
+      {
+        "log_line": 99,
+        "trace": "INFO nsh::perf event CompositionChange on view 284"
+      },
+      {
+        "log_line": 104,
+        "trace": "INFO nsh::perf event CompositionChange on view 284"
+      },
+      {
+        "log_line": 107,
+        "trace": "INFO nsh::perf event CompositionChange on view 284"
+      },
+      {
+        "log_line": 110,
+        "trace": "INFO nsh::perf event CompositionChange on view 284"
+      },
+      {
+        "log_line": 113,
+        "trace": "INFO nsh::perf event CompositionChange on view 284"
+      },
+      {
+        "log_line": 117,
+        "trace": "INFO nsh::perf event ChangeText on view 284"
+      },
+      {
+        "log_line": 119,
+        "trace": "INFO nsh::perf event CompositionChange on view 284"
+      },
+      {
+        "log_line": 135,
+        "trace": "INFO nsh::perf event CompositionChange on view 284"
+      },
+      {
+        "log_line": 140,
+        "trace": "INFO nsh::perf event CompositionChange on view 284"
+      },
+      {
+        "log_line": 143,
+        "trace": "INFO nsh::perf event CompositionChange on view 284"
+      },
+      {
+        "log_line": 146,
+        "trace": "INFO nsh::perf event CompositionChange on view 284"
+      },
+      {
+        "log_line": 150,
+        "trace": "INFO nsh::perf event CompositionChange on view 284"
+      }
+    ],
+    "composition_change_count": 11,
+    "first_preedit_updates": 5,
+    "first_commit_end_event": 6,
+    "native_vms_during_first_preedit": 0,
+    "save_disabled_during_preedit_observed": true,
+    "end_before_guest_dispatch": true,
+    "payload_values_directly_logged": false,
+    "start_end_evidence": "Frozen NSH preedit implementation emits composing true/false; actual CompositionChange traces bracket Chinese preedit, ChangeText and guest dispatch. Save is disabled while preedit and enabled after end. JS guards are exercised without instrumenting/changing the frozen app."
+  },
+  "escape": {
+    "scope": "Input-method composition cancellation only, not global Escape behavior",
+    "pinyin_keys": "ceshi",
+    "composition_changes_before": 10,
+    "composition_changes_after": 11,
+    "text_and_panel_preserved": true,
+    "guest_vms_before": 3,
+    "guest_vms_after": 3
+  },
+  "actual_editor_vms": 3,
+  "actual_editor_calls": 10,
+  "actual_owned_reaps": 3,
+  "max_fuel": 118928,
+  "max_calls_per_vm": 4,
+  "core": {
+    "normal_app_close_exit": 0,
+    "reopen_query_text": "你好",
+    "empty_restore_exact": true,
+    "original_source_pdf_exact": true,
+    "worker_leases_empty": true,
+    "recovery_record": "core-recovery.json"
+  },
+  "isolation": {
+    "display": ":111",
+    "private_bus": true,
+    "private_home_xdg": true,
+    "ibus_config": "explicit ibus-memconf, memory only",
+    "engine_only_bwrap": true,
+    "engine_network_namespace": true,
+    "global_installs_settings_symlinks": false,
+    "personal_IME_configuration_or_wordlist_read": false,
+    "all_owned_processes_terminal": true,
+    "shutdown_record": "owned-shutdown.json"
+  },
+  "preparation_failure_and_repair": {
+    "record": "preparation-failure.json",
+    "error": "initial --single disabled config required by libpinyin",
+    "repair": "Started explicit ibus-memconf in SAME private bus, original daemon and display retained; gdbus SetGlobalEngine libpinyin succeeded. Then same frozen native app launched.",
+    "original_manager_exit": 1,
+    "native_app_phase_exit": 0,
+    "memconf_exit": 0,
+    "failure_not_erased": true
+  },
+  "limitations": [
+    "Xvfb Linux/GTK4 actual IME integration, not physical desktop/hardware/Wayland/macOS/mobile qualification",
+    "IME candidate panel disabled; candidate popup UI/position not qualified",
+    "CompositionChange payload bool/text not directly logged; unchanged-code event order plus actual Save/dispatch gating and CJK Core result establish start/end behavior",
+    "native release acknowledgement quota not proven",
+    "no global Escape implementation claimed"
+  ],
+  "artifacts": {
+    "document-ready.png": {
+      "bytes": 36350,
+      "sha256": "c15ae9c21bc49d97a160c670726f8f858b71bea5ec31c912cf69095a346d5a04"
+    },
+    "chooser-row-selection.json": {
+      "bytes": 624,
+      "sha256": "354ba6116cb611ac09652499e54f47d10cc8bf3ee21d6a9b723392fc68fe8189"
+    },
+    "owned-shutdown.json": {
+      "bytes": 351,
+      "sha256": "bea054d5ea936114eaeb6993bfd669948253596c9d6ab1b4729b3bc8d5883b20"
+    },
+    "release-signature.stderr": {
+      "bytes": 221,
+      "sha256": "ad0a34f5b6c3c14800ead085b2ed341e65a7e216d8b0b988c396dc2ee05a896f"
+    },
+    "window.log": {
+      "bytes": 62641,
+      "sha256": "72bfd400b2f2e8c88116d69cd503bef4d5147dd6d54dcda5a7ccb64f2b9eec92"
+    },
+    "before-ime.json": {
+      "bytes": 71,
+      "sha256": "62d56c50aae2d9190f79408a3c64ad51ef9d96c5cbd10ec88298f211bdae6470"
+    },
+    "initial.png": {
+      "bytes": 19577,
+      "sha256": "54535ea44f49808c900d3be5145f9135ca33846f7c7df1bbcd2ef43f5d4f7e70"
+    },
+    "committed.png": {
+      "bytes": 34145,
+      "sha256": "4efb65d07806bbbac79cda485b73ba839127ed9c6cf3690477ebd39088c6d371"
+    },
+    "xvfb.log": {
+      "bytes": 264,
+      "sha256": "b4c7eeeb685d357271d5d414216d2d02523a3720e8b721504d7b177ea6cc0713"
+    },
+    "bundle.nshc": {
+      "bytes": 194097,
+      "sha256": "35333d69f9e76e8ffb16a8f8a5a93a0ab3169c37525ed8b58d4ab866ce3ae0b7"
+    },
+    "preparation-failure.json": {
+      "bytes": 519,
+      "sha256": "32b4131c0d3632d8b47373f59b8e2b562374cc6c86d7f4f31c02280ed094ae16"
+    },
+    "ibus.log": {
+      "bytes": 154,
+      "sha256": "d2523ed0ea830129c2d7c5cb7f1361007f11af331cc548ebc2820cab6f665695"
+    },
+    "core-recovery.json": {
+      "bytes": 15945,
+      "sha256": "c791e4b69fd873d428f8f1b5af774eae5a96cdfd8d8ba66652e4b12a30953da3"
+    },
+    "document.png": {
+      "bytes": 22833,
+      "sha256": "b923cc102e9df1b41ac83eb81a898561d62437e3f0fd9e97a078df402ba7743c"
+    },
+    "engine-wrapper.py": {
+      "bytes": 1056,
+      "sha256": "ae600275791f9a57fb01a748275c5fd7640b0a5199be6d8ecbf1a950ccc41f55"
+    },
+    "selection-drag-2.json": {
+      "bytes": 460,
+      "sha256": "3a8a5c91b5efd1f7ad0715f8e9cdbcc896ad5654b6dc0ed86d2ed64f9244ad73"
+    },
+    "pinyin-key-trace.json": {
+      "bytes": 262,
+      "sha256": "b0614c23b9a0725181f4fa3557f42d0858388d47dccbb151e1a68c77958395ec"
+    },
+    "index-signature-chain.json": {
+      "bytes": 560,
+      "sha256": "119b4d282f3b4b75081bd98ce2f7d2eb5e0b19052ea0dd89ef5c7ec60ca2a4ec"
+    },
+    "native-session.py": {
+      "bytes": 6042,
+      "sha256": "235bd9f7f6710a29bb246ad1710f8eb57d98c94fc6041fd25c968f048695b1fc"
+    },
+    "isolated-libpinyin-component.xml": {
+      "bytes": 661,
+      "sha256": "91257f6061a6c8d032f6d23f3d3afc209ed1d097bee0d1b3aeabd715138c729e"
+    },
+    "user-namespace-probe.json": {
+      "bytes": 110,
+      "sha256": "b6a734557d082f920c69c68932396d488385de64d9d68ac1483516a9d6d087c2"
+    },
+    "selection-drag.json": {
+      "bytes": 460,
+      "sha256": "d2ff40efa425d5686134acae5e03f6c74d279ed30438e62826dc00e1f4a120f3"
+    },
+    "abi.json": {
+      "bytes": 17480,
+      "sha256": "b8dd760e06bd9e21524f89d58210d9efc843a65fda99aa0b419904dff8538070"
+    },
+    "package-manifest.json": {
+      "bytes": 5714,
+      "sha256": "ecece56e80f98680f4fa19ed283ca2071d8e659db1019414dd3bfa193c11de83"
+    },
+    "owned-processes-before-shutdown.json": {
+      "bytes": 466,
+      "sha256": "32522ece638d11dc0a8d18b5fc6e23ebedb4e9c6f5c017d7a57c81c02d488faa"
+    },
+    "cancelled.png": {
+      "bytes": 34145,
+      "sha256": "4efb65d07806bbbac79cda485b73ba839127ed9c6cf3690477ebd39088c6d371"
+    },
+    "ibus-connection-probes.json": {
+      "bytes": 1311,
+      "sha256": "2f7985711d3f97183ea3b7328280598196d90cbd841c5dacb7e32cd4953c2e5c"
+    },
+    "selection.png": {
+      "bytes": 36350,
+      "sha256": "c15ae9c21bc49d97a160c670726f8f858b71bea5ec31c912cf69095a346d5a04"
+    },
+    "selection-2.png": {
+      "bytes": 27269,
+      "sha256": "0b34b715bd6328e0bb3139da286b52df5466d0ea4294ffdc9941308f2b9a8323"
+    },
+    "chooser.json": {
+      "bytes": 285,
+      "sha256": "bb33ffc9784f12b9409f4ceedb36ff969833655fa9c1c07158bed013b2e11040"
+    },
+    "cancel-state.json": {
+      "bytes": 174,
+      "sha256": "de17b748c818c9d7e0469bc9df75636c7805c65a11c3af775345a5f34d6a308c"
+    },
+    "editor-ready.png": {
+      "bytes": 36082,
+      "sha256": "58ee523f646f8bed8cbd4aef3b74335eeb5cd09a2122c77a606df3cc62455972"
+    },
+    "saved.png": {
+      "bytes": 35108,
+      "sha256": "0a8bd87d615885292d414ba106c4fb373eacacfa0b2a2ece416c89ac9f9237d3"
+    },
+    "isolated-gsettings.override": {
+      "bytes": 189,
+      "sha256": "f4f138cacef2e6b310d55dc738719ab9720f1ab6a3a0aab0ebaa251c5cb4d9bf"
+    },
+    "loaded.png": {
+      "bytes": 22833,
+      "sha256": "b923cc102e9df1b41ac83eb81a898561d62437e3f0fd9e97a078df402ba7743c"
+    },
+    "isolated-child-environment.json": {
+      "bytes": 2288,
+      "sha256": "e11920b11b479a11300f50c947f53e6bc81d2b8fc61905a055d47d978d40052d"
+    },
+    "cancel-preedit.png": {
+      "bytes": 34577,
+      "sha256": "ff867e3fd568becc1fab4eba379e0610f6c14fb24d5cd02aef25734116f89fd5"
+    },
+    "preedit-state.json": {
+      "bytes": 192,
+      "sha256": "b579be927dcfd5570e9647730333b8acbf0f066441f1c49d5f5ec7fee3b72983"
+    },
+    "nsh-upstream-check.json": {
+      "bytes": 1201,
+      "sha256": "dc03b4d507f8911701524a29d0f1b5b69b8ec5e1a6239db7e11f03a2cd7d4c27"
+    },
+    "ibus-engine-select.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "overlay-probe.json": {
+      "bytes": 1564,
+      "sha256": "cc424b44120b72aeea2669be21e4765d8769956d757dbdd636a4ef5cf0071aa8"
+    },
+    "normal-close.json": {
+      "bytes": 91,
+      "sha256": "3a07c729622283f4f29973d7c3d3cec85e0885001d8f7bff13a3276ea5ade2b1"
+    },
+    "native-app-phase.py": {
+      "bytes": 2363,
+      "sha256": "3d27b78c95127054897a75150182822ed0d05a484e82a64c9888deace553d2c6"
+    },
+    "live.json": {
+      "bytes": 1208,
+      "sha256": "54e1378f93e253145e51b609422a91afe297f4ebade712f47739ce9f43099fb2"
+    },
+    "preedit.png": {
+      "bytes": 34151,
+      "sha256": "77907e9e7ddd6517f1895d841c619a62a1c616a5e53a34c1206575cc4baf08fb"
+    },
+    "chooser-state.png": {
+      "bytes": 20845,
+      "sha256": "71c7b09b86e2bc1d2d26f8b59f8b211e8c077ba8dcef62f7aa37d200796e4360"
+    },
+    "fixtures/ime-input.pdf": {
+      "bytes": 1591,
+      "sha256": "6106a34f00c0e596aae5c44bba27a0bedfc6172ec214ea72f930097aba9823f0"
+    },
+    "fixtures/manifest.json": {
+      "bytes": 595,
+      "sha256": "4942f437752956783a2c64f941ab06020ccc218f6a2faa2ae09d96a16c7488db"
+    },
+    "restored-artifacts/original-1.pdf": {
+      "bytes": 1591,
+      "sha256": "6106a34f00c0e596aae5c44bba27a0bedfc6172ec214ea72f930097aba9823f0"
+    },
+    "restored-artifacts/archive.json": {
+      "bytes": 104269,
+      "sha256": "5280f86f936533a987409893da0e9a96ed8c2e42973c408aa01bb92ced4213fa"
+    },
+    "restored-artifacts/draft-1.json": {
+      "bytes": 397,
+      "sha256": "65268e276cd4b5658513b87ef37eb946fd75812d2eb78a774a13a9ed159f77a5"
+    },
+    "restored/core.sqlite": {
+      "bytes": 266240,
+      "sha256": "b3aadcbb467dd31473c16a975086ab2cc718c38ce944ff02b14d4b38690001c2"
+    },
+    "restored/writer.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "restored/blobs/6106a34f00c0e596aae5c44bba27a0bedfc6172ec214ea72f930097aba9823f0": {
+      "bytes": 1591,
+      "sha256": "6106a34f00c0e596aae5c44bba27a0bedfc6172ec214ea72f930097aba9823f0"
+    },
+    "data/knowledge/core.sqlite": {
+      "bytes": 266240,
+      "sha256": "401bcded8efd402f52d699211b589d29cc6937596d2adfb9a2ef64177c0d0f02"
+    },
+    "data/knowledge/writer.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "data/packages/state.sqlite3": {
+      "bytes": 110592,
+      "sha256": "4ec37317eb3470fdda8f591298ff6b7a39b6e4d16b5621584cce7eaa53c26d16"
+    },
+    "data/packages/writer.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "data/native-jobs/48d2300f0eee231e505c72112d4aebe2-1/page-1.ppm": {
+      "bytes": 5142545,
+      "sha256": "78dca2d19ed80f2a0aca4f97d312ca028cf9592dfeed30e572dec867f71541a0"
+    },
+    "data/native-jobs/48d2300f0eee231e505c72112d4aebe2-1/page-0.ppm": {
+      "bytes": 5142545,
+      "sha256": "e9e0f09183a4541766fa984c1f39e7e2e761e5d9c0cc89130e747152493165ad"
+    },
+    "data/native-jobs/48d2300f0eee231e505c72112d4aebe2-1/page-2.ppm": {
+      "bytes": 5142545,
+      "sha256": "26a4cbcdd941f0e3b866f73f67cbbf1790518686e0d79582f4ceb9e447eb6800"
+    },
+    "data/native-jobs/48d2300f0eee231e505c72112d4aebe2-1/report.json": {
+      "bytes": 128827,
+      "sha256": "95f96fb40c50697f2cc2b2c7227c8f374401537f3ad067215815a6bc7003fc30"
+    },
+    "data/native-jobs/48d2300f0eee231e505c72112d4aebe2-1/stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "data/native-jobs/48d2300f0eee231e505c72112d4aebe2-1/original.pdf": {
+      "bytes": 1591,
+      "sha256": "6106a34f00c0e596aae5c44bba27a0bedfc6172ec214ea72f930097aba9823f0"
+    },
+    "data/knowledge/blobs/6106a34f00c0e596aae5c44bba27a0bedfc6172ec214ea72f930097aba9823f0": {
+      "bytes": 1591,
+      "sha256": "6106a34f00c0e596aae5c44bba27a0bedfc6172ec214ea72f930097aba9823f0"
+    }
+  },
+  "setup_warning": "glib-compile-schemas ignored lua-extension override only for unused libbopomofo schema; libpinyin lua-extension=false and cloud-input=false override remained effective. Engine network namespace additionally prevents outbound network."
+}

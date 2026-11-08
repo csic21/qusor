@@ -1,0 +1,62 @@
+[
+  {
+    "manifest": "Cargo.toml",
+    "added_packages": [],
+    "removed_packages": [],
+    "other_package_versions_unchanged": true
+  },
+  {
+    "manifest": "experiments/extension-package/Cargo.toml",
+    "added_packages": [
+      [
+        "base64",
+        "0.22.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ]
+    ],
+    "removed_packages": [],
+    "other_package_versions_unchanged": true
+  },
+  {
+    "manifest": "experiments/extension-package/author/Cargo.toml",
+    "added_packages": [
+      [
+        "base64",
+        "0.22.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ]
+    ],
+    "removed_packages": [],
+    "other_package_versions_unchanged": true
+  },
+  {
+    "manifest": "experiments/extension-wasm/Cargo.toml",
+    "added_packages": [
+      [
+        "base64",
+        "0.22.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ]
+    ],
+    "removed_packages": [],
+    "other_package_versions_unchanged": true
+  },
+  {
+    "manifest": "experiments/extension-wasm/author/Cargo.toml",
+    "added_packages": [],
+    "removed_packages": [],
+    "other_package_versions_unchanged": true
+  },
+  {
+    "manifest": "experiments/capture-core/Cargo.toml",
+    "added_packages": [],
+    "removed_packages": [],
+    "other_package_versions_unchanged": true
+  },
+  {
+    "manifest": "experiments/capture-core/author/Cargo.toml",
+    "added_packages": [],
+    "removed_packages": [],
+    "other_package_versions_unchanged": true
+  }
+]

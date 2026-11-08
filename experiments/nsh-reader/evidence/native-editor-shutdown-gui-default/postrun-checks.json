@@ -1,0 +1,12 @@
+{
+  "source_unchanged": 150,
+  "changed": [],
+  "leases": 0,
+  "VM": 30,
+  "calls": 100,
+  "reaps": 30,
+  "maxfuel": 119998,
+  "shutdown": [
+    "NATIVE_EDITOR_SHUTDOWN pending_owner=false retirement=not_needed"
+  ]
+}

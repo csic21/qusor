@@ -1,0 +1,1 @@
+(module (memory (export "memory") 2 2) (func (export "alloc") (param i32) (result i32) i32.const 1024) (func (export "migrate") (param $from i32) (param i32 i32 i32) (result i64) local.get $from i32.const 99 i32.ne (if (then unreachable)) i64.const 0))

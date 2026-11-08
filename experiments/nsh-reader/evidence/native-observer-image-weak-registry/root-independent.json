@@ -1,0 +1,137 @@
+{
+  "scope": "Frozen partial observer independent replay only; not Host ACK or complete native owner retirement.",
+  "artifacts_checked": 30,
+  "observer_binary_sha256": "6e10ebc7f9aca2ec442bd144c3522065b52a0aabfa7dd7e257e9c84c3551aafc",
+  "core_binary_sha256": "b0f24193773ec5b06b93edec55c24e9940a9635c6ad7a6871113f3943420a9c2",
+  "runs": [
+    {
+      "arguments": [
+        "--exact",
+        "image::retirement_image_tests::retirement_cancelled_queued_decode_drops_payload_outside_pool_lock",
+        "--nocapture"
+      ],
+      "pid": 499201,
+      "start_ticks": 5661742,
+      "log": "root-image-0.log",
+      "exit_code": 0,
+      "log_sha256": "21126e29bb027254bad787a89b6470f55c680f45fd7240f2d9ddfc9a4ddadd7c"
+    },
+    {
+      "arguments": [
+        "--exact",
+        "image::retirement_image_tests::retirement_decode_ticket_cancel_waits_for_real_running_decoder",
+        "--nocapture"
+      ],
+      "pid": 499213,
+      "start_ticks": 5661753,
+      "log": "root-image-1.log",
+      "exit_code": 0,
+      "log_sha256": "a71351feb4eadaffc71b903aea3036014abc566a0ec23a6151e024ec8e580309"
+    },
+    {
+      "arguments": [
+        "--exact",
+        "image::retirement_image_tests::retirement_owner_cache_keeps_real_pixels_until_lease_and_cache_exit",
+        "--nocapture"
+      ],
+      "pid": 499257,
+      "start_ticks": 5661765,
+      "log": "root-image-2.log",
+      "exit_code": 0,
+      "log_sha256": "59dcf0fdaaf360c00e2ec2c4c6a9050fbea17732304080a3f1764bd52a8760ac"
+    },
+    {
+      "arguments": [
+        "--exact",
+        "image::retirement_image_tests::retirement_queued_delivery_keeps_payload_after_subscription_cancel",
+        "--nocapture"
+      ],
+      "pid": 499301,
+      "start_ticks": 5661771,
+      "log": "root-image-3.log",
+      "exit_code": 0,
+      "log_sha256": "4b4631c94d6b28d34460a4fb9cea9831b65e93617726b0d43ad535292ab72380"
+    },
+    {
+      "arguments": [
+        "--exact",
+        "retirement::tests::retirement_actual_image_snapshot_matches_exact_frame_identity",
+        "--nocapture"
+      ],
+      "pid": 499334,
+      "start_ticks": 5661777,
+      "log": "root-image-4.log",
+      "exit_code": 0,
+      "log_sha256": "0214774dc6bebf07f5fb147d44bac574d0d68264c59931c06fb226ac49b70854"
+    },
+    {
+      "arguments": [
+        "--exact",
+        "retirement::tests::retirement_frame_identity_and_payload_drop_are_owner_safe",
+        "--nocapture"
+      ],
+      "pid": 499381,
+      "start_ticks": 5661789,
+      "log": "root-image-5.log",
+      "exit_code": 0,
+      "log_sha256": "c98d22c709a2e85b8b9134322920dd548b8ce4b5c59c08d6513f577913fae330"
+    },
+    {
+      "arguments": [
+        "--exact",
+        "retirement::tests::retirement_node_budget_counts_inflight_not_4353_historical_creates",
+        "--nocapture"
+      ],
+      "pid": 499383,
+      "start_ticks": 5661792,
+      "log": "root-image-6.log",
+      "exit_code": 0,
+      "log_sha256": "82f1a98ad81c09e1cf8e792cde53f7290de2a87917d279b50373fc7fb09b5e94"
+    },
+    {
+      "arguments": [
+        "--exact",
+        "retirement::tests::retirement_one_shot_closed_admission_and_foreign_owner_fail_closed",
+        "--nocapture"
+      ],
+      "pid": 499418,
+      "start_ticks": 5661823,
+      "log": "root-image-7.log",
+      "exit_code": 0,
+      "log_sha256": "1d5e7846d889a61077c07d3726ad02cf02acce72543bccf0f2c2a24c941b9207"
+    },
+    {
+      "arguments": [
+        "--exact",
+        "retirement::tests::retirement_real_finalization_waits_for_clone_and_survives_dispose",
+        "--nocapture"
+      ],
+      "pid": 499453,
+      "start_ticks": 5661835,
+      "log": "root-image-8.log",
+      "exit_code": 0,
+      "log_sha256": "453b93489337252775c2551a4da3f758ec7adc64c555f92534fe596fcf7d5ced"
+    },
+    {
+      "arguments": [
+        "image::",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "pid": 499488,
+      "start_ticks": 5661846,
+      "log": "root-core-image.log",
+      "exit_code": 0,
+      "log_sha256": "d89aa94b2e98f1c55f99e64907d981a02cd4db273bbeb7df0b8e88893f12ff21"
+    }
+  ],
+  "xvfb": {
+    "pid": 499197,
+    "start_ticks": 5661692,
+    "display": ":117",
+    "exit_code": 0,
+    "terminal": true
+  },
+  "observer_tests_passed": 9,
+  "core_image_tests_passed": 41
+}

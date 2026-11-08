@@ -1,0 +1,19 @@
+[package]
+name = "nsh-app-qusor-nsh-native-host-probe-android"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[lib]
+name = "nsh_app_qusor_nsh_native_host_probe_android"
+path = "lib.rs"
+crate-type = ["cdylib"]
+
+[features]
+dev = ["nsh-platform-android/dev"]
+
+[dependencies]
+nsh-core = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-core" }
+nsh-platform-android = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android" }
+nsh-base = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-base", features = ["highlight"] }
+app_qusor_nsh_native_host_probe = { package = "qusor-nsh-native-host-probe", path = "/workspace/qusor/experiments/nsh-reader/native-host" }

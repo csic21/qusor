@@ -1,0 +1,26 @@
+{
+  "display": ":109",
+  "xvfb": {
+    "pid": 456191,
+    "start_ticks": 4242916
+  },
+  "app": {
+    "pid": 456746,
+    "start_ticks": 4259698
+  },
+  "data": "/workspace/qusor/experiments/nsh-reader/evidence/native-editor-ui-attempt-1/data",
+  "log": "/workspace/qusor/experiments/nsh-reader/evidence/native-editor-ui-attempt-1/window.log",
+  "prior_app": {
+    "pid": 456198,
+    "start_ticks": 4243317,
+    "termination": "verified owned SIGTERM after normal WM close did not exit unresolved chooser",
+    "proc_absent": true
+  },
+  "environment": {
+    "GTK_USE_PORTAL": "0",
+    "GIO_USE_VFS": "local",
+    "GSETTINGS_BACKEND": "memory",
+    "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/qusor-no-session-bus"
+  },
+  "window": "0x200005"
+}

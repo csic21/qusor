@@ -1,0 +1,64 @@
+{
+  "commands": [
+    [
+      "clang",
+      "--target=wasm32-unknown-unknown",
+      "-O2",
+      "-ffreestanding",
+      "-fno-builtin",
+      "-nostdlib",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-c",
+      "/workspace/qusor/experiments/capture-core/author/src/component_paragraph_projected.c",
+      "-o",
+      "/tmp/qusor-projected-toolchain/guest.o"
+    ],
+    [
+      "clang",
+      "--target=wasm32-unknown-unknown",
+      "-mmultivalue",
+      "-c",
+      "/workspace/qusor/experiments/capture-core/author/src/component_paragraph_entry.s",
+      "-o",
+      "/tmp/qusor-projected-toolchain/entry.o"
+    ],
+    [
+      "/home/user/.rustup/toolchains/1.97.1-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-unknown-linux-gnu/bin/gcc-ld/wasm-ld",
+      "--no-entry",
+      "--export=run",
+      "--export-memory",
+      "--initial-memory=131072",
+      "--max-memory=131072",
+      "/tmp/qusor-projected-toolchain/guest.o",
+      "/tmp/qusor-projected-toolchain/entry.o",
+      "-o",
+      "/tmp/qusor-projected-toolchain/module.wasm"
+    ]
+  ],
+  "clang": "Ubuntu clang version 21.1.8 (6ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-21/bin\n",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\n",
+  "files": {
+    "/workspace/qusor/experiments/capture-core/author/src/component_paragraph_projected.c": {
+      "sha256": "e1d78640bdde781ff7b5a4766a3b1dda948c5e522f694e9549eff32fd6eeb765",
+      "bytes": 10927
+    },
+    "/workspace/qusor/experiments/capture-core/author/src/component_paragraph.c": {
+      "sha256": "bea64b7630c3ef28c29db08fdd3bda3383db683a9c25aa357a882b8a4bda6222",
+      "bytes": 30001
+    },
+    "/workspace/qusor/experiments/capture-core/author/src/component_paragraph_entry.s": {
+      "sha256": "cbe7bb988a2ba77c9a2f22593631e5e9c21e909997495dc38112e9c1dea7cdd4",
+      "bytes": 235
+    },
+    "/workspace/qusor/experiments/capture-core/author/src/bin/component_paragraph_projected_author.rs": {
+      "sha256": "29a39cf0b0f64f279dc0a8bc33a3b0122ea90d81b195cc2aa09b8669dc63a842",
+      "bytes": 6616
+    },
+    "/tmp/qusor-projected-toolchain/module.wasm": {
+      "sha256": "3ff7a8115230014d67bc3b2f7bd53b1434ed41f956000d38bd4d68a81c5e5253",
+      "bytes": 40161
+    }
+  }
+}

@@ -21,9 +21,9 @@ fn main() -> ExitCode {
 
 fn run() -> Result<(), Box<dyn Error>> {
     let args: Vec<_> = env::args_os().skip(1).collect();
-    if args.len() != 5 {
+    if args.len() != 5 && args.len() != 7 {
         return Err(
-            "usage: build-signed-plugin <source.wat> <manifest.json> <asset> <seed.hex> <output.qpkg>"
+            "usage: build-signed-plugin <source.wat> <manifest.json> <asset> <seed.hex> <output.qpkg> [<lifecycle.json> <migration.wat|->]"
                 .into(),
         );
     }
@@ -39,23 +39,33 @@ fn run() -> Result<(), Box<dyn Error>> {
     for (index, byte) in seed.iter_mut().enumerate() {
         *byte = u8::from_str_radix(&seed_text[index * 2..index * 2 + 2], 16)?;
     }
-    let package = build_signed(
-        manifest,
-        "module.wasm",
-        vec![
-            PackageFile {
-                path: "module.wasm".into(),
+    let mut files = vec![
+        PackageFile {
+            path: "module.wasm".into(),
+            mime: "application/wasm".into(),
+            bytes: module,
+        },
+        PackageFile {
+            path: "assets/sample.txt".into(),
+            mime: "text/plain".into(),
+            bytes: asset,
+        },
+    ];
+    if args.len() == 7 {
+        files.push(PackageFile {
+            path: "assets/lifecycle.json".into(),
+            mime: "application/json".into(),
+            bytes: fs::read(&args[5])?,
+        });
+        if args[6] != "-" {
+            files.push(PackageFile {
+                path: "migration.wasm".into(),
                 mime: "application/wasm".into(),
-                bytes: module,
-            },
-            PackageFile {
-                path: "assets/sample.txt".into(),
-                mime: "text/plain".into(),
-                bytes: asset,
-            },
-        ],
-        &seed,
-    )?;
+                bytes: wat::parse_file(Path::new(&args[6]))?,
+            });
+        }
+    }
+    let package = build_signed(manifest, "module.wasm", files, &seed)?;
     fs::write(&args[4], &package)?;
     // Public key only. A seed/private key must never become package metadata.
     println!("{}", publisher_key(&seed));

@@ -1,0 +1,17 @@
+   Compiling extension-api v0.0.0 (/workspace/qusor/crates/extension-api)
+   Compiling learning-application v0.0.0 (/workspace/qusor/crates/learning-application)
+   Compiling runtime-wasm v0.0.0 (/workspace/qusor/adapters/runtime-wasm)
+   Compiling paragraph-proof v0.1.0 (/tmp/qusor-paragraph-proof)
+warning: field `late_input` is never read
+  --> src/main.rs:75:5
+   |
+66 | struct Broker {
+   |        ------ field in this struct
+...
+75 |     late_input: Option<String>,
+   |     ^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `paragraph-proof` (bin "paragraph-proof") generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.10s

@@ -1,0 +1,10 @@
+{
+  "tool": "@deepseek-ai/dsh",
+  "version": "0.2.2-rc.1",
+  "exit_code": 0,
+  "task": "append bounded ReplaceParagraph JSON Schema variant",
+  "old_variants_unchanged": true,
+  "review": "Root compared exact JSON values, checked Draft 2020-12 schema, positive boundaries and overflow/negative/approval-injection rejection",
+  "output_sha256": "01dac024d3d52b1cd30d3ad297c53736cff3b78fb78b19c8a5e62af48242c812",
+  "target": "crates/extension-api/schema/component-context-v1.schema.json"
+}

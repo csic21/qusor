@@ -1,0 +1,85 @@
+    Checking nsh-platform-linux v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913/crates/nsh-platform-linux)
+warning: unused import: `glib`
+ --> crates/nsh-platform-linux/src/retirement.rs:7:12
+  |
+7 | use gtk4::{glib, prelude::*};
+  |            ^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:44:5
+   |
+44 |     pub stamp: FrameStamp,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: requested on the command line with `-W missing-docs`
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:45:5
+   |
+45 |     pub node: NodeId,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:46:5
+   |
+46 |     pub pixels: (i32, i32),
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:47:5
+   |
+47 |     pub bounds_dip: (f32, f32),
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:48:5
+   |
+48 |     pub scale: f32,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:49:5
+   |
+49 |     pub sequence: u64,
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:54:5
+   |
+54 |     pub root: Option<NodeId>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:55:5
+   |
+55 |     pub closing: bool,
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:56:5
+   |
+56 |     pub live_nodes: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:57:5
+   |
+57 |     pub delete_applied: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:60:5
+   |
+60 |     pub failure: Option<&'static str>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/nsh-platform-linux/src/retirement.rs:61:5
+   |
+61 |     pub unprovable: &'static str,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `nsh-platform-linux` (lib) generated 13 warnings (run `cargo fix --lib -p nsh-platform-linux` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.22s

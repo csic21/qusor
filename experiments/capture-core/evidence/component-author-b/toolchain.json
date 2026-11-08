@@ -1,0 +1,5 @@
+{
+  "clang": "Ubuntu clang version 21.1.8 (6ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-21/bin",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "linker": "LLD 22.1.6 (/checkout/src/llvm-project/llvm dcc3606807c989700e0ac1cac18c31741bcd40d9)"
+}

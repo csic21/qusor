@@ -14,8 +14,15 @@ use std::sync::{
 static NEXT_HOST: AtomicU64 = AtomicU64::new(1);
 
 use extension_api::{
-    ApiError, Capability, CapabilityRequest, Contribution, ErrorCode, HOST_API, Manifest, Resource,
+    ApiError, ApiVersion, Capability, CapabilityRequest, Contribution, ErrorCode, HOST_API,
+    Manifest, Resource, SUPPORTED_HOST_APIS, capability_available_in, capability_resource_valid,
+    is_supported_api,
 };
+
+pub mod component;
+pub mod durable;
+mod durable_surface;
+pub mod surface;
 
 const MAX_INSTALLATIONS: usize = 256;
 const MAX_SESSIONS: usize = 1024;
@@ -87,6 +94,7 @@ struct Installation {
 struct Connection {
     installation: InstallationId,
     epoch: u64,
+    api_version: ApiVersion,
 }
 
 /// One vault-bound policy authority. No builtin/official privilege branch exists.
@@ -100,6 +108,8 @@ pub struct Host {
     sessions: BTreeMap<u64, Connection>,
     next_installation: u64,
     next_session: u64,
+    surfaces: surface::SurfaceRegistry,
+    components: component::ComponentRegistry,
 }
 
 impl Host {
@@ -124,6 +134,8 @@ impl Host {
             sessions: BTreeMap::new(),
             next_installation: 1,
             next_session: 1,
+            surfaces: surface::SurfaceRegistry::default(),
+            components: component::ComponentRegistry::default(),
         })
     }
 
@@ -173,6 +185,39 @@ impl Host {
         Ok(self.installation(id)?.status)
     }
 
+    /// Rebind the same durable installation to trusted, reverified journal facts.
+    /// Unlike an ordinary update this may be an explicit paired rollback. Keep
+    /// the native identity so unreleased Surface resources retain their quota.
+    fn restore_registration(
+        &mut self,
+        id: InstallationId,
+        manifest: Manifest,
+        digest: String,
+    ) -> Result<(), ApiError> {
+        self.validate_package(&manifest, &digest)?;
+        let current = self.installation(id)?;
+        if current.manifest.package_id != manifest.package_id
+            || current.manifest.publisher_id != manifest.publisher_id
+        {
+            return Err(error(
+                ErrorCode::InvalidState,
+                "durable installation identity changed",
+            ));
+        }
+        let epoch = self.advance_epoch(id)?;
+        let installed = self
+            .installations
+            .get_mut(&id)
+            .expect("installation checked");
+        installed.manifest = manifest;
+        installed.digest = digest;
+        installed.grants.clear();
+        installed.epoch = epoch;
+        installed.status = Status::Disabled;
+        self.drop_sessions(id);
+        Ok(())
+    }
+
     pub fn manifest(&self, id: InstallationId) -> Result<&Manifest, ApiError> {
         Ok(&self.installation(id)?.manifest)
     }
@@ -190,25 +235,7 @@ impl Host {
         grants: Vec<Grant>,
     ) -> Result<(), ApiError> {
         let installed = self.installation(id)?;
-        if grants.len() > MAX_GRANTS {
-            return Err(error(ErrorCode::BudgetExceeded, "grant limit reached"));
-        }
-        for (index, grant) in grants.iter().enumerate() {
-            grant.resource.validate()?;
-            if !self.supported.contains(&grant.capability)
-                || !declared(&installed.manifest, grant.capability)
-                || grant.resource.vault_id() != self.vault_id
-                || !valid_resource(grant.capability, &grant.resource)
-            {
-                return Err(error(
-                    ErrorCode::PermissionDenied,
-                    "grant exceeds declared capability or vault scope",
-                ));
-            }
-            if grants[..index].contains(grant) {
-                return Err(error(ErrorCode::InvalidRequest, "duplicate grant"));
-            }
-        }
+        self.validate_grants(&installed.manifest, &grants)?;
         let required = required_granted(&installed.manifest, &grants);
         let epoch = self.advance_epoch(id)?;
         let installed = self
@@ -221,6 +248,38 @@ impl Host {
             installed.status = Status::Disabled;
         }
         self.drop_sessions(id);
+        Ok(())
+    }
+
+    fn validate_grants(&self, manifest: &Manifest, grants: &[Grant]) -> Result<(), ApiError> {
+        if grants.len() > MAX_GRANTS {
+            return Err(error(ErrorCode::BudgetExceeded, "grant limit reached"));
+        }
+        for (index, grant) in grants.iter().enumerate() {
+            grant.resource.validate()?;
+            if grant.capability == Capability::NoteDraftEdit {
+                return Err(error(
+                    ErrorCode::PermissionDenied,
+                    "draft editing requires a live component mount",
+                ));
+            }
+            if !self.supported.contains(&grant.capability)
+                || !declared(manifest, grant.capability)
+                || grant.resource.vault_id() != self.vault_id
+                || !SUPPORTED_HOST_APIS.iter().any(|api| {
+                    manifest.supports_api(*api)
+                        && capability_resource_valid(grant.capability, &grant.resource, *api)
+                })
+            {
+                return Err(error(
+                    ErrorCode::PermissionDenied,
+                    "grant exceeds declared capability or vault scope",
+                ));
+            }
+            if grants[..index].contains(grant) {
+                return Err(error(ErrorCode::InvalidRequest, "duplicate grant"));
+            }
+        }
         Ok(())
     }
 
@@ -303,8 +362,31 @@ impl Host {
         Ok(())
     }
 
+    /// The compatibility entry always requests the legacy 0.1 protocol.
     pub fn open_session(&mut self, id: InstallationId) -> Result<Session, ApiError> {
+        self.open_session_for_api(id, HOST_API)
+    }
+
+    /// Freeze one explicitly negotiated API version into the connection.
+    pub fn open_session_for_api(
+        &mut self,
+        id: InstallationId,
+        api_version: ApiVersion,
+    ) -> Result<Session, ApiError> {
         let installed = self.installation(id)?;
+        if !is_supported_api(api_version)
+            || !installed.manifest.supports_api(api_version)
+            || installed
+                .manifest
+                .required_capabilities
+                .iter()
+                .any(|cap| !capability_available_in(*cap, api_version))
+        {
+            return Err(error(
+                ErrorCode::UnsupportedVersion,
+                "session API is incompatible with the package",
+            ));
+        }
         if installed.status != Status::Enabled {
             return Err(error(ErrorCode::Disabled, "installation is disabled"));
         }
@@ -318,6 +400,7 @@ impl Host {
             Connection {
                 installation: id,
                 epoch,
+                api_version,
             },
         );
         Ok(Session {
@@ -326,12 +409,24 @@ impl Host {
         })
     }
 
+    /// Return the selected protocol only for a currently valid native session.
+    pub fn session_api(&self, session: &Session) -> Result<ApiVersion, ApiError> {
+        self.check_owner(&session.owner)?;
+        let connection = self.sessions.get(&session.id).ok_or_else(stale)?;
+        let installed = self.installation(connection.installation)?;
+        if installed.status != Status::Enabled || installed.epoch != connection.epoch {
+            return Err(stale());
+        }
+        Ok(connection.api_version)
+    }
+
     /// Disconnecting a runtime connection also revokes all of its outstanding permits.
     pub fn close_session(&mut self, session: &Session) -> Result<(), ApiError> {
         self.check_owner(&session.owner)?;
         if self.sessions.remove(&session.id).is_none() {
             return Err(stale());
         }
+        self.surfaces.invalidate_session(session.id);
         Ok(())
     }
 
@@ -403,7 +498,7 @@ impl Host {
 
     fn validate_package(&self, manifest: &Manifest, digest: &str) -> Result<(), ApiError> {
         manifest.validate()?;
-        if !manifest.host_api.supports(HOST_API) {
+        if manifest.negotiate_api(&SUPPORTED_HOST_APIS).is_none() {
             return Err(error(
                 ErrorCode::UnsupportedVersion,
                 "incompatible host API",
@@ -452,6 +547,12 @@ impl Host {
     ) -> Result<(&Connection, &Installation), ApiError> {
         request.validate()?;
         let connection = self.sessions.get(&session).ok_or_else(stale)?;
+        if request.api_version != connection.api_version {
+            return Err(error(
+                ErrorCode::UnsupportedVersion,
+                "request API differs from its negotiated session",
+            ));
+        }
         let installed = self
             .installations
             .get(&connection.installation)
@@ -460,7 +561,11 @@ impl Host {
             return Err(stale());
         }
         if request.resource.vault_id() != self.vault_id
-            || !valid_resource(request.capability, &request.resource)
+            || !capability_resource_valid(
+                request.capability,
+                &request.resource,
+                connection.api_version,
+            )
             || !self.supported.contains(&request.capability)
             || !declared(&installed.manifest, request.capability)
             || !installed.grants.iter().any(|grant| covers(grant, request))
@@ -488,6 +593,8 @@ impl Host {
     }
 
     fn drop_sessions(&mut self, id: InstallationId) {
+        self.surfaces.invalidate_installation(id);
+        self.components.invalidate_installation(id);
         self.sessions
             .retain(|_, session| session.installation != id);
     }
@@ -524,17 +631,6 @@ fn required_granted(manifest: &Manifest, grants: &[Grant]) -> bool {
         .required_capabilities
         .iter()
         .all(|cap| grants.iter().any(|grant| grant.capability == *cap))
-}
-fn valid_resource(capability: Capability, resource: &Resource) -> bool {
-    matches!(
-        (capability, resource),
-        (Capability::SelectionRead, Resource::Selection { .. })
-            | (
-                Capability::DocumentMetadataRead,
-                Resource::Document { .. } | Resource::Vault { .. }
-            )
-            | (Capability::CapturePropose, Resource::Vault { .. })
-    )
 }
 fn covers(grant: &Grant, request: &CapabilityRequest) -> bool {
     grant.capability == request.capability

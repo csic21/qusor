@@ -1,0 +1,36 @@
+{
+  "tool": "npx --offline --yes @deepseek-ai/dsh@0.2.2-rc.1 --profile headless <task.txt>",
+  "dsh_exit": {
+    "exit_code": 0,
+    "seconds": 220.60291084599885
+  },
+  "scope": "Two isolated UI-state files only; no main-tree integration or native rendering proof. DSH output reviewed and corrected before candidate merge.",
+  "review_finding": "DSH fixed ordinary commit and blocked old-base re-delivery, but late post-commit change lacked explicit conflict metadata; root added it and verified the raw DSH result fails the expanded regression.",
+  "runs": [
+    {
+      "case": "baseline",
+      "exit_code": 1,
+      "expected": 1,
+      "scope": "Regression script, not native widget/IME execution"
+    },
+    {
+      "case": "dsh-before-review",
+      "exit_code": 1,
+      "expected": 1,
+      "scope": "Regression script, not native widget/IME execution"
+    },
+    {
+      "case": "reviewed",
+      "exit_code": 0,
+      "expected": 0,
+      "scope": "Regression script, not native widget/IME execution"
+    }
+  ],
+  "source_archive_sha256": "999a15e9a5aff5b82c8d6587e066a4e1f00f1133eb0fe656a0d2fd38373d4413",
+  "reviewed_hashes": {
+    "paragraph-input-state.ts": "5e9509796f9ef3439ccb437fcf2b7e44a7d7674146890f2276702b7352fe8648",
+    "paragraph-input-state.test.ts": "d5f6559948407577bb32aec63600d81d1d0ab2c990fdf1da5fe059baaafaf867"
+  },
+  "stderr_log_retained_outside_repo": "/home/user/.cache/qusor-paragraph-state-dsh/stderr.log",
+  "stderr_sha256": "26ca1e2ad5873f1bf2a971b97f8e642e1aa6d4925baec0b4307c35e487a683b9"
+}

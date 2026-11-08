@@ -1,0 +1,31 @@
+{
+  "exit_code": 0,
+  "cases": 5,
+  "vms": 5,
+  "calls": 15,
+  "checked_reasons": {
+    "invalid-move-from": {
+      "reason": "index",
+      "status": "rejected"
+    },
+    "invalid-move-to": {
+      "reason": "index",
+      "status": "rejected"
+    },
+    "invalid-noop-index": {
+      "reason": "index",
+      "status": "rejected"
+    },
+    "invalid-replace-index": {
+      "reason": "index",
+      "status": "rejected"
+    },
+    "replace-output-over-budget": {
+      "reason": "text_budget",
+      "status": "rejected"
+    }
+  },
+  "scope": "Wrong from/to/noop/replace index and output above1MiB reject before Begin; existing harness asserts unchanged source and Active event",
+  "module_sha256": "85227fff8c1a5ee28b1ad65436ef144585001c769cc8ec3e38dacc4e33cd3eff",
+  "fixture_gzip_sha256": "aa948fbb50fe8c70bf5ee21e750f4d3bf95f4d50a9c37937611a75f759a3f519"
+}

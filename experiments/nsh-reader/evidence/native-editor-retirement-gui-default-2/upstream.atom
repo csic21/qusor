@@ -1,0 +1,1212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xml:lang="en-US">
+  <id>tag:github.com,2008:/longbridge/nsh/commits/main</id>
+  <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commits/main"/>
+  <link type="application/atom+xml" rel="self" href="https://github.com/longbridge/nsh/commits/main.atom"/>
+  <title>Recent Commits to nsh:main</title>
+  <updated>2026-11-08T14:04:07Z</updated>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/760a025bbb2c50f83734c145c810930251a6e946</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/760a025bbb2c50f83734c145c810930251a6e946"/>
+    <title>
+        cli: Build an optimized development host with nsh run --release (#1317)
+    </title>
+    <updated>2026-11-08T14:04:07Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;cli: Build an optimized development host with nsh run --release (#1317)
+
+## What
+
+`nsh run --release` minified the bundle but still built an app&amp;#39;s Rust
+crate and NSH into a debug host. Measuring an app&amp;#39;s frame rate with it
+measured debug checks as much as the app.
+
+With `--release`, an app with a Rust crate now gets a host built as in a
+package. `run.rs` calls `rust_app::set_release_hosts()`, and
+`rust_app::host` builds `--release`, labelled &amp;quot;(release build)&amp;quot;. Without
+`--release`, nothing changes.
+
+Docs: website/docs/cli.md (`--release` row),
+website/docs/performance.md.
+
+## Tests
+
+- `cargo test -p nsh-cli --bins`: 182 passed
+- `cargo clippy -p nsh-cli -- -D warnings`: clean
+- Manual: `nsh run --target macos --release` on Spotish builds and
+launches the release host.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/d990c807753fbe08659177b409a0547f5fc3f812</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/d990c807753fbe08659177b409a0547f5fc3f812"/>
+    <title>
+        core: Picture a backdrop again only when what draws under it changed …
+    </title>
+    <updated>2026-11-08T14:03:50Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;core: Picture a backdrop again only when what draws under it changed (#1315)
+
+## What
+
+Every commit sent `ShaderInput` to every shader that reads
+`sample_backdrop`, whatever changed. A frosted bar re-pictured the
+window for changes that cannot show in its backdrop: its own controls, a
+light shader over it, the tray, window attributes. On macOS and Linux
+each picture is a render of the window on the main thread.
+
+`mark_shader_inputs` now marks a backdrop reader only when a changed
+view draws before it (`Core::draws_before`: an ancestor, or a view
+earlier in draw order, siblings by `zIndex` then in order), or an item
+shows everywhere (`shown_by`: appearance, tokens, tree order, and any
+item it does not know). Items that change nothing in the window (input,
+accessibility, desktop and clipboard commands, animated values) mark
+nothing.
+
+## Data
+
+`nsh test --trace`, Spotish: open a playlist, play a track, 2 s of
+playback (debug build).
+
+| | before | after |
+|---|---|---|
+| ShaderInput items | 29 | 18 |
+| small commits (≤ 10 ops) re-picturing the backdrop | 13 | 3 |
+
+The remaining three are a pressed row drawn before the bar.
+
+## Tests
+
+- `cargo test -p nsh-core`: 1255 passed
+- `cargo clippy --all-targets -p nsh-core -- -D warnings`: clean
+- rustfmt on the changed files: clean
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/71aeb06a80be70477c829b5614f65414372ff7d7</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/71aeb06a80be70477c829b5614f65414372ff7d7"/>
+    <title>
+        js: Unwrap every accessor a NavStack route renders down to its screen…
+    </title>
+    <updated>2026-11-08T13:45:46Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;js: Unwrap every accessor a NavStack route renders down to its screen (#1314)
+
+## Description
+
+Under `nsh run`, a route whose page is a component rendering another
+component that renders the `&amp;lt;NavPage&amp;gt;` showed a blank page. `--release`
+was fine. For example: `HomePage` → an app&amp;#39;s page shell → `&amp;lt;NavPage&amp;gt;`.
+
+In a development bundle, every component is a hot proxy, and a proxy
+returns an accessor rather than an element. Two components therefore
+give the stack an accessor around an accessor. `screen_of_accessor` read
+only the outer one, so `screen_for` wrapped the inner accessor in a new
+screen. The app&amp;#39;s `&amp;lt;NavPage&amp;gt;` ended up as a screen inside a screen,
+which no platform shows. Release bundles have no proxies, so the page is
+the `&amp;lt;NavPage&amp;gt;` itself.
+
+`screen_of_accessor` now reads every accessor down to what the innermost
+component rendered. It reads them tracked, so a hot edit of any of those
+components renders the screen again.
+
+## How to Test
+
+- New test: `cargo test -p nsh-engine --test engine
+nested_hot_components_render_the_stacks_screen`. It renders a page
+through two hot components and checks two things:
+- The stack has exactly one screen, a direct child of the `Stack`.
+Before the fix there were two, one inside the other.
+  - An edit of the inner component renders the page again.
+- `cargo test -p nsh-engine --test engine hot::` and `nav` pass. Clippy
+on `nsh-js` and `nsh-engine` is clean.
+- Checked in a real mixed app on Linux (GTK): the page was blank under
+`nsh run` before the fix and renders after it.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/94464cf1851f869f7f420dd4befd0748027aae28</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/94464cf1851f869f7f420dd4befd0748027aae28"/>
+    <title>
+        text_view: Avoid quadratic code-span searches in TeX preprocessing (#…
+    </title>
+    <updated>2026-11-08T13:36:51Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/84951845?s=30&amp;v=4"/>
+    <author>
+      <name>lurenjia534</name>
+      <uri>https://github.com/lurenjia534</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;text_view: Avoid quadratic code-span searches in TeX preprocessing (#1308)
+
+## Description
+
+Avoid repeatedly searching the complete inline-code span list while
+rewriting TeX delimiters in Markdown. With math enabled (the default), a
+document containing `\(` or `\[` enters this path; a paragraph with many
+code spans makes the lookup quadratic.
+
+Consume the already ordered spans with a forward cursor. Advance past
+starts skipped by a formula so subsequent code spans remain protected.
+Add a regression test for formulas containing multiple backtick spans
+followed by inline code, and record the performance baselines.
+
+## Performance
+
+Linux x86_64, Ryzen 9 7950X, Rust 1.99.1, workspace release profile, 11
+alternating before/after rounds pinned to one CPU; medians. The
+source-level harness uses the old and new real functions and checks
+their outputs. Inputs are constructed outside timing; span generation
+and output allocation are included.
+
+Input: ``&amp;quot;`a` x &amp;quot;.repeat(k) + &amp;quot;\\(x^2\\)&amp;quot;``. Math is enabled and
+streaming is off. Complete parsing includes Markdown-to-Document
+conversion, with layout and drawing outside the measurement.
+
+| Code spans | `latex::inline`, before → after | Complete Markdown
+parse, before → after |
+|---:|---:|---:|
+| 1,000 | 0.853 → 0.00891 ms | 1.548 → 0.795 ms |
+| 5,000 | 24.366 → 0.0450 ms | 27.794 → 4.444 ms |
+| 10,000 | 96.966 → 0.0914 ms | 100.688 → 8.911 ms |
+
+The 10,000-span complete parse improves 11.3×. With streaming repair
+enabled it takes 544.17 → 453.83 ms (1.20×); other scans remain. In a
+35,200-byte control containing 200 short Markdown sections, TeX
+rewriting takes 74.45 → 79.69 µs (about 5 µs more, a 6–7% local
+regression confirmed in two repeats), while the complete parse remains
+around 5.2 ms. Short Markdown and a 10,000-span input without TeX
+delimiters have essentially unchanged complete-parse timings.
+
+Headless `nsh test &amp;lt;entry&amp;gt; --trace`, debug, three fresh processes per
+version against `bba76ef7`, with the same dense inputs in a mounted
+`TextView` and an assertion that the text rendered:
+
+| Code spans | First-commit median, before → after | Ops / mount items /
+nodes, unchanged |
+|---:|---:|---:|
+| 1,000 | 51.121 → 43.521 ms | 7 / 16 / 3,007 |
+| 10,000 | 2731.507 → 1905.226 ms | 7 / 16 / 30,007 |
+
+Counter control: initial 56 ops / 50 items / 21 nodes and `+1` 10 ops /
+7 items / 24 nodes in both versions; commit medians 497 / 379 → 500 /
+310 µs. These small control samples establish stable work counts rather
+than a counter speedup.
+
+## How to Test
+
+- Passed `cargo test --release -p nsh-base --no-default-features --lib`:
+315 passed, including the new code-after-formulas regression.
+- Passed `cargo clippy --workspace --all-targets`.
+- Passed 3,375 differential combinations comparing both inline rewriting
+and complete parsed documents.
+- Passed the before/after headless trace runs for Counter and the
+mounted 1,000-/10,000-span TextViews, three runs each.
+- Ran the complete `cargo test --workspace --no-fail-fast` suite. Its
+only failing target is `nsh-platform-linux --lib`, with two failures in
+unchanged code:
+- `text::fallback_tests::fallback_fonts_keep_the_line_height`: emoji
+height is 23 pt versus the expected 22 pt on this machine.
+-
+`decor::tests::cached_shadows_match_vector_drawing_and_update_with_their_inputs`.
+All remaining targets completed successfully. The initial fail-fast run
+also hit the CLI&amp;#39;s port-reuse test; that test passed in the complete
+rerun.
+
+The changed Rust file passes `rustfmt +nightly --check`; `git diff
+--check` passes. Whole-workspace nightly formatting reports existing
+differences in the unchanged `crates/nsh-core/src/access.rs:1960` and
+`crates/nsh-platform-linux/src/tray.rs:749`.
+
+## Checklist
+
+- [x] Read CONTRIBUTING and followed the project conventions.
+- [x] Reviewed the implementation and its validation.
+- [ ] Whole-workspace nightly formatting passes (existing differences
+noted above).
+
+---------
+
+Co-authored-by: Floyd Wang &amp;lt;codelife721@gmail.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/5dfb1b1268bd9b9e07f5c6149eedf0d8099c4193</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/5dfb1b1268bd9b9e07f5c6149eedf0d8099c4193"/>
+    <title>
+        windows: Read window data only from the app&#39;s own windows (#1301)
+    </title>
+    <updated>2026-11-08T13:36:33Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/226146274?s=30&amp;v=4"/>
+    <author>
+      <name>dXnSix</name>
+      <uri>https://github.com/dXnSix</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;windows: Read window data only from the app&amp;#39;s own windows (#1301)
+
+## Description
+
+`window::data(hwnd)` reads a window&amp;#39;s `GWLP_USERDATA` as a pointer to
+NSH&amp;#39;s `WindowData`, whatever window it is
+given. Not every caller passes a window NSH made: the Windows test
+agent&amp;#39;s typing (`agent.rs`, `in_focused`) asks
+`GetForegroundWindow()` which window has the keyboard and looks up its
+app window root, and that window can be
+another app&amp;#39;s. When that app keeps a pointer of its own in
+`GWLP_USERDATA`, `app_window_root` dereferences it and the
+host dies with an access violation.
+
+On GitHub&amp;#39;s `windows-11-arm` runner, where other programs leave a window
+in front, this ended the host in every
+gallery test that types (`nsh test` reported &amp;quot;the host left&amp;quot;). On the
+x64 runners there is no foreground window, so
+the lookup finds nothing and the bug never shows. Symbolized, the fault
+was `window.rs` `app_window_root` ←
+`agent.rs` `in_focused`.
+
+`data()` now reads the slot only for a window of this process whose
+class&amp;#39;s window procedure is `window_proc`, the
+only windows `WM_NCCREATE` gives a `WindowData`; for any other window it
+returns `None`, as for a window with no
+data. `surface_of`, `app_window_root` and `shell` go through it, so they
+all answer `None` for another app&amp;#39;s window.
+
+- `window.rs`: `data()` checks the window&amp;#39;s process
+(`GetWindowThreadProcessId`) and class procedure
+  (`GetClassLongPtrW(GCLP_WNDPROC)`) before reading the slot.
+- A test makes a window of another class with an unmapped address in its
+user data and checks the three lookups
+  return nothing instead of reading it.
+
+## How to Test
+
+- `cargo test -p nsh-platform-windows` (the new
+`a_window_of_another_class_has_no_window_data`).
+- On Windows on Arm (GitHub&amp;#39;s `windows-11-arm`): the gallery&amp;#39;s Windows
+tests that type (`form`, `shortcuts`, …) pass
+  with this change; without it the host exits during typing.
+- The Windows clippy run and `cargo +nightly fmt --all`.
+
+## Checklist
+
+- [x] I have read the [CONTRIBUTING](../CONTRIBUTING.md) document and
+followed the guidelines.
+- [x] Reviewed the changes in this PR and confirmed AI generated code
+(if any) is accurate.
+- [x] Passed `cargo test` for the Windows crates on x64 and ARM64,
+`cargo +nightly fmt --all` and the Windows clippy
+  run.
+- [x] Changes to what apps use keep what released versions shipped (no
+API change).
+- [ ] Ran the related `examples/gallery` demos on iOS and Android
+(Windows only: not applicable).&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/6a26eedd3ecabe72ef73305a4a479f2f70f0cc4c</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/6a26eedd3ecabe72ef73305a4a479f2f70f0cc4c"/>
+    <title>
+        core: Make scroll views&#39; native views only near their viewport (#1304)
+    </title>
+    <updated>2026-11-08T13:35:40Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;core: Make scroll views&amp;#39; native views only near their viewport (#1304)
+
+Apps often lay long content out in a plain `Scroll` instead of a `List`,
+so every row&amp;#39;s native view, text layout and image is made up front. With
+this change, scroll views make the views of their content near what they
+show, make the rest as it is scrolled to, and give far views back unless
+those views hold state. Layout, `onLayout`, `measure()` and scrolling
+from code still cover the whole content.
+
+The platforms&amp;#39; apps turn it on. Engines started without it (tests, test
+drivers, nsh-compat) mount whole content as before, so their steps reach
+every view.
+
+A 2000-row `&amp;lt;Each&amp;gt;` page on GTK (debug): the first commit sends 388
+mount items instead of 38 008, in 155ms instead of 281ms.
+
+## Public API
+
+- `nsh_engine::EngineConfig::content_culling: bool`: scroll views make
+native views only near their viewport. `EngineConfig::new` leaves it
+off.
+- `nsh_engine::EngineControl::set_content_culling(&amp;amp;self, enabled:
+bool)`: turns it on or off on a running engine. Test drivers use it.
+- `nsh_core::Core::set_content_culling(&amp;amp;mut self, enabled: bool)`: the
+same, on the core.
+
+## Validation
+
+- `cargo test --workspace` and clippy on nsh-core, nsh-engine,
+nsh-testing and nsh-platform-linux pass.
+- On GTK, scrolling a 2000-row page down 6000pt and back shows the rows
+correctly, and the views given up are made again.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/9cffd5a8ae81524011a765315c34b5de5f869b8f</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/9cffd5a8ae81524011a765315c34b5de5f869b8f"/>
+    <title>
+        core: Bind a list&#39;s rows further ahead while it scrolls fast (#1310)
+    </title>
+    <updated>2026-11-08T13:29:35Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;core: Bind a list&amp;#39;s rows further ahead while it scrolls fast (#1310)
+
+Dragging a `List` fast showed blank strips at its leading edge. Rows
+bound for a scroll report show up a frame or more later, but only two
+steps&amp;#39; worth of rows ahead of the viewport were bound right away, and
+one slow frame shrank that reach just before a fast one.
+
+Now the rows four recent steps ahead (at most the overscan) bind with
+the viewport, and a recent longer step in the same direction keeps
+counting, decayed, through slower ones. A turn or a jump starts over.
+
+## Validation
+
+- `cargo test -p nsh-core list` (107) and `cargo test -p nsh-engine
+--test engine list` (31) pass.
+- Gallery photo list scrolled 3000pt (`Bench.tsx`, release, headless):
+43 commits, 2235 ops and 1856 mount items, the same as main. Steady
+scrolling binds no more.
+- In a GTK window, fast flings and wheel spins on the gallery&amp;#39;s Photos
+page no longer show blanks at the edge.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/6c82083d3edeaf3d2021886c0759d041ffc58620</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/6c82083d3edeaf3d2021886c0759d041ffc58620"/>
+    <title>
+        link: Show the pointing hand by default (#1311)
+    </title>
+    <updated>2026-11-08T13:29:17Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;link: Show the pointing hand by default (#1311)
+
+Link now shows the pointer (pointing hand) cursor while it is enabled,
+like a web `&amp;lt;a href&amp;gt;`, so apps no longer need to add `cursor-pointer` to
+every link.
+
+- Disabled links (including links in a disabled Toolbar) keep the
+default cursor.
+- An app&amp;#39;s `cursor-*` class still replaces the hand.
+- No public API change; the Link doc comment is updated.
+
+Test: `cargo test -p nsh-base --features editor,plot,rich-editor --test
+base link::` (9 passed, including a new test for enabled / disabled /
+overridden cursors).
+
+🤖 [Noop](https://huacnlee.github.io/noop) (lead) · AI agent acting for
+@huacnlee&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/101a426f8c5ef62e62e60ad32d5e6db4e68caa67</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/101a426f8c5ef62e62e60ad32d5e6db4e68caa67"/>
+    <title>
+        xtask: Import the stripping helper only in the test that uses it (#1309)
+    </title>
+    <updated>2026-11-08T12:33:29Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;xtask: Import the stripping helper only in the test that uses it (#1309)
+
+Clippy on Windows fails on main: xtask&amp;#39;s test module imports
+`copy_executable` for `a_stripped_executable_still_runs`, which only
+builds on macOS and Linux. The test now calls it by path, so the import
+is gone everywhere.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/2be8c62f0ef3e1458d4fd3c9333544bc45be313a</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/2be8c62f0ef3e1458d4fd3c9333544bc45be313a"/>
+    <title>
+        linux: Make the performance monitor concise and collapse it on a clic…
+    </title>
+    <updated>2026-11-08T12:17:02Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;linux: Make the performance monitor concise and collapse it on a click (#1306)
+
+The Linux performance monitor&amp;#39;s panel had a heading, a footer and a
+boxed chart with a budget line, and it covered the app with no way to
+move it aside.
+
+- The panel is 288×96. It shows the frame rate in large type, then two
+rows of readings: frame, p95, JS, core, CPU, memory, heap and nodes.
+- Frame cost for the last 120 frames is a curve behind the text, flush
+with the panel&amp;#39;s bottom edge. Frames within budget stay low and green;
+slow frames rise into the text in amber. There is no chart box and no
+reference line.
+- A click collapses the panel to a 76×24 pill showing only the frame
+rate, and another click expands it. The panel takes only its own clicks;
+the rest of the window still reaches the app.
+
+## Validation
+
+- `cargo test -p nsh-platform-linux fps::` (5 tests) and clippy pass.
+- Checked expanded and collapsed in a GTK window (`nsh run
+examples/gallery --target linux --fps`).
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/bba76ef739135dbdaa0147e2533c75e814beb61f</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/bba76ef739135dbdaa0147e2533c75e814beb61f"/>
+    <title>
+        component: Forward the tooltip host prop to the component&#39;s view (#1299)
+    </title>
+    <updated>2026-11-08T10:54:40Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;component: Forward the tooltip host prop to the component&amp;#39;s view (#1299)
+
+Fixes #1274.
+
+`ComponentHostProps` declares `tooltip`, but the runtime&amp;#39;s list of host
+props a component forwards to its view (`HOST_PROPS` in `nsh-js`,
+`hostProps` in the browser runtime) left it out, so `&amp;lt;Button
+tooltip={...}&amp;gt;` (and every other Rust component) silently dropped it.
+
+## Changes
+- Add `tooltip` to the forwarded host props in
+`crates/nsh-js/src/components.rs` and
+`crates/nsh-platform-web/web/browser/components.js`; regenerate
+`bootstrap.js`.
+- Add `examples/gallery/tests/component-tooltip.test.tsx`: a Button&amp;#39;s
+tooltip shows on hover and the button still presses; a disabled Button&amp;#39;s
+tooltip shows.
+
+No public API change, no new dependency.
+
+## Verification (Linux)
+- New test: fails on main (0/2, tooltip never on screen), passes with
+the fix (2/2).
+- `button`, `overlays`, `hover` gallery tests pass; `cargo test -p
+nsh-js` passes.
+- Web target is left to CI.
+
+🤖 [Noop](https://huacnlee.github.io/noop) (rust-maintainer) · AI agent
+acting for @huacnlee&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/df35720fede134fa98b080a4f19ec51360b725b1</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/df35720fede134fa98b080a4f19ec51360b725b1"/>
+    <title>
+        cli: Install other platforms&#39; runtimes as components when needed (#1302)
+    </title>
+    <updated>2026-11-08T10:54:23Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;cli: Install other platforms&amp;#39; runtimes as components when needed (#1302)
+
+## Description
+
+The release archives held every runtime the distribution has, so a
+developer on one platform downloaded all of the others. Measured on
+v0.4.0:
+
+| Part | v0.4.0 macOS archive (gzip) | v0.4.0 Linux archive (gzip) |
+After this change |
+|---|---|---|---|
+| `runtime/android` (release + dev × 3 ABIs × stripped libraries +
+symbols) | 201 MB | 201 MB | components `android`, `android-symbols` |
+| `embed/android` (the same `libnsh.so` again, already released as
+`nsh-embed-android.zip`) | 109 MB | 109 MB | `nsh-embed-android.zip`
+only |
+| `embed/ios` (already released as `nsh-embed-ios.zip`) | 125 MB | — |
+`nsh-embed-ios.zip` only |
+| `runtime/ios` | 67 MB | — | component `ios` |
+| `runtime/gpui` | 21 MB | 28 MB | component `gpui` |
+| `runtime/web` | 13 MB | 13 MB | component `web` |
+| `runtime/tui` | — | — | component `tui` |
+| `runtime/macos` / `runtime/linux` (this machine&amp;#39;s) | 34 MB | 39 MB |
+**in the archive** (stripped) |
+| `bin/nsh` | 22 MB | 24 MB | **in the archive** (stripped) |
+| **Total** | **591 MB** | **413 MB** | **about 50–60 MB** |
+
+The archive keeps only `bin/nsh` and this machine&amp;#39;s own runtime; GPUI
+and the web runtimes are components like the others.
+
+This change makes a release archive hold the CLI and its own platform&amp;#39;s
+runtime only:
+
+- **Components** (`crates/nsh-cli/src/component.rs`), as `rustup
+component add` installs a toolchain&amp;#39;s parts: `android`,
+`android-symbols`, `ios` (macOS), `web`, `gpui` and `tui` are archives
+of their own in the release (`nsh-&amp;lt;component&amp;gt;.tar.gz`, or
+`nsh-&amp;lt;component&amp;gt;-&amp;lt;platform&amp;gt;.tar.gz` for one built per machine, each with
+a `.sha256`). The first command that needs one (`--target android`, `nsh
+package --target web`, ...) downloads it from the CLI&amp;#39;s own release
+(`v&amp;lt;version&amp;gt;` or `nightly`), checks its SHA-256 and its record
+(`components/&amp;lt;name&amp;gt;.json`: the version and commit, which must be the
+CLI&amp;#39;s; a nightly CLI from an earlier night is told to `nsh update`) and
+installs it beside the CLI. A checkout&amp;#39;s build never downloads; it keeps
+building its runtimes with cargo.
+- **`nsh update`** adds the components that were installed again after
+replacing the directory.
+- **Release workflow**: `nsh component pack` (hidden) moves the
+components out of `dist/nsh` into their archives; the components that
+are the same everywhere (`android`, `android-symbols`, `web`) come from
+Linux&amp;#39;s build. The embedding SDKs are no longer in the CLI&amp;#39;s archive
+(they stay `nsh-embed-*.zip`).
+- **Android symbols** are their own component, installed only on
+request.
+- **`xtask dist` strips the executables** it copies (`copy_executable`;
+on macOS signed again ad hoc): about a sixth of each (`nsh` 59 → 49 MB).
+It strips after the build rather than through the release profile&amp;#39;s
+`strip`, which would rebuild everything apart from the release builds a
+checkout keeps for profiling.
+- The Homebrew formula&amp;#39;s test no longer packages for the web (which
+would download a component inside `brew test`); it makes a release build
+and lists the components.
+- Docs: installation and CLI reference (English, zh-CN),
+`docs/dev/tooling.md`.
+
+Expected archives: `bin/nsh` plus this machine&amp;#39;s runtime, stripped,
+about 50–60 MB, against 591 / 413 MB.
+
+## Components
+
+| Component (`nsh component add &amp;lt;name&amp;gt;`) | Release assets (each with a
+`.sha256`) | Holds (in the distribution) | Built on | Added
+automatically by |
+|---|---|---|---|---|
+| `android` | `nsh-android.tar.gz` |
+`runtime/android/{release,dev}/classes.dex`,
+`runtime/android/{release,dev}/lib/&amp;lt;abi&amp;gt;/libnsh.so` | Linux | `--target
+android`, `nsh package --target android` |
+| `android-symbols` | `nsh-android-symbols.tar.gz` |
+`runtime/android/{release,dev}/symbols/&amp;lt;abi&amp;gt;/libnsh.so` | Linux | never
+(on request) |
+| `ios` | `nsh-ios-macos-arm64.tar.gz` |
+`runtime/ios/{iphoneos,iphonesimulator,maccatalyst}/` | macOS |
+`--target ios`, `catalyst`, `nsh package --target ios` / `ios-simulator`
+|
+| `web` | `nsh-web.tar.gz` | `runtime/web/` (`nsh-browser.wasm`,
+`nsh-dev.wasm`, `nsh.js`, `browser/`, `nsh-syntaxes.bin`) | Linux |
+`--target web`, `nsh package --target web` |
+| `gpui` | `nsh-gpui-macos-arm64.tar.gz`,
+`nsh-gpui-linux-x86_64.tar.gz`, `nsh-gpui-windows-x86_64.tar.gz` |
+`runtime/gpui/nsh-gpui-host[.exe]` | each platform | `--target gpui` |
+| `tui` | `nsh-tui-macos-arm64.tar.gz`, `nsh-tui-linux-x86_64.tar.gz`,
+`nsh-tui-windows-x86_64.tar.gz` | `runtime/tui/nsh-tui-host[.exe]` |
+each platform | `--target tui` |
+
+Naming: `nsh-&amp;lt;component&amp;gt;.tar.gz` for a component that is the same on
+every machine, `nsh-&amp;lt;component&amp;gt;-&amp;lt;platform&amp;gt;.tar.gz` for one built per
+machine, `&amp;lt;platform&amp;gt;` as in the CLI&amp;#39;s archives (`macos-arm64`,
+`linux-x86_64`, `windows-x86_64`). Each archive holds `nsh/` laid out as
+the distribution, plus `nsh/components/&amp;lt;name&amp;gt;.json` (`{ &amp;quot;version&amp;quot;,
+&amp;quot;commit&amp;quot; }`).
+
+Release assets after this change, in full:
+
+```
+nsh-macos-arm64.tar.gz         nsh-linux-x86_64.tar.gz        nsh-windows-x86_64.zip      # CLI + this machine&amp;#39;s runtime
+nsh-android.tar.gz             nsh-android-symbols.tar.gz     nsh-web.tar.gz              # components, from Linux
+nsh-ios-macos-arm64.tar.gz                                                                 # component, from macOS
+nsh-gpui-macos-arm64.tar.gz    nsh-gpui-linux-x86_64.tar.gz   nsh-gpui-windows-x86_64.tar.gz
+nsh-tui-macos-arm64.tar.gz     nsh-tui-linux-x86_64.tar.gz    nsh-tui-windows-x86_64.tar.gz
+nsh-embed-ios.zip              nsh-embed-android.zip                                       # embedding SDKs
+install.sh  install.ps1  nsh.json  (nsh-release.json on the nightly)
+```
+
+## Public API
+
+CLI commands:
+
+- `nsh component list` — the components of this machine&amp;#39;s release,
+installed or not.
+- `nsh component add &amp;lt;NAME&amp;gt;...` — download and install components of
+this nsh&amp;#39;s release.
+- `nsh component remove &amp;lt;NAME&amp;gt;...` — remove installed components.
+- `nsh component pack --out &amp;lt;DIR&amp;gt;` (hidden) — the release workflow&amp;#39;s:
+move each component of a distribution into its archive.
+
+Release assets (new): the component archives listed under &amp;quot;Components&amp;quot;.
+
+## Breaking Changes
+
+The platform archives no longer contain the other platforms&amp;#39; runtimes or
+the embedding SDKs. An installed nsh adds a missing runtime itself; an
+environment that runs nsh offline adds the components it needs
+beforehand (`nsh component add android web`). Nothing apps use changes.
+
+```diff
+  nsh/bin/nsh
+  nsh/runtime/macos/
+- nsh/runtime/{android,ios,web,gpui,tui}/
+- nsh/embed/
+```
+
+## How to Test
+
+- `cargo test -p nsh-cli --bin nsh` (182 passed) and `cargo test -p
+xtask` (8 passed), including:
+- `component::tests::a_component_is_downloaded_checked_and_installed`: a
+local HTTP server stands in for the release; download, SHA-256 check,
+unpacking and installing, and the refusals of a wrong checksum and a
+missing asset, leaving nothing behind;
+- `a_component_of_another_build_is_refused`,
+`a_packed_component_installs_into_another_distribution`,
+`what_a_component_leaves_empty_goes_with_it`;
+  - `dist::tests::a_stripped_executable_still_runs`.
+- clippy (`-p nsh-cli -p xtask --all-targets`) and fmt are clean.
+- The workflow&amp;#39;s Package step, run as written on a stand-in `dist/nsh`
+as the macOS and the Linux runner: the CLI&amp;#39;s archive holds `bin` and the
+machine&amp;#39;s runtime only, the components and SDK zips each with a
+`.sha256`, the shared components from Linux only.
+- The CLI on the unpacked archive: `component list`, `add` of an unknown
+name, the automatic add on `package --target web` / `android`, an
+installed component used directly, `remove` leaving the core as it was.
+- Not run here: a full `cargo xtask dist` and the Windows runner. Run
+this workflow by hand without a tag (a dry run) to check the real
+archives.
+`runtime::gpui_uses_its_workspaces_cargo_output_instead_of_a_stale_cli_sibling`
+fails on this machine on `main` as well, unrelated.
+
+## Checklist
+
+- [x] I have read the [CONTRIBUTING](../CONTRIBUTING.md) document and
+followed the guidelines.
+- [x] Reviewed the changes in this PR and confirmed AI generated code
+(if any) is accurate.
+- [x] Passed the affected crates&amp;#39; tests, `cargo +nightly fmt --all` and
+clippy.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+---------
+
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/3b4f2abfe4dfc4f346b73877dd9036d04674ead4</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/3b4f2abfe4dfc4f346b73877dd9036d04674ead4"/>
+    <title>
+        android: End the composition when an input submits (#1300)
+    </title>
+    <updated>2026-11-08T10:36:29Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;android: End the composition when an input submits (#1300)
+
+Fixes #1285.
+
+## Problem
+`InputBox.setValue` holds a value that JS sets during a composition
+until the composition ends. In a multiline input with
+`submitBehavior=&amp;quot;submit&amp;quot;`, the `commitText(&amp;quot;\n&amp;quot;)` submit path returned
+early, before `super.commitText` and `syncComposition()`. A composing
+span that was live at that point (e.g. a dictation panel) stayed in the
+`Editable`, so the app&amp;#39;s `value=&amp;quot;&amp;quot;` after a send waited indefinitely and
+the box kept the sent text.
+
+## Fix
+`submit()` (used by both the `&amp;quot;\n&amp;quot;` path and the editor action) now
+removes the composing spans before it reports `onSubmitEditing`, then
+runs `syncComposition()`. The composed text stays in the box and is
+sent. `onCompositionChange` reports the end before the submit, as
+browsers order it, and the value JS sets in reply is applied
+immediately. If no composition is live, nothing changes. No public API
+change.
+
+This answers the issue&amp;#39;s questions as follows. Holding the value still
+applies to any live composition, but a submit now ends it. The live span
+is committed (kept as text) rather than left to the IME. The JS clear
+then calls `setText`, which restarts the IME input.
+
+## Verification
+- `cargo xtask android --dev` builds.
+- Android 15 emulator (Pixel 8, Gboard soft keyboard), multiline
+composer that clears on submit: typing `hello wor` and tapping the
+keyboard&amp;#39;s send key sends `&amp;quot;hello wor&amp;quot;`, the box clears, and typing
+continues normally afterwards.
+- Limitation: Gboard on the emulator did not expose a long-lived
+composition (no dictation panel), so the emulator could not reproduce
+the stuck state on `main`. The fix follows the code path the issue
+identifies; a check on a device with a dictation IME would confirm it.
+
+🤖 [Noop](https://huacnlee.github.io/noop) (rust-maintainer) · AI agent
+acting for @huacnlee&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/0fd4712887c4154368a0c9abaed6571fd217bfe8</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/0fd4712887c4154368a0c9abaed6571fd217bfe8"/>
+    <title>
+        desktop: Keep a focused view taller than its scroll view where it is …
+    </title>
+    <updated>2026-11-08T09:45:05Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/8359081?s=30&amp;v=4"/>
+    <author>
+      <name>yangkx1024</name>
+      <uri>https://github.com/yangkx1024</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;desktop: Keep a focused view taller than its scroll view where it is (#1241)
+
+## Description
+
+A widget that gets the focus is scrolled into view (`scroll::reveal`).
+For a span taller than the viewport the start won, so the scroll view
+moved until the widget&amp;#39;s top showed, however far that was. A web view
+the height of its page inside a scroll view is always such a span. On
+Linux it gets the focus from a click, and again when its context menu
+opens and closes: WebKit&amp;#39;s popover is its child, so focus in the menu
+counts as focus in the web view. Scrolled to the end of a long page, a
+right click moved the page back to its top, and the menu, still pointing
+at where the click had been, showed in the window&amp;#39;s top-left corner.
+
+A focused span taller than the viewport that already shows now stays
+where it is. It could only ever show in part, and moving it moves what
+the pointer is on. A span that is out of view still has its start
+scrolled in, and one that fits the viewport still shows whole, margins
+included.
+
+The rule lives in a new `reveal_focus_delta`, which the focus reveal of
+Linux, Windows and GPUI (`scroll::reveal`) and of macOS uses.
+`reveal_delta` keeps its start-first rule, which the TUI backend&amp;#39;s
+centered reveal builds on.
+
+## Public API
+
+- `nsh_core::scroll::reveal_focus_delta(start: Points, end: Points,
+viewport: Points) -&amp;gt; Points`: how far a scroll view moves to show a view
+that gets the focus; `reveal_delta`&amp;#39;s rule, except that a span taller
+than the viewport that already shows stays.
+
+## Validation
+
+- `cargo test -p nsh-core --lib scroll::`: `reveal_deltas` covers
+`reveal_delta`&amp;#39;s start-first rule and, for `reveal_focus_delta`, spans
+that are taller than the viewport and show in part or are out of view,
+and one that fits only without its margins.
+- `cargo test -p nsh-platform-tui --test tui scroll`: 28 pass,
+`horizontal_and_oversized_reveals_keep_the_core_margin_and_leading_edge`
+among them.
+- Manual check on Linux (GTK 4, WebKitGTK 6) in an email client whose
+reader shows the message body in a page-high web view inside a scroll
+view. Right-clicking at the end of a long message, and inside it while
+its top shows, opens the menu at the pointer and leaves the page where
+it was; closing the menu leaves it there too.
+- The macOS change is not compiled here (Linux).
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+---------
+
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/57076546fea6f61df984660527496894f9d002b0</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/57076546fea6f61df984660527496894f9d002b0"/>
+    <title>
+        bundler: Read import() of a backtick string as the module it names (#…
+    </title>
+    <updated>2026-11-08T09:30:23Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/22914572?s=30&amp;v=4"/>
+    <author>
+      <name>williamjakfar</name>
+      <uri>https://github.com/williamjakfar</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;bundler: Read import() of a backtick string as the module it names (#1178)
+
+Relates to #1039
+
+## Description
+
+An app that loads an NSH module with `import()` gets the whole engine on
+the web, even when the specifier is a plain string. `nsh package`
+bundles and minifies first, and the minifier writes
+`import(&amp;quot;nsh/desktop&amp;quot;)` as `` import(`nsh/desktop`) ``. `NativeUse`&amp;#39;s
+scanner (`natives.rs`, `visit_import_expression`) took only a
+`StringLiteral` as a known specifier, so the template counted as
+`computed_import`, and `linked_gates` then keeps every part.
+
+A template with no interpolation is now read like a string (as `jsx.rs`
+already does for JSX text). A template with `${…}` is still computed.
+
+Found in a real app (Symbinote): one `(await
+import(&amp;quot;nsh/desktop&amp;quot;)).Window.orderFront()` in a desktop-only branch
+made its web engine 13.3 MB (2.9 MB with brotli) instead of 4.2 MB (1
+MB). With a 300 ms server, 20 Mbit/s and a 4× slower CPU in Chrome, the
+first visit took 2.37 s instead of 1.63 s.
+
+## How to Test
+
+- `cargo test -p nsh-bundler`: 70 pass. The new
+`an_import_of_a_template_with_no_interpolation_names_its_module` fails
+without the change; `` import(`./${name}.js`) `` is still computed.
+- Repro on 0.4.0: an app whose `App.tsx` is
+  ```tsx
+  import { mount, View, Text } from &amp;quot;nsh&amp;quot;;
+async function front() { (await
+import(&amp;quot;nsh/desktop&amp;quot;)).Window.orderFront(); }
+  if (Date.now() &amp;lt; 0) front();
+  mount(() =&amp;gt; &amp;lt;View&amp;gt;&amp;lt;Text&amp;gt;Hi&amp;lt;/Text&amp;gt;&amp;lt;/View&amp;gt;);
+  ```
+`nsh package . --target web` gives a 13.3 MB `nsh.*.wasm`; without the
+`import()` line, 4.2 MB. The bundled code reads `` (await
+import(`nsh/desktop`)) ``.
+
+## Checklist
+
+- [x] I have read the [CONTRIBUTING](../CONTRIBUTING.md) document and
+followed the guidelines.
+- [x] Reviewed the changes in this PR and confirmed AI generated code
+(if any) is accurate.
+- [ ] Passed `cargo test --workspace`, `cargo +nightly fmt --all` and
+clippy: ran `cargo test -p nsh-bundler`, clippy on `nsh-bundler` and
+stable `cargo fmt --check`; not the whole workspace or nightly fmt.
+
+Co-authored-by: williamjakfar &amp;lt;22914572+blanklistz@users.noreply.github.com&amp;gt;
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;
+Co-authored-by: Floyd Wang &amp;lt;codelife721@gmail.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/aca155bd0d8eb696459db819d3b277697b25d9d3</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/aca155bd0d8eb696459db819d3b277697b25d9d3"/>
+    <title>
+        cli: Keep the generated crates&#39; names short however many crates an ap…
+    </title>
+    <updated>2026-11-08T09:04:34Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/226146274?s=30&amp;v=4"/>
+    <author>
+      <name>dXnSix</name>
+      <uri>https://github.com/dXnSix</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;cli: Keep the generated crates&amp;#39; names short however many crates an app lists (#1263)
+
+## Description
+
+An app with Rust crates of its own (`nsh.json` `&amp;quot;rust&amp;quot;`) gets a Cargo
+workspace generated for it (`.nsh/rust`), whose
+crates (`describe`, `test`, the hosts, the Android and web libraries)
+are named after the app so they never clash with
+the app&amp;#39;s own binaries in its `target/`. With several crates, the name
+joined **every** crate&amp;#39;s package:
+`nsh-app-&amp;lt;package&amp;gt;-&amp;lt;package&amp;gt;-…-&amp;lt;what&amp;gt;`. It grows with each crate the app
+lists.
+
+On Windows that breaks the build. An app with 12 bridge crates (found on
+Windows 11 ARM64, NSH 0.3.0; the naming is
+unchanged on `main`) gets a 183-character name,
+`nsh-app-shell-bridge-feed-bridge-…-describe`, and MSVC&amp;#39;s `link.exe`
+fails with `LNK1104: cannot open file` on
+`target\debug\deps\nsh_app_…_describe.exe` (264 characters) and on the
+build-script paths under `target\debug\build\`. Windows&amp;#39; long-path
+setting does not help: `link.exe` does not support
+long paths. On macOS and Linux the same name runs into the 255-byte
+file-name limit a few crates later.
+
+This PR names the generated crates so the name no longer grows with the
+crate list:
+
+| Crates | Before | After |
+|---|---|---|
+| 1 (`gallery-native`) | `nsh-app-gallery-native-describe` | unchanged |
+| 2 (`charts`, `storage`) | `nsh-app-charts-storage-describe` |
+`nsh-app-charts-ef5aa537-describe` |
+| 12 (`shell-bridge`, …) | `nsh-app-shell-bridge-feed-bridge-…-describe`
+(193 characters with the tests&amp;#39; names) | `nsh-app-shell-bridge-&amp;lt;8
+hex&amp;gt;-describe` (38) |
+
+- One crate keeps `nsh-app-&amp;lt;package&amp;gt;-&amp;lt;what&amp;gt;`, so single-crate apps (and
+`rust-app.yml`&amp;#39;s
+  `cargo tree -p nsh-app-gallery-native-…`) see no change.
+- Several crates are `nsh-app-&amp;lt;first package&amp;gt;-&amp;lt;digest&amp;gt;-&amp;lt;what&amp;gt;`, the
+digest being the first 8 hex digits of the
+SHA-256 of the packages, sorted. The name is deterministic, keeps the
+`nsh-app-` prefix that keeps it apart from the
+app&amp;#39;s own binaries, and still differs between apps with different crates
+sharing a `CARGO_TARGET_DIR` (the reason
+the old name listed them all). SHA-256 (`sha2`, already a dependency of
+`nsh-cli`) rather than `std`&amp;#39;s hasher, whose
+  output is not guaranteed across Rust releases.
+- `RustApp::bin` is the only place the names are made; every caller (the
+generated manifests, the Android
+`cdylib`s, the web runtime&amp;#39;s library, the TUI host, finding the built
+binaries) goes through it, so they follow.
+- An app with several crates builds once more after the update, under
+the new names; the old outputs stay in its
+  `target/` until `cargo clean`.
+
+Docs: `docs/dev/rust-modules.md` and `docs/dev/tooling.md` describe the
+new names and why.
+
+No API change, nothing an app&amp;#39;s TypeScript sees; nsh-compat records no
+generated crate names.
+
+## How to Test
+
+- New unit tests, `cargo test -p nsh-cli --bin nsh
+rust_app::tests::crate_names`: names for 1, 2 and 12 crates are at
+most 42 characters (the longest, `rust-android`, included) and as long
+with twelve crates as with two; they are the
+same on every call and whatever the crates&amp;#39; order after the first; they
+are distinct across crate lists and what
+they are for; they keep the `nsh-app-` prefix; one crate keeps its old
+name.
+- The existing test of a two-crate app
+(`the_generated_code_calls_the_entry_of_each_crate`) checks the new
+names in
+  the generated `describe` and `test` manifests.
+
+## Checklist
+
+- [x] I have read the [CONTRIBUTING](../CONTRIBUTING.md) document and
+followed the guidelines.
+- [x] Reviewed the changes in this PR and confirmed AI generated code
+(if any) is accurate.
+- [x] Passed `cargo test -p nsh-cli` (the tests above and `rust_app`&amp;#39;s),
+`cargo +nightly fmt` and
+  `cargo clippy -p nsh-cli --all-targets`.
+- [x] Changes to what apps use keep what released versions shipped (no
+API changes).
+- [ ] Ran the related `examples/gallery` demos on iOS and Android (the
+CLI&amp;#39;s build names only: not applicable).&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/8c3e9441dc4edee49e0db92d4133486c02090c24</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/8c3e9441dc4edee49e0db92d4133486c02090c24"/>
+    <title>
+        core: Accept absolute commands and file roots in the browser (#1298)
+    </title>
+    <updated>2026-11-08T09:03:37Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/1171762?s=30&amp;v=4"/>
+    <author>
+      <name>sunfuze</name>
+      <uri>https://github.com/sunfuze</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;core: Accept absolute commands and file roots in the browser (#1298)
+
+An app whose `nsh.json` lists an absolute command in
+`capabilities.process.execute` (for example `/bin/sh`) cannot start in a
+browser. The web runtime rejects the manifest with:
+
+```
+capabilities.process.execute needs exact executable names or absolute paths
+Error: browser engine startup failed
+```
+
+`valid_command` used `Path::is_absolute`, which returns false for every
+path on `wasm32-unknown-unknown` (that target has neither `unix` nor a
+prefix). `resolved_path` (file grants) had the same check. Both now use
+`access::absolute`, which already treats a rooted path as absolute in
+the browser.
+
+Found while packaging Pal Next (an app that runs on the desktop and in
+the browser from one `nsh.json`) with `nsh package --target web`. With
+this change it starts and connects in Chrome.
+
+Test: `cargo test -p nsh-core --lib access` (adds
+`a_manifest_with_absolute_commands_and_roots_parses`). The wasm-specific
+branch of `absolute` itself is not exercised by host tests; it was
+checked by packaging the app for the web and loading it.&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/4c694d90d3164b6e8940f111f3686b25b5d5e19b</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/4c694d90d3164b6e8940f111f3686b25b5d5e19b"/>
+    <title>
+        fs: Follow absolute symlinks whose target stays in the granted root (…
+    </title>
+    <updated>2026-11-08T09:03:18Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fs: Follow absolute symlinks whose target stays in the granted root (#1297)
+
+## Problem
+
+`fs` operations run inside a cap-std `Dir` opened at the granted root.
+cap-std refuses **every** symlink to an absolute path, even one whose
+target is still inside the root. With `~` granted and `~/.agent-hub -&amp;gt;
+/home/me/.noop/data`, reading `~/.agent-hub/x.png` fails with `a path
+led outside of the filesystem`. In Noop, dragging or pasting an image
+from such a path then says the file can&amp;#39;t be read.
+
+## Fix
+
+Before cap-std opens a path, the worker thread resolves the symlinks
+along it. For operations that follow the last component (`readFile`,
+`writeFile`, `mkdir`, `stat`, `readdir`) that includes the last
+component; for operations that act on the entry itself (`lstat`,
+`exists`, `readlink`, `unlink`, `rmdir`, `rename`) only the parent
+directories are resolved. The resolved path is used only when it is
+still inside the root. Otherwise the path stays as written and cap-std
+refuses it as before, so links that lead out of the root are still
+blocked. A missing tail (a new file being written) resolves through its
+nearest existing ancestor.
+
+The open itself still goes through the cap-std `Dir`, so if a link is
+swapped in after resolution it is confined or refused exactly as before.
+
+## Tests
+
+- New `absolute_links_within_the_root_are_followed`: cap-std alone
+refuses `dir/a.txt` through an absolute link. With the fix, an absolute
+directory link and an absolute file link inside the root both read. A
+link to a directory outside the root is still refused. The link-only and
+new-file cases are covered too.
+- `cargo test -p nsh-core`: all pass; `cargo clippy -p nsh-core --tests`
+is clean.
+
+🤖 [Noop](https://huacnlee.github.io/noop) (rust-maintainer) · AI agent
+acting for @huacnlee&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/d851a42b68f97deb3738dff8d1acbb1818ce4409</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/d851a42b68f97deb3738dff8d1acbb1818ce4409"/>
+    <title>
+        testing: Report the view the focus reaches before the one it leaves (…
+    </title>
+    <updated>2026-11-08T09:03:05Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;testing: Report the view the focus reaches before the one it leaves (#1296)
+
+`carousel::focus_in_the_slides_is_focus_in_the_carousel` failed
+intermittently (about half the runs locally on `main`; CI on #1293): the
+headless driver sent a focus move as the old view&amp;#39;s blur state, then the
+new view&amp;#39;s focus state, and when the engine thread committed between the
+two messages, `focus-within` left the carousel and came back, so it saw
+`focus,blur,focus`.
+
+The driver now reports the new view&amp;#39;s `focus:` state first (in
+`move_focus` and for the app&amp;#39;s `focus()` calls). The core treats a view
+taking the focus as the focus regardless of the old one, and ignores a
+blur from a view that no longer holds it, so the move is a single change
+however commits fall. Blur / Focus events keep their order.
+
+Validation: the test passes 8/8 (was ~2/5); `cargo test -p nsh-base -p
+nsh-testing` passes.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/71d0b11b13001c9a2394b585ef924473cef36fcb</id>
+    <link type="text/html" rel="alternate" href="https://github.com/longbridge/nsh/commit/71d0b11b13001c9a2394b585ef924473cef36fcb"/>
+    <title>
+        web: Regenerate the browser bootstrap after moving fetch out of tests…
+    </title>
+    <updated>2026-11-08T08:03:08Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/5518?s=30&amp;v=4"/>
+    <author>
+      <name>huacnlee</name>
+      <uri>https://github.com/huacnlee</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;web: Regenerate the browser bootstrap after moving fetch out of tests (#1295)
+
+The Website workflow&amp;#39;s &amp;quot;Check the generated classic browser bootstrap&amp;quot;
+step fails on `main` (and on #1292, #1293): `bootstrap.js` was not
+regenerated after #1157. This is the output of `cargo run -p nsh-bundler
+--example browser_bootstrap`.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-authored-by: Claude Opus 5.5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+</feed>

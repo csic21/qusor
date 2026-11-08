@@ -1,0 +1,5 @@
+RESULT {"calls":3,"id":"invalid-move-from","max_fuel":305506,"outcome":"rejected","vms":1}
+RESULT {"calls":3,"id":"invalid-move-to","max_fuel":305506,"outcome":"rejected","vms":1}
+RESULT {"calls":3,"id":"invalid-noop-index","max_fuel":297600,"outcome":"rejected","vms":1}
+RESULT {"calls":3,"id":"invalid-replace-index","max_fuel":305095,"outcome":"rejected","vms":1}
+RESULT {"calls":3,"id":"replace-output-over-budget","max_fuel":309042,"outcome":"rejected","vms":1}

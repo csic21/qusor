@@ -1,0 +1,18 @@
+{
+  "artifact_hashes_checked": 42,
+  "paired_actual_vm_reap": 30,
+  "calls": 100,
+  "capture_count": 1,
+  "reopened_and_restored_capture_rows_equal": true,
+  "note": "shutdown native thought",
+  "worker_leases": 0,
+  "native_binary_sha256": "59d2febbe03057061b6e4b7a2d996451fdcc40f4f224907a156b80fecd4da549",
+  "bundle_sha256": "93a8d4079ac3df9949c4ebf2a6e9f197687c6c1f674b49a40508a6d8559f3a83",
+  "scope": "Actual default-feature GUI of shutdown/UI recovery version; no fault-injected GUI, new IME or native release ACK qualification.",
+  "frozen_native_binary_hash_checked": true,
+  "screenshots_visually_reviewed": [
+    "typed.png",
+    "discard-cancelled.png"
+  ],
+  "visual_scope": "Verified visible input, processing/save state and preserved second note after cancelling discard; not full keyboard, narrow/wide, IME or accessibility qualification."
+}

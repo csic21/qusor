@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "command": [
+    "/workspace/qusor/experiments/capture-core/target/component-text-qualified/consumer"
+  ],
+  "exit_code": 0,
+  "executable_sha256": "76ee1c05800a1431af49fcbc5aeff9e541c4c0fd9953615b6a1ce69094a5c8ad",
+  "executable_unchanged": true,
+  "stdout": "experiments/capture-core/evidence/component-text-small.stdout",
+  "stderr": "experiments/capture-core/evidence/component-text-small.stderr",
+  "stdout_sha256": "0e57dbee5413dac704c79cb5eb252839255750efdca936529bf249c4ef737e6d",
+  "stderr_sha256": "ad32dc6655734324322fc3d332d7939518e6db82e6f32e9cdc5efb4fe66d4578",
+  "result": {
+    "calls": 35,
+    "capture_fixture_module_executed": false,
+    "capture_identity": "ordinary.capture-source",
+    "default_deadline_ms": 250,
+    "external_signed_component": "ordinary.text-editor",
+    "fixture_lost_replies": 3,
+    "knowledge_saves": 2,
+    "large": false,
+    "late_event_results_rejected": 1,
+    "max_call_us": 18017,
+    "ok": true,
+    "owned_workers_reaped": 10,
+    "revoked_save_rejected_before_freeze": true,
+    "source": "synthetic_Core_snapshot_not_parser_or_Surface_lease_evidence",
+    "sqlite_reopen_and_empty_restore": true,
+    "vms": 10
+  }
+}

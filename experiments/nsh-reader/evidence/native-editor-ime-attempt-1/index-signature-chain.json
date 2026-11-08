@@ -1,0 +1,14 @@
+{
+  "main": {
+    "index": "/var/lib/apt/lists/archive.ubuntu.com_ubuntu_dists_resolute_main_binary-amd64_Packages",
+    "uncompressed_sha256": "92eb335c0ed27983d41a5a0efdf0edce3e67bfa34e8e987af9df260ca72d9bf9",
+    "bytes": 7581722,
+    "matches_signed_InRelease": true
+  },
+  "universe": {
+    "index": "/var/lib/apt/lists/archive.ubuntu.com_ubuntu_dists_resolute_universe_binary-amd64_Packages",
+    "uncompressed_sha256": "9c009342905706a05822f6e751f5b1ac34b687f054bfca9a0a652178445fc44c",
+    "bytes": 76792699,
+    "matches_signed_InRelease": true
+  }
+}

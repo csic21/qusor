@@ -1,4 +1,20 @@
+# 最新增量：原生 PDF 页图与真实拖选子项
+
+2026-11-08：[PDF Surface 探针](pdf-surface/README.md) 已在 WSLg X11 实际显示原生 PDFium 页图，以 NSH 原生 Image/Canvas 和真实 raw responder 选择字符。普通页60%选择 QUSOR、旋转页70%选择 Selection，候选/高亮/页码核对一致；空白、出界取消、缩放/换页/resize清理和窄窗已有运行子项。报告与bundle绑定、图像加载世代门均有明确边界。正式 reader 插件、保存回源、输入法、键盘/触控与其他平台仍未完成。
+
+该轮修复并保留了实际发现的失败：main与JS线程的thread-local状态不互通、press移动阈值提前发出结束、页面资源异步加载和初始零尺寸布局。映射窗口或最终截图不能单独作为输入链通过证据；详情与复现以局部记录为准。以下保留更早的窗口/编译历史。
+
+# 最新增量：原生窗口、实际按钮与重开已有证据
+
+2026-11-08：使用21份校验过的官方 Ubuntu deb，在实验 target 内准备隔离前缀，未安装/升级系统软件。固定源码和根 lockfile 不变，原生 GTK/Graphene/GStreamer 实际参与编译；`nsh-platform-linux --no-default-features --features js --locked --offline` check通过，`nsh-cli` build/link通过。见 [包与命令证据](evidence/linux-native-prefix.json)、[完整前置复验](evidence/linux-local-prefix-preflight.json) 和 [复现入口](README.md#本地隔离依赖目录2026-11-08)。
+
+Rust+TSX 示例进一步完成原生描述程序链接/执行及 TSX 字节码构建；上游默认开发宿主随后因默认启用 WebView 而请求缺失的 JavaScriptCore。该默认启动路径未通过；不能将平台 check 当成 P02 完成。生成 helper 的 lock 由固定上游 lock 衍生，只增加本地入口并裁剪未用包，registry 版本/来源/摘要无新增漂移，见 [锁与失败日志证据](evidence/linux-helper-lock.json)。随后采用 [独立 native 宿主](native-host/README.md)，已完成离线 bundle 实际显示、按钮经 Rust method/listener 改变界面、正常关闭与重开，见 [结构化证据](evidence/linux-native-window.json)。依赖图和 ELF 链接均无 WebKit/JavaScriptCore/libsoup，固定源码保持干净。完整 P02 打包安装、中文输入、取消/迟到事件和阅读仍未通过。12项 Python 回归通过，覆盖前缀摘要/重定位和环境传递边界。
+
+以下是各阶段历史记录，原生开发库缺失的旧结论不再代表上述隔离前缀环境。
+
 # NSH 阅读宿主实验结果
+
+2026-11-08 C-09 增量：按用户“尽量 native、少 Web”要求，探针增加 native/webview profile，默认 native 的 Cargo 特性为 `js`，可选 WebView 才启用 `js,webview` 并检查 WebKit。9 项 Python 测试通过；[真实新探针](evidence/linux-native-profile-preflight.json) 仍因 GTK4/Graphene/GStreamer 阻断，WebKit 不再是原生路径的硬前置。未重复执行已知缺库的 Cargo 构建；没有窗口/输入/阅读成绩。沙箱外 `sudo -n -l` 也确认需要交互认证，系统库仍未安装；可在自己的终端按 [原生准备步骤](README.md) 执行。以下保留早先 WebView profile 的历史证据，不改写为新 profile 通过。
 
 日期：2026-11-07。结论：**已取得固定源码与本机 P01 环境证据；本轮补齐 Linux Cargo 缓存，P02 已进入 Rust 依赖编译，随后因缺少 GStreamer 原生开发库阻断。尚未完成应用构建或启动窗口。** 这不证明 NSH 功能失败，也不能据此将阅读 Surface 标为可用。
 
@@ -95,3 +111,10 @@ P01 是部分完成：固定源码、环境检查和 Linux Cargo 缓存可复现
 下一步先准备上述原生开发库；缓存已补齐，在库就绪后重跑离线 check，再按 [准确复现步骤](README.md#依赖补齐后执行-p02) 执行上游 Rust+TSX 示例的构建、窗口与打包重开；取得首个平台证据后，再编写最小受控阅读探针。若使用其他机器或新工具链，新增结果记录，不覆盖这份失败证据。
 
 [preflight.py](preflight.py) 只检查前置条件，退出 0 也不等于应用/阅读可用。此次未安装系统软件、未改全局设置、未上传用户资料，也没有把 Web target、纯文本或禁用 WebView 的占位框作为替代验收。
+
+
+## 2026-11-08 只读前置复查
+
+继续 B2 异常恢复工作时按原 preflight 入口重查环境，见 [本次 JSON](evidence/linux-20261108-preflight.json)。固定 NSH 源码仍匹配、tracked 状态干净；GTK4、Graphene、GStreamer core/app/audio 和 WebKitGTK 6.0 共6个 pkg-config 项仍缺失，脚本退出1。未再调用 cargo-check，未安装系统包或关闭 WebView 绕过前置。
+
+此次不增加编译、链接、窗口、输入、阅读或其他平台成绩，原 P01 部分/P02 阻断结论保持。Linux/WSL 的 B2 新进程恢复证据也不能替代 NSH 平台/Surface 验收。

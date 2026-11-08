@@ -1,0 +1,15 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.46s
+✓ built the Rust crate qusor-nsh-native-host-probe (514ms)
+error building experiments/nsh-reader/plugin-surface/App.tsx failed
+chunk bundle.js: Error: could not load module 'qusor/reader-host' (only registered native modules and bundle chunks can be imported at run time)
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/workspace/qusor/experiments/nsh-reader/target/nsh/target/debug/nsh', 'build', '/workspace/qusor/experiments/nsh-reader/plugin-surface', '-o', '/workspace/qusor/experiments/nsh-reader/target/plugin-surface-bundle', '--verbose']' returned non-zero exit status 1.

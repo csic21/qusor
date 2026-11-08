@@ -1,0 +1,34 @@
+{
+  "app": {
+    "pid": 471527,
+    "start_ticks": 4920821
+  },
+  "xvfb": {
+    "pid": 471524,
+    "start_ticks": 4920721
+  },
+  "display": ":112",
+  "bus": "unix:path=/tmp/dbus-wBiTQXa8BV,guid=84fc50ad3325d5814680f78a6af0836a",
+  "environment": {
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "LOGNAME": "xin",
+    "PATH": "/home/user/.codex/packages/app-server-daemon/releases/0.167.0-x86_64-unknown-linux-musl/codex-path:/home/user/.opt/ci-android/sdk/cmdline-tools/latest/bin:/home/user/.opt/ci-android/sdk/platform-tools:/home/user/.opt/ci-android/jdk-17.0.20.1+1/bin:/home/user/.opencode/bin:/home/user/.local/go/bin:/home/user/go/bin:/run/user/1000/fnm_multishells/2068_1794098021203/bin:/home/user/.local/share/fnm:/home/user/.codex/tmp/arg0-linux/codex-arg0bMB0fW:/home/user/.codex/packages/app-server-daemon/releases/0.167.0-x86_64-unknown-linux-musl/codex-path:/home/user/.codex/tmp/arg0-linux/codex-arg0L421rj:/home/user/.codex/packages/standalone/releases/0.167.0-x86_64-unknown-linux-musl/codex-path:/home/user/.local/bin:/home/user/.opt/ci-android/sdk/cmdline-tools/latest/bin:/home/user/.opt/ci-android/sdk/platform-tools:/home/user/.opt/ci-android/jdk-17.0.20.1+1/bin:/home/user/.opencode/bin:/home/user/.local/go/bin:/home/user/go/bin:/home/user/.local/share/pnpm/bin:/run/user/1000/fnm_multishells/1564_1794097985912/bin:/home/user/.local/share/fnm:/home/user/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/d/Program Files/Git/cmd:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/d/Program Files/Microsoft VS Code/bin:/mnt/d/Program Files/Microsoft VS Code/bin/copilot-shim:/mnt/c/Users/user/AppData/Local/Programs/magpie:/mnt/c/Users/user/.grok/bin:/mnt/c/Users/user/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/user/AppData/Local/Microsoft/WinGet/Packages/Schniz.fnm_Microsoft.Winget.Source_8wekyb3d8bbwe:/mnt/c/Users/user/AppData/Local/Programs/DockerDesktop/resources/bin",
+    "SHELL": "/usr/bin/zsh",
+    "USER": "xin",
+    "HOME": "/home/user/.cache/qusor-native-retirement/run2/home",
+    "XDG_CONFIG_HOME": "/home/user/.cache/qusor-native-retirement/run2/config",
+    "XDG_DATA_HOME": "/home/user/.cache/qusor-native-retirement/run2/data",
+    "XDG_CACHE_HOME": "/home/user/.cache/qusor-native-retirement/run2/cache",
+    "XDG_RUNTIME_DIR": "/home/user/.cache/qusor-native-retirement/run2/runtime",
+    "DISPLAY": ":112",
+    "GTK_USE_PORTAL": "0",
+    "GIO_USE_VFS": "local",
+    "GSETTINGS_BACKEND": "memory",
+    "GTK_IM_MODULE": "simple",
+    "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/dbus-wBiTQXa8BV,guid=84fc50ad3325d5814680f78a6af0836a"
+  },
+  "status": "terminal",
+  "app_exit": 0,
+  "xvfb_exit": 0
+}

@@ -1,0 +1,7 @@
+{
+  "pid": 286636,
+  "display": ":98",
+  "data": "/workspace/qusor/experiments/nsh-reader/target/reading-workspace-final-data",
+  "fixture_directory": "/workspace/qusor/experiments/nsh-reader/target/reading-workspace-final-fixtures",
+  "gtk": "local isolated bus and compiled extracted schemas"
+}

@@ -1,0 +1,42 @@
+{
+  "checked_utc": "2026-11-08T16:03:59.435426+00:00",
+  "fixed_pin": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "official_main_ls_remote": "058a745ad2d837374b99a9e46715e9b212d9b7a8",
+  "sources": {
+    "upstream.atom": {
+      "url": "https://github.com/longbridge/nsh/commits/main.atom",
+      "sha256": "d0502d5b2342980168688e6756d10d4841402258d3d95c8e714b6c29742db2a6"
+    },
+    "releases.html": {
+      "url": "https://github.com/longbridge/nsh/releases",
+      "sha256": "e7e668837870a07e4c14befd49143f6bccbd76377e5bf783c456122601a6cff7"
+    },
+    "upstream-text-input.rs": {
+      "url": "https://raw.githubusercontent.com/longbridge/nsh/main/crates/nsh-platform-linux/src/text_input.rs",
+      "sha256": "4f7a3706ea2013afa371a604b6588e50771f52189f7f611f60b343d663e80774"
+    }
+  },
+  "recent_commits": [
+    {
+      "id": "tag:github.com,2008:Grit::Commit/058a745ad2d837374b99a9e46715e9b212d9b7a8",
+      "title": "\n        cli: Log the performance monitor's readings only with -v (#1322)\n    ",
+      "updated": "2026-11-08T14:30:08Z"
+    },
+    {
+      "id": "tag:github.com,2008:Grit::Commit/33f1015da8166f297c6ac01936aea6086d6a93d9",
+      "title": "\n        core: Render far rows of an Each in a scroll view as they come near (\u2026\n    ",
+      "updated": "2026-11-08T14:19:19Z"
+    },
+    {
+      "id": "tag:github.com,2008:Grit::Commit/c89c4f09bc946fd068ba108c0304f0e8330d63c6",
+      "title": "\n        engine: Measure the performance monitor's CPU over a second (#1313)\n    ",
+      "updated": "2026-11-08T14:14:10Z"
+    },
+    {
+      "id": "tag:github.com,2008:Grit::Commit/25474f943c20a70e010469c903bfe306e7095f63",
+      "title": "\n        macos: Picture a backdrop of only what draws under it, and only when \u2026\n    ",
+      "updated": "2026-11-08T14:13:55Z"
+    }
+  ],
+  "impact": "No upgrade. Tests bind exact fixed913 delta/worktree/sourcearchive; upstream current input/docs are context only, not substituted into qualification."
+}

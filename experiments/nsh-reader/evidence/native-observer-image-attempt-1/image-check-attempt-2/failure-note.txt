@@ -1,0 +1,1 @@
+Fix script assertion failed before file write; subsequent shell commands erroneously ran unchanged source. Feature-off0/on101 repeated same E0308; preserved as actual distinct check. No test execution.

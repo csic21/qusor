@@ -1,0 +1,9 @@
+   Compiling projection-wasm-smoke v0.1.0 (/tmp/qusor-projection-fast64-variant/profile-baseline)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.96s
+     Running `experiments/capture-core/target/debug/projection-wasm-smoke`
+VM_TIMING case=0 vm=0 wall_us=204123 host_us=156478 calls=5 outcome=Ok(518391)
+VM_TIMING case=0 vm=1 wall_us=209940 host_us=156120 calls=5 outcome=Ok(637544)
+VM_TIMING case=0 vm=2 wall_us=250263 host_us=189218 calls=6 outcome=Err("deadline_exceeded")
+REAL_RUNTIME_ERROR {"calls_observed":6,"case":0,"checkpoint_after":4,"checkpoint_before":3,"code":"deadline_exceeded","state_after":"Active","vm":2}
+VM_TIMING case=0 vm=3 wall_us=246461 host_us=187792 calls=6 outcome=Ok(705254)
+CASE 0 passed 3

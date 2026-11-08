@@ -1,0 +1,7 @@
+[com.github.libpinyin.ibus-libpinyin.libpinyin]
+enable-cloud-input=false
+lua-extension=false
+
+[com.github.libpinyin.ibus-libpinyin.libbopomofo]
+enable-cloud-input=false
+lua-extension=false

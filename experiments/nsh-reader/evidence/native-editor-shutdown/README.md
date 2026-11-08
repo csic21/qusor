@@ -1,0 +1,11 @@
+# NativeEditor shutdown真实OS回归
+
+2026-11-08，最终8案例通过，完整native lib 16项测试通过，target Clippy拒绝warning通过。详见[record](record.json)、最终[stdout](os-attempt2.stdout)及[stderr](os-attempt2.stderr)。旧六例工件与本轮integration前映像分别保留在独立证据目录，本记录不覆盖旧版本。
+
+新增两例使用真实签名A、Store/DurableHost、NativeEditor实现与Controller子进程。一次普通apply父等待返回unknown后，BUSY已false但PendingRun与SQL lease仍保留；shutdown确实继续owned reap、finish、forget。另一例在真实GuardReady并绑定实际ProcessIdentity后，feature-only父钩子暂不Boot、保留真实handle，父shutdown预算一次降到0；检查Service存在、lease序列化记录未变、实际子进程身份仍活且没有Reaped。恢复父预算后才实际terminate、owned Reaped及finish；没有提高2秒startup或250ms/1e6fuel/8calls预算。
+
+latch拒绝新业务通过与Native exports共用的真实Rust background admission验证。NSH Later对Rust调用方不公开Future，首次直接poll Later的编译失败已保留，未新增假JS桥；本轮不证明JS dispatch/native widget。五项NativeEditor单元测试包含受控initialize重置、latch后拒business而允许explicit discard；全16项lib覆盖reader_guest与Surface原有行为。
+
+最终7个完成guest VM/23calls，12个Editor实际Reaped加2个额外Guarded worker实际Reaped；全部案例最后lease0。原生view/renderer资源释放ACK仍未具备；日志native_release_ack:false不代表worker没有真实reap。进程退出不等于可后台恢复，未知退出必须保留durable marker并由可信恢复确认。
+
+exact executable路径与SHA记录在record；精选132份Rust/Cargo等源码为运行后快照，未声称完整build输入冻结。Cargo integration隐式重建的其他bin带有非default qualification feature，下一default GUI必须重新默认features构建。Root同期App/Panel文案与按钮修复不包含在本Rust冻结，下一GUI另留版本证据。

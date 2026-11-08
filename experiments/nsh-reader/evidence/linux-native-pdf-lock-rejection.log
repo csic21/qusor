@@ -1,0 +1,128 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+     Locking 90 packages to latest Rust 1.97.1 compatible versions
+      Adding anstream v1.0.0
+      Adding anstyle v1.0.14
+      Adding anstyle-parse v1.0.0
+      Adding anstyle-query v1.1.5
+      Adding anstyle-wincon v3.0.11
+      Adding approx v0.5.1
+      Adding by_address v1.2.1
+      Adding castaway v0.2.4
+      Adding cesu8 v1.1.0
+      Adding clap v4.6.7
+      Adding clap_builder v4.6.7
+      Adding clap_derive v4.6.7
+      Adding clap_lex v1.1.1
+      Adding colorchoice v1.0.5
+      Adding combine v4.6.9
+      Adding compact_str v0.9.1
+      Adding convert_case v0.10.0
+      Adding critical-section v1.2.0
+      Adding crossterm v0.29.0
+      Adding crossterm_winapi v0.9.1
+      Adding darling v0.24.1
+      Adding darling_core v0.24.1
+      Adding darling_macro v0.24.1
+      Adding deranged v0.5.9
+      Adding derive_more v2.1.1
+      Adding derive_more-impl v2.1.1
+      Adding filedescriptor v0.8.3
+      Adding hmac v0.12.1
+      Adding ident_case v1.0.1
+      Adding indoc v2.0.8
+      Adding instability v0.3.14
+      Adding is_terminal_polyfill v1.70.2
+      Adding itertools v0.14.0
+      Adding javascriptcore6 v0.6.0
+      Adding javascriptcore6-sys v0.6.0
+      Adding jni v0.21.1
+      Adding kasuari v0.4.13
+      Adding line-clipping v0.3.8
+      Adding lru v0.18.5
+      Adding md-5 v0.10.6
+      Adding nsh-ios-app v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-ios-app)
+      Adding nsh-ios-host v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-ios-host)
+      Adding nsh-linux-app v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-linux-app)
+      Adding nsh-macos-app v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-macos-app)
+      Adding nsh-macos-host v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-macos-host)
+      Adding nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)
+      Adding nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)
+      Adding nsh-platform-tui v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-tui)
+      Adding nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)
+      Adding nsh-tui-host v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-tui-host)
+      Adding nsh-windows-app v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-windows-app)
+      Adding nsh-windows-host v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-windows-host)
+      Adding num-conv v0.2.2
+      Adding num_threads v0.1.8
+      Adding once_cell_polyfill v1.70.2
+      Adding palette v0.7.7
+      Adding palette_derive v0.7.7
+      Adding palette_math v0.7.7
+      Adding powerfmt v0.2.1
+      Adding ratatui-core v0.1.2
+      Adding ratatui-crossterm v0.1.2
+      Adding ratatui-widgets v0.3.2
+      Adding signal-hook v0.3.18
+      Adding signal-hook-mio v0.2.5
+      Adding signal-hook-registry v1.4.8
+      Adding soup3 v0.9.0
+      Adding soup3-sys v0.9.0
+      Adding strsim v0.11.1
+      Adding strum v0.28.0
+      Adding strum_macros v0.28.0
+      Adding system-deps v7.0.8
+      Adding time v0.3.55
+      Adding time-core v0.1.9
+      Adding unicode-bidi v0.3.18
+      Adding unicode-truncate v2.0.1
+      Adding utf8parse v0.2.2
+      Adding webkit6 v0.6.1
+      Adding webkit6-sys v0.6.0
+      Adding winapi v0.3.9
+      Adding winapi-i686-pc-windows-gnu v0.4.0
+      Adding winapi-x86_64-pc-windows-gnu v0.4.0
+      Adding windows-sys v0.45.0
+      Adding windows-targets v0.42.2
+      Adding windows_aarch64_gnullvm v0.42.2
+      Adding windows_aarch64_msvc v0.42.2
+      Adding windows_i686_gnu v0.42.2
+      Adding windows_i686_msvc v0.42.2
+      Adding windows_x86_64_gnu v0.42.2
+      Adding windows_x86_64_gnullvm v0.42.2
+      Adding windows_x86_64_msvc v0.42.2
+   Compiling nsh-core v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-core)
+   Compiling nsh-package v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-package)
+   Compiling nsh-js v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-js)
+   Compiling nsh-base v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-base)
+   Compiling nsh-engine v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-engine)
+   Compiling nsh-testing v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-testing)
+   Compiling nsh-platform-linux v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-linux)
+   Compiling rust-exports-native v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/examples/rust-exports/native)
+   Compiling nsh-linux-host v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-linux-host)
+   Compiling qusor-nsh-native-host-probe v0.1.0 (/workspace/qusor/experiments/nsh-reader/native-host)
+   Compiling nsh-app-qusor-nsh-native-host-probe-describe v0.0.0 (/workspace/qusor/experiments/nsh-reader/pdf-surface/.nsh/rust/describe)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 41s
+✓ built the Rust crate qusor-nsh-native-host-probe (1m 42s)
+warn qusor/pdf-surface exports items without a doc comment, which TSX sees in its declarations: PdfSurface, PdfSurface.down, PdfSurface.motion, PdfSurface.up, PdfSurface.cancel, PdfSurface.close
+✓ built experiments/nsh-reader/pdf-surface/App.tsx into experiments/nsh-reader/target/pdf-surface-bundle (6.9 KB js, 21.2 KB bytecode, 2 assets, 70ms)
+Traceback (most recent call last):
+  File "/workspace/qusor/experiments/nsh-reader/native-host/prepare_pdf.py", line 45, in <module>
+    if drifts:raise ValueError({'registry_lock_drift':drifts})
+                        ^^^^^^
+  File "/workspace/qusor/experiments/nsh-reader/native-host/prepare_pdf.py", line 41, in main
+    helper=READER/'pdf-surface/.nsh/rust';helper.mkdir(parents=True,exist_ok=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: {'registry_lock_drift': [('combine', '4.6.9', 'registry+https://github.com/rust-lang/crates.io-index')]}

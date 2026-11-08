@@ -34,13 +34,29 @@ python3 experiments/extension-wasm/validate.py --output /tmp/qusor-wasm-results.
 
 ## 目录登记与独立包边界
 
+schema2 PDF/混合资料回归使用 `python3 experiments/capture-core/validate_pdf.py`，先准备固定 PDFium 运行库。它包含旧 C0 文本 CLI 回归、真实原件/映射、仓库外普通插件、混合恢复再渲染以及实际升级/回退/卸载；见 [PDF 结果](../experiments/capture-core/PDF_RESULTS.md)。历史 C0 JSON 不作为新代码当前指纹，新证据另存 `linux-pdf-core.json`。
+
+多行整组保存回归为 `python3 experiments/capture-core/validate_compound.py`，包括原 C0/C1 场景、真实原生多段选区、普通插件、schema3及V3整组恢复、旧入口拒绝截断。完整预算/迁移/崩溃范围见 [复合记录](../experiments/capture-core/COMPOUND_RESULTS.md)，不代替 NSH 原生 UI 验收。
+
+[C0 捕获资格实验](../experiments/capture-core/README.md) 的完整复现入口为 `python3 experiments/capture-core/validate.py`。它验证仓库外公开 SDK 作者、真实 Wasm 提案与批准、Core 事务、故障恢复、卸载保留及空库恢复，并重跑受影响的包管理和运行器测试；实际范围见 [结果](../experiments/capture-core/RESULTS.md)。新实验不进入生产根 Workspace，不证明 NSH 或正式阅读通过。
+
 [目录架构](architecture/workspace-layout.md) 规定 apps/crates/adapters 为生产源码范围，plugins/sdk/experiments 独立。新增 Cargo package 和独立 Workspace 都必须在 [architecture.toml](../config/architecture.toml) 登记。根检查先扫描管理目录的 manifest，再核对生产 Cargo 图；隐藏目录与构建缓存不作为项目模块，源码符号链接被拒绝。
 
 生产成员及 Cargo metadata 可见包的 path 声明不能指向插件、SDK、实验或未登记的本地实现，normal/dev/build/optional/target 声明均检查，已解析间接 helper 的本地路径也在范围内。独立 Workspace 的登记不代表其依赖图已通过，仍需自身验证入口调用 validate_graph。Rust include!/构建脚本任意读文件、未解析第三方可选分支、插件运行权限和 SDK 仓库外可用性不由该检查证明。
 
 ## NSH 前置实验
 
-[NSH 实验入口](../experiments/nsh-reader/README.md) 提供固定源码取得与复现步骤；本机 [结果](../experiments/nsh-reader/RESULTS.md) 为 P01 部分完成；锁定 Cargo 缓存已补齐，P02 实际依赖编译仍被原生 GStreamer 开发库阻断。已有上游 checkout 时，从 Linux/WSL 仓库根目录运行：
+原生 NSH Cargo 构建与测试一律显式设置 `CARGO_BUILD_JOBS=1`，并传 `-j1`。即使指定单个 integration test，Cargo 也可能隐式构建已有多个 bin；2026-11-08 本机观察到四个并行链接任务争用内存并拖慢系统。需要中断时保留日志，确认自有 cargo/rustc/linker 全部退出后再串行重试；编译中断不等于已运行的 OS worker 被回收，不能混用清理证据。
+
+NativeEditor shutdown/lease收尾的非默认 `native-qualification` 回归已有[真实OS证据](../experiments/nsh-reader/evidence/native-editor-shutdown/README.md)：8项真实进程案例、完整native lib 16项与target Clippy通过，Root同冻结exe独立8例通过。该资格不包含新默认GUI/IME或原生资源释放ACK；带此feature构建过的既有bin须重新默认features构建后再做GUI验收。
+
+原生 PDF Surface 复现入口见 [探针说明](../experiments/nsh-reader/pdf-surface/README.md)：`prepare_pdf.py` 实际调用原生 provider 冻结页图/报告并构建绑定，`run_pdf.py` 启动本地 bundle。该路径验证真实窗口触点与候选高亮，尚未接普通 reader 插件或持久保存；不能以它替代 C3/C4 事务回归。局部3项 adapter 边界测试与 Clippy 命令也在探针说明中。
+
+按 C-09，探针现默认 `--profile native`，只启用原生 GTK/JS 路径；可选 WebView 必须显式 `--profile webview`。原生 PDF 服务独立复现入口为 `python3 experiments/pdf-provider/validate.py`，先按 [准备说明](../experiments/pdf-provider/README.md) 验证固定运行库；[结果](../experiments/pdf-provider/RESULTS.md) 仅证明 provider 子项，不证明 NSH 或正式 PDF 保存。
+
+原生选区增量运行 `python3 experiments/pdf-provider/validate_selection.py`，覆盖实际字形像素输入、指针/视口失效、分段顺序和单段经普通插件入库恢复；[记录](../experiments/pdf-provider/SELECTION_RESULTS.md) 与早期 provider/C1 基线分开。此早期单段脚本保留多段拒绝路径；多段原子保存由上面的 C3 validate_compound 单独验证，不计完整阅读通过。
+
+[NSH 实验入口](../experiments/nsh-reader/README.md) 提供固定源码取得与复现步骤；本机 [结果](../experiments/nsh-reader/RESULTS.md) 记录各阶段证据；隔离本地依赖前缀已解除 native 编译阻断，独立宿主实际显示离线 Rust+TSX、按钮回调并正常关闭重开。完整 P02 打包、中文输入和阅读仍待验。已有上游 checkout 时，从 Linux/WSL 仓库根目录运行：
 
 ```sh
 python3 experiments/nsh-reader/preflight.py
@@ -64,6 +80,8 @@ python3 experiments/nsh-reader/preflight.py --cargo-check --output experiments/n
 GitHub Actions 采用官方 [checkout](https://github.com/actions/checkout) 与 [setup-python](https://github.com/actions/setup-python) 当前文档的 v7 主版本，只读 contents、关闭凭据持久化；没有部署、发布或远端数据库步骤。
 
 ## 新增工作
+
+正式UI先读取 [设计工作基线](design/README.md)，使用 [分区/角色/提供者](design/composition.md) 与 [UI验收](design/review.md)；功能与界面同步验证。设计token目前是文档数据，尚未接通运行主题。离线可视稿可用 `python3 docs/design/assets/generate_boards.py` 重建SVG；可选 `--png` 通过本机librsvg/Cairo渲染预览，不下载依赖。静态图稿不证明NSH交互或真实保存通过。
 
 先关联 [Feature ID](product/scope.md)。涉及架构决策时使用 [架构技能](../.agents/skills/qusor-architecture/SKILL.md)；技术验证使用 [实验约定](../experiments/README.md)。
 
@@ -118,3 +136,94 @@ python3 experiments/extension-package/validate.py --output /tmp/qusor-package-va
 原 Wasm 实验仅增加冻结字节入口，16 项运行回归及 fmt/clippy 通过；生产架构守卫与 42 项 Python 回归通过。NSH 固定 Linux 缓存 online/offline fetch 均通过，编译在 gstreamer-sys 缺开发库处失败，未运行窗口。
 
 此次没有生产 Rust 行为/依赖改动，不重复无关 Core 业务检查；没有提交/推送、远端 CI、其他原生平台、断电或移动验收。完整授权/执行恢复、正式安装器与阅读仍待各自门槛。
+
+
+## 持续授权与策略会话恢复增量（2026-11-07）
+
+同一包实验验证入口现覆盖 [ADR 0008](architecture/adr/0008-durable-grant-recovery-probe.md)。最终 [机器证据](../experiments/extension-package/evidence/linux-grant-recovery.json) 为 29 项 Rust 测试、156 次 CLI 检查、20 次进程中止；两个实验 Workspace 的 fmt/test/clippy、仓库外作者构建和依赖图均通过，宿主构建前后 hash 相同。12 份源/测试/锁文件摘要与当前文件已核对。生产架构守卫、42 项 Python 回归、文档链接和 diff 空白检查通过。
+
+仅新增实验对权威 extension-host 的直接依赖，生产 Rust 行为不变；恢复验证不含 Wasm 调度或真实 Core 写入。NSH 前置条件再次只读检查，仍缺 GTK4/Graphene/GStreamer/WebKitGTK，未重跑已知阻断的编译或启动窗口。实际执行恢复、私有状态迁移/回滚、长驻监督及业务阅读仍待各自验证；没有远端 CI、提交或推送。
+
+
+## 授权恢复后受限执行增量（2026-11-07）
+
+按 [ADR 0009](architecture/adr/0009-restored-wasm-execution-probe.md) 执行同一包验证入口：[执行证据](../experiments/extension-package/evidence/linux-execution-recovery.json) 为 30 项 Rust 测试、194 次 CLI 检查（含既有 20 次进程终止）；仓库外作者、fmt/clippy 和依赖图通过。已核对20份源/测试/fixture/锁文件摘要与当前文件。
+
+受影响 Wasm 运行器另完整运行原 validate.py，[回归证据](../experiments/extension-package/evidence/linux-runtime-authority-regression.json) 为20项Rust运行回归及20个受监护场景，84份摘要核对通过。架构守卫、42项Python架构回归、文档链接和diff空白检查通过。生产行为/依赖未改；此证据不证明长驻双插件、并行持久撤权、真实Core/阅读或NSH平台通过。下一项迁移/回滚见[实验设计](../experiments/extension-package/MIGRATION.md)，仍待实现。
+
+
+## 私有状态成对迁移/回滚增量（2026-11-07）
+
+按 [ADR 0010](architecture/adr/0010-paired-private-state-probe.md) 使用同一包验证入口。最终 [包证据](../experiments/extension-package/evidence/linux-private-lifecycle.json) 通过37项Rust、432次CLI检查（含40次真实进程中止），仓库外签名作者、fmt/clippy/依赖图均通过；38份源/测试/fixture/锁文件摘要核对当前文件。
+
+[运行器回归证据](../experiments/extension-package/evidence/linux-private-runtime-regression.json) 通过25项运行器与4项作者Rust测试、20个受监护场景，99份摘要核对。仅两个实验增加dev-only wat，生产依赖不变。根架构守卫、42项Python架构回归、Markdown本地目标和diff空白检查通过。未验长驻双插件、真实Core、断电、多平台/渠道或NSH阅读；下一项为长驻监督，不能以独立进程看门狗替代。
+
+
+## 长驻双插件监督增量（2026-11-08）
+
+按 [ADR 0011](architecture/adr/0011-persistent-supervisor-probe.md) 使用原包验证入口：[最新证据](../experiments/extension-package/evidence/linux-persistent-supervisor.json) 通过43项Rust、454次CLI（含此前40次管理进程中止），另同PID62条管理命令、14项监督场景。46份源/测试/fixture/锁文件摘要与当前文件核对，宿主独立作者构建前后hash相同。新增Rust测试全部使用真实父子进程。
+
+[运行器证据](../experiments/extension-package/evidence/linux-managed-runtime-regression.json) 通过31项运行器、4项作者测试和20个旧受监护场景，101份摘要核对。无新依赖或生产行为变动；根架构守卫、42项Python回归、文档本地目标、diff空白检查通过。kill/wait失败为明确注入，异步broker pending不代表可抢占任意同步父I/O。正常关闭已验证，异常崩溃/残留协调仍待下一项，Core/NSH/移动/远端CI未验。
+
+
+## 宿主异常退出协调增量（2026-11-08）
+
+[ADR 0012](architecture/adr/0012-supervisor-crash-reconciliation.md) 使用原包验证入口追加真实身份/启动/恢复；[正式证据](../experiments/extension-package/evidence/linux-supervisor-crash-recovery.json) 通过59项Rust和543次CLI（含既有40次事务进程中止），另正常长驻14项/本次72条管理命令、异常恢复14项/本次97条管理命令与10次父进程异常退出。50份源码/测试/fixture/锁文件摘要与当前文件一致，独立作者构建期间宿主hash不变。查询次数受调度影响，不是性能指标。
+
+新增仅实验rustix=1.1.4，SDK导出仍剔除进程/SQLite/Host；normal/dev/build/目标声明及解析闭包检查通过，生产依赖不变。未变更Wasm运行器，不重复无关完整回归；本轮真实包/能力/监督路径已执行。59项包含共享纯授权门、GuardReady、Boot前过期拒绝、显式锁释放与live pidfd清理，未以sleep重试放宽安全门。
+
+根架构守卫、42项Python架构回归、本地文档目标、diff空白检查通过。已尝试spawn但无身份的同内核窗口仍隔离；Terminated不等于非子进程已reaped；没有真实内核重启/断电或OS沙箱成绩。[NSH只读前置记录](../experiments/nsh-reader/evidence/linux-20261108-preflight.json) 仍缺6个库组，未重跑已知阻断的编译。下一项为捕获存储/定位资格切片，真实Core和正式阅读尚未交付。
+
+
+## Core 公开捕获契约
+
+[core-api](../crates/core-api/README.md) 已承接文本/PDF/复合摘录契约与纯测试，包含在根 fmt/clippy/test 和依赖闭包守卫中。实验兼容模块转发同一实现，SDK 直接导出该权威源；因此更改契约需要同时运行实验真实消费者与仓库外作者验证：
+
+```sh
+cargo test -p core-api --locked --offline
+cargo test --manifest-path experiments/capture-core/Cargo.toml --locked --offline
+python3 experiments/capture-core/validate_compound.py
+```
+
+完整 C3 脚本包含 SDK 仓库外构建/依赖路径核验、普通签名插件、真实 PDF 页图选段、单事务保存、生命周期与恢复；不是 NSH 窗口或完整阅读旅程验收。架构决定见 [ADR 0018](architecture/adr/0018-core-api-contract-source.md)。
+
+
+## 知识应用与持久适配器
+
+[ADR 0019](architecture/adr/0019-atomic-knowledge-persistence.md) 的 production application/ports 与 SQLite/CAS 现由实验 Host 直接消费，实验不复制存储实现。根工作区检查包含这些真实成员，补充边界测试与完整插件/原生回归：
+
+```sh
+cargo test -p storage-sqlite --locked --offline
+cargo test --manifest-path experiments/capture-core/Cargo.toml --locked --offline
+python3 experiments/capture-core/validate_compound.py
+```
+
+[实际结果](../experiments/capture-core/PERSISTENCE_RESULTS.md) 区分根测试、新整体计划/事务边界和完整 C3 通路。修改源码时指纹覆盖根 manifest/lock、core-api、application/ports、SQL/CAS及实验Host，不以只有协议测试代替持久路径。其他平台adapter与正式阅读工作区仍待独立验证。
+
+
+## 包与执行适配器生产集成
+
+[ADR 0021](architecture/adr/0021-signed-package-authority.md) 的纯签名包、[ADR 0022](architecture/adr/0022-authority-free-wasm-runtime.md) 的执行端口/Wasmi适配器已由旧实验实际消费。根工作区现88项测试，包含14项包格式及3项直接运行端口测试；包543场景、Wasm20受监护场景和最后一次完整C3均已通过，详见 [C5统一记录](../experiments/capture-core/PLUGIN_PRODUCTION_RESULTS.md)。精确VM燃料断言使用记录过的串行测试参数，未放宽250ms生产期限；测试内部的撤权/监督并发仍照常执行。
+
+公开Surface的 [UX/权限规格](product/reader-surface-capability.md) 和 [0.2兼容设计](architecture/adr/0023-public-reader-surface.md) 已实现公开wire与Host registry，独立原生消费者已有集成资格，不代表已经发布新Host API。生产持久安装/监督、正式功能插件与完整阅读旅程继续按门槛推进。
+
+
+## 公开 Surface 兼容回归
+
+0.2契约/Host registry改动后运行根检查、包 `validate.py`、Wasm `validate.py` 和 `validate_compound.py`；最近结果为 [108项根测试与完整兼容回归](../experiments/capture-core/SURFACE_COMPATIBILITY_RESULTS.md)。版本、权限和SDK改动须继续运行这些真实消费者，不能只跑Surface DTO测试。原生输入与产品旅程由NSH独立实验分别留证。
+
+
+普通签名包的原生选文/非空笔记/持久回执和完整恢复，复现步骤见 [NSH集成资格](../experiments/nsh-reader/plugin-surface/RESULTS.md)：`prepare_plugin_surface.py`、`qualify_plugin_surface.py`、`recover_plugin_surface.py`。键盘需支持焦点的X11显示；本机记录为隔离Xvfb中的真实GTK/XTest，不代表当前桌面焦点或中文IME通过。
+
+
+## 持久安装与进程身份生产内核
+
+[extension-store](../adapters/extension-store/README.md) 与 [runtime-process](../adapters/runtime-process/README.md) 已注册根工作区；根检查覆盖121项Rust。旧包实验真实消费同一SQL/进程身份实现；完整回归入口仍为包validate、Wasm validate及C3 validate_compound，精确范围与源码快照见 [C7结果](../experiments/extension-package/INSTALLATION_PRODUCTION_RESULTS.md)。
+
+统一Host+真实Core metadata消费者为 `cargo test --manifest-path experiments/capture-core/Cargo.toml --test durable_installation --locked --offline`。该测试有真实签名/Wasmi/持久Core，但属于受控文本fixture的接口/事务集成，不代替进程监督或UI验收。原生消费者迁移后另以新工件/新数据实际重跑，见 [原生C7](../experiments/nsh-reader/evidence/installation-production/RESULTS.md)。
+
+## C8 阅读权限与动态PDF
+
+根当前134项Rust及42项边界守卫通过，完整包/Wasm/C3入口保持；`durable_installation`另含真实双Store跨库卸载证明拒绝后继续读取Core。Surface/持续权限或生命周期改动必须复验这些消费者，保留旧profile1语义。汇总、日志与185份精确源码归档见 [C8结果](../experiments/capture-core/READER_AUTHORITY_RESULTS.md)。
+
+动态原生入口见 [dynamic-pdf](../experiments/nsh-reader/dynamic-pdf/README.md)：先prepare通用binary/bundle，再生成新fixture、启动真实native chooser；用当前构建的第三/四页交互与保存恢复取证，不能换report或重编PNG冒充动态。最终native11项测试、Clippy及主链恢复通过；首次异常状态与最终工件明确分开，尚无长书/IME/真实mount释放ack成绩。

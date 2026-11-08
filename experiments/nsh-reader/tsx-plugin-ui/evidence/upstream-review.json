@@ -1,0 +1,101 @@
+{
+  "checked_date": "2026-11-08",
+  "reviewed_upstream": "893fb84db625045f36363ae9de1f999f588d25fd",
+  "local_runtime_version": "nsh 0.4.0 (913fd76)",
+  "releases": [
+    {
+      "tag": "nightly",
+      "name": "nsh nightly (f81b965)",
+      "published_at": "2026-11-08T00:16:39Z",
+      "target_commitish": "f81b965f69096f871ca21907f6fab6be32fd2d40"
+    },
+    {
+      "tag": "v0.4.0",
+      "name": "nsh v0.4.0",
+      "published_at": "2026-11-04T12:23:58Z",
+      "target_commitish": "main"
+    }
+  ],
+  "recent_commits": [
+    {
+      "sha": "893fb84db625045f36363ae9de1f999f588d25fd",
+      "time": "2026-11-08T07:19:09Z",
+      "title": "editor: Show syntax colors as soon as an editor opens (#1293)"
+    },
+    {
+      "sha": "1662115e30b4a86ca2e5eaf216e165c93bbdbee9",
+      "time": "2026-11-08T06:57:15Z",
+      "title": "core: Keep the tables of nodes by id in pages freed when they empty (#1261)"
+    },
+    {
+      "sha": "9a6ae4e0b8611b8656433d05c4d8c0fe81407d28",
+      "time": "2026-11-08T06:35:45Z",
+      "title": "core: Work out pointer-events regions once a commit (#1292)"
+    },
+    {
+      "sha": "1042a80d876adcc3b9f86e75ebdf52bef4352083",
+      "time": "2026-11-08T06:05:30Z",
+      "title": "engine: Show the JS heap and the nodes alive on the performance monitor (#1262)"
+    },
+    {
+      "sha": "f4d7a70ee89293bd7f62729bc331da6b9cfdbdb8",
+      "time": "2026-11-08T06:03:34Z",
+      "title": "tui: Let an embedding program pass the host's options and stop it (#1287)"
+    }
+  ],
+  "sources": [
+    {
+      "path": "docs/dev/embedding.md",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/docs/dev/embedding.md"
+    },
+    {
+      "path": "docs/dev/sandbox.md",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/docs/dev/sandbox.md"
+    },
+    {
+      "path": "docs/dev/signed-packages.md",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/docs/dev/signed-packages.md"
+    },
+    {
+      "path": "docs/dev/js-modules.md",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/docs/dev/js-modules.md"
+    },
+    {
+      "path": "crates/nsh-engine/src/lib.rs",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/crates/nsh-engine/src/lib.rs"
+    },
+    {
+      "path": "crates/nsh-platform-linux/src/app.rs",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/crates/nsh-platform-linux/src/app.rs"
+    },
+    {
+      "path": "crates/nsh-platform-linux/src/window.rs",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/crates/nsh-platform-linux/src/window.rs"
+    },
+    {
+      "path": "crates/nsh-platform-linux/src/native.rs",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/crates/nsh-platform-linux/src/native.rs"
+    },
+    {
+      "path": "crates/nsh-js/src/sandbox.rs",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/crates/nsh-js/src/sandbox.rs"
+    },
+    {
+      "path": "crates/nsh-js/src/host_channel.rs",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/crates/nsh-js/src/host_channel.rs"
+    },
+    {
+      "path": "crates/nsh-core/src/access.rs",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/crates/nsh-core/src/access.rs"
+    },
+    {
+      "path": "crates/nsh-engine/tests/engine/host_channel.rs",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/crates/nsh-engine/tests/engine/host_channel.rs"
+    },
+    {
+      "path": "crates/nsh-engine/tests/engine/shutdown.rs",
+      "url": "https://github.com/longbridge/nsh/blob/893fb84db625045f36363ae9de1f999f588d25fd/crates/nsh-engine/tests/engine/shutdown.rs"
+    }
+  ],
+  "runtime_evidence": "Source review at current upstream; only external author build executed with existing pinned CLI. No native UI plugin VM isolation run."
+}

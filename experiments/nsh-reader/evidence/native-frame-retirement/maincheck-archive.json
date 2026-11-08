@@ -1,0 +1,113 @@
+{
+  "recorded_at_utc": "2026-11-08T15:22:22.308647+00:00",
+  "status": "default-check-clippy-lib29-feature-OS8-passed-no-new-GUI-claim",
+  "primary_record": "maincheck-record.json",
+  "source_zip": "maincheck-nine-sources.zip",
+  "source_scope": "exact9 source hashes measured unchanged in final maincheck; not a complete transitive native build-input freeze",
+  "source_sha256": {
+    "dynamic_module.rs": "0edfbbf2d0dfceb0dd0be6889d9b76df46942d88a07265ccec4e2fd922ac38d7",
+    "frame_scheduler.rs": "651d142495eedbe945fabdf506d6fc58e1035713847f506fa344840935f9b189",
+    "frame_owner_map.rs": "77471763a9f7e735c4d9da249f8607f792e91a9e6f04c920980dae0af5cf13bc",
+    "retirement_owner.rs": "8df83ffc54ea9ad9ac712ab32541f26d448f7bd614622dcf5e5d6497472a25a0",
+    "encoded_bytes.rs": "6cb6a63d7c375750163cf9b6621bf4a2c73c9dd30efc2e50640a707cff749776",
+    "frame_caller_tests.rs": "965e00bc97d853b09ebc7574d92fa53ab8eea9de1e51cb6c82b221e79ebbd7f6",
+    "native_editor.rs": "8255fec21f898eeb72d44c08ecc0184603f486871f160c0594c2b927f5f6a18e",
+    "dynamic_main.rs": "031d22ae2c6c3e2b29493b4a5eb8c1e3bf944f71f94811533b79679c4d430513",
+    "plugin_surface.rs": "d58b0e19ace465751ced69aab48de38f02f224c12a8a7890de37b216f222169f"
+  },
+  "late_reference_inputs": {
+    "experiments/nsh-reader/native-host/Cargo.toml": {
+      "sha256": "641d92fe99af86d769276609c71fe342b16744c51bc47288b34289238328858e",
+      "snapshot_kind": "post-check reference only, no before manifest captured for this file"
+    },
+    "experiments/nsh-reader/native-host/Cargo.lock": {
+      "sha256": "803ac6466d8543dda9d26e3fc469924e69f2c5ad6a7784af3ba182e5e521cd0a",
+      "snapshot_kind": "post-check reference only, no before manifest captured for this file"
+    }
+  },
+  "artifacts": {
+    "maincheck-source-ready.json": {
+      "sha256": "1f1b171fd43d36ea9f247e1bc026ef2cc681eb029b1d6e0fb932c835d71542dd",
+      "bytes": 713
+    },
+    "maincheck-lib-attempt1.log": {
+      "sha256": "62dad6e10566a0e4af6bf3fddf23365bd412a299ea579d85fea04db03b826bf5",
+      "bytes": 4466
+    },
+    "maincheck-clippy-attempt2.log": {
+      "sha256": "70d9dbd45ceffd3c4f6ba41142f8e2d99882558734d73f57936763d54db5ffab",
+      "bytes": 1145
+    },
+    "maincheck-final-source-before-os.json": {
+      "sha256": "b2c8c1215d839a435b47be330b400ecafb3ef50bee386afa2abf046f09e7051c",
+      "bytes": 826
+    },
+    "maincheck-os8-attempt1.log": {
+      "sha256": "29683ed975d322c74b3df0b7de8bab9d31346ae1304390fce0a467dfa85a1658",
+      "bytes": 55609
+    },
+    "maincheck-check-final.log": {
+      "sha256": "114349fbf2ba64035fa8f8e9870d3996c56b344c8c1fdc3a3b9b7da746d4ab25",
+      "bytes": 1145
+    },
+    "maincheck-record.json": {
+      "sha256": "7610ebb3262c670e3b2a7008e87eaacadd5e1a0de794f51789205479acdffd88",
+      "bytes": 3509
+    },
+    "maincheck-nine-sources.zip": {
+      "sha256": "8b40a7eb8ccc1b77e659df9bc045f7d6c200087f09bff62e1d14e092edf67bca",
+      "bytes": 50883
+    },
+    "maincheck-check-attempt1.log": {
+      "sha256": "61cd95600c3bf3052f9da0186cacf927d27ee1c67f075a1d90ee2ae5b8458dff",
+      "bytes": 7339
+    },
+    "maincheck-clippy-final.log": {
+      "sha256": "826a42d1f0899d64e7f1ce10ed655cf7d0d4975c7c28b9a3b98ea062de16bcf1",
+      "bytes": 1145
+    },
+    "maincheck-clippy-attempt3.log": {
+      "sha256": "910c14183d7c9a240f3c4de3ff3539c08692c8249155bea929574ea21f813aa4",
+      "bytes": 1145
+    },
+    "maincheck-clippy-attempt1.log": {
+      "sha256": "af266fc551f2f6af3c42d2932be8705b32324d662a8d3cb194b2e3dd18fa09a5",
+      "bytes": 6891
+    },
+    "reference-native-Cargo.lock": {
+      "sha256": "803ac6466d8543dda9d26e3fc469924e69f2c5ad6a7784af3ba182e5e521cd0a",
+      "bytes": 149888
+    },
+    "maincheck-check-attempt2.log": {
+      "sha256": "4d68b84f6ca21ae9cd3fa5b462f86234865488190a9958775648ccbb0b0f9d3d",
+      "bytes": 1927
+    },
+    "maincheck-before.json": {
+      "sha256": "21bdeb7348c067ba6cba0c75c7d46dbec1e6c9164f1ea29f40410f1c436b0d3a",
+      "bytes": 731
+    },
+    "maincheck-lib-attempt2.log": {
+      "sha256": "cb59c7847d6ca4052508541f19de940eb77232a3cb62ee4e4ca4efc4f8044394",
+      "bytes": 4582
+    },
+    "reference-native-Cargo.toml": {
+      "sha256": "641d92fe99af86d769276609c71fe342b16744c51bc47288b34289238328858e",
+      "bytes": 2956
+    }
+  },
+  "retained_executables": {
+    "default-native-lib": {
+      "path": "/home/user/.cache/qusor-native-frame-maincheck/default-native-lib",
+      "sha256": "eeab2b8fd117e8949d5eaeee600c3c39c6887ab006f025dda626ae27d4a9bd8a",
+      "bytes": 284788808
+    },
+    "feature-native-editor-retirement": {
+      "path": "/home/user/.cache/qusor-native-frame-maincheck/feature-native-editor-retirement",
+      "sha256": "e06f4fda55aff23f8bf8855ba8b7bb95f23a45c119475803415c333f12f8f7ec",
+      "bytes": 281397704
+    }
+  },
+  "root_independent_record_preserved": "root-independent.json",
+  "native_release_ack": false,
+  "new_default_GUI_qualified_here": false
+}

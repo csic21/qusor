@@ -1,0 +1,143 @@
+{
+  "status": "downloaded-verified-unpacked-not-installed-not-started",
+  "recorded_at_utc": "2026-11-08T12:41:19.033249+00:00",
+  "source": "official Ubuntu resolute signed APT index; direct HTTPS archive download",
+  "requested": [
+    "apt-get",
+    "-s",
+    "--no-install-recommends",
+    "install",
+    "ibus=1.5.34~rc2-1",
+    "ibus-gtk4=1.5.34~rc2-1",
+    "ibus-libpinyin=1.16.5-2"
+  ],
+  "packages": [
+    {
+      "package": "dconf-cli",
+      "version": "0.49.0-4",
+      "architecture": "amd64",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/d/dconf/dconf-cli_0.49.0-4_amd64.deb",
+      "filename": "dconf-cli_0.49.0-4_amd64.deb",
+      "size": 28548,
+      "sha256": "a79fb20ecbb95391aa5df2d2e8442200c150425a0800e89a0d806e196366e51f"
+    },
+    {
+      "package": "gir1.2-ibus-1.0",
+      "version": "1.5.34~rc2-1",
+      "architecture": "amd64",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/i/ibus/gir1.2-ibus-1.0_1.5.34~rc2-1_amd64.deb",
+      "filename": "gir1.2-ibus-1.0_1.5.34~rc2-1_amd64.deb",
+      "size": 87360,
+      "sha256": "ef94b3853acdf6c1d1d2ee247ba2aa42e49744eafee58cdf9616020502b39f3f"
+    },
+    {
+      "package": "libnotify4",
+      "version": "0.8.8-1",
+      "architecture": "amd64",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libn/libnotify/libnotify4_0.8.8-1_amd64.deb",
+      "filename": "libnotify4_0.8.8-1_amd64.deb",
+      "size": 28632,
+      "sha256": "9bfebcb17db3153100d8a0f748d9da1409ba2157e095f640ef618c0fa89b89bc"
+    },
+    {
+      "package": "ibus-data",
+      "version": "1.5.34~rc2-1",
+      "architecture": "all",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/i/ibus/ibus-data_1.5.34~rc2-1_all.deb",
+      "filename": "ibus-data_1.5.34~rc2-1_all.deb",
+      "size": 15528472,
+      "sha256": "0a767edbc7cfb46625b582638105e9ccfee8306cb5197c462ce55ec06dd1429b"
+    },
+    {
+      "package": "python3-ibus-1.0",
+      "version": "1.5.34~rc2-1",
+      "architecture": "all",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/i/ibus/python3-ibus-1.0_1.5.34~rc2-1_all.deb",
+      "filename": "python3-ibus-1.0_1.5.34~rc2-1_all.deb",
+      "size": 7400,
+      "sha256": "79dfc171d5754ea496b48068a9425212d57bd8842398e49846f24f4bad364314"
+    },
+    {
+      "package": "ibus",
+      "version": "1.5.34~rc2-1",
+      "architecture": "amd64",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/i/ibus/ibus_1.5.34~rc2-1_amd64.deb",
+      "filename": "ibus_1.5.34~rc2-1_amd64.deb",
+      "size": 340792,
+      "sha256": "4e08784f24ec54cbd28ffeb05518a684e5afb4d634dcf2e3c3d5a016ff430bc0"
+    },
+    {
+      "package": "ibus-gtk4",
+      "version": "1.5.34~rc2-1",
+      "architecture": "amd64",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/i/ibus/ibus-gtk4_1.5.34~rc2-1_amd64.deb",
+      "filename": "ibus-gtk4_1.5.34~rc2-1_amd64.deb",
+      "size": 18942,
+      "sha256": "88208f87c4b68592f652732c55309501c7a51b7962c0641c2a138e8e4f5b6daf"
+    },
+    {
+      "package": "liblua5.4-0",
+      "version": "5.4.8-1build1",
+      "architecture": "amd64",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/l/lua5.4/liblua5.4-0_5.4.8-1build1_amd64.deb",
+      "filename": "liblua5.4-0_5.4.8-1build1_amd64.deb",
+      "size": 162684,
+      "sha256": "ff589ea3f181b89dd76b0240f79c59ac2f13f24e2053f624f774f596c7ef7897"
+    },
+    {
+      "package": "libopencc-data",
+      "version": "1.1.9+ds1-4build1",
+      "architecture": "all",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/o/opencc/libopencc-data_1.1.9+ds1-4build1_all.deb",
+      "filename": "libopencc-data_1.1.9+ds1-4build1_all.deb",
+      "size": 9316,
+      "sha256": "76758b4a852e7b2977ccbbeaf9a656cf7aaddd76835c215015f00fa4943b219a"
+    },
+    {
+      "package": "libmarisa1",
+      "version": "0.3.1+git20250817-1build1",
+      "architecture": "amd64",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/m/marisa/libmarisa1_0.3.1+git20250817-1build1_amd64.deb",
+      "filename": "libmarisa1_0.3.1+git20250817-1build1_amd64.deb",
+      "size": 62330,
+      "sha256": "befd1c30ac2163bb15ea83f26f92dbf4de39a00dcb0eaad133ee2c73306b268b"
+    },
+    {
+      "package": "libopencc1.1",
+      "version": "1.1.9+ds1-4build1",
+      "architecture": "amd64",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/o/opencc/libopencc1.1_1.1.9+ds1-4build1_amd64.deb",
+      "filename": "libopencc1.1_1.1.9+ds1-4build1_amd64.deb",
+      "size": 586852,
+      "sha256": "8bfa00df2d2d8f4d0e96c8f4b034f9b13b6394ae32944154cd276ad1726c86ff"
+    },
+    {
+      "package": "libpinyin-data",
+      "version": "2.10.3-1",
+      "architecture": "amd64",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libp/libpinyin/libpinyin-data_2.10.3-1_amd64.deb",
+      "filename": "libpinyin-data_2.10.3-1_amd64.deb",
+      "size": 13201314,
+      "sha256": "0b5b75aeef84bed910ecce7e7a455088b4b0e62ea1fac1596f7f3c4f122572cc"
+    },
+    {
+      "package": "libpinyin15",
+      "version": "2.10.3-1",
+      "architecture": "amd64",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/libp/libpinyin/libpinyin15_2.10.3-1_amd64.deb",
+      "filename": "libpinyin15_2.10.3-1_amd64.deb",
+      "size": 186956,
+      "sha256": "d83cc86097b281d3d794dd63fb8b701f3b5b759edf262af212231c51aa5caf74"
+    },
+    {
+      "package": "ibus-libpinyin",
+      "version": "1.16.5-2",
+      "architecture": "amd64",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/main/i/ibus-libpinyin/ibus-libpinyin_1.16.5-2_amd64.deb",
+      "filename": "ibus-libpinyin_1.16.5-2_amd64.deb",
+      "size": 785336,
+      "sha256": "12e46a531ee2d39f6f6d19d5d3d7493e886ba6b5b42ebb44801ddba8e046295f"
+    }
+  ],
+  "prefix": "/home/user/.cache/qusor-ime/prefix"
+}

@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "attempt": 2,
+  "status": "passed",
+  "recorded_at_utc": "2026-11-08T09:45:21.504681+00:00",
+  "binary": {
+    "execution_path": "/tmp/qusor-paragraph-attempt2-frozen-binary",
+    "sha256": "5aeaf2ef17db8282aec635bc3a4c261a934361331083213949aba177046180e7",
+    "bytes": 71503568,
+    "archive": "proof-binary.gz"
+  },
+  "build_source_archive": {
+    "file": "build-sources.zip",
+    "sha256": "f665b973945095c80b2a7d83c6496e0ba64cca9b03dd2ae7c3d2e985d71628d5",
+    "files": 6922,
+    "packages": 66,
+    "post_archive_source_identity_check": "all files equal archive inputs; Root paused modification until archive complete"
+  },
+  "guest_sha256": "85227fff8c1a5ee28b1ad65436ef144585001c769cc8ec3e38dacc4e33cd3eff",
+  "limits": {
+    "fuel": 1000000,
+    "timeout_ms": 250,
+    "host_calls": 8,
+    "cache_bytes": 128,
+    "successful_vm_steps_per_action": 70000,
+    "deadline_errors_per_checkpoint": 3,
+    "deadline_errors_per_action": 64,
+    "total_attempted_vms_per_action": 70064
+  },
+  "recovery": "Only real deadline_exceeded; same live Broker retained; before/after checkpoint, text revision, last effect and Advance applied logged. Completed after error directly verifies final bytes; Active runs a fresh VM reading current metadata. Fuel and other failures never retried.",
+  "prior_attempt": "../paragraph-b-one-mib-attempt-1/record.json; this attempt honestly restarts source input after prior process panic lost session checkpoint.",
+  "pid": 396903,
+  "exec_session": 91693,
+  "live_log": "/tmp/qusor-paragraph-attempt2-run.log",
+  "inverse_fixture_scope": "Independent draft initialized from fixed expected forward bytes, whose equality to actual forward output was asserted; inverse result must equal original source bytes. This is not resurrection of a previous application session.",
+  "exit_code": 0,
+  "terminal_at_utc": "2026-11-08T10:46:44.927303+00:00",
+  "results": [
+    {
+      "calls": 221188,
+      "deadline_errors": 0,
+      "elapsed_ms": 2216564,
+      "id": "B-1MiB-forward",
+      "max_fuel": 893186,
+      "outcome": "passed",
+      "successful_vms": 49153,
+      "vms": 49153
+    },
+    {
+      "calls": 147465,
+      "deadline_errors": 0,
+      "elapsed_ms": 1418564,
+      "id": "B-1MiB-inverse",
+      "max_fuel": 784329,
+      "outcome": "passed",
+      "successful_vms": 32770,
+      "vms": 32770
+    }
+  ],
+  "deadline_events": [],
+  "totals": {
+    "attempted_vms": 81923,
+    "successful_vms": 81923,
+    "calls_including_failed_attempts": 368653,
+    "deadline_errors": 0,
+    "max_successful_vm_fuel": 893186,
+    "action_elapsed_ms_sum": 3635128
+  },
+  "input_and_expected_identity": [
+    {
+      "id": "B-1MiB-forward",
+      "source_bytes": 1048576,
+      "source_sha256": "da8f32cd8febb561eb3035e5f0938e18aeb5b4458c606f95830d531ecad906e5",
+      "expected_bytes": 1048576,
+      "expected_sha256": "97c57125b198089e0089aabf941318316c59090be9aa4837b86c271a0a35b0b3",
+      "operation": {
+        "kind": "move",
+        "from": 0,
+        "to": 1
+      }
+    },
+    {
+      "id": "B-1MiB-inverse",
+      "source_bytes": 1048576,
+      "source_sha256": "97c57125b198089e0089aabf941318316c59090be9aa4837b86c271a0a35b0b3",
+      "expected_bytes": 1048576,
+      "expected_sha256": "da8f32cd8febb561eb3035e5f0938e18aeb5b4458c606f95830d531ecad906e5",
+      "operation": {
+        "kind": "move",
+        "from": 1,
+        "to": 0
+      }
+    }
+  ],
+  "proof_scope": "Actual fresh Wasmi VMs execute the exact signed B module against production AnnotationDrafts/ProviderEvents and a synthetic SQLite Core source fixture. Temporary broker is not a real Host/process authorization gate. Final text is compared byte-for-byte to fixed expected bytes. No parent paragraph transformation. No native/UE/real-process 1MiB qualification claimed.",
+  "timing_scope": "Frozen development-profile proof binary; elapsed action sums are functional diagnostics, not acceptable interactive UX latency.",
+  "recovery_observation": "Bounded same-live-registry deadline recovery was configured but not exercised in attempt2 because there were zero deadline errors. Do not infer a successful runtime recovery event from configured retry code.",
+  "source_scope": "This run is bound to the frozen binary hash and source ZIP archived before launch, not later working-tree changes.",
+  "max_fuel_scope": "Maximum among successful VM results. Failed results would not expose consumed fuel; there were none in this attempt.",
+  "artifacts": {
+    "build-sources.zip": {
+      "bytes": 21510932,
+      "sha256": "f665b973945095c80b2a7d83c6496e0ba64cca9b03dd2ae7c3d2e985d71628d5"
+    },
+    "proof-binary.gz": {
+      "bytes": 16596285,
+      "sha256": "f1fd96a8c0851114dbdf7da2be820a815cecaefed99675dcb8df9b2820a63206"
+    },
+    "proof-Cargo.toml": {
+      "bytes": 574,
+      "sha256": "1408f98bbf3093f9ca684609f1875111f393ce773eed96618432a6df8793e1d3"
+    },
+    "proof-Cargo.lock": {
+      "bytes": 13921,
+      "sha256": "7044b947022195bd3f6d32eae34e18ee813eeaa23eddd68623ae140c6a0f5721"
+    },
+    "build.log": {
+      "bytes": 743,
+      "sha256": "86f1b7e29c4b425dfcc114212698597a11a4981c8d21072fdae44b7da6d8fc4b"
+    },
+    "fixed-byte-cases.json.gz": {
+      "bytes": 4397,
+      "sha256": "39dcfc5bf3674025b4b5aabb07069616de143d6cbc24464e945fa212d014dcc4"
+    },
+    "cargo-metadata.json": {
+      "bytes": 278891,
+      "sha256": "3f2e88f4921d70ceb4e8b09a93d92f27b10c8ffe39fc0d9205707cc632ab4b67"
+    },
+    "build-source-manifest.json": {
+      "bytes": 2246806,
+      "sha256": "6cef68fcf7ccb55bcfa6940bce30a5dcb930edf41db02c0af44d525b5100ec53"
+    },
+    "run.partial.log": {
+      "bytes": 25500,
+      "sha256": "8a192cf0f39710b09d38beed282b09f7bbb065a31e4bf5bb2bec7cb447afca37"
+    },
+    "algorithm-proof-harness.rs": {
+      "bytes": 24124,
+      "sha256": "bbaed7c3a2b32b67b66a280b62b6afe606b2339811db836a1c6b2ac9ecd7d8ec"
+    },
+    "run.log": {
+      "bytes": 39985,
+      "sha256": "24211fb19c93304b90844b59b00c6fa71d6828937b3e8c584dd48da159ee3545"
+    }
+  }
+}

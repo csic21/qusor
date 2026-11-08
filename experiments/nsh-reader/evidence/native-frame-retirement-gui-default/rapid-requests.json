@@ -1,0 +1,82 @@
+{
+  "pid": 486857,
+  "window": "0x400005",
+  "origin": [
+    0,
+    0
+  ],
+  "size": [
+    1000,
+    1000
+  ],
+  "events": [
+    {
+      "kind": "move",
+      "x": 168,
+      "y": 82
+    },
+    {
+      "kind": "down"
+    },
+    {
+      "kind": "up"
+    },
+    {
+      "kind": "move",
+      "x": 50,
+      "y": 82
+    },
+    {
+      "kind": "down"
+    },
+    {
+      "kind": "up"
+    },
+    {
+      "kind": "move",
+      "x": 50,
+      "y": 82
+    },
+    {
+      "kind": "down"
+    },
+    {
+      "kind": "up"
+    },
+    {
+      "kind": "move",
+      "x": 360,
+      "y": 82
+    },
+    {
+      "kind": "down"
+    },
+    {
+      "kind": "up"
+    },
+    {
+      "kind": "move",
+      "x": 255,
+      "y": 82
+    },
+    {
+      "kind": "down"
+    },
+    {
+      "kind": "up"
+    },
+    {
+      "kind": "move",
+      "x": 360,
+      "y": 82
+    },
+    {
+      "kind": "down"
+    },
+    {
+      "kind": "up"
+    }
+  ],
+  "duration_ms": 189.8545069998363,
+  "between_event_delay_ms": 10
+}

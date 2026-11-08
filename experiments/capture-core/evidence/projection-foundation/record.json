@@ -1,0 +1,62 @@
+{
+  "status": "wire-application-host-mount-checks-passed",
+  "root_rust_tests": 209,
+  "projection_wire_tests": 6,
+  "projection_registry_tests": 7,
+  "new_host_mount_tests": 2,
+  "architecture_regressions": 42,
+  "checks_exit_code": 0,
+  "source_sha256": {
+    "crates/extension-api/src/lib.rs": "87b37f585ad5c7999528e6e713efa0997db7d2f1e72e2700477ec9f441c21a12",
+    "crates/extension-api/src/projection.rs": "8d7a1a83d839ffc2482328d127b8a392198b88deff5ee0c525ef70ba4dfcfbb2",
+    "crates/extension-api/tests/projection.rs": "efb26e9edafd7285525ac95a704e911fb96466bcb3bb2cb1fe043a2f1498f909",
+    "crates/extension-api/schema/paragraph-projection-v1.schema.json": "17eeff4b2da272e2530c386c0f9960c7d7c12842afcf5fd685c4d51ed88283ab",
+    "crates/learning-application/src/lib.rs": "46d873b462ef25f74bc623e1d8fc93c5091435932fd806dc3cb689610495782f",
+    "crates/learning-application/src/provider_projections.rs": "b5e65bf1e8ce5f448e311be8ddb47f29855daa956232b15786f3db9a566f471f",
+    "crates/learning-application/tests/provider_projections.rs": "9eb398ed41c302f8a6d3909459c66a60b9adb2d6840055ed815c8e0071ce62bd",
+    "crates/extension-host/src/component.rs": "f4215b4b2d312d5b3fba85291f33d413ab4d221b498630fdc8f64eb0a11ad785",
+    "crates/extension-host/src/durable_component.rs": "33f07af9c1656d280145836eae4fa96301a461e73b00e8765a64d628e919c051",
+    "crates/extension-host/tests/component_context.rs": "de6490403113a2e171df86d77017f006fe99fbe632b6010993d2671a430015c7"
+  },
+  "format_note": "Final fmt only reordered extension-api module declarations after tests; public API independently compiled in the external SDK probe afterward.",
+  "sdk": {
+    "path": "/tmp/qusor-projection-sdk-probe",
+    "packages": [
+      "base64",
+      "extension-api",
+      "itoa",
+      "memchr",
+      "ordinary-projection-sdk-probe",
+      "proc-macro2",
+      "quote",
+      "serde",
+      "serde_core",
+      "serde_derive",
+      "serde_json",
+      "syn",
+      "unicode-ident",
+      "zmij"
+    ],
+    "all_local_paths_outside_repository": true,
+    "api_sources_and_schemas_byte_equal": true,
+    "scope": "Ordinary external Rust author compiled typed own-context request/roundtrip; no package install or guest execution claimed"
+  },
+  "schema_checks": "Draft2020-12 structure and closed own context/query, explicit-null window, no text-effect injection passed",
+  "not_verified": [
+    "Host query identity and live readonly invocation broker",
+    "component-invocation bootstrap and signed descriptor declaration",
+    "real projection guest/process",
+    "native visible rows/input/IME/Esc/release",
+    "B1MiB outcome and UX latency"
+  ],
+  "logs": {
+    "root-tests": "6e256f2807dcfc4664e095ea8126df5b199af6e2f83ba4d101595887be0a4e77",
+    "root-clippy": "c83ac4ce44dd89330654a3cc5b071cfdd1618763fe0fe9249cabeaeb8aa07b09",
+    "fmt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "architecture": "52ddbe4185b631f8dc031f55ec2617819fb29709e97d05ce151c25014f2f3a2c",
+    "guards": "cdb2e921ba9ab85aca3ab30cae105ff564eb0da1f510e945c358768610a872fe",
+    "docs": "4ebcbeb8f7113503aa4bd37fda6fe1184e22f3545c938cfd0a8d1686bc3da5e4",
+    "sdk.stdout": "7b25d78550e5cf47a2eeebd2ed84550f16f6ba9235c7fe11739e60fef91e3e4b",
+    "sdk.stderr": "58692a7762894dff078ce7ac60c7d5e13c95fcb012a42db5568b26ecd39b5789"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "display": ":109",
+  "xvfb": {
+    "pid": 456191,
+    "start_ticks": 4242916
+  },
+  "app": {
+    "pid": 458620,
+    "start_ticks": 4332342
+  },
+  "data": "/workspace/qusor/experiments/nsh-reader/evidence/native-editor-ui-attempt-2/data",
+  "window": "0x200005"
+}

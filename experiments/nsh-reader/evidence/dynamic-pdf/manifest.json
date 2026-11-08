@@ -1,0 +1,147 @@
+{
+  "license": "MIT synthetic fixture, original author QUSOR contributors",
+  "generated_after_build": true,
+  "documents": {
+    "runtime-three-pages.pdf": {
+      "sha256": "44e845ecc1c21414526b08a97f83ae33dfb02a358c7af6d6b821bfedbd905a1b",
+      "pages": 3,
+      "construction_lines": [
+        [
+          "Runtime novel page 1",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Runtime novel page 2",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Runtime novel page 3",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ]
+      ]
+    },
+    "other-four-pages.pdf": {
+      "sha256": "859a554606ce54f048e356067c8aed740f1cca8ff4c48c10a9abe2b0d97a6e6e",
+      "pages": 4,
+      "construction_lines": [
+        [
+          "Alternate source page 1",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Alternate source page 2",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Alternate source page 3",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Alternate source page 4",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ]
+      ]
+    },
+    "too-many-pages.pdf": {
+      "sha256": "05adb8f395ebc801dbeb486c4e12648ce07ec32d414102cd9b1e5a28f9970145",
+      "pages": 17,
+      "construction_lines": [
+        [
+          "Unsupported long page 1",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 2",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 3",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 4",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 5",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 6",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 7",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 8",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 9",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 10",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 11",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 12",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 13",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 14",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 15",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 16",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ],
+        [
+          "Unsupported long page 17",
+          "A runtime selected local document.",
+          "Dynamic selection stays on this source."
+        ]
+      ]
+    },
+    "broken.pdf": {
+      "purpose": "parser failure must preserve current document and draft"
+    }
+  }
+}

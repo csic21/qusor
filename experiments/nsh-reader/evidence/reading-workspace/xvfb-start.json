@@ -1,0 +1,14 @@
+{
+  "pid": 274562,
+  "command": [
+    "/tmp/qusor-xvfb-prefix/usr/bin/Xvfb-local",
+    ":98",
+    "-screen",
+    "0",
+    "1440x1100x24",
+    "-ac",
+    "-nolisten",
+    "tcp"
+  ],
+  "binary_sha256": "e9dc13c8c0520d57f4680cee4816c86607ed35347c5d651cd3fba9f9daf31ac5"
+}

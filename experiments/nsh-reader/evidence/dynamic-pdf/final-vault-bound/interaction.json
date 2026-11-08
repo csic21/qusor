@@ -1,0 +1,585 @@
+{
+  "pid": 245315,
+  "data": "/workspace/qusor/experiments/nsh-reader/target/dynamic-pdf-final-data",
+  "events": [
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 60,
+          "y": 35
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400009",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        821,
+        374
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 275,
+          "y": 150
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400009",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        821,
+        374
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 782,
+          "y": 349
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 820,
+          "y": 35
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 820,
+          "y": 35
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 86.2,
+          "y": 138.6
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "move",
+          "x": 213.4,
+          "y": 138.89999999999998
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 820,
+          "y": 270
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "window": "0x400005",
+      "pid": 245315,
+      "text": "final native note",
+      "focus_verified": true,
+      "path": "XTest→GDK/GTK native Input→onChange; no IME"
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 820,
+          "y": 334
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 60,
+          "y": 35
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400110",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        821,
+        374
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 275,
+          "y": 118
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400110",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        821,
+        374
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 782,
+          "y": 349
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 820,
+          "y": 35
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 820,
+          "y": 35
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 820,
+          "y": 35
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 86.2,
+          "y": 138.6
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "move",
+          "x": 238.6,
+          "y": 138.6
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 820,
+          "y": 270
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "window": "0x400005",
+      "pid": 245315,
+      "text": "final second note",
+      "focus_verified": true,
+      "path": "XTest→GDK/GTK native Input→onChange; no IME"
+    },
+    {
+      "pid": 245315,
+      "window": "0x400005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 820,
+          "y": 334
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "document_id": 1,
+      "frame_id": "fr.8b67e57168d16ffb2e201e6bc30ac695.1.4",
+      "generation": 2,
+      "handle": "sf.8b67e57168d16ffb2e201e6bc30ac695.1.1",
+      "height": 892.8,
+      "page": 0,
+      "pages": 3,
+      "report_digest": "5ac9a521e9131b81797d40841e50c0425c873f6b9f9db2444ca8129986cf682a",
+      "status": "pending",
+      "title": "runtime-three-pages.pdf",
+      "width": 691.1999999999999,
+      "zoom": 0.6
+    },
+    {
+      "document_id": 1,
+      "frame_id": "fr.8b67e57168d16ffb2e201e6bc30ac695.1.5",
+      "generation": 3,
+      "handle": "sf.8b67e57168d16ffb2e201e6bc30ac695.1.1",
+      "height": 892.8,
+      "page": 1,
+      "pages": 3,
+      "report_digest": "5ac9a521e9131b81797d40841e50c0425c873f6b9f9db2444ca8129986cf682a",
+      "status": "pending",
+      "title": "runtime-three-pages.pdf",
+      "width": 691.1999999999999,
+      "zoom": 0.6
+    },
+    {
+      "document_id": 1,
+      "frame_id": "fr.8b67e57168d16ffb2e201e6bc30ac695.1.6",
+      "generation": 4,
+      "handle": "sf.8b67e57168d16ffb2e201e6bc30ac695.1.1",
+      "height": 892.8,
+      "page": 2,
+      "pages": 3,
+      "report_digest": "5ac9a521e9131b81797d40841e50c0425c873f6b9f9db2444ca8129986cf682a",
+      "status": "pending",
+      "title": "runtime-three-pages.pdf",
+      "width": 691.1999999999999,
+      "zoom": 0.6
+    },
+    {
+      "document_id": 2,
+      "frame_id": "fr.8b67e57168d16ffb2e201e6bc30ac695.1.12",
+      "generation": 2,
+      "handle": "sf.8b67e57168d16ffb2e201e6bc30ac695.1.9",
+      "height": 892.8,
+      "page": 0,
+      "pages": 4,
+      "report_digest": "acc688ae63604f14ccaecbadf74db17f1e281e68bacd304896506ed0121079f8",
+      "status": "pending",
+      "title": "other-four-pages.pdf",
+      "width": 691.1999999999999,
+      "zoom": 0.6
+    },
+    {
+      "document_id": 2,
+      "frame_id": "fr.8b67e57168d16ffb2e201e6bc30ac695.1.13",
+      "generation": 3,
+      "handle": "sf.8b67e57168d16ffb2e201e6bc30ac695.1.9",
+      "height": 892.8,
+      "page": 1,
+      "pages": 4,
+      "report_digest": "acc688ae63604f14ccaecbadf74db17f1e281e68bacd304896506ed0121079f8",
+      "status": "pending",
+      "title": "other-four-pages.pdf",
+      "width": 691.1999999999999,
+      "zoom": 0.6
+    },
+    {
+      "document_id": 2,
+      "frame_id": "fr.8b67e57168d16ffb2e201e6bc30ac695.1.14",
+      "generation": 4,
+      "handle": "sf.8b67e57168d16ffb2e201e6bc30ac695.1.9",
+      "height": 892.8,
+      "page": 2,
+      "pages": 4,
+      "report_digest": "acc688ae63604f14ccaecbadf74db17f1e281e68bacd304896506ed0121079f8",
+      "status": "pending",
+      "title": "other-four-pages.pdf",
+      "width": 691.1999999999999,
+      "zoom": 0.6
+    },
+    {
+      "document_id": 2,
+      "frame_id": "fr.8b67e57168d16ffb2e201e6bc30ac695.1.15",
+      "generation": 5,
+      "handle": "sf.8b67e57168d16ffb2e201e6bc30ac695.1.9",
+      "height": 892.8,
+      "page": 3,
+      "pages": 4,
+      "report_digest": "acc688ae63604f14ccaecbadf74db17f1e281e68bacd304896506ed0121079f8",
+      "status": "pending",
+      "title": "other-four-pages.pdf",
+      "width": 691.1999999999999,
+      "zoom": 0.6
+    }
+  ],
+  "imports": [
+    {
+      "document_id": 1,
+      "frame_id": "fr.8b67e57168d16ffb2e201e6bc30ac695.1.2",
+      "generation": 1,
+      "handle": "sf.8b67e57168d16ffb2e201e6bc30ac695.1.1",
+      "height": 1488.0,
+      "page": 0,
+      "pages": 3,
+      "report_digest": "5ac9a521e9131b81797d40841e50c0425c873f6b9f9db2444ca8129986cf682a",
+      "status": "pending",
+      "title": "runtime-three-pages.pdf",
+      "width": 1152.0,
+      "zoom": 1.0
+    },
+    {
+      "document_id": 2,
+      "frame_id": "fr.8b67e57168d16ffb2e201e6bc30ac695.1.10",
+      "generation": 1,
+      "handle": "sf.8b67e57168d16ffb2e201e6bc30ac695.1.9",
+      "height": 1488.0,
+      "page": 0,
+      "pages": 4,
+      "report_digest": "acc688ae63604f14ccaecbadf74db17f1e281e68bacd304896506ed0121079f8",
+      "status": "pending",
+      "title": "other-four-pages.pdf",
+      "width": 1152.0,
+      "zoom": 1.0
+    }
+  ]
+}

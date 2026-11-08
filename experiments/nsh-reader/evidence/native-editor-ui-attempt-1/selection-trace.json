@@ -1,0 +1,34 @@
+{
+  "expected_quote": "Native component capture page 1",
+  "actual_pointer_trace": {
+    "pid": 456746,
+    "window": "0x200005",
+    "origin": [
+      0,
+      0
+    ],
+    "size": [
+      1000,
+      1000
+    ],
+    "events": [
+      {
+        "kind": "move",
+        "x": 247.9,
+        "y": 195.3
+      },
+      {
+        "kind": "down"
+      },
+      {
+        "kind": "move",
+        "x": 468.45000000000005,
+        "y": 195.3
+      },
+      {
+        "kind": "up"
+      }
+    ]
+  },
+  "report": "/workspace/qusor/experiments/nsh-reader/evidence/native-editor-ui-attempt-1/data/native-jobs/42169138d0131f68258973d9183e457c-1/report.json"
+}

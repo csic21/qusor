@@ -1,0 +1,14 @@
+{
+  "status": "resource-pressure-interrupted",
+  "reason": "4 parallel linkers, swap exhausted, 18883 major faults and only8 user ticks over66 seconds; severe kernel/memory stall",
+  "signalled_linkers": [
+    447272,
+    447330,
+    447331,
+    447334
+  ],
+  "prepare_session": 59841,
+  "prepare_pid": 445844,
+  "cargo_pid": 445903,
+  "time_monotonic": 41188.928643002
+}

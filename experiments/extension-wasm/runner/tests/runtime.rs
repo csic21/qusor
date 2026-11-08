@@ -328,3 +328,135 @@ fn loader_rejects_symlink_instead_of_package_file() {
     std::os::unix::fs::symlink(package_path("valid").join("module.wasm"), path).unwrap();
     assert_eq!(package.error_code(), "invalid_package_file");
 }
+
+fn existing_authority(package: &Package, response: &[u8]) -> qusor_wasm_probe::ExistingAuthority {
+    use extension_api::{Capability, CapabilityRequest, HOST_API, Resource};
+    use extension_host::{Grant, Host};
+    let resource = Resource::Selection {
+        vault_id: "probe-vault".into(),
+        selection_id: "selection-1".into(),
+    };
+    let mut host = Host::new(
+        "probe-vault",
+        [Capability::SelectionRead, Capability::CapturePropose],
+    )
+    .unwrap();
+    let installation = host
+        .register(package.manifest.clone(), package.digest.clone())
+        .unwrap();
+    host.replace_grants(
+        installation,
+        vec![Grant {
+            capability: Capability::SelectionRead,
+            resource: resource.clone(),
+        }],
+    )
+    .unwrap();
+    host.enable(installation).unwrap();
+    let session = host.open_session(installation).unwrap();
+    qusor_wasm_probe::ExistingAuthority {
+        host,
+        installation,
+        session,
+        request: CapabilityRequest {
+            api_version: HOST_API,
+            request_id: "external-adapter".into(),
+            capability: Capability::SelectionRead,
+            resource,
+        },
+        response: response.to_vec(),
+        expires_at: None,
+    }
+}
+
+#[test]
+fn trusted_existing_authority_supplies_actual_service_bytes_without_new_grants() {
+    let package = load("valid");
+    let context = existing_authority(&package, b"External bounded response");
+    let result = Probe::from_authority(package, Options::default(), context)
+        .unwrap()
+        .run()
+        .unwrap();
+    assert_eq!(result.output, "[excerpt] External bounded response");
+    assert_eq!(result.calls, 1);
+}
+
+#[test]
+fn existing_authority_rejects_stale_session_digest_mismatch_and_expiry() {
+    let package = load("valid");
+    let mut context = existing_authority(&package, b"must not be delivered");
+    context
+        .host
+        .replace_grants(context.installation, vec![])
+        .unwrap();
+    assert!(Probe::from_authority(package, Options::default(), context).is_err());
+
+    let mut package = load("valid");
+    let context = existing_authority(&package, b"must not be delivered");
+    package.digest = "f".repeat(64);
+    assert!(Probe::from_authority(package, Options::default(), context).is_err());
+
+    let package = load("valid");
+    let mut context = existing_authority(&package, b"must not be delivered");
+    context.expires_at = Some(1);
+    let error = Probe::from_authority(package, Options::default(), context)
+        .unwrap()
+        .run()
+        .unwrap_err();
+    assert_eq!(error.code, "grant_expired");
+}
+
+#[test]
+fn adapter_response_is_only_delivered_for_its_exact_request_scope() {
+    let package = load("valid");
+    let mut context = existing_authority(&package, b"must not be delivered");
+    // A host may authorize a larger scope than one adapter response. The runner
+    // must not silently send one resource's bytes to a request for another.
+    context
+        .host
+        .replace_grants(
+            context.installation,
+            vec![
+                extension_host::Grant {
+                    capability: extension_api::Capability::SelectionRead,
+                    resource: extension_api::Resource::Selection {
+                        vault_id: "probe-vault".into(),
+                        selection_id: "selection-1".into(),
+                    },
+                },
+                extension_host::Grant {
+                    capability: extension_api::Capability::SelectionRead,
+                    resource: extension_api::Resource::Selection {
+                        vault_id: "probe-vault".into(),
+                        selection_id: "selection-2".into(),
+                    },
+                },
+            ],
+        )
+        .unwrap();
+    context.request.resource = extension_api::Resource::Selection {
+        vault_id: "probe-vault".into(),
+        selection_id: "selection-2".into(),
+    };
+    context.session = context.host.open_session(context.installation).unwrap();
+    let error = Probe::from_authority(package, Options::default(), context)
+        .unwrap()
+        .run()
+        .unwrap_err();
+    assert_eq!(error.code, "capability_unavailable");
+}
+
+#[test]
+fn existing_authority_cannot_mix_another_host_session_or_installation() {
+    let package = load("valid");
+    let mut context = existing_authority(&package, b"never delivered");
+    let foreign = existing_authority(&package, b"foreign");
+    context.session = foreign.session;
+    assert!(Probe::from_authority(package, Options::default(), context).is_err());
+
+    let package = load("valid");
+    let mut context = existing_authority(&package, b"never delivered");
+    let foreign = existing_authority(&package, b"foreign");
+    context.installation = foreign.installation;
+    assert!(Probe::from_authority(package, Options::default(), context).is_err());
+}

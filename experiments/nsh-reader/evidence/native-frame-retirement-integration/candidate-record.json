@@ -1,0 +1,78 @@
+{
+  "status": "isolated-caller-patch-ready-for-native-typecheck-not-native-qualified",
+  "recorded_at_utc": "2026-11-08T14:43:44.791042+00:00",
+  "std_tests_passed": 13,
+  "test_log": "caller-tests.log",
+  "main_tree_written_by_agent": false,
+  "base_files": {
+    "dynamic_module.rs": "260f400f558c2b915160f24556598684afcdd38fcfbff81f3d092281cb65a4a8",
+    "plugin_surface.rs": "0f31dbc9474e592b24915e24fc2167cc00100ce1d057267bdf309c9d693f0971",
+    "dynamic_main.rs": "4f3e7238361b8f428e1f07d7be9b954f69a6e3dc345494799dac3aa0a1839658",
+    "native_editor.rs": "a4ec8409e35b8ad3ca319bfbfa4862b8fe44f6646e4e4cee393b7f8de4b731ce"
+  },
+  "current_main_files": {
+    "dynamic_module.rs": "260f400f558c2b915160f24556598684afcdd38fcfbff81f3d092281cb65a4a8",
+    "plugin_surface.rs": "0f31dbc9474e592b24915e24fc2167cc00100ce1d057267bdf309c9d693f0971",
+    "dynamic_main.rs": "4f3e7238361b8f428e1f07d7be9b954f69a6e3dc345494799dac3aa0a1839658"
+  },
+  "artifacts": {
+    "frame_scheduler.rs": {
+      "sha256": "d111c240a9937edfe9b544a5f7932c9fcbff9506f12d11f83d512a4bef8a410a",
+      "bytes": 40049
+    },
+    "retirement_owner.rs": {
+      "sha256": "089716309ddbfb706107e66a2faae4b72dfd19bc795ed18371488540885c03da",
+      "bytes": 9819
+    },
+    "frame_owner_map.rs": {
+      "sha256": "ca4b9289c09aea3c271ba81df58219d830939f8c05940b418828448dc7b4b9bd",
+      "bytes": 2640
+    },
+    "encoded_bytes.rs": {
+      "sha256": "6cb6a63d7c375750163cf9b6621bf4a2c73c9dd30efc2e50640a707cff749776",
+      "bytes": 3753
+    },
+    "dynamic_module.rs": {
+      "sha256": "45b5e5181f97e82bc58a4d0433bd09f9c01fe667b5bdee546f8ebbea5a439c0b",
+      "bytes": 25109
+    },
+    "plugin_surface.rs": {
+      "sha256": "d58b0e19ace465751ced69aab48de38f02f224c12a8a7890de37b216f222169f",
+      "bytes": 64016
+    },
+    "dynamic_main.rs": {
+      "sha256": "031d22ae2c6c3e2b29493b4a5eb8c1e3bf944f71f94811533b79679c4d430513",
+      "bytes": 3280
+    },
+    "native_editor.rs": {
+      "sha256": "d946bfb5cc23c42e4e4fcea69ab374ad31bc574e34a9f6aef98e6b10c29301d6",
+      "bytes": 56190
+    },
+    "caller_harness.rs": {
+      "sha256": "f7c66e6879b22b3e21158ff4cd08480a996fb82ec6c002d3f55b3c453b0f90ff",
+      "bytes": 8624
+    },
+    "caller_harness_tests": {
+      "sha256": "1a0a2115e410d74f4755ef1c3ee3d794a6d8f5859aad88cd309d8810fc0eab10",
+      "bytes": 8459600
+    },
+    "caller-tests.log": {
+      "sha256": "ce3100702608f344f433229458a4d76392856c4e36affb88aa5b23126c8d6ea3",
+      "bytes": 1395
+    },
+    "caller-integration.patch": {
+      "sha256": "ad269ee39e5be25fdba454eecaf5da9ecd0dfa99e0783c42b2a44d0acb5187a6",
+      "bytes": 79734
+    }
+  },
+  "scope": [
+    "Task registry reclamation is local-drain only; encoded container holds its own Owner Arc and counters until actual last shared ImageData ref Drop",
+    "130 sequential frames with old encoded guard retained; historical task map <=3; no64 historical handoff admission threshold",
+    "Blob full/slice/shared retainer clones keep original container; Vec decoded copy and native PNG cache Arc can outlive wrapper release",
+    "Rust normal shutdown joins frame and retirement worker service; no Host confirm, decoded/native ACK unknown",
+    "NSH/Rust caller types not compiled in this candidate; only std model and threads tested",
+    "dynamic_tests latest-pending migrated to actual FrameCaller API and independently exercised in std harness",
+    "flags-only native_editor.begin_shutdown, State lifecycle gate prevents late parser admission; dynamic failure retains SERVICE and attempts editor retirement once"
+  ],
+  "shutdown_merge_note": "preserves paragraph unique editor shutdown in plugin_surface before SERVICE.take; dynamic_module does not re-add native_editor.shutdown"
+}

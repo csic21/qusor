@@ -1,0 +1,3 @@
+   Compiling build-capture-plugin v0.1.0 (/tmp/qusor-component-author-a-sdk/author)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.39s
+     Running `/tmp/qusor-component-author-a-sdk/author/target/debug/component_author /tmp/qusor-component-author-a-sdk/manifest.json /tmp/qusor-component-author-a-sdk/seed.txt /tmp/qusor-component-author-a-sdk/text.qpk`

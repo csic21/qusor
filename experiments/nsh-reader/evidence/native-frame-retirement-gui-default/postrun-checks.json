@@ -1,0 +1,82 @@
+{
+  "source_unchanged": 155,
+  "changed": [],
+  "worker_leases": 0,
+  "pdf_capture": 1,
+  "VM": 30,
+  "calls": 100,
+  "reaps": 30,
+  "max_fuel": 120046,
+  "completed_frames": [
+    [
+      2,
+      0,
+      0.5510752688172043
+    ],
+    [
+      3,
+      1,
+      0.5510752688172043
+    ],
+    [
+      4,
+      1,
+      0.6510752688172042
+    ],
+    [
+      10,
+      0,
+      0.7510752688172042
+    ],
+    [
+      11,
+      0,
+      0.5510752688172043
+    ]
+  ],
+  "retirement": [
+    {
+      "native_release_ack": false,
+      "owners": [
+        {
+          "bridge_attempts": 1,
+          "encoded_containers": 0,
+          "encoded_referenced_bytes": 0,
+          "frame_id": "fr.e1dc975a1116aa03132e92cd83063093.1.12",
+          "generation": 10,
+          "local_delivery": 0,
+          "mount_id": "mt.e1dc975a1116aa03132e92cd83063093.1.3",
+          "pending": 0,
+          "running": 0,
+          "undelivered": 0
+        },
+        {
+          "bridge_attempts": 1,
+          "encoded_containers": 0,
+          "encoded_referenced_bytes": 0,
+          "frame_id": "fr.e1dc975a1116aa03132e92cd83063093.1.13",
+          "generation": 11,
+          "local_delivery": 0,
+          "mount_id": "mt.e1dc975a1116aa03132e92cd83063093.1.3",
+          "pending": 0,
+          "running": 0,
+          "undelivered": 0
+        }
+      ],
+      "phase": "Active"
+    }
+  ],
+  "encoded": [
+    {
+      "allocation_may_remain_in_native_png_cache": true,
+      "containers": 0,
+      "created": 5,
+      "native_release_ack": false,
+      "referenced_bytes": 0,
+      "released": 5,
+      "retainer_class": "unknown_ImageData_Blob_ImageSource_cache_or_loader",
+      "uncertain": false
+    }
+  ],
+  "app_exit": 0
+}

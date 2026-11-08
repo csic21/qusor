@@ -1,0 +1,8 @@
+{
+  "window": "0x200005",
+  "pid": 462545,
+  "text": "nihao",
+  "focus_verified": true,
+  "path": "XTest\u2192GDK/GTK native Input\u2192onChange; no IME",
+  "scope": "Latin key events only; actual IME qualification requires subsequent preedit/commit evidence"
+}

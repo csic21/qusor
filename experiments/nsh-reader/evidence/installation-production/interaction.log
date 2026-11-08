@@ -1,0 +1,398 @@
+{
+  "display_kind": "real GTK native window on keyboard-capable X11/Xvfb; no physical display or IME claim",
+  "data": "experiments/nsh-reader/target/installation-production-native-data",
+  "exit_code": 0,
+  "steps": [
+    {
+      "pid": 192813,
+      "window": "0x200005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 86,
+          "y": 138
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "move",
+          "x": 134,
+          "y": 138
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 192813,
+      "window": "0x200005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 790,
+          "y": 210
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "window": "0x200005",
+      "pid": 192813,
+      "text": "native note one",
+      "focus_verified": true,
+      "path": "XTest→GDK/GTK native Input→onChange; no IME"
+    },
+    {
+      "pid": 192813,
+      "window": "0x200005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 790,
+          "y": 296
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 192813,
+      "window": "0x200005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 152,
+          "y": 138
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "move",
+          "x": 186,
+          "y": 138
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 192813,
+      "window": "0x200005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 790,
+          "y": 210
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "window": "0x200005",
+      "pid": 192813,
+      "text": "native note two",
+      "focus_verified": true,
+      "path": "XTest→GDK/GTK native Input→onChange; no IME"
+    },
+    {
+      "pid": 192813,
+      "window": "0x200005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 790,
+          "y": 296
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 192813,
+      "window": "0x200005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 86,
+          "y": 138
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "move",
+          "x": 132,
+          "y": 167
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "pid": 192813,
+      "window": "0x200005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 790,
+          "y": 260
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    {
+      "window": "0x200005",
+      "pid": 192813,
+      "text": "native compound note",
+      "focus_verified": true,
+      "path": "XTest→GDK/GTK native Input→onChange; no IME"
+    },
+    {
+      "pid": 192813,
+      "window": "0x200005",
+      "origin": [
+        0,
+        0
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 790,
+          "y": 344
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    }
+  ],
+  "core_queries_after_process_exit": [
+    {
+      "capture": {
+        "draft": {
+          "end": 5,
+          "exact": "QUSOR",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+          "page_index": 0,
+          "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+          "protocol_version": 1,
+          "start": 0,
+          "unit": "unicode_scalar"
+        },
+        "provenance": {
+          "installation_id": 1,
+          "package_digest": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+          "package_id": "org.example.surface-reader",
+          "publisher_id": "org.example.author"
+        },
+        "receipt": {
+          "capture_id": 1,
+          "commit_rev": 2,
+          "document_id": 1,
+          "draft_hash": "e7a3844140f76b809b0b4b330a201943f549b00271b35c0426c2dfd5230ae1ef",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "operation_id": "surface-save-480e6abd5bed8f0b7b71fd36336dcd72-6",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c"
+        },
+        "user_note": "native note one"
+      },
+      "ok": true
+    },
+    {
+      "capture": {
+        "draft": {
+          "end": 12,
+          "exact": "native",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+          "page_index": 0,
+          "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+          "protocol_version": 1,
+          "start": 6,
+          "unit": "unicode_scalar"
+        },
+        "provenance": {
+          "installation_id": 1,
+          "package_digest": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+          "package_id": "org.example.surface-reader",
+          "publisher_id": "org.example.author"
+        },
+        "receipt": {
+          "capture_id": 2,
+          "commit_rev": 3,
+          "document_id": 1,
+          "draft_hash": "05fa933ec8eff89d3f6e9438a6241e8f3bda73f8787c359cd8237816abc62abd",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "operation_id": "surface-save-480e6abd5bed8f0b7b71fd36336dcd72-9",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c"
+        },
+        "user_note": "native note two"
+      },
+      "ok": true
+    },
+    {
+      "capture": {
+        "compound": {
+          "exact": "QUSOR native PDF qualification\nRepeat",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+          "protocol_version": 2,
+          "segments": [
+            {
+              "end": 30,
+              "exact": "QUSOR native PDF qualification",
+              "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+              "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+              "page_index": 0,
+              "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+              "protocol_version": 1,
+              "start": 0,
+              "unit": "unicode_scalar"
+            },
+            {
+              "end": 38,
+              "exact": "Repeat",
+              "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+              "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+              "page_index": 0,
+              "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+              "protocol_version": 1,
+              "start": 32,
+              "unit": "unicode_scalar"
+            }
+          ],
+          "selection_profile": "qusor-plain-ltr-lines-v1",
+          "separator": "\n"
+        },
+        "draft": {
+          "end": 30,
+          "exact": "QUSOR native PDF qualification",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+          "page_index": 0,
+          "page_text_sha256": "68cced0866877b49f23d9ae1753bbd17b9bd9b5a516529f76f3fdb4ffdf340e6",
+          "protocol_version": 1,
+          "start": 0,
+          "unit": "unicode_scalar"
+        },
+        "provenance": {
+          "installation_id": 1,
+          "package_digest": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+          "package_id": "org.example.surface-reader",
+          "publisher_id": "org.example.author"
+        },
+        "receipt": {
+          "capture_id": 3,
+          "commit_rev": 4,
+          "document_id": 1,
+          "draft_hash": "c053cb6d3afee1ca1bfb47bd8c47d1652702e297db4979ed6daef655d099aaee",
+          "extraction_revision": "75fff6bb4072c81e9537c9c26a6e2193f327aaa1e3227508e64fe613ffc863fc",
+          "operation_id": "surface-save-480e6abd5bed8f0b7b71fd36336dcd72-12",
+          "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c"
+        },
+        "user_note": "native compound note"
+      },
+      "ok": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+# NativeEditor 真实进程收尾回归
+
+2026-11-08：最终 qualification feature 版本的六项OS故障回归通过，另原有四项NativeEditor测试与拒绝warning的target Clippy通过。具体来源、哈希、范围和逐案结果见[record](record.json)，最终日志为[stdout](os-attempt3.stdout)与[stderr](os-attempt3.stderr)。
+
+本次为无窗口的可信native协调器资格：复用真实synthetic reader fixture、签名独立A包、Store/DurableHost、NativeEditor私有实现及Controller实际子进程。integration入口先处理真实`--managed-worker`，不使用libtest充当worker，不把fakeController事件作为Reaped。fixture的ready是测试来源准备，不构成真实native mount/paint资格。
+
+六例分别验证启动后invocation/gate错误、真实reap后finish一次失败与重试、父侧等待上限未知后继续drain，以及其他installation活跃Guarded lease不阻A关闭/同installation未回收lease仍阻关闭。跨installation的lease serialized记录在运行中逐字比较，日志只记录比较结果，不保留完整record正文。最终7个完成guest VM/23calls，10个Editor实际Reaped及2个额外Guarded worker实际Reaped；六例最终lease均为0。worker预算仍为250ms/1e6fuel/8calls，只有unknown_wait案例一次把父侧drain等待降到0，不扩大worker预算。
+
+`native-qualification`默认关闭，无SDK/JS fault入口。Cargo测试会隐式构建既有bin且启用该feature，因此未来默认GUI必须重新用默认features构建原生binary，不能把这些带hook的bin当正式工件。原先GUI/IME证据不证明本轮pending-run代码的UI资格。
+
+保留编译attempt1的SIGINT与四link争用记录：它尚未进入OS运行，root starttime缺失如实记null；没有把编译终止当worker回收。attempt2是lint调整前六例通过，attempt3是最终源码六例通过。精选源码归档为运行后快照（132文件），没有宣称完整上游/依赖build输入冻结。exact qualification exe留在record所列target路径，按SHA核验；未在/tmp复制大工件。
+
+未验证terminate请求背压、准备态/poison注入的OS故障组合，以及native view/renderer资源释放ACK；本轮没有GUI，也没有调用Host cleanup confirm制造ACK。

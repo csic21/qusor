@@ -1,0 +1,64 @@
+{
+  "recorded_at_utc": "2026-11-08T15:14:38.309172+00:00",
+  "status": "default-alltargets-check-clippy-lib29-and-feature-OS8-passed",
+  "default_checks": {
+    "check": "check-final.log",
+    "clippy": "clippy-final.log",
+    "lib": "lib-attempt2.log",
+    "lib_test_count": 29,
+    "test_threads": 1
+  },
+  "feature_checks": {
+    "log": "os8-attempt1.log",
+    "cases": 8,
+    "feature": "native-qualification",
+    "default_GUI_qualification": false,
+    "limits": "250ms/1000000fuel/8calls unchanged"
+  },
+  "source_before": {
+    "dynamic_module.rs": "0edfbbf2d0dfceb0dd0be6889d9b76df46942d88a07265ccec4e2fd922ac38d7",
+    "frame_scheduler.rs": "651d142495eedbe945fabdf506d6fc58e1035713847f506fa344840935f9b189",
+    "frame_owner_map.rs": "77471763a9f7e735c4d9da249f8607f792e91a9e6f04c920980dae0af5cf13bc",
+    "retirement_owner.rs": "8df83ffc54ea9ad9ac712ab32541f26d448f7bd614622dcf5e5d6497472a25a0",
+    "encoded_bytes.rs": "6cb6a63d7c375750163cf9b6621bf4a2c73c9dd30efc2e50640a707cff749776",
+    "frame_caller_tests.rs": "965e00bc97d853b09ebc7574d92fa53ab8eea9de1e51cb6c82b221e79ebbd7f6",
+    "native_editor.rs": "8255fec21f898eeb72d44c08ecc0184603f486871f160c0594c2b927f5f6a18e",
+    "dynamic_main.rs": "031d22ae2c6c3e2b29493b4a5eb8c1e3bf944f71f94811533b79679c4d430513",
+    "plugin_surface.rs": "d58b0e19ace465751ced69aab48de38f02f224c12a8a7890de37b216f222169f"
+  },
+  "source_after": {
+    "dynamic_module.rs": "0edfbbf2d0dfceb0dd0be6889d9b76df46942d88a07265ccec4e2fd922ac38d7",
+    "frame_scheduler.rs": "651d142495eedbe945fabdf506d6fc58e1035713847f506fa344840935f9b189",
+    "frame_owner_map.rs": "77471763a9f7e735c4d9da249f8607f792e91a9e6f04c920980dae0af5cf13bc",
+    "retirement_owner.rs": "8df83ffc54ea9ad9ac712ab32541f26d448f7bd614622dcf5e5d6497472a25a0",
+    "encoded_bytes.rs": "6cb6a63d7c375750163cf9b6621bf4a2c73c9dd30efc2e50640a707cff749776",
+    "frame_caller_tests.rs": "965e00bc97d853b09ebc7574d92fa53ab8eea9de1e51cb6c82b221e79ebbd7f6",
+    "native_editor.rs": "8255fec21f898eeb72d44c08ecc0184603f486871f160c0594c2b927f5f6a18e",
+    "dynamic_main.rs": "031d22ae2c6c3e2b29493b4a5eb8c1e3bf944f71f94811533b79679c4d430513",
+    "plugin_surface.rs": "d58b0e19ace465751ced69aab48de38f02f224c12a8a7890de37b216f222169f"
+  },
+  "source_unchanged_during_final_checks": true,
+  "retained_executables": {
+    "default-native-lib": {
+      "path": "/home/user/.cache/qusor-native-frame-maincheck/default-native-lib",
+      "sha256": "eeab2b8fd117e8949d5eaeee600c3c39c6887ab006f025dda626ae27d4a9bd8a",
+      "bytes": 284788808
+    },
+    "feature-native-editor-retirement": {
+      "path": "/home/user/.cache/qusor-native-frame-maincheck/feature-native-editor-retirement",
+      "sha256": "e06f4fda55aff23f8bf8855ba8b7bb95f23a45c119475803415c333f12f8f7ec",
+      "bytes": 281397704
+    }
+  },
+  "new_test_scope": [
+    "real pinned nsh_core::ImageData new/clone with explicit Blob/slice models",
+    "130 sequential frame task deliveries while old actual encoded guard remains live; map does not accumulate history",
+    "latest-pending actual FrameCaller queue regression retained",
+    "State/actual std Job lifecycle admission/barrier covers the same shutdown timeout helper; not end-to-end main+SERVICE.take qualification"
+  ],
+  "retirement_scope": "Rust task/result thread+encoded container scope only; no native decode/texture release ACK",
+  "failures_retained": [
+    "check-attempt1.log: Later error type inference",
+    "clippy-attempt1.log: style and default-cfg redundant closure"
+  ]
+}

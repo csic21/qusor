@@ -1,0 +1,1137 @@
++ cargo metadata --manifest-path /workspace/qusor/experiments/extension-package/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo metadata --manifest-path /workspace/qusor/experiments/extension-package/author/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo metadata --manifest-path /workspace/qusor/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo fmt --manifest-path /workspace/qusor/experiments/extension-package/Cargo.toml --all -- --check
++ cargo test --manifest-path /workspace/qusor/experiments/extension-package/Cargo.toml --locked --offline
++ cargo clippy --manifest-path /workspace/qusor/experiments/extension-package/Cargo.toml --all-targets --locked --offline -- -D warnings
++ cargo fmt --manifest-path /workspace/qusor/experiments/extension-package/author/Cargo.toml --all -- --check
++ cargo test --manifest-path /workspace/qusor/experiments/extension-package/author/Cargo.toml --locked --offline
++ cargo clippy --manifest-path /workspace/qusor/experiments/extension-package/author/Cargo.toml --all-targets --locked --offline -- -D warnings
++ cargo build --manifest-path /workspace/qusor/experiments/extension-package/Cargo.toml --locked --offline
++ cargo generate-lockfile --manifest-path /tmp/qusor-package-author-lctdakmu/author/Cargo.toml --offline
++ cargo metadata --manifest-path /tmp/qusor-package-author-lctdakmu/author/Cargo.toml --format-version 1 --locked --offline --all-features
++ cargo build --manifest-path /tmp/qusor-package-author-lctdakmu/author/Cargo.toml --locked --offline
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/valid.wat /tmp/qusor-package-author-lctdakmu/fixtures/manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/v1.qpkg
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/valid-v2.wat /tmp/qusor-package-author-lctdakmu/fixtures/manifest-v2.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/v2.qpkg
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/valid-v2.wat /tmp/qusor-package-author-lctdakmu/fixtures/manifest-v2.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/stranger-seed.hex /tmp/qusor-package-author-lctdakmu/stranger.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe verify /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+verify v1: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe probe /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+execute v1: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe verify /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+verify v2: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe probe /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+execute v2: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe probe /tmp/qusor-package-author-lctdakmu/tampered-manifest.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+reject changed manifest: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe probe /tmp/qusor-package-author-lctdakmu/tampered-module.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+reject changed module: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe probe /tmp/qusor-package-author-lctdakmu/tampered-asset.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+reject changed asset: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe probe /tmp/qusor-package-author-lctdakmu/tampered-descriptor.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+reject changed descriptor: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe probe /tmp/qusor-package-author-lctdakmu/tampered-path.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+reject changed path: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe probe /tmp/qusor-package-author-lctdakmu/tampered-signature.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+reject changed signature: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe probe /tmp/qusor-package-author-lctdakmu/stranger.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+reject unknown signing key: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe verify /tmp/qusor-package-author-lctdakmu/stranger.qpkg a09aa5f47a6759802ff955f8dc2d2a14a5c99d23be97f864127ff9383455a4f0
+verify separate explicit trust: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/normal install-v1 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+install v1: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/normal
+restart after install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/normal install-v1 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+install receipt replay: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/normal install-v1 0 /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+operation id conflict: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/normal stale-update 0 /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+stale revision: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/normal stranger-update 1 /tmp/qusor-package-author-lctdakmu/stranger.qpkg a09aa5f47a6759802ff955f8dc2d2a14a5c99d23be97f864127ff9383455a4f0
+unknown publisher cannot replace installation: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/normal
+rejected changes preserve v1: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/normal update-v2 1 /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+update v2: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/normal
+restart after update: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/normal rollback-attempt 2 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+ordinary update cannot roll back: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/stores/normal remove 2 org.example.selection-tools
+uninstall: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/normal
+restart after uninstall: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/stores/normal remove 2 org.example.selection-tools
+uninstall receipt replay: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/normal takeover-after-remove 0 /tmp/qusor-package-author-lctdakmu/stranger.qpkg a09aa5f47a6759802ff955f8dc2d2a14a5c99d23be97f864127ff9383455a4f0
+uninstalled identity remains bound: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/normal reinstall 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+reinstall creates new identity: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/normal
+restart after reinstall: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/fresh-before_transaction fresh 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash before_transaction
+install crash before_transaction: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/fresh-before_transaction
+recover fresh before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/fresh-before_transaction fresh 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+retry fresh before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/fresh-before_transaction
+restart after retry before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/fresh-after_content fresh 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_content
+install crash after_content: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/fresh-after_content
+recover fresh after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/fresh-after_content fresh 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+retry fresh after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/fresh-after_content
+restart after retry after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/fresh-before_commit fresh 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash before_commit
+install crash before_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/fresh-before_commit
+recover fresh before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/fresh-before_commit fresh 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+retry fresh before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/fresh-before_commit
+restart after retry before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/fresh-after_commit fresh 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_commit
+install crash after_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/fresh-after_commit
+recover fresh after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/fresh-after_commit fresh 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+retry fresh after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/fresh-after_commit
+restart after retry after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-before_transaction base 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+prepare update before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-before_transaction next 1 /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash before_transaction
+update crash before_transaction: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/update-before_transaction
+recover update before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-before_transaction next 1 /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+retry update before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/update-before_transaction
+restart after update retry before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-after_content base 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+prepare update after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-after_content next 1 /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_content
+update crash after_content: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/update-after_content
+recover update after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-after_content next 1 /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+retry update after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/update-after_content
+restart after update retry after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-before_commit base 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+prepare update before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-before_commit next 1 /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash before_commit
+update crash before_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/update-before_commit
+recover update before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-before_commit next 1 /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+retry update before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/update-before_commit
+restart after update retry before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-after_commit base 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+prepare update after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-after_commit next 1 /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_commit
+update crash after_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/update-after_commit
+recover update after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/update-after_commit next 1 /tmp/qusor-package-author-lctdakmu/v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+retry update after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/update-after_commit
+restart after update retry after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/uninstall-before_transaction base 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+prepare uninstall before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/stores/uninstall-before_transaction remove 1 org.example.selection-tools --crash before_transaction
+uninstall crash before_transaction: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/uninstall-before_transaction
+recover uninstall before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/stores/uninstall-before_transaction remove 1 org.example.selection-tools
+retry uninstall before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/uninstall-before_transaction
+restart after uninstall retry before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/uninstall-after_content base 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+prepare uninstall after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/stores/uninstall-after_content remove 1 org.example.selection-tools --crash after_content
+uninstall crash after_content: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/uninstall-after_content
+recover uninstall after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/stores/uninstall-after_content remove 1 org.example.selection-tools
+retry uninstall after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/uninstall-after_content
+restart after uninstall retry after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/uninstall-before_commit base 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+prepare uninstall before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/stores/uninstall-before_commit remove 1 org.example.selection-tools --crash before_commit
+uninstall crash before_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/uninstall-before_commit
+recover uninstall before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/stores/uninstall-before_commit remove 1 org.example.selection-tools
+retry uninstall before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/uninstall-before_commit
+restart after uninstall retry before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/stores/uninstall-after_commit base 0 /tmp/qusor-package-author-lctdakmu/v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+prepare uninstall after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/stores/uninstall-after_commit remove 1 org.example.selection-tools --crash after_commit
+uninstall crash after_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/uninstall-after_commit
+recover uninstall after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/stores/uninstall-after_commit remove 1 org.example.selection-tools
+retry uninstall after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/stores/uninstall-after_commit
+restart after uninstall retry after_commit: passed
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata.wat /tmp/qusor-package-author-lctdakmu/metadata-1.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/metadata-v1.qpkg
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata-v2.wat /tmp/qusor-package-author-lctdakmu/metadata-2.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/metadata-v2.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction base 0 /tmp/qusor-package-author-lctdakmu/metadata-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+grant prepare before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851 --crash before_transaction
+grant crash before_transaction: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction org.example.metadata-tools synthetic-library synthetic-document version-1
+grant recovery before_transaction: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851
+grant retry before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction org.example.metadata-tools synthetic-library synthetic-document version-1
+new session before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe check-session /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction '"a9dc7458dbdd9a7dac41bfc178122f14150699c29250eae0f7074b766ff0b703"' synthetic-library synthetic-document version-1
+old session rejected after restart before_transaction: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction org.example.metadata-tools other-library synthetic-document version-1
+wrong library denied before_transaction: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction org.example.metadata-tools synthetic-library other-document version-1
+wrong document denied before_transaction: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction org.example.metadata-tools synthetic-library synthetic-document version-2
+wrong version denied before_transaction: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction change-library 2 org.example.metadata-tools other-library synthetic-document version-1 1794120851
+installation cannot change library before_transaction: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction update 2 /tmp/qusor-package-author-lctdakmu/metadata-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+update clears grant before_transaction: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_transaction org.example.metadata-tools synthetic-library synthetic-document version-1
+updated package needs new grant before_transaction: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content base 0 /tmp/qusor-package-author-lctdakmu/metadata-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+grant prepare after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851 --crash after_content
+grant crash after_content: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content org.example.metadata-tools synthetic-library synthetic-document version-1
+grant recovery after_content: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851
+grant retry after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content org.example.metadata-tools synthetic-library synthetic-document version-1
+new session after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe check-session /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content '"c1a1986768bacc6a322e230ae6ba62dd694e85fa5d3c6825f9c5644248855613"' synthetic-library synthetic-document version-1
+old session rejected after restart after_content: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content org.example.metadata-tools other-library synthetic-document version-1
+wrong library denied after_content: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content org.example.metadata-tools synthetic-library other-document version-1
+wrong document denied after_content: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content org.example.metadata-tools synthetic-library synthetic-document version-2
+wrong version denied after_content: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content change-library 2 org.example.metadata-tools other-library synthetic-document version-1 1794120851
+installation cannot change library after_content: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content update 2 /tmp/qusor-package-author-lctdakmu/metadata-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+update clears grant after_content: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_content org.example.metadata-tools synthetic-library synthetic-document version-1
+updated package needs new grant after_content: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit base 0 /tmp/qusor-package-author-lctdakmu/metadata-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+grant prepare before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851 --crash before_commit
+grant crash before_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+grant recovery before_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851
+grant retry before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+new session before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe check-session /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit '"27d40c51fc44189f037f0c2046e1c7ca4ea4bbdd2e36008bcf22f6ab04005c20"' synthetic-library synthetic-document version-1
+old session rejected after restart before_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit org.example.metadata-tools other-library synthetic-document version-1
+wrong library denied before_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit org.example.metadata-tools synthetic-library other-document version-1
+wrong document denied before_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit org.example.metadata-tools synthetic-library synthetic-document version-2
+wrong version denied before_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit change-library 2 org.example.metadata-tools other-library synthetic-document version-1 1794120851
+installation cannot change library before_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit update 2 /tmp/qusor-package-author-lctdakmu/metadata-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+update clears grant before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-before_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+updated package needs new grant before_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit base 0 /tmp/qusor-package-author-lctdakmu/metadata-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+grant prepare after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851 --crash after_commit
+grant crash after_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+grant recovery after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851
+grant retry after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+new session after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe check-session /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit '"1a2b0743539559967d987e35428329f6b4794f39b019719cf9bed9ba986fc54e"' synthetic-library synthetic-document version-1
+old session rejected after restart after_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit org.example.metadata-tools other-library synthetic-document version-1
+wrong library denied after_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit org.example.metadata-tools synthetic-library other-document version-1
+wrong document denied after_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit org.example.metadata-tools synthetic-library synthetic-document version-2
+wrong version denied after_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit change-library 2 org.example.metadata-tools other-library synthetic-document version-1 1794120851
+installation cannot change library after_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit update 2 /tmp/qusor-package-author-lctdakmu/metadata-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+update clears grant after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/grant-after_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+updated package needs new grant after_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/disable-before_commit base 0 /tmp/qusor-package-author-lctdakmu/metadata-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+disable prepare before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/disable-before_commit grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851
+disable grant before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe disable /tmp/qusor-package-author-lctdakmu/grant-stores/disable-before_commit stop 2 org.example.metadata-tools --crash before_commit
+disable crash before_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/disable-before_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+disable recovery before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe disable /tmp/qusor-package-author-lctdakmu/grant-stores/disable-before_commit stop 2 org.example.metadata-tools
+disable retry before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/disable-before_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+disable prevents recovery before_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/disable-after_commit base 0 /tmp/qusor-package-author-lctdakmu/metadata-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+disable prepare after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/disable-after_commit grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851
+disable grant after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe disable /tmp/qusor-package-author-lctdakmu/grant-stores/disable-after_commit stop 2 org.example.metadata-tools --crash after_commit
+disable crash after_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/disable-after_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+disable recovery after_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe disable /tmp/qusor-package-author-lctdakmu/grant-stores/disable-after_commit stop 2 org.example.metadata-tools
+disable retry after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/disable-after_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+disable prevents recovery after_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-before_commit base 0 /tmp/qusor-package-author-lctdakmu/metadata-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+revoke prepare before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-before_commit grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851
+revoke grant before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe revoke /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-before_commit stop 2 org.example.metadata-tools --crash before_commit
+revoke crash before_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-before_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+revoke recovery before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe revoke /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-before_commit stop 2 org.example.metadata-tools
+revoke retry before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-before_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+revoke prevents recovery before_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-after_commit base 0 /tmp/qusor-package-author-lctdakmu/metadata-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+revoke prepare after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-after_commit grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120851
+revoke grant after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe revoke /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-after_commit stop 2 org.example.metadata-tools --crash after_commit
+revoke crash after_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-after_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+revoke recovery after_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe revoke /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-after_commit stop 2 org.example.metadata-tools
+revoke retry after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/grant-stores/revoke-after_commit org.example.metadata-tools synthetic-library synthetic-document version-1
+revoke prevents recovery after_commit: rejected
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/infinite-loop.wat /tmp/qusor-package-author-lctdakmu/metadata-1.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/infinite-loop.qpkg
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/ambient-import.wat /tmp/qusor-package-author-lctdakmu/metadata-1.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/ambient-import.qpkg
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/memory-grow.wat /tmp/qusor-package-author-lctdakmu/metadata-1.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/memory-grow.qpkg
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/start-function.wat /tmp/qusor-package-author-lctdakmu/metadata-1.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/start-function.qpkg
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/valid.wat /tmp/qusor-package-author-lctdakmu/metadata-1.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/selection-escalation.qpkg
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata-wrong-document.wat /tmp/qusor-package-author-lctdakmu/metadata-1.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/metadata-wrong-document.qpkg
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata-trap.wat /tmp/qusor-package-author-lctdakmu/metadata-1.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/metadata-trap.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/execution-stores/normal install 0 /tmp/qusor-package-author-lctdakmu/metadata-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+execution install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/normal org.example.metadata-tools synthetic-library synthetic-document version-1
+installed bytes alone cannot execute: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/execution-stores/normal grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120853
+execution explicit grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/normal org.example.metadata-tools synthetic-library synthetic-document version-1
+execute after grant process ended: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/normal org.example.metadata-tools synthetic-library synthetic-document version-1
+execute after another restart: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/normal org.example.metadata-tools other synthetic-document version-1
+execution rejects wrong scope othersynthetic-documentversion-1: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/normal org.example.metadata-tools synthetic-library other version-1
+execution rejects wrong scope synthetic-libraryotherversion-1: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/normal org.example.metadata-tools synthetic-library synthetic-document other
+execution rejects wrong scope synthetic-librarysynthetic-documentother: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe revoke /tmp/qusor-package-author-lctdakmu/execution-stores/normal revoke 2 org.example.metadata-tools
+execution revoke: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/normal org.example.metadata-tools synthetic-library synthetic-document version-1
+revoked bytes cannot execute: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/execution-stores/normal regrant 3 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120853
+execution regrant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/execution-stores/normal update 4 /tmp/qusor-package-author-lctdakmu/metadata-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+execution update: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/normal org.example.metadata-tools synthetic-library synthetic-document version-1
+updated bytes cannot inherit execution grant: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/execution-stores/normal grant-v2 5 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120853
+execution updated grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/normal org.example.metadata-tools synthetic-library synthetic-document version-1
+updated execution after new grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/execution-stores/normal remove 6 org.example.metadata-tools
+execution uninstall: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/normal org.example.metadata-tools synthetic-library synthetic-document version-1
+uninstalled bytes cannot execute: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/execution-stores/infinite-loop install 0 /tmp/qusor-package-author-lctdakmu/infinite-loop.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+infinite-loop signed install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/execution-stores/infinite-loop grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120853
+infinite-loop explicit grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/infinite-loop org.example.metadata-tools synthetic-library synthetic-document version-1
+infinite-loop bounded execution rejection: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/execution-stores/ambient-import install 0 /tmp/qusor-package-author-lctdakmu/ambient-import.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+ambient-import signed install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/execution-stores/ambient-import grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120853
+ambient-import explicit grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/ambient-import org.example.metadata-tools synthetic-library synthetic-document version-1
+ambient-import bounded execution rejection: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/execution-stores/memory-grow install 0 /tmp/qusor-package-author-lctdakmu/memory-grow.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+memory-grow signed install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/execution-stores/memory-grow grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120853
+memory-grow explicit grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/memory-grow org.example.metadata-tools synthetic-library synthetic-document version-1
+memory-grow bounded execution rejection: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/execution-stores/start-function install 0 /tmp/qusor-package-author-lctdakmu/start-function.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+start-function signed install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/execution-stores/start-function grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120853
+start-function explicit grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/start-function org.example.metadata-tools synthetic-library synthetic-document version-1
+start-function bounded execution rejection: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/execution-stores/selection-escalation install 0 /tmp/qusor-package-author-lctdakmu/selection-escalation.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+selection-escalation signed install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/execution-stores/selection-escalation grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120853
+selection-escalation explicit grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/selection-escalation org.example.metadata-tools synthetic-library synthetic-document version-1
+selection-escalation bounded execution rejection: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/execution-stores/metadata-wrong-document install 0 /tmp/qusor-package-author-lctdakmu/metadata-wrong-document.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+metadata-wrong-document signed install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/execution-stores/metadata-wrong-document grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120853
+metadata-wrong-document explicit grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/metadata-wrong-document org.example.metadata-tools synthetic-library synthetic-document version-1
+metadata-wrong-document bounded execution rejection: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/execution-stores/metadata-trap install 0 /tmp/qusor-package-author-lctdakmu/metadata-trap.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+metadata-trap signed install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/execution-stores/metadata-trap grant 1 org.example.metadata-tools synthetic-library synthetic-document version-1 1794120853
+metadata-trap explicit grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/execution-stores/metadata-trap org.example.metadata-tools synthetic-library synthetic-document version-1
+metadata-trap bounded execution rejection: rejected
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-v1.wat /tmp/qusor-package-author-lctdakmu/private-v1-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-v1.qpkg /tmp/qusor-package-author-lctdakmu/private-v1-lifecycle.json -
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-v2.wat /tmp/qusor-package-author-lctdakmu/private-v2-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-v2.qpkg /tmp/qusor-package-author-lctdakmu/private-v2-lifecycle.json /tmp/qusor-package-author-lctdakmu/fixtures/private-migrate-good.wat
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-v2.wat /tmp/qusor-package-author-lctdakmu/private-trap-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-trap.qpkg /tmp/qusor-package-author-lctdakmu/private-trap-lifecycle.json /tmp/qusor-package-author-lctdakmu/fixtures/private-migrate-trap.wat
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-v2.wat /tmp/qusor-package-author-lctdakmu/private-loop-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-loop.qpkg /tmp/qusor-package-author-lctdakmu/private-loop-lifecycle.json /tmp/qusor-package-author-lctdakmu/fixtures/private-migrate-loop.wat
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-v2.wat /tmp/qusor-package-author-lctdakmu/private-bad-pointer-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-bad-pointer.qpkg /tmp/qusor-package-author-lctdakmu/private-bad-pointer-lifecycle.json /tmp/qusor-package-author-lctdakmu/fixtures/private-migrate-bad-pointer.wat
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-v2.wat /tmp/qusor-package-author-lctdakmu/private-oversize-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-oversize.qpkg /tmp/qusor-package-author-lctdakmu/private-oversize-lifecycle.json /tmp/qusor-package-author-lctdakmu/fixtures/private-migrate-oversize.wat
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-v2.wat /tmp/qusor-package-author-lctdakmu/private-import-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-import.qpkg /tmp/qusor-package-author-lctdakmu/private-import-lifecycle.json /tmp/qusor-package-author-lctdakmu/fixtures/private-migrate-import.wat
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-v2.wat /tmp/qusor-package-author-lctdakmu/private-wrong-schema-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-wrong-schema.qpkg /tmp/qusor-package-author-lctdakmu/private-wrong-schema-lifecycle.json /tmp/qusor-package-author-lctdakmu/fixtures/private-migrate-wrong-schema.wat
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-bad-abi.wat /tmp/qusor-package-author-lctdakmu/private-bad-abi-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-bad-abi.qpkg /tmp/qusor-package-author-lctdakmu/private-bad-abi-lifecycle.json /tmp/qusor-package-author-lctdakmu/fixtures/private-migrate-good.wat
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-host-call.wat /tmp/qusor-package-author-lctdakmu/private-host-call-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-host-call.qpkg /tmp/qusor-package-author-lctdakmu/private-host-call-lifecycle.json /tmp/qusor-package-author-lctdakmu/fixtures/private-migrate-good.wat
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-v2.wat /tmp/qusor-package-author-lctdakmu/private-unsupported-source-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-unsupported-source.qpkg /tmp/qusor-package-author-lctdakmu/private-unsupported-source-lifecycle.json /tmp/qusor-package-author-lctdakmu/fixtures/private-migrate-good.wat
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/private-run-v2.wat /tmp/qusor-package-author-lctdakmu/private-unknown-protocol-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/private-unknown-protocol.qpkg /tmp/qusor-package-author-lctdakmu/private-unknown-protocol-lifecycle.json /tmp/qusor-package-author-lctdakmu/fixtures/private-migrate-good.wat
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/normal install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: normal install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/normal initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: normal initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/normal grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: normal grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/normal org.example.private-tools
+private: normal initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/normal bypass 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: ordinary install cannot bypass migration: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/normal upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/normal org.example.private-tools
+private: upgraded pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/normal org.example.private-tools synthetic-library synthetic-document version-1
+private: upgraded pair does not inherit grant: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/normal upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade replay: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe disable /tmp/qusor-package-author-lctdakmu/private-stores/normal upgrade 5 org.example.private-tools
+private: private operation id conflicts with ordinary command: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/normal grant-v2 5 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: grant upgraded pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/normal rollback 6 org.example.private-tools 1
+private: rollback: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/normal org.example.private-tools
+private: rolled back exact old bytes: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/normal org.example.private-tools synthetic-library synthetic-document version-1
+private: rollback does not revive grants: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/trap install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: trap install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/trap initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: trap initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/trap grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: trap grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/trap org.example.private-tools
+private: trap initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/trap upgrade 3 /tmp/qusor-package-author-lctdakmu/private-trap.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: trap migration rejected: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/trap org.example.private-tools
+private: trap old pair retained: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/trap org.example.private-tools synthetic-library synthetic-document version-1
+private: trap stopped authorization: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/trap upgrade 3 /tmp/qusor-package-author-lctdakmu/private-trap.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: trap failed receipt replay: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/loop install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: loop install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/loop initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: loop initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/loop grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: loop grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/loop org.example.private-tools
+private: loop initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/loop upgrade 3 /tmp/qusor-package-author-lctdakmu/private-loop.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: loop migration rejected: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/loop org.example.private-tools
+private: loop old pair retained: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/loop org.example.private-tools synthetic-library synthetic-document version-1
+private: loop stopped authorization: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/loop upgrade 3 /tmp/qusor-package-author-lctdakmu/private-loop.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: loop failed receipt replay: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/bad-pointer install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: bad-pointer install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/bad-pointer initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: bad-pointer initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/bad-pointer grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: bad-pointer grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/bad-pointer org.example.private-tools
+private: bad-pointer initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/bad-pointer upgrade 3 /tmp/qusor-package-author-lctdakmu/private-bad-pointer.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: bad-pointer migration rejected: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/bad-pointer org.example.private-tools
+private: bad-pointer old pair retained: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/bad-pointer org.example.private-tools synthetic-library synthetic-document version-1
+private: bad-pointer stopped authorization: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/bad-pointer upgrade 3 /tmp/qusor-package-author-lctdakmu/private-bad-pointer.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: bad-pointer failed receipt replay: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/oversize install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: oversize install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/oversize initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: oversize initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/oversize grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: oversize grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/oversize org.example.private-tools
+private: oversize initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/oversize upgrade 3 /tmp/qusor-package-author-lctdakmu/private-oversize.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: oversize migration rejected: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/oversize org.example.private-tools
+private: oversize old pair retained: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/oversize org.example.private-tools synthetic-library synthetic-document version-1
+private: oversize stopped authorization: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/oversize upgrade 3 /tmp/qusor-package-author-lctdakmu/private-oversize.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: oversize failed receipt replay: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/import install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: import install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/import initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: import initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/import grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: import grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/import org.example.private-tools
+private: import initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/import upgrade 3 /tmp/qusor-package-author-lctdakmu/private-import.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: import migration rejected: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/import org.example.private-tools
+private: import old pair retained: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/import org.example.private-tools synthetic-library synthetic-document version-1
+private: import stopped authorization: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/import upgrade 3 /tmp/qusor-package-author-lctdakmu/private-import.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: import failed receipt replay: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/wrong-schema install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: wrong-schema install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/wrong-schema initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: wrong-schema initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/wrong-schema grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: wrong-schema grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/wrong-schema org.example.private-tools
+private: wrong-schema initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/wrong-schema upgrade 3 /tmp/qusor-package-author-lctdakmu/private-wrong-schema.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: wrong-schema migration rejected: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/wrong-schema org.example.private-tools
+private: wrong-schema old pair retained: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/wrong-schema org.example.private-tools synthetic-library synthetic-document version-1
+private: wrong-schema stopped authorization: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/wrong-schema upgrade 3 /tmp/qusor-package-author-lctdakmu/private-wrong-schema.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: wrong-schema failed receipt replay: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/bad-abi install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: bad-abi install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/bad-abi initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: bad-abi initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/bad-abi grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: bad-abi grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/bad-abi org.example.private-tools
+private: bad-abi initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/bad-abi upgrade 3 /tmp/qusor-package-author-lctdakmu/private-bad-abi.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: bad-abi migration rejected: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/bad-abi org.example.private-tools
+private: bad-abi old pair retained: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/bad-abi org.example.private-tools synthetic-library synthetic-document version-1
+private: bad-abi stopped authorization: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/bad-abi upgrade 3 /tmp/qusor-package-author-lctdakmu/private-bad-abi.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: bad-abi failed receipt replay: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/host-call install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: host-call install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/host-call initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: host-call initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/host-call grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: host-call grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/host-call org.example.private-tools
+private: host-call initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/host-call upgrade 3 /tmp/qusor-package-author-lctdakmu/private-host-call.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: host-call migration rejected: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/host-call org.example.private-tools
+private: host-call old pair retained: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/host-call org.example.private-tools synthetic-library synthetic-document version-1
+private: host-call stopped authorization: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/host-call upgrade 3 /tmp/qusor-package-author-lctdakmu/private-host-call.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: host-call failed receipt replay: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/unsupported-source install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: unsupported-source install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/unsupported-source initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: unsupported-source initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/unsupported-source grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: unsupported-source grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/unsupported-source org.example.private-tools
+private: unsupported-source initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/unsupported-source upgrade 3 /tmp/qusor-package-author-lctdakmu/private-unsupported-source.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: unsupported-source validation rejects before stop: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/unsupported-source org.example.private-tools
+private: unsupported-source retains original pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/unsupported-source org.example.private-tools synthetic-library synthetic-document version-1
+private: unsupported-source prior grant remains usable: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/unknown-protocol install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: unknown-protocol install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/unknown-protocol initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: unknown-protocol initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/unknown-protocol grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: unknown-protocol grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/unknown-protocol org.example.private-tools
+private: unknown-protocol initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/unknown-protocol upgrade 3 /tmp/qusor-package-author-lctdakmu/private-unknown-protocol.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: unknown-protocol validation rejects before stop: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/unknown-protocol org.example.private-tools
+private: unknown-protocol retains original pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/unknown-protocol org.example.private-tools synthetic-library synthetic-document version-1
+private: unknown-protocol prior grant remains usable: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_prepare install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: crash-before_prepare install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_prepare initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: crash-before_prepare initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_prepare grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: crash-before_prepare grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_prepare org.example.private-tools
+private: crash-before_prepare initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_prepare upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash before_prepare
+private: upgrade crash before_prepare: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_prepare org.example.private-tools
+private: upgrade recover before_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_prepare org.example.private-tools synthetic-library synthetic-document version-1
+private: upgrade recover authority before_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_prepare upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade retry before_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_prepare upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade second retry before_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_prepare install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: crash-after_prepare install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_prepare initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: crash-after_prepare initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_prepare grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: crash-after_prepare grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_prepare org.example.private-tools
+private: crash-after_prepare initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_prepare upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_prepare
+private: upgrade crash after_prepare: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_prepare org.example.private-tools
+private: upgrade recover after_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_prepare org.example.private-tools synthetic-library synthetic-document version-1
+private: upgrade recover authority after_prepare: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_prepare upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade retry after_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_prepare upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade second retry after_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_migration install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: crash-after_migration install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_migration initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: crash-after_migration initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_migration grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: crash-after_migration grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_migration org.example.private-tools
+private: crash-after_migration initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_migration upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_migration
+private: upgrade crash after_migration: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_migration org.example.private-tools
+private: upgrade recover after_migration: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_migration org.example.private-tools synthetic-library synthetic-document version-1
+private: upgrade recover authority after_migration: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_migration upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade retry after_migration: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_migration upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade second retry after_migration: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_snapshot install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: crash-after_snapshot install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_snapshot initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: crash-after_snapshot initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_snapshot grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: crash-after_snapshot grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_snapshot org.example.private-tools
+private: crash-after_snapshot initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_snapshot upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_snapshot
+private: upgrade crash after_snapshot: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_snapshot org.example.private-tools
+private: upgrade recover after_snapshot: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_snapshot org.example.private-tools synthetic-library synthetic-document version-1
+private: upgrade recover authority after_snapshot: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_snapshot upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade retry after_snapshot: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_snapshot upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade second retry after_snapshot: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_commit install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: crash-before_commit install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_commit initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: crash-before_commit initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_commit grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: crash-before_commit grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_commit org.example.private-tools
+private: crash-before_commit initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_commit upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash before_commit
+private: upgrade crash before_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_commit org.example.private-tools
+private: upgrade recover before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_commit org.example.private-tools synthetic-library synthetic-document version-1
+private: upgrade recover authority before_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_commit upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade retry before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-before_commit upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade second retry before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_commit install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: crash-after_commit install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_commit initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: crash-after_commit initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_commit grant 2 org.example.private-tools synthetic-library synthetic-document version-1 1794120854
+private: crash-after_commit grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_commit org.example.private-tools
+private: crash-after_commit initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_commit upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_commit
+private: upgrade crash after_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_commit org.example.private-tools
+private: upgrade recover after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_commit org.example.private-tools synthetic-library synthetic-document version-1
+private: upgrade recover authority after_commit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_commit upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade retry after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/crash-after_commit upgrade 3 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: upgrade second retry after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_prepare install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback-crash-before_prepare install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_prepare initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: rollback-crash-before_prepare initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_prepare org.example.private-tools
+private: rollback-crash-before_prepare initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_prepare upgrade 2 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback crash base before_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_prepare org.example.private-tools
+private: rollback prepare pair before_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_prepare rollback 4 org.example.private-tools 1 --crash before_prepare
+private: rollback crash before_prepare: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_prepare org.example.private-tools
+private: rollback recover before_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_prepare rollback 4 org.example.private-tools 1
+private: rollback retry before_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_prepare install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback-crash-after_prepare install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_prepare initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: rollback-crash-after_prepare initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_prepare org.example.private-tools
+private: rollback-crash-after_prepare initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_prepare upgrade 2 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback crash base after_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_prepare org.example.private-tools
+private: rollback prepare pair after_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_prepare rollback 4 org.example.private-tools 1 --crash after_prepare
+private: rollback crash after_prepare: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_prepare org.example.private-tools
+private: rollback recover after_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_prepare rollback 4 org.example.private-tools 1
+private: rollback retry after_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_migration install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback-crash-after_migration install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_migration initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: rollback-crash-after_migration initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_migration org.example.private-tools
+private: rollback-crash-after_migration initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_migration upgrade 2 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback crash base after_migration: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_migration org.example.private-tools
+private: rollback prepare pair after_migration: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_migration rollback 4 org.example.private-tools 1 --crash after_migration
+private: rollback crash after_migration: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_migration org.example.private-tools
+private: rollback recover after_migration: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_migration rollback 4 org.example.private-tools 1
+private: rollback retry after_migration: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_snapshot install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback-crash-after_snapshot install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_snapshot initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: rollback-crash-after_snapshot initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_snapshot org.example.private-tools
+private: rollback-crash-after_snapshot initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_snapshot upgrade 2 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback crash base after_snapshot: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_snapshot org.example.private-tools
+private: rollback prepare pair after_snapshot: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_snapshot rollback 4 org.example.private-tools 1 --crash after_snapshot
+private: rollback crash after_snapshot: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_snapshot org.example.private-tools
+private: rollback recover after_snapshot: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_snapshot rollback 4 org.example.private-tools 1
+private: rollback retry after_snapshot: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_commit install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback-crash-before_commit install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_commit initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: rollback-crash-before_commit initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_commit org.example.private-tools
+private: rollback-crash-before_commit initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_commit upgrade 2 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback crash base before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_commit org.example.private-tools
+private: rollback prepare pair before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_commit rollback 4 org.example.private-tools 1 --crash before_commit
+private: rollback crash before_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_commit org.example.private-tools
+private: rollback recover before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-before_commit rollback 4 org.example.private-tools 1
+private: rollback retry before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_commit install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback-crash-after_commit install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_commit initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: rollback-crash-after_commit initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_commit org.example.private-tools
+private: rollback-crash-after_commit initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_commit upgrade 2 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: rollback crash base after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_commit org.example.private-tools
+private: rollback prepare pair after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_commit rollback 4 org.example.private-tools 1 --crash after_commit
+private: rollback crash after_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_commit org.example.private-tools
+private: rollback recover after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe rollback-private /tmp/qusor-package-author-lctdakmu/private-stores/rollback-crash-after_commit rollback 4 org.example.private-tools 1
+private: rollback retry after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-before_prepare install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: init prepare before_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-before_prepare initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt --crash before_prepare
+private: init crash before_prepare: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-before_prepare org.example.private-tools
+private: init recover before_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-before_prepare initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: init retry before_prepare: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-after_snapshot install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: init prepare after_snapshot: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-after_snapshot initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt --crash after_snapshot
+private: init crash after_snapshot: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-after_snapshot org.example.private-tools
+private: init recover after_snapshot: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-after_snapshot initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: init retry after_snapshot: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-before_commit install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: init prepare before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-before_commit initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt --crash before_commit
+private: init crash before_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-before_commit org.example.private-tools
+private: init recover before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-before_commit initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: init retry before_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-after_commit install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: init prepare after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-after_commit initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt --crash after_commit
+private: init crash after_commit: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-after_commit org.example.private-tools
+private: init recover after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/init-crash-after_commit initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: init retry after_commit: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/reinstall install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: reinstall install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/reinstall initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: reinstall initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/reinstall org.example.private-tools
+private: reinstall initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/private-stores/reinstall remove 2 org.example.private-tools
+private: uninstall private owner: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/reinstall reinstall 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: reinstall has fresh identity: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/reinstall org.example.private-tools
+private: reinstall has no private head: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/reinstall initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: old initialize receipt cannot initialize new instance: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/reinstall org.example.private-tools
+private: old receipt does not resurrect private head: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-orphan-owner install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: corrupt-pending-orphan-owner install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-orphan-owner initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: corrupt-pending-orphan-owner initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-orphan-owner org.example.private-tools
+private: corrupt-pending-orphan-owner initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-orphan-owner upgrade 2 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_prepare
+private: prepare pending corruption orphan-owner: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-orphan-owner
+private: corrupt pending fails closed orphan-owner: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-bad-input-hash install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: corrupt-pending-bad-input-hash install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-bad-input-hash initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: corrupt-pending-bad-input-hash initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-bad-input-hash org.example.private-tools
+private: corrupt-pending-bad-input-hash initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-bad-input-hash upgrade 2 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_prepare
+private: prepare pending corruption bad-input-hash: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-bad-input-hash
+private: corrupt pending fails closed bad-input-hash: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-wrong-target install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: corrupt-pending-wrong-target install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-wrong-target initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: corrupt-pending-wrong-target initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-wrong-target org.example.private-tools
+private: corrupt-pending-wrong-target initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-wrong-target upgrade 2 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_prepare
+private: prepare pending corruption wrong-target: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-wrong-target
+private: corrupt pending fails closed wrong-target: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-stale-generation install 0 /tmp/qusor-package-author-lctdakmu/private-v1.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+private: corrupt-pending-stale-generation install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe initialize-private /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-stale-generation initialize 1 org.example.private-tools /tmp/qusor-package-author-lctdakmu/private-state.txt
+private: corrupt-pending-stale-generation initialize: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe private-status /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-stale-generation org.example.private-tools
+private: corrupt-pending-stale-generation initial pair: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe upgrade-private /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-stale-generation upgrade 2 /tmp/qusor-package-author-lctdakmu/private-v2.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737 --crash after_prepare
+private: prepare pending corruption stale-generation: injected crash
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/private-stores/corrupt-pending-stale-generation
+private: corrupt pending fails closed stale-generation: rejected
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata.wat /tmp/qusor-package-author-lctdakmu/supervised-a.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/supervised-a.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/supervisor-store install-a 0 /tmp/qusor-package-author-lctdakmu/supervised-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+supervisor preparation: a install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/supervisor-store grant-a 1 org.example.supervised-a synthetic-library synthetic-document version-1 1794120867
+supervisor preparation: a grant: passed
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata.wat /tmp/qusor-package-author-lctdakmu/supervised-b.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/supervised-b.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/supervisor-store install-b 0 /tmp/qusor-package-author-lctdakmu/supervised-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+supervisor preparation: b install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/supervisor-store grant-b 1 org.example.supervised-b synthetic-library synthetic-document version-1 1794120867
+supervisor preparation: b grant: passed
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/infinite-loop.wat /tmp/qusor-package-author-lctdakmu/supervised-loop.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/supervised-loop.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/supervisor-store install-loop 0 /tmp/qusor-package-author-lctdakmu/supervised-loop.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+supervisor preparation: loop install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/supervisor-store grant-loop 1 org.example.supervised-loop synthetic-library synthetic-document version-1 1794120867
+supervisor preparation: loop grant: passed
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata-trap.wat /tmp/qusor-package-author-lctdakmu/supervised-trap.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/supervised-trap.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/supervisor-store install-trap 0 /tmp/qusor-package-author-lctdakmu/supervised-trap.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+supervisor preparation: trap install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/supervisor-store grant-trap 1 org.example.supervised-trap synthetic-library synthetic-document version-1 1794120867
+supervisor preparation: trap grant: passed
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata-wrong-document.wat /tmp/qusor-package-author-lctdakmu/supervised-denied.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/supervised-denied.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/supervisor-store install-denied 0 /tmp/qusor-package-author-lctdakmu/supervised-denied.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+supervisor preparation: denied install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/supervisor-store grant-denied 1 org.example.supervised-denied synthetic-library synthetic-document version-1 1794120867
+supervisor preparation: denied grant: passed
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata.wat /tmp/qusor-package-author-lctdakmu/supervised-launch.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/supervised-launch.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/supervisor-store install-launch 0 /tmp/qusor-package-author-lctdakmu/supervised-launch.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+supervisor preparation: launch install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/supervisor-store grant-launch 1 org.example.supervised-launch synthetic-library synthetic-document version-1 1794120867
+supervisor preparation: launch grant: passed
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/managed-invalid-entry.wat /tmp/qusor-package-author-lctdakmu/supervised-bootstrap.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/supervised-bootstrap.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/supervisor-store install-bootstrap 0 /tmp/qusor-package-author-lctdakmu/supervised-bootstrap.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+supervisor preparation: bootstrap install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/supervisor-store grant-bootstrap 1 org.example.supervised-bootstrap synthetic-library synthetic-document version-1 1794120867
+supervisor preparation: bootstrap grant: passed
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/managed-eight-calls.wat /tmp/qusor-package-author-lctdakmu/supervised-eight.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/supervised-eight.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/supervisor-store install-eight 0 /tmp/qusor-package-author-lctdakmu/supervised-eight.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+supervisor preparation: eight install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/supervisor-store grant-eight 1 org.example.supervised-eight synthetic-library synthetic-document version-1 1794120867
+supervisor preparation: eight grant: passed
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/managed-nine-calls.wat /tmp/qusor-package-author-lctdakmu/supervised-nine.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/supervised-nine.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/supervisor-store install-nine 0 /tmp/qusor-package-author-lctdakmu/supervised-nine.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+supervisor preparation: nine install: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/supervisor-store grant-nine 1 org.example.supervised-nine synthetic-library synthetic-document version-1 1794120867
+supervisor preparation: nine grant: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/supervisor-store org.example.supervised-b synthetic-library synthetic-document version-1
+supervisor preparation: B revoke survives supervisor exit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/supervisor-store org.example.supervised-launch synthetic-library synthetic-document version-1
+supervisor preparation: launch failure disabling survives supervisor exit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/supervisor-store org.example.supervised-bootstrap synthetic-library synthetic-document version-1
+supervisor preparation: real startup disabling survives supervisor exit: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/supervisor-store org.example.supervised-a synthetic-library synthetic-document version-1
+supervisor preparation: A authority remains valid after supervisor exit: passed
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata.wat /tmp/qusor-package-author-lctdakmu/orphan-a-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata.wat /tmp/qusor-package-author-lctdakmu/orphan-b-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg
++ /tmp/qusor-package-author-lctdakmu/target/debug/build-signed-plugin /tmp/qusor-package-author-lctdakmu/fixtures/metadata.wat /tmp/qusor-package-author-lctdakmu/orphan-b-update-manifest.json /tmp/qusor-package-author-lctdakmu/fixtures/asset.txt /tmp/qusor-package-author-lctdakmu/fixtures/test-seed.hex /tmp/qusor-package-author-lctdakmu/orphan-b-update.qpkg
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/before_lease install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: before_lease install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/before_lease grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: before_lease grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/before_lease install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: before_lease install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/before_lease grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: before_lease grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_lease install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_lease install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_lease grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_lease grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_lease install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_lease install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_lease grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_lease grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/orphan-stores/after_lease org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: after_lease lease blocks resume: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/orphan-stores/after_lease org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: after_lease lease blocks execute: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_lease bypass-update 2 /tmp/qusor-package-author-lctdakmu/orphan-b-update.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_lease lease blocks install: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_lease bypass-grant 2 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_lease lease blocks grant: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe disable /tmp/qusor-package-author-lctdakmu/orphan-stores/after_lease bypass-disable 2 org.example.orphan-b
+orphan recovery: after_lease lease blocks stop: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/orphan-stores/after_lease bypass-remove 2 org.example.orphan-b
+orphan recovery: after_lease lease blocks uninstall: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn_intent install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_spawn_intent install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn_intent grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_spawn_intent grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn_intent install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_spawn_intent install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn_intent grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_spawn_intent grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn_intent org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: after_spawn_intent lease blocks resume: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn_intent org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: after_spawn_intent lease blocks execute: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn_intent bypass-update 2 /tmp/qusor-package-author-lctdakmu/orphan-b-update.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_spawn_intent lease blocks install: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn_intent bypass-grant 2 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_spawn_intent lease blocks grant: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe disable /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn_intent bypass-disable 2 org.example.orphan-b
+orphan recovery: after_spawn_intent lease blocks stop: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn_intent bypass-remove 2 org.example.orphan-b
+orphan recovery: after_spawn_intent lease blocks uninstall: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_spawn install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_spawn grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_spawn install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_spawn grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: after_spawn lease blocks resume: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: after_spawn lease blocks execute: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn bypass-update 2 /tmp/qusor-package-author-lctdakmu/orphan-b-update.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_spawn lease blocks install: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn bypass-grant 2 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_spawn lease blocks grant: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe disable /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn bypass-disable 2 org.example.orphan-b
+orphan recovery: after_spawn lease blocks stop: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/orphan-stores/after_spawn bypass-remove 2 org.example.orphan-b
+orphan recovery: after_spawn lease blocks uninstall: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_bind install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_bind install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_bind grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_bind grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_bind install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_bind install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_bind grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_bind grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/orphan-stores/after_bind org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: after_bind lease blocks resume: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/orphan-stores/after_bind org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: after_bind lease blocks execute: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_bind bypass-update 2 /tmp/qusor-package-author-lctdakmu/orphan-b-update.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_bind lease blocks install: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_bind bypass-grant 2 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_bind lease blocks grant: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe disable /tmp/qusor-package-author-lctdakmu/orphan-stores/after_bind bypass-disable 2 org.example.orphan-b
+orphan recovery: after_bind lease blocks stop: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/orphan-stores/after_bind bypass-remove 2 org.example.orphan-b
+orphan recovery: after_bind lease blocks uninstall: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_boot install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_boot install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_boot grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_boot grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_boot install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_boot install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_boot grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_boot grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/orphan-stores/after_boot org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: after_boot lease blocks resume: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe execute /tmp/qusor-package-author-lctdakmu/orphan-stores/after_boot org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: after_boot lease blocks execute: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/after_boot bypass-update 2 /tmp/qusor-package-author-lctdakmu/orphan-b-update.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: after_boot lease blocks install: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/after_boot bypass-grant 2 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: after_boot lease blocks grant: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe disable /tmp/qusor-package-author-lctdakmu/orphan-stores/after_boot bypass-disable 2 org.example.orphan-b
+orphan recovery: after_boot lease blocks stop: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe uninstall /tmp/qusor-package-author-lctdakmu/orphan-stores/after_boot bypass-remove 2 org.example.orphan-b
+orphan recovery: after_boot lease blocks uninstall: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/starting-cancel install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: starting-cancel install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/starting-cancel grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: starting-cancel grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/starting-cancel install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: starting-cancel install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/starting-cancel grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: starting-cancel grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/starting-revoke install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: starting-revoke install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/starting-revoke grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: starting-revoke grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/starting-revoke install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: starting-revoke install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/starting-revoke grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: starting-revoke grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/orphan-stores/starting-revoke org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: starting revocation remains durable: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/guard-release-False install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: guard-release-False install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/guard-release-False grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: guard-release-False grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/guard-release-False install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: guard-release-False install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/guard-release-False grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: guard-release-False grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/guard-release-True install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: guard-release-True install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/guard-release-True grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: guard-release-True grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/guard-release-True install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: guard-release-True install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/guard-release-True grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794117281
+orphan recovery: guard-release-True grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/parent_death_guard install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: parent_death_guard install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/parent_death_guard grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: parent_death_guard grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/parent_death_guard install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: parent_death_guard install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/parent_death_guard grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: parent_death_guard grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/live_survivor_pidfd install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: live_survivor_pidfd install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/live_survivor_pidfd grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: live_survivor_pidfd grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/live_survivor_pidfd install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: live_survivor_pidfd install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/live_survivor_pidfd grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: live_survivor_pidfd grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/revoke_commit install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: revoke_commit install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/revoke_commit grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: revoke_commit grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/revoke_commit install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: revoke_commit install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/revoke_commit grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: revoke_commit grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe resume /tmp/qusor-package-author-lctdakmu/orphan-stores/revoke_commit org.example.orphan-b synthetic-library synthetic-document version-1
+orphan recovery: revocation remains durable after recovered supervisor exits: rejected
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/foreign_identity install-a 0 /tmp/qusor-package-author-lctdakmu/orphan-a.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: foreign_identity install a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/foreign_identity grant-a 1 org.example.orphan-a synthetic-library synthetic-document version-1 1794120875
+orphan recovery: foreign_identity grant a: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe install /tmp/qusor-package-author-lctdakmu/orphan-stores/foreign_identity install-b 0 /tmp/qusor-package-author-lctdakmu/orphan-b.qpkg d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737
+orphan recovery: foreign_identity install b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe grant /tmp/qusor-package-author-lctdakmu/orphan-stores/foreign_identity grant-b 1 org.example.orphan-b synthetic-library synthetic-document version-1 1794120875
+orphan recovery: foreign_identity grant b: passed
++ /workspace/qusor/experiments/extension-package/target/debug/qusor-package-probe status /tmp/qusor-package-author-lctdakmu/orphan-stores/foreign_identity
+orphan recovery: valid-UUID bitrot cannot masquerade as a kernel restart: rejected
++ rustc -Vv
+PASS: 543 scenarios; independent author; fixed host d092bb22d85a53ca0b699e8003da58b74cfb49da5b4ebb8f3ca0a43edc36feea

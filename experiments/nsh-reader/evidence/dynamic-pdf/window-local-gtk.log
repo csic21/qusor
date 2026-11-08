@@ -1,0 +1,18 @@
+MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+
+(org.qusor.nativeprobe:228263): Gtk-WARNING **: 13:43:40.029: Unable to acquire session bus: Could not connect: No such file or directory
+ INFO nsh::perf commit: 89 ops, 18230µs (list js 228µs), 92 mount items, 32 nodes
+ INFO nsh::perf first frame: eval 5997µs, total 28990µs
+WARNING: dzn is not a conformant Vulkan implementation, testing use only.
+ INFO nsh::perf commit: 0 ops, 1311µs (list js 109µs), 21 mount items, 32 nodes
+ INFO nsh::perf turn: 1397µs (timers and tasks 26µs)
+ INFO nsh::perf gc: 211µs
+ INFO nsh::perf event Press on view 18
+ INFO nsh::perf event js: 757µs
+ INFO nsh::perf commit: 98 ops, 2585µs (list js 32µs), 91 mount items, 38 nodes
+ INFO nsh::perf turn: 2683µs (timers and tasks 40µs)
+ INFO nsh::perf commit: 0 ops, 35µs (list js 12µs), 1 mount items, 38 nodes
+ INFO nsh::perf turn: 211µs (timers and tasks 154µs)
+
+(org.qusor.nativeprobe:228263): GLib-GIO-ERROR **: 13:43:45.616: Settings schema 'org.gtk.gtk4.Settings.FileChooser' is not installed

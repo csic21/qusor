@@ -1,0 +1,2002 @@
+[
+  {
+    "id": "oracle-move-0",
+    "text": "🙂\r\n🙂\u0000a\u0000中🙂a",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 0
+    },
+    "expected": "🙂\u0000a\u0000中🙂a\r\n🙂"
+  },
+  {
+    "id": "oracle-replace-0",
+    "text": "🙂\r\n🙂\u0000a\u0000中🙂a",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\n文🙂🙂z"
+    },
+    "expected": "\n文🙂🙂z\r\n🙂\u0000a\u0000中🙂a"
+  },
+  {
+    "id": "oracle-move-1",
+    "text": "\n中🙂a🙂\u0000\n\r",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "\n中🙂a🙂\u0000\n\r"
+  },
+  {
+    "id": "oracle-replace-1",
+    "text": "\n中🙂a🙂\u0000\n\r",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "z🙂"
+    },
+    "expected": "\nz🙂\n\r"
+  },
+  {
+    "id": "oracle-move-2",
+    "text": "中a🙂🙂中🙂a\u0000🙂中\u0000aa中中",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "中a🙂🙂中🙂a\u0000🙂中\u0000aa中中"
+  },
+  {
+    "id": "oracle-replace-2",
+    "text": "中a🙂🙂中🙂a\u0000🙂中\u0000aa中中",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\rz\n\u0000🙂z\n"
+    },
+    "expected": "\rz\n\u0000🙂z\n"
+  },
+  {
+    "id": "oracle-move-3",
+    "text": "中\raa\u0000中中\u0000\na\r\n",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "中\raa\u0000中中\u0000\na\r\n"
+  },
+  {
+    "id": "oracle-replace-3",
+    "text": "中\raa\u0000中中\u0000\na\r\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "🙂\nz🙂🙂z\u0000\r"
+    },
+    "expected": "🙂\nz🙂🙂z\u0000\r\na\r\n"
+  },
+  {
+    "id": "oracle-move-4",
+    "text": "\r\r中🙂\n🙂\na\u0000\ra\n🙂\n中🙂\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 0
+    },
+    "expected": "a\u0000\ra\n\r\r中🙂\n🙂\n🙂\n中🙂\u0000"
+  },
+  {
+    "id": "oracle-replace-4",
+    "text": "\r\r中🙂\n🙂\na\u0000\ra\n🙂\n中🙂\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "文文\r文z文文\r"
+    },
+    "expected": "\r\r中🙂\n文文\r文z文文\r\na\u0000\ra\n🙂\n中🙂\u0000"
+  },
+  {
+    "id": "oracle-move-5",
+    "text": "🙂a中中🙂a🙂",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "🙂a中中🙂a🙂"
+  },
+  {
+    "id": "oracle-replace-5",
+    "text": "🙂a中中🙂a🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\n\r\n🙂\r"
+    },
+    "expected": "\n\r\n🙂\r"
+  },
+  {
+    "id": "oracle-move-6",
+    "text": "🙂\ra中中a\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "🙂\ra中中a\u0000"
+  },
+  {
+    "id": "oracle-replace-6",
+    "text": "🙂\ra中中a\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "文\r\n\n文z文z\u0000"
+    },
+    "expected": "文\r\n\n文z文z\u0000"
+  },
+  {
+    "id": "oracle-move-7",
+    "text": "\n🙂a\u0000\na\u0000\n🙂\raa",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 2
+    },
+    "expected": "🙂a\u0000\na\u0000\n\n🙂\raa"
+  },
+  {
+    "id": "oracle-replace-7",
+    "text": "\n🙂a\u0000\na\u0000\n🙂\raa",
+    "operation": {
+      "kind": "replace",
+      "index": 3,
+      "input": "文🙂文文\u0000z\u0000文\n"
+    },
+    "expected": "\n🙂a\u0000\na\u0000\n文🙂文文\u0000z\u0000文\n"
+  },
+  {
+    "id": "oracle-move-8",
+    "text": "🙂",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "🙂"
+  },
+  {
+    "id": "oracle-replace-8",
+    "text": "🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\u0000\u0000🙂文"
+    },
+    "expected": "\u0000\u0000🙂文"
+  },
+  {
+    "id": "oracle-move-9",
+    "text": "\ra中中\r\u0000\n中",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "\ra中中\r\u0000\n中"
+  },
+  {
+    "id": "oracle-replace-9",
+    "text": "\ra中中\r\u0000\n中",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "文文z\n文\n"
+    },
+    "expected": "文文z\n文\n\n中"
+  },
+  {
+    "id": "oracle-move-10",
+    "text": "🙂\u0000🙂中🙂\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "🙂\u0000🙂中🙂\u0000"
+  },
+  {
+    "id": "oracle-replace-10",
+    "text": "🙂\u0000🙂中🙂\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "z\u0000\rzzz"
+    },
+    "expected": "z\u0000\rzzz"
+  },
+  {
+    "id": "oracle-move-11",
+    "text": "a中a🙂aa\r",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "a中a🙂aa\r"
+  },
+  {
+    "id": "oracle-replace-11",
+    "text": "a中a🙂aa\r",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": ""
+    },
+    "expected": ""
+  },
+  {
+    "id": "oracle-move-12",
+    "text": "🙂a\u0000中",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "🙂a\u0000中"
+  },
+  {
+    "id": "oracle-replace-12",
+    "text": "🙂a\u0000中",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\r文文🙂🙂\u0000"
+    },
+    "expected": "\r文文🙂🙂\u0000"
+  },
+  {
+    "id": "oracle-move-13",
+    "text": "🙂a\r\r\u0000\r\u0000a\n\r",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "🙂a\r\r\u0000\r\u0000a\n\r"
+  },
+  {
+    "id": "oracle-replace-13",
+    "text": "🙂a\r\r\u0000\r\u0000a\n\r",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "文\n\nz文\n"
+    },
+    "expected": "文\n\nz文\n\n\r"
+  },
+  {
+    "id": "oracle-move-14",
+    "text": "\u0000中a🙂\n\n\u0000\r\n\ra\r",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 3
+    },
+    "expected": "\n\u0000\n\ra\r\r\n\u0000中a🙂"
+  },
+  {
+    "id": "oracle-replace-14",
+    "text": "\u0000中a🙂\n\n\u0000\r\n\ra\r",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "文\nz"
+    },
+    "expected": "\u0000中a🙂\n文\nz\n\u0000\r\n\ra\r"
+  },
+  {
+    "id": "oracle-move-15",
+    "text": "aa中\u0000\u0000\u0000中🙂中\n中",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "aa中\u0000\u0000\u0000中🙂中\n中"
+  },
+  {
+    "id": "oracle-replace-15",
+    "text": "aa中\u0000\u0000\u0000中🙂中\n中",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\nz文z\n\u0000z"
+    },
+    "expected": "aa中\u0000\u0000\u0000中🙂中\n\nz文z\n\u0000z"
+  },
+  {
+    "id": "oracle-move-16",
+    "text": "中\ra\u0000\n\n\u0000🙂🙂🙂a\u0000a\na",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 3
+    },
+    "expected": "中\ra\u0000\n\na\n\u0000🙂🙂🙂a\u0000a"
+  },
+  {
+    "id": "oracle-replace-16",
+    "text": "中\ra\u0000\n\n\u0000🙂🙂🙂a\u0000a\na",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\n\n🙂\n\r\u0000文\n🙂"
+    },
+    "expected": "中\ra\u0000\n\n\n🙂\n\r\u0000文\n🙂\n\u0000🙂🙂🙂a\u0000a\na"
+  },
+  {
+    "id": "oracle-move-17",
+    "text": "\r🙂aa\r中\u0000\n中🙂\n中\u0000\u0000\ra\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 1
+    },
+    "expected": "\r🙂aa\r中\u0000\n中\u0000\u0000\ra\u0000\n中🙂"
+  },
+  {
+    "id": "oracle-replace-17",
+    "text": "\r🙂aa\r中\u0000\n中🙂\n中\u0000\u0000\ra\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\u0000\n🙂\n\rz\rz"
+    },
+    "expected": "\r🙂aa\r中\u0000\n\u0000\n🙂\n\rz\rz\n中\u0000\u0000\ra\u0000"
+  },
+  {
+    "id": "oracle-move-18",
+    "text": "\n\r中中中\na",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 0
+    },
+    "expected": "a\n\n\r中中中"
+  },
+  {
+    "id": "oracle-replace-18",
+    "text": "\n\r中中中\na",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "文"
+    },
+    "expected": "文\n\r中中中\na"
+  },
+  {
+    "id": "oracle-move-19",
+    "text": "",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": ""
+  },
+  {
+    "id": "oracle-replace-19",
+    "text": "",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\r\u0000\u0000文z"
+    },
+    "expected": "\r\u0000\u0000文z"
+  },
+  {
+    "id": "oracle-move-20",
+    "text": "\r🙂中\na",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\r🙂中\na"
+  },
+  {
+    "id": "oracle-replace-20",
+    "text": "\r🙂中\na",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "z文\n"
+    },
+    "expected": "\r🙂中\nz文\n"
+  },
+  {
+    "id": "oracle-move-21",
+    "text": "\u0000a\n🙂中\u0000\ra\u0000a🙂中a",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "\u0000a\n🙂中\u0000\ra\u0000a🙂中a"
+  },
+  {
+    "id": "oracle-replace-21",
+    "text": "\u0000a\n🙂中\u0000\ra\u0000a🙂中a",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "文\u0000\u0000文z文"
+    },
+    "expected": "文\u0000\u0000文z文\n🙂中\u0000\ra\u0000a🙂中a"
+  },
+  {
+    "id": "oracle-move-22",
+    "text": "\u0000中",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\u0000中"
+  },
+  {
+    "id": "oracle-replace-22",
+    "text": "\u0000中",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": ""
+    },
+    "expected": ""
+  },
+  {
+    "id": "oracle-move-23",
+    "text": "\n\u0000中a中aa\na\u0000中\u0000a",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 0
+    },
+    "expected": "\u0000中a中aa\n\na\u0000中\u0000a"
+  },
+  {
+    "id": "oracle-replace-23",
+    "text": "\n\u0000中a中aa\na\u0000中\u0000a",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "🙂文\n\u0000\n\n文\r文"
+    },
+    "expected": "\n🙂文\n\u0000\n\n文\r文\na\u0000中\u0000a"
+  },
+  {
+    "id": "oracle-move-24",
+    "text": "\r🙂\ra\u0000\n🙂",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 0
+    },
+    "expected": "🙂\n\r🙂\ra\u0000"
+  },
+  {
+    "id": "oracle-replace-24",
+    "text": "\r🙂\ra\u0000\n🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\n文文文"
+    },
+    "expected": "\n文文文\n🙂"
+  },
+  {
+    "id": "oracle-move-25",
+    "text": "中a\u0000\r\n\n\n\r\r\r\n\u0000\ra\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 4,
+      "to": 0
+    },
+    "expected": "\u0000\ra\u0000\r\n中a\u0000\n\n\r\n\r\r"
+  },
+  {
+    "id": "oracle-replace-25",
+    "text": "中a\u0000\r\n\n\n\r\r\r\n\u0000\ra\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\u0000文"
+    },
+    "expected": "中a\u0000\r\n\u0000文\n\n\r\r\r\n\u0000\ra\u0000"
+  },
+  {
+    "id": "oracle-move-26",
+    "text": "🙂中a🙂\r\n🙂\ra中🙂a🙂\u0000\na\n\na🙂",
+    "operation": {
+      "kind": "move",
+      "from": 3,
+      "to": 0
+    },
+    "expected": "\r\n🙂中a🙂\n🙂\ra中🙂a🙂\u0000\na\na🙂"
+  },
+  {
+    "id": "oracle-replace-26",
+    "text": "🙂中a🙂\r\n🙂\ra中🙂a🙂\u0000\na\n\na🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 4,
+      "input": "\r"
+    },
+    "expected": "🙂中a🙂\r\n🙂\ra中🙂a🙂\u0000\na\n\n\r"
+  },
+  {
+    "id": "oracle-move-27",
+    "text": "",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": ""
+  },
+  {
+    "id": "oracle-replace-27",
+    "text": "",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": ""
+    },
+    "expected": ""
+  },
+  {
+    "id": "oracle-move-28",
+    "text": "🙂🙂",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "🙂🙂"
+  },
+  {
+    "id": "oracle-replace-28",
+    "text": "🙂🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "zz"
+    },
+    "expected": "zz"
+  },
+  {
+    "id": "oracle-move-29",
+    "text": "中\r\ra\u0000a\u0000\n\u0000\n",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 1
+    },
+    "expected": "\u0000\n中\r\ra\u0000a\u0000\n"
+  },
+  {
+    "id": "oracle-replace-29",
+    "text": "中\r\ra\u0000a\u0000\n\u0000\n",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\r"
+    },
+    "expected": "中\r\ra\u0000a\u0000\n\r\n"
+  },
+  {
+    "id": "oracle-move-30",
+    "text": "\n\u0000\naa🙂aa\r\u0000\r\u0000\n🙂\n中\na",
+    "operation": {
+      "kind": "move",
+      "from": 3,
+      "to": 0
+    },
+    "expected": "🙂\n\n\u0000\naa🙂aa\r\u0000\r\u0000\n中\na"
+  },
+  {
+    "id": "oracle-replace-30",
+    "text": "\n\u0000\naa🙂aa\r\u0000\r\u0000\n🙂\n中\na",
+    "operation": {
+      "kind": "replace",
+      "index": 2,
+      "input": "\u0000🙂文\n"
+    },
+    "expected": "\n\u0000\n\u0000🙂文\n\n🙂\n中\na"
+  },
+  {
+    "id": "oracle-move-31",
+    "text": "\n\n\n\u0000🙂\r中\ra\n\n\n\n\u0000\n\u0000🙂🙂",
+    "operation": {
+      "kind": "move",
+      "from": 4,
+      "to": 4
+    },
+    "expected": "\n\n\n\u0000🙂\r中\ra\n\n\n\n\u0000\n\u0000🙂🙂"
+  },
+  {
+    "id": "oracle-replace-31",
+    "text": "\n\n\n\u0000🙂\r中\ra\n\n\n\n\u0000\n\u0000🙂🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 2,
+      "input": "\u0000文\u0000"
+    },
+    "expected": "\n\n\u0000文\u0000\n\u0000🙂\r中\ra\n\n\n\n\u0000\n\u0000🙂🙂"
+  },
+  {
+    "id": "oracle-move-32",
+    "text": "a",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "a"
+  },
+  {
+    "id": "oracle-replace-32",
+    "text": "a",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\u0000z🙂\u0000文文zz\n"
+    },
+    "expected": "\u0000z🙂\u0000文文zz\n"
+  },
+  {
+    "id": "oracle-move-33",
+    "text": "\u0000\ra🙂\r\u0000\n🙂中\n🙂中a中\ra中",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 1
+    },
+    "expected": "\u0000\ra🙂\r\u0000\n🙂中a中\ra中\n🙂中"
+  },
+  {
+    "id": "oracle-replace-33",
+    "text": "\u0000\ra🙂\r\u0000\n🙂中\n🙂中a中\ra中",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\u0000文"
+    },
+    "expected": "\u0000\ra🙂\r\u0000\n\u0000文\n🙂中a中\ra中"
+  },
+  {
+    "id": "oracle-move-34",
+    "text": "\u0000\u0000\raa中\n🙂中\r🙂\n",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 1
+    },
+    "expected": "🙂中\r🙂\n\u0000\u0000\raa中\n"
+  },
+  {
+    "id": "oracle-replace-34",
+    "text": "\u0000\u0000\raa中\n🙂中\r🙂\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\r\u0000文\u0000z🙂🙂"
+    },
+    "expected": "\r\u0000文\u0000z🙂🙂\n🙂中\r🙂\n"
+  },
+  {
+    "id": "oracle-move-35",
+    "text": "中🙂a\n中a中\u0000a\u0000\u0000🙂\n",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 0
+    },
+    "expected": "中a中\u0000a\u0000\u0000🙂\n中🙂a\n"
+  },
+  {
+    "id": "oracle-replace-35",
+    "text": "中🙂a\n中a中\u0000a\u0000\u0000🙂\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\n\u0000🙂\r\u0000"
+    },
+    "expected": "\n\u0000🙂\r\u0000\n中a中\u0000a\u0000\u0000🙂\n"
+  },
+  {
+    "id": "oracle-move-36",
+    "text": "\r\n\r中a中\r\n\n中🙂",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 2
+    },
+    "expected": "\r\n\r中a中\r\n\n中🙂"
+  },
+  {
+    "id": "oracle-replace-36",
+    "text": "\r\n\r中a中\r\n\n中🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\n文"
+    },
+    "expected": "\n文\r\n\r中a中\r\n\n中🙂"
+  },
+  {
+    "id": "oracle-move-37",
+    "text": "a中\n\r中a🙂中\r",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "a中\n\r中a🙂中\r"
+  },
+  {
+    "id": "oracle-replace-37",
+    "text": "a中\n\r中a🙂中\r",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\u0000\r\n文z\n🙂\u0000🙂"
+    },
+    "expected": "a中\n\u0000\r\n文z\n🙂\u0000🙂"
+  },
+  {
+    "id": "oracle-move-38",
+    "text": "\n\u0000\r🙂\n\ra\r🙂\n",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\n\u0000\r🙂\n\ra\r🙂\n"
+  },
+  {
+    "id": "oracle-replace-38",
+    "text": "\n\u0000\r🙂\n\ra\r🙂\n",
+    "operation": {
+      "kind": "replace",
+      "index": 2,
+      "input": "\n\n\rz🙂"
+    },
+    "expected": "\n\u0000\r🙂\n\n\n\rz🙂\n"
+  },
+  {
+    "id": "oracle-move-39",
+    "text": "a\n\n🙂🙂🙂\r\r\r\r中🙂中",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 0
+    },
+    "expected": "\na\n🙂🙂🙂\r\r\r\r中🙂中"
+  },
+  {
+    "id": "oracle-replace-39",
+    "text": "a\n\n🙂🙂🙂\r\r\r\r中🙂中",
+    "operation": {
+      "kind": "replace",
+      "index": 2,
+      "input": "文🙂z\n"
+    },
+    "expected": "a\n\n文🙂z\n"
+  },
+  {
+    "id": "oracle-move-40",
+    "text": "\r\n\n中中\n\r\u0000中\na中a中中🙂中a\u0000🙂a",
+    "operation": {
+      "kind": "move",
+      "from": 4,
+      "to": 0
+    },
+    "expected": "a中a中中🙂中a\u0000🙂a\r\n\n\n中中\n\r\u0000中"
+  },
+  {
+    "id": "oracle-replace-40",
+    "text": "\r\n\n中中\n\r\u0000中\na中a中中🙂中a\u0000🙂a",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "文🙂\u0000🙂文\u0000\u0000\n文"
+    },
+    "expected": "文🙂\u0000🙂文\u0000\u0000\n文\r\n\n中中\n\r\u0000中\na中a中中🙂中a\u0000🙂a"
+  },
+  {
+    "id": "oracle-move-41",
+    "text": "\ra\u0000\u0000\u0000\na\n",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "\ra\u0000\u0000\u0000\na\n"
+  },
+  {
+    "id": "oracle-replace-41",
+    "text": "\ra\u0000\u0000\u0000\na\n",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "z\r🙂\n文🙂\r\u0000"
+    },
+    "expected": "\ra\u0000\u0000\u0000\nz\r🙂\n文🙂\r\u0000\n"
+  },
+  {
+    "id": "oracle-move-42",
+    "text": "\n\n\n\n\u0000🙂\r中\u0000\u0000aa\u0000\n中中🙂",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 2
+    },
+    "expected": "\n\n\n\n\u0000🙂\r中\u0000\u0000aa\u0000\n中中🙂"
+  },
+  {
+    "id": "oracle-replace-42",
+    "text": "\n\n\n\n\u0000🙂\r中\u0000\u0000aa\u0000\n中中🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 2,
+      "input": "🙂🙂\n\rz"
+    },
+    "expected": "\n\n🙂🙂\n\rz\n\n\u0000🙂\r中\u0000\u0000aa\u0000\n中中🙂"
+  },
+  {
+    "id": "oracle-move-43",
+    "text": "\na中aa\u0000aa\u0000🙂🙂\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 0
+    },
+    "expected_error": "paragraph_boundary_conflict"
+  },
+  {
+    "id": "oracle-replace-43",
+    "text": "\na中aa\u0000aa\u0000🙂🙂\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\n"
+    },
+    "expected": "\n\n"
+  },
+  {
+    "id": "oracle-move-44",
+    "text": "a\u0000\r中\na🙂\n中\r中\n\r\u0000\r中aa🙂",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 3
+    },
+    "expected": "a\u0000\r中\n中\r中\n\r\u0000\r中aa🙂\na🙂"
+  },
+  {
+    "id": "oracle-replace-44",
+    "text": "a\u0000\r中\na🙂\n中\r中\n\r\u0000\r中aa🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "z"
+    },
+    "expected": "a\u0000\r中\nz\n中\r中\n\r\u0000\r中aa🙂"
+  },
+  {
+    "id": "oracle-move-45",
+    "text": "中\ra\r\n\r\n\n\u0000\u0000\r\u0000\n🙂",
+    "operation": {
+      "kind": "move",
+      "from": 3,
+      "to": 3
+    },
+    "expected": "中\ra\r\n\r\n\n\u0000\u0000\r\u0000\n🙂"
+  },
+  {
+    "id": "oracle-replace-45",
+    "text": "中\ra\r\n\r\n\n\u0000\u0000\r\u0000\n🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 2,
+      "input": "文\u0000\u0000z"
+    },
+    "expected": "中\ra\r\n\r\n文\u0000\u0000z\n\u0000\u0000\r\u0000\n🙂"
+  },
+  {
+    "id": "oracle-move-46",
+    "text": "\u0000🙂中\ra🙂\u0000\raa\n\r",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 0
+    },
+    "expected_error": "paragraph_boundary_conflict"
+  },
+  {
+    "id": "oracle-replace-46",
+    "text": "\u0000🙂中\ra🙂\u0000\raa\n\r",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "z\u0000\rz🙂z"
+    },
+    "expected": "\u0000🙂中\ra🙂\u0000\raa\nz\u0000\rz🙂z"
+  },
+  {
+    "id": "oracle-move-47",
+    "text": "a\u0000\ra中\u0000\r\n\n中中\r",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 0
+    },
+    "expected_error": "paragraph_boundary_conflict"
+  },
+  {
+    "id": "oracle-replace-47",
+    "text": "a\u0000\ra中\u0000\r\n\n中中\r",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\r\n\n\rz文\n文"
+    },
+    "expected": "\r\n\n\rz文\n文\r\n\n中中\r"
+  },
+  {
+    "id": "oracle-move-48",
+    "text": "中a🙂a🙂\u0000中\n",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "中a🙂a🙂\u0000中\n"
+  },
+  {
+    "id": "oracle-replace-48",
+    "text": "中a🙂a🙂\u0000中\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": ""
+    },
+    "expected": "\n"
+  },
+  {
+    "id": "oracle-move-49",
+    "text": "中🙂中🙂a\r\u0000🙂\u0000🙂\na中a\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 0
+    },
+    "expected": "a中a\u0000\n中🙂中🙂a\r\u0000🙂\u0000🙂"
+  },
+  {
+    "id": "oracle-replace-49",
+    "text": "中🙂中🙂a\r\u0000🙂\u0000🙂\na中a\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": ""
+    },
+    "expected": "中🙂中🙂a\r\u0000🙂\u0000🙂\n"
+  },
+  {
+    "id": "oracle-move-50",
+    "text": "\n中\n",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\n中\n"
+  },
+  {
+    "id": "oracle-replace-50",
+    "text": "\n中\n",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\rz"
+    },
+    "expected": "\n\rz\n"
+  },
+  {
+    "id": "oracle-move-51",
+    "text": "a中\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "a中\u0000"
+  },
+  {
+    "id": "oracle-replace-51",
+    "text": "a中\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "🙂\u0000\r文文文\u0000"
+    },
+    "expected": "🙂\u0000\r文文文\u0000"
+  },
+  {
+    "id": "oracle-move-52",
+    "text": "\r中中🙂\r",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\r中中🙂\r"
+  },
+  {
+    "id": "oracle-replace-52",
+    "text": "\r中中🙂\r",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\r"
+    },
+    "expected": "\r"
+  },
+  {
+    "id": "oracle-move-53",
+    "text": "a\u0000\u0000a中中\n\n🙂\u0000\r\n\u0000中",
+    "operation": {
+      "kind": "move",
+      "from": 3,
+      "to": 1
+    },
+    "expected": "a\u0000\u0000a中中\n\u0000中\n\r\n🙂\u0000"
+  },
+  {
+    "id": "oracle-replace-53",
+    "text": "a\u0000\u0000a中中\n\n🙂\u0000\r\n\u0000中",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "文"
+    },
+    "expected": "a\u0000\u0000a中中\n文\n🙂\u0000\r\n\u0000中"
+  },
+  {
+    "id": "oracle-move-54",
+    "text": "中\n🙂\n",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "中\n🙂\n"
+  },
+  {
+    "id": "oracle-replace-54",
+    "text": "中\n🙂\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\u0000"
+    },
+    "expected": "\u0000\n🙂\n"
+  },
+  {
+    "id": "oracle-move-55",
+    "text": "\n\u0000\u0000🙂\n\ra\n\r中\r\u0000\u0000\n\u0000🙂\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 4,
+      "to": 2
+    },
+    "expected": "\n\u0000\u0000🙂\n\u0000🙂\u0000\n\ra\n\r中\r\u0000\u0000"
+  },
+  {
+    "id": "oracle-replace-55",
+    "text": "\n\u0000\u0000🙂\n\ra\n\r中\r\u0000\u0000\n\u0000🙂\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 4,
+      "input": "🙂\n\r"
+    },
+    "expected": "\n\u0000\u0000🙂\n\ra\n\r中\r\u0000\u0000\n🙂\n\r"
+  },
+  {
+    "id": "oracle-move-56",
+    "text": "\u0000\r\u0000a\n\r\ra🙂a\u0000\n🙂\u0000\u0000🙂\u0000中",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 1
+    },
+    "expected": "\r\ra🙂a\u0000\n\u0000\r\u0000a\n🙂\u0000\u0000🙂\u0000中"
+  },
+  {
+    "id": "oracle-replace-56",
+    "text": "\u0000\r\u0000a\n\r\ra🙂a\u0000\n🙂\u0000\u0000🙂\u0000中",
+    "operation": {
+      "kind": "replace",
+      "index": 2,
+      "input": "z\r\u0000"
+    },
+    "expected": "\u0000\r\u0000a\n\r\ra🙂a\u0000\nz\r\u0000"
+  },
+  {
+    "id": "oracle-move-57",
+    "text": "\r\na🙂中\r🙂\n\n中a\u0000\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 2
+    },
+    "expected": "\r\na🙂中\r🙂\n\n中a\u0000\u0000"
+  },
+  {
+    "id": "oracle-replace-57",
+    "text": "\r\na🙂中\r🙂\n\n中a\u0000\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": ""
+    },
+    "expected": "\r\na🙂中\r🙂\n\n中a\u0000\u0000"
+  },
+  {
+    "id": "oracle-move-58",
+    "text": "\r\n\r中\r中",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\r\n\r中\r中"
+  },
+  {
+    "id": "oracle-replace-58",
+    "text": "\r\n\r中\r中",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\r\r\r\u0000\nz"
+    },
+    "expected": "\r\r\r\u0000\nz\r\n\r中\r中"
+  },
+  {
+    "id": "oracle-move-59",
+    "text": "",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": ""
+  },
+  {
+    "id": "oracle-replace-59",
+    "text": "",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\u0000文\r\n"
+    },
+    "expected": "\u0000文\r\n"
+  },
+  {
+    "id": "oracle-move-60",
+    "text": "a\n\n🙂\n中\u0000🙂🙂\n\n\r\n\r🙂\r中\na",
+    "operation": {
+      "kind": "move",
+      "from": 3,
+      "to": 2
+    },
+    "expected": "a\n\n中\u0000🙂🙂\n🙂\n\n\r\n\r🙂\r中\na"
+  },
+  {
+    "id": "oracle-replace-60",
+    "text": "a\n\n🙂\n中\u0000🙂🙂\n\n\r\n\r🙂\r中\na",
+    "operation": {
+      "kind": "replace",
+      "index": 4,
+      "input": "\nz"
+    },
+    "expected": "a\n\n🙂\n中\u0000🙂🙂\n\nz\n\r\n\r🙂\r中\na"
+  },
+  {
+    "id": "oracle-move-61",
+    "text": "\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\u0000"
+  },
+  {
+    "id": "oracle-replace-61",
+    "text": "\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "z\u0000\u0000\n🙂zzz🙂"
+    },
+    "expected": "z\u0000\u0000\n🙂zzz🙂"
+  },
+  {
+    "id": "oracle-move-62",
+    "text": "🙂a\r\na\u0000中a🙂a中中\ra\n",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 1
+    },
+    "expected": "a\u0000中a🙂a中中\ra\r\n🙂a\n"
+  },
+  {
+    "id": "oracle-replace-62",
+    "text": "🙂a\r\na\u0000中a🙂a中中\ra\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\u0000\u0000🙂z\rz\u0000\n"
+    },
+    "expected": "\u0000\u0000🙂z\rz\u0000\n\r\na\u0000中a🙂a中中\ra\n"
+  },
+  {
+    "id": "oracle-move-63",
+    "text": "🙂\r\na\n中\u0000\n\n\na\n\u0000\n中a\u0000\r🙂中",
+    "operation": {
+      "kind": "move",
+      "from": 6,
+      "to": 1
+    },
+    "expected": "🙂\r\n\u0000\na\n中\u0000\n\n\na\n中a\u0000\r🙂中"
+  },
+  {
+    "id": "oracle-replace-63",
+    "text": "🙂\r\na\n中\u0000\n\n\na\n\u0000\n中a\u0000\r🙂中",
+    "operation": {
+      "kind": "replace",
+      "index": 6,
+      "input": "\u0000\r\nz\rz"
+    },
+    "expected": "🙂\r\na\n中\u0000\n\n\na\n\u0000\r\nz\rz\n中a\u0000\r🙂中"
+  },
+  {
+    "id": "oracle-move-64",
+    "text": "\u0000\naaa\r中\naa\u0000\n\u0000\u0000\r\r\r\r\r",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 3
+    },
+    "expected_error": "paragraph_boundary_conflict"
+  },
+  {
+    "id": "oracle-replace-64",
+    "text": "\u0000\naaa\r中\naa\u0000\n\u0000\u0000\r\r\r\r\r",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\nz🙂\n\n🙂\u0000🙂\n"
+    },
+    "expected": "\nz🙂\n\n🙂\u0000🙂\n\naaa\r中\naa\u0000\n\u0000\u0000\r\r\r\r\r"
+  },
+  {
+    "id": "oracle-move-65",
+    "text": "中🙂aaa中\ra中\n\n\n🙂中中中\u0000中\n\n",
+    "operation": {
+      "kind": "move",
+      "from": 3,
+      "to": 0
+    },
+    "expected": "🙂中中中\u0000中\n中🙂aaa中\ra中\n\n\n\n"
+  },
+  {
+    "id": "oracle-replace-65",
+    "text": "中🙂aaa中\ra中\n\n\n🙂中中中\u0000中\n\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\r🙂\nz文文"
+    },
+    "expected": "\r🙂\nz文文\n\n\n🙂中中中\u0000中\n\n"
+  },
+  {
+    "id": "oracle-move-66",
+    "text": "\n\n\r🙂\r🙂🙂🙂🙂中🙂中",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 2
+    },
+    "expected_error": "paragraph_boundary_conflict"
+  },
+  {
+    "id": "oracle-replace-66",
+    "text": "\n\n\r🙂\r🙂🙂🙂🙂中🙂中",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\r\r文z\r"
+    },
+    "expected": "\n\r\r文z\r\n\r🙂\r🙂🙂🙂🙂中🙂中"
+  },
+  {
+    "id": "oracle-move-67",
+    "text": "",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": ""
+  },
+  {
+    "id": "oracle-replace-67",
+    "text": "",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\n\u0000文"
+    },
+    "expected": "\n\u0000文"
+  },
+  {
+    "id": "oracle-move-68",
+    "text": "\n\u0000\r中🙂中a\r🙂\n🙂\r🙂",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "\n\u0000\r中🙂中a\r🙂\n🙂\r🙂"
+  },
+  {
+    "id": "oracle-replace-68",
+    "text": "\n\u0000\r中🙂中a\r🙂\n🙂\r🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\n\u0000z\n"
+    },
+    "expected": "\n\n\u0000z\n\n🙂\r🙂"
+  },
+  {
+    "id": "oracle-move-69",
+    "text": "\u0000\u0000中\n",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\u0000\u0000中\n"
+  },
+  {
+    "id": "oracle-replace-69",
+    "text": "\u0000\u0000中\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "文🙂"
+    },
+    "expected": "文🙂\n"
+  },
+  {
+    "id": "oracle-move-70",
+    "text": "中",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "中"
+  },
+  {
+    "id": "oracle-replace-70",
+    "text": "中",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "z\n"
+    },
+    "expected": "z\n"
+  },
+  {
+    "id": "oracle-move-71",
+    "text": "a\n",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "a\n"
+  },
+  {
+    "id": "oracle-replace-71",
+    "text": "a\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": ""
+    },
+    "expected": "\n"
+  },
+  {
+    "id": "oracle-move-72",
+    "text": "\na\u0000\r\r\na",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 2
+    },
+    "expected_error": "paragraph_boundary_conflict"
+  },
+  {
+    "id": "oracle-replace-72",
+    "text": "\na\u0000\r\r\na",
+    "operation": {
+      "kind": "replace",
+      "index": 2,
+      "input": "zz\r文\r\r\r\u0000"
+    },
+    "expected": "\na\u0000\r\r\nzz\r文\r\r\r\u0000"
+  },
+  {
+    "id": "oracle-move-73",
+    "text": "\na中\u0000\n中中",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 2
+    },
+    "expected": "\n中中\na中\u0000"
+  },
+  {
+    "id": "oracle-replace-73",
+    "text": "\na中\u0000\n中中",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\u0000文\u0000\u0000\u0000\u0000z\r\u0000"
+    },
+    "expected": "\n\u0000文\u0000\u0000\u0000\u0000z\r\u0000\n中中"
+  },
+  {
+    "id": "oracle-move-74",
+    "text": "中\r🙂\u0000a\r\u0000aa🙂中a\r\r中中\n\r\u0000中",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "中\r🙂\u0000a\r\u0000aa🙂中a\r\r中中\n\r\u0000中"
+  },
+  {
+    "id": "oracle-replace-74",
+    "text": "中\r🙂\u0000a\r\u0000aa🙂中a\r\r中中\n\r\u0000中",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "z文"
+    },
+    "expected": "z文\n\r\u0000中"
+  },
+  {
+    "id": "oracle-move-75",
+    "text": "🙂a\n中a",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "🙂a\n中a"
+  },
+  {
+    "id": "oracle-replace-75",
+    "text": "🙂a\n中a",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "🙂🙂z"
+    },
+    "expected": "🙂a\n🙂🙂z"
+  },
+  {
+    "id": "oracle-move-76",
+    "text": "\n中a中\na\n🙂\na\r\n",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 3
+    },
+    "expected": "中a中\na\n🙂\n\na\r\n"
+  },
+  {
+    "id": "oracle-replace-76",
+    "text": "\n中a中\na\n🙂\na\r\n",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\u0000\u0000"
+    },
+    "expected": "\n\u0000\u0000\na\n🙂\na\r\n"
+  },
+  {
+    "id": "oracle-move-77",
+    "text": "🙂中中🙂中🙂",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "🙂中中🙂中🙂"
+  },
+  {
+    "id": "oracle-replace-77",
+    "text": "🙂中中🙂中🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\u0000\u0000\u0000🙂🙂文\n\n\u0000"
+    },
+    "expected": "\u0000\u0000\u0000🙂🙂文\n\n\u0000"
+  },
+  {
+    "id": "oracle-move-78",
+    "text": "\r🙂\r\n\u0000\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "\r🙂\r\n\u0000\u0000"
+  },
+  {
+    "id": "oracle-replace-78",
+    "text": "\r🙂\r\n\u0000\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "z文z\u0000\r\r🙂\u0000文"
+    },
+    "expected": "\r🙂\r\nz文z\u0000\r\r🙂\u0000文"
+  },
+  {
+    "id": "oracle-move-79",
+    "text": "\u0000a\n\r\n\u0000\u0000\n\na\r中",
+    "operation": {
+      "kind": "move",
+      "from": 3,
+      "to": 0
+    },
+    "expected": "\n\u0000a\r\n\n\u0000\u0000\na\r中"
+  },
+  {
+    "id": "oracle-replace-79",
+    "text": "\u0000a\n\r\n\u0000\u0000\n\na\r中",
+    "operation": {
+      "kind": "replace",
+      "index": 3,
+      "input": "🙂\r🙂\u0000\r\r"
+    },
+    "expected": "\u0000a\n\r\n\u0000\u0000\n🙂\r🙂\u0000\r\r\na\r中"
+  },
+  {
+    "id": "oracle-move-80",
+    "text": "\u0000aa\r🙂a\n中\u0000a\n\ra🙂🙂a\n🙂",
+    "operation": {
+      "kind": "move",
+      "from": 3,
+      "to": 2
+    },
+    "expected": "\u0000aa\r🙂a\n中\u0000a\n🙂\n\ra🙂🙂a"
+  },
+  {
+    "id": "oracle-replace-80",
+    "text": "\u0000aa\r🙂a\n中\u0000a\n\ra🙂🙂a\n🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\n🙂文\nzz\u0000\r"
+    },
+    "expected": "\u0000aa\r🙂a\n\n🙂文\nzz\u0000\r\n\ra🙂🙂a\n🙂"
+  },
+  {
+    "id": "oracle-move-81",
+    "text": "\n\r\r\r",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "\n\r\r\r"
+  },
+  {
+    "id": "oracle-replace-81",
+    "text": "\n\r\r\r",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": ""
+    },
+    "expected": "\n\r\r\r"
+  },
+  {
+    "id": "oracle-move-82",
+    "text": "🙂aa\u0000\u0000\u0000a",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "🙂aa\u0000\u0000\u0000a"
+  },
+  {
+    "id": "oracle-replace-82",
+    "text": "🙂aa\u0000\u0000\u0000a",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\r\u0000z"
+    },
+    "expected": "\r\u0000z"
+  },
+  {
+    "id": "oracle-move-83",
+    "text": "\r🙂中\r中中a\u0000a\r\u0000\r\r🙂a",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\r🙂中\r中中a\u0000a\r\u0000\r\r🙂a"
+  },
+  {
+    "id": "oracle-replace-83",
+    "text": "\r🙂中\r中中a\u0000a\r\u0000\r\r🙂a",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\u0000"
+    },
+    "expected": "\u0000"
+  },
+  {
+    "id": "oracle-move-84",
+    "text": "aa\u0000a中中a\r🙂\r\r\r🙂",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "aa\u0000a中中a\r🙂\r\r\r🙂"
+  },
+  {
+    "id": "oracle-replace-84",
+    "text": "aa\u0000a中中a\r🙂\r\r\r🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\u0000\n\u0000z"
+    },
+    "expected": "\u0000\n\u0000z"
+  },
+  {
+    "id": "oracle-move-85",
+    "text": "\n中\u0000\u0000🙂\u0000aa🙂🙂中中\r\u0000aa",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 1
+    },
+    "expected_error": "paragraph_boundary_conflict"
+  },
+  {
+    "id": "oracle-replace-85",
+    "text": "\n中\u0000\u0000🙂\u0000aa🙂🙂中中\r\u0000aa",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "文\n文\n\r\u0000\nz\n"
+    },
+    "expected": "\n文\n文\n\r\u0000\nz\n"
+  },
+  {
+    "id": "oracle-move-86",
+    "text": "中中\r\u0000中\r中🙂\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "中中\r\u0000中\r中🙂\u0000"
+  },
+  {
+    "id": "oracle-replace-86",
+    "text": "中中\r\u0000中\r中🙂\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": ""
+    },
+    "expected": ""
+  },
+  {
+    "id": "oracle-move-87",
+    "text": "\n中\n\u0000a中a中\n\n\r🙂a中",
+    "operation": {
+      "kind": "move",
+      "from": 4,
+      "to": 1
+    },
+    "expected_error": "paragraph_boundary_conflict"
+  },
+  {
+    "id": "oracle-replace-87",
+    "text": "\n中\n\u0000a中a中\n\n\r🙂a中",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\r文\r"
+    },
+    "expected": "\n\r文\r\n\u0000a中a中\n\n\r🙂a中"
+  },
+  {
+    "id": "oracle-move-88",
+    "text": "\r🙂\r中\u0000🙂中\u0000中\r🙂a",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\r🙂\r中\u0000🙂中\u0000中\r🙂a"
+  },
+  {
+    "id": "oracle-replace-88",
+    "text": "\r🙂\r中\u0000🙂中\u0000中\r🙂a",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "文\rz文\u0000"
+    },
+    "expected": "文\rz文\u0000"
+  },
+  {
+    "id": "oracle-move-89",
+    "text": "\u0000a\r\n\r中🙂\r🙂\u0000🙂\n中a中\u0000aa\r\u0000中",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 0
+    },
+    "expected": "中a中\u0000aa\r\u0000中\r\n\u0000a\n\r中🙂\r🙂\u0000🙂"
+  },
+  {
+    "id": "oracle-replace-89",
+    "text": "\u0000a\r\n\r中🙂\r🙂\u0000🙂\n中a中\u0000aa\r\u0000中",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\n\u0000🙂"
+    },
+    "expected": "\u0000a\r\n\n\u0000🙂\n中a中\u0000aa\r\u0000中"
+  },
+  {
+    "id": "oracle-move-90",
+    "text": "中\r\r\u0000中aa\r\r\n\r\n中中\r中🙂中\r",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 2
+    },
+    "expected": "中\r\r\u0000中aa\r\r\n\r\n中中\r中🙂中\r"
+  },
+  {
+    "id": "oracle-replace-90",
+    "text": "中\r\r\u0000中aa\r\r\n\r\n中中\r中🙂中\r",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "\r\u0000\r\n🙂z\r\n"
+    },
+    "expected": "中\r\r\u0000中aa\r\r\n\r\u0000\r\n🙂z\r\n\r\n中中\r中🙂中\r"
+  },
+  {
+    "id": "oracle-move-91",
+    "text": "\n\n🙂\n",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 2
+    },
+    "expected": "\n\n🙂\n"
+  },
+  {
+    "id": "oracle-replace-91",
+    "text": "\n\n🙂\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "z\r\rz\u0000文\u0000"
+    },
+    "expected": "z\r\rz\u0000文\u0000\n\n🙂\n"
+  },
+  {
+    "id": "oracle-move-92",
+    "text": "\u0000\u0000a\n中\n\n中🙂a\n\u0000\u0000🙂中\u0000a\u0000\n",
+    "operation": {
+      "kind": "move",
+      "from": 3,
+      "to": 2
+    },
+    "expected": "\u0000\u0000a\n中\n中🙂a\n\n\u0000\u0000🙂中\u0000a\u0000\n"
+  },
+  {
+    "id": "oracle-replace-92",
+    "text": "\u0000\u0000a\n中\n\n中🙂a\n\u0000\u0000🙂中\u0000a\u0000\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\u0000z🙂"
+    },
+    "expected": "\u0000z🙂\n中\n\n中🙂a\n\u0000\u0000🙂中\u0000a\u0000\n"
+  },
+  {
+    "id": "oracle-move-93",
+    "text": "🙂中中a\u0000🙂🙂🙂\n\r🙂\u0000\u0000\na",
+    "operation": {
+      "kind": "move",
+      "from": 2,
+      "to": 0
+    },
+    "expected": "a\n🙂中中a\u0000🙂🙂🙂\n\r🙂\u0000\u0000"
+  },
+  {
+    "id": "oracle-replace-93",
+    "text": "🙂中中a\u0000🙂🙂🙂\n\r🙂\u0000\u0000\na",
+    "operation": {
+      "kind": "replace",
+      "index": 2,
+      "input": "\n\n\r"
+    },
+    "expected": "🙂中中a\u0000🙂🙂🙂\n\r🙂\u0000\u0000\n\n\n\r"
+  },
+  {
+    "id": "oracle-move-94",
+    "text": "\r中a\raa\u0000\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\r中a\raa\u0000\u0000"
+  },
+  {
+    "id": "oracle-replace-94",
+    "text": "\r中a\raa\u0000\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "文🙂\r\u0000"
+    },
+    "expected": "文🙂\r\u0000"
+  },
+  {
+    "id": "oracle-move-95",
+    "text": "a\u0000\naa\u0000\u0000",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "a\u0000\naa\u0000\u0000"
+  },
+  {
+    "id": "oracle-replace-95",
+    "text": "a\u0000\naa\u0000\u0000",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\u0000\r文\u0000文z\r\r"
+    },
+    "expected": "\u0000\r文\u0000文z\r\r\naa\u0000\u0000"
+  },
+  {
+    "id": "oracle-move-96",
+    "text": "\r\n\u0000a中\n中🙂\u0000\r\r\r🙂\u0000aa\u0000\u0000\n中",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 0
+    },
+    "expected": "\u0000a中\r\n\n中🙂\u0000\r\r\r🙂\u0000aa\u0000\u0000\n中"
+  },
+  {
+    "id": "oracle-replace-96",
+    "text": "\r\n\u0000a中\n中🙂\u0000\r\r\r🙂\u0000aa\u0000\u0000\n中",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": "z🙂\n\r\r文z文"
+    },
+    "expected": "\r\nz🙂\n\r\r文z文\n中🙂\u0000\r\r\r🙂\u0000aa\u0000\u0000\n中"
+  },
+  {
+    "id": "oracle-move-97",
+    "text": "\u0000a🙂",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\u0000a🙂"
+  },
+  {
+    "id": "oracle-replace-97",
+    "text": "\u0000a🙂",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "\n\u0000\u0000\n"
+    },
+    "expected": "\n\u0000\u0000\n"
+  },
+  {
+    "id": "oracle-move-98",
+    "text": "a\u0000\r🙂🙂\u0000\r🙂🙂\ra🙂\na中中\n",
+    "operation": {
+      "kind": "move",
+      "from": 1,
+      "to": 1
+    },
+    "expected": "a\u0000\r🙂🙂\u0000\r🙂🙂\ra🙂\na中中\n"
+  },
+  {
+    "id": "oracle-replace-98",
+    "text": "a\u0000\r🙂🙂\u0000\r🙂🙂\ra🙂\na中中\n",
+    "operation": {
+      "kind": "replace",
+      "index": 0,
+      "input": "文zz🙂\u0000\n"
+    },
+    "expected": "文zz🙂\u0000\n\na中中\n"
+  },
+  {
+    "id": "oracle-move-99",
+    "text": "\ra\n🙂中",
+    "operation": {
+      "kind": "move",
+      "from": 0,
+      "to": 0
+    },
+    "expected": "\ra\n🙂中"
+  },
+  {
+    "id": "oracle-replace-99",
+    "text": "\ra\n🙂中",
+    "operation": {
+      "kind": "replace",
+      "index": 1,
+      "input": ""
+    },
+    "expected": "\ra\n"
+  }
+]

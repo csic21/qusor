@@ -1,3 +1,9 @@
+# 当前实现边界
+
+原始M-1 CLI与合成Host测试仍为独立实验；后续 managed/raw/private 路径已转发到生产 [Wasmi适配器](../../adapters/runtime-wasm/README.md) 和 [执行端口](../../crates/extension-runtime-api/README.md)，不再在实验中维护第二份managed/private实现。原Probe共用适配器的Wasmi配置/实例限制；实验授权、文件读包与故障不进入生产。实际更新见 [ADR 0022](../../docs/architecture/adr/0022-authority-free-wasm-runtime.md) 与 [结果](RESULTS.md)。
+
+完整 `validate.py` 会运行真实端口测试、检查纯Core/Host的依赖闭包，并对新权威源作前后摘要核对。为避免多个独立预算竞争改变fuel/deadline先后，资格单元测试显式 `--test-threads=1`；子进程监护与多插件的实际并发测试不由此关闭。
+
 # M-1：独立 Wasm 插件执行实验
 
 日期：2026-11-07。状态：本机独立执行已验证，环境、逐项结果和证据见 [实验结果](RESULTS.md)。该实验仅在本机 WSL Ubuntu 执行，不是生产插件运行时或完整安全包安装器。

@@ -1,0 +1,23 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+Traceback (most recent call last):
+  File "/workspace/qusor/experiments/nsh-reader/dynamic-pdf/prepare.py", line 44, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/workspace/qusor/experiments/nsh-reader/dynamic-pdf/prepare.py", line 28, in main
+    native_prepare.prepare()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/workspace/qusor/experiments/nsh-reader/native-host/prepare.py", line 89, in prepare
+    run(["cargo", "build", "--manifest-path", str(BASE / "Cargo.toml"), "--locked", "--offline"],
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        env, logs / "native-probe-build.log"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/qusor/experiments/nsh-reader/native-host/prepare.py", line 41, in run
+    raise RuntimeError(json.dumps(record))
+RuntimeError: {"command": ["cargo", "build", "--manifest-path", "/workspace/qusor/experiments/nsh-reader/native-host/Cargo.toml", "--locked", "--offline"], "exit_code": 101, "seconds": 1278.93, "log": "target/native-prefix-downloads/native-probe-build.log", "log_sha256": "30cf260e9575b2cd6bffa1fad97d4fa39cf32180fb27f7d8331ff6dfdb987342"}

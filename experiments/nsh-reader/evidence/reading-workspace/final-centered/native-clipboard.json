@@ -1,0 +1,7 @@
+{
+  "native_ui_copy_button": true,
+  "isolated_x11_clipboard_utf8_roundtrip": true,
+  "exact_expected_fixture_content": true,
+  "bytes": 96,
+  "sha256": "7ea753248836a8e4f3d9657a05eeeba02e859bafa65173b9c5247de5d7399467"
+}

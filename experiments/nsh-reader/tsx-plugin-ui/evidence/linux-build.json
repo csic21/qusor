@@ -1,0 +1,40 @@
+{
+  "recorded_at": "2026-11-08T07:40:24.021758+00:00",
+  "scope": "outside-repository TSX build only",
+  "cli_version": "nsh 0.4.0 (913fd76)",
+  "cli_sha256": "a0494f8132caac58e71e0b8457dcd9af51ad44f263472281cffed0822515ccec",
+  "author_directory_outside_repository": true,
+  "fixture_sha256": {
+    "App.tsx": "389d2f9f5c5d160988e7dc5b8181907ea8ac6e9d9e306a3c40b5699b561dc691",
+    "nsh.json": "4cae8e56fc753874613c97f6697d0572ffb2832ee3c8da14c72c31b755db2a02"
+  },
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "✓ built App.tsx into /tmp/qusor-tsx-author-fk0t1m_q/bundle (770 B js, 1.2 KB bytecode, 27ms)\n",
+  "artifacts": {
+    "app.json": {
+      "bytes": 34,
+      "sha256": "2aa0c5f0d8571004d7cf90aed4a885346063564d510d4d05de16c4f5609a7470"
+    },
+    "bundle.js": {
+      "bytes": 770,
+      "sha256": "b92195f62324d1788e6abffcda85883a1f1ec38c832bbceedc1be5aa9b431ff7"
+    },
+    "bundle.js.map": {
+      "bytes": 2442,
+      "sha256": "8dccf64c2f65687b2352509d8c12affc339356655d788de2a78e5741cb661a12"
+    },
+    "bundle.nshc": {
+      "bytes": 1245,
+      "sha256": "9ba9b9dc54a0bd52403c81f79fe9e7e931bd32224badf264ac9560854ffa1314"
+    },
+    "capabilities.json": {
+      "bytes": 204,
+      "sha256": "c0d664641f4b03e602a3c0e827bf279aa77c33899fc2237f64a02ae5a6f43868"
+    }
+  },
+  "native_window": "not executed",
+  "host_call": "not executed",
+  "package_installation": "not executed",
+  "vm_isolation": "not executed"
+}

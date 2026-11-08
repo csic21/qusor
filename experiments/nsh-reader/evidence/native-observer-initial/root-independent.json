@@ -1,0 +1,22 @@
+{
+  "scope": "Independent frozen GTK4 partial observer tests; no Host ACK/decoder/native child retirement proof.",
+  "executable_sha256": "7270d6b725f4d30072aff01fea738942f1e43f0c160b8e79b28a7bb9e7b07f8d",
+  "artifacts_checked": 29,
+  "xvfb": {
+    "pid": 485797,
+    "display": ":116",
+    "start_ticks": 5296801,
+    "exit_code": 0,
+    "terminal": true
+  },
+  "test": {
+    "pid": 485800,
+    "start_ticks": 5296851,
+    "exit_code": 0
+  },
+  "test_log_sha256": "dd0010ed907736f84613a71f7c14eb21c94691e0545c9198a0fe8d85e371a336",
+  "tests_passed": 3,
+  "replay_driver": "root-replay.py",
+  "replay_driver_sha256": "938f83221af9e19ed2fd9adc6afb9997a8654cf580139bded0c226498ef19e00",
+  "xvfb_cleanup": "Owner requested termination after test completion; wait exit0 and original pid absent."
+}

@@ -1,0 +1,88 @@
+{
+  "status": "passed",
+  "source_frozen_after": "final OS attempt3",
+  "qualification_executable": "/workspace/qusor/experiments/nsh-reader/target/native-retirement-qualified/final-qualification",
+  "qualification_sha256": "bba3c2d7a79e801ab6298799ea0be4f6ba8ac02ce71394d65c9ea0c69d3dd84d",
+  "feature": "native-qualification (nondefault)",
+  "manifest": "experiments/nsh-reader/native-host/Cargo.toml",
+  "actual_os_cases": [
+    {
+      "actual_reaped": [
+        "4d640fb6ed5187698de61f80ef440f5f-1"
+      ],
+      "case": "invocation",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "f83d82cd7e863387c92aa7e01ab2693e-1"
+      ],
+      "case": "gate",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "32e56dad90c76990c4af0316e55b1662-1"
+      ],
+      "case": "finish",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "9b33d8a7e46566dbaad2fabe8d663ee6-1"
+      ],
+      "case": "unknown_wait",
+      "faults": 0,
+      "leases": 0
+    },
+    {
+      "actual_reaped": true,
+      "case": "foreign_install",
+      "guarded": true,
+      "lease_record_unchanged": true,
+      "remaining_leases": 0
+    },
+    {
+      "actual_reaped": true,
+      "case": "same_install",
+      "guarded": true,
+      "lease_record_unchanged": true,
+      "remaining_leases": 0
+    }
+  ],
+  "completed_guest_vms": 7,
+  "completed_guest_calls": 23,
+  "max_completed_fuel": 119072,
+  "actual_editor_reap_lines": 10,
+  "additional_guarded_owned_reaps": 2,
+  "worker_budget": {
+    "deadline_ms": 250,
+    "fuel": 1000000,
+    "calls": 8
+  },
+  "validation": {
+    "cargo_check": 0,
+    "clippy_warnings_denied": 0,
+    "existing_native_editor_tests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "os_attempt2": 0,
+    "os_attempt3_final_source": 0
+  },
+  "nsh_pin": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "source_capture": "postrun selected project Rust sources/manifests/locks; not full upstream/dependency build-input freeze",
+  "source_files": 132,
+  "postrun_source_archive_sha256": "87606a20a0662b8d4bb20b2e4663d4d1db0f72daa37a637a768473f6426d6569",
+  "unverified": [
+    "terminate command backpressure",
+    "native widget/resource release ACK",
+    "new GUI/IME on pending-run changes",
+    "pre-start and panic fault paths (implemented, not OS-qualified by these six cases)"
+  ],
+  "warning": "Cargo integration test also rebuilt existing bins WITH qualification feature. Rebuild default-features Native binary before future default GUI qualification. JS ABI unchanged.",
+  "interrupted_attempt1": "Compile-only resource interruption, exit -2; starttime not captured, recorded null; no runtime cases started."
+}

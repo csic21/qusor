@@ -1,0 +1,19 @@
+{
+  "reason": "durable experimental Store qualifier dependency; known supervisor baseline, not production installer",
+  "added_records": [
+    {
+      "name": "rustix",
+      "version": "1.1.4",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "b6fe4565b9518b83ef4f91bb47ce29620ca828bd32cb7e408f0062e9930ba190",
+      "dependencies": [
+        "bitflags",
+        "errno",
+        "libc",
+        "linux-raw-sys",
+        "windows-sys"
+      ]
+    }
+  ],
+  "baseline_sha256": "ead77652970dd5d2c77204b2045682e573b2887854532a08f2cc3fd6f986ec79"
+}

@@ -1,0 +1,262 @@
+{
+  "date_utc": "2026-11-08T03:53:49.205736+00:00",
+  "status": "passed",
+  "scope": "0.2 Surface changes against root policy/package/runtime and existing C3 capture/restore; native journey is a separate qualification",
+  "root": {
+    "commands": [
+      {
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 0,
+        "log": "target/surface-public/final-fmt.log"
+      },
+      {
+        "command": [
+          "cargo",
+          "clippy",
+          "--workspace",
+          "--all-targets",
+          "--locked",
+          "--offline",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "log": "target/surface-public/final-clippy.log"
+      },
+      {
+        "command": [
+          "cargo",
+          "test",
+          "--workspace",
+          "--locked",
+          "--offline"
+        ],
+        "exit": 0,
+        "log": "target/surface-public/final-tests.log"
+      }
+    ],
+    "rust_tests": 108,
+    "log": "experiments/capture-core/evidence/linux-surface-root-checks.log",
+    "log_sha256": "b9810274a6aca385926ada2c9e05262ab5e98bc726b08b530c1032bc25f1400f"
+  },
+  "architecture": {
+    "result": "passed",
+    "guard_tests": 42
+  },
+  "package": {
+    "rust_tests": 49,
+    "cli_scenarios": 543,
+    "checks": 593
+  },
+  "wasm": {
+    "runner_tests": 32,
+    "author_tests": 4,
+    "runtime_port_tests": 3,
+    "legacy_supervised_scenarios": 20
+  },
+  "compound": {
+    "commands": 314,
+    "cli_scenarios": 286,
+    "native_cases": 8,
+    "sdk_source_hashes": 10
+  },
+  "evidence": {
+    "package": {
+      "path": "experiments/extension-package/evidence/linux-surface-package-regression.json",
+      "sha256": "cb4880a3565088bc424ca19ef4af2cdcf3ca7f08f369885516fa6c36f0b0aa31"
+    },
+    "wasm": {
+      "path": "experiments/extension-package/evidence/linux-surface-wasm-regression.json",
+      "sha256": "48307be0dbec8c8797295cee32581267a82e5aa3f154a3935ee960e26deef9a6"
+    },
+    "compound": {
+      "path": "experiments/capture-core/evidence/linux-compound-pdf.json",
+      "sha256": "2c03123cace9fac84279cdabd763b2c9f545cd3239794fe46b89eb2261935c69"
+    }
+  },
+  "source_sha256": {
+    "Cargo.lock": "e09a54c73cd62849d7f6b58cff281cbaa7c3fd4760714170cdf6b0de809fc781",
+    "Cargo.toml": "97878cf1898559d17310e36fdb48f7dada5fed06ee6df08de4a97ca58cec2996",
+    "adapters/blob-store/Cargo.toml": "1613c31c3f84f5cab98a8424d1c21e26c01d110949cf564d06962365c0cb88b1",
+    "adapters/blob-store/src/lib.rs": "1d549218c0395e31510001149dd75207d8b1396666bc43954010214def635c99",
+    "adapters/blob-store/src/unix.rs": "109c2c449b3537aa79bdfb38492e60e7d43b92ae337e9338aad99559498df1cb",
+    "adapters/runtime-wasm/Cargo.toml": "34aa47fdcacb89112230dfda03019d315ece9009bd2b97e33d8d2828431a2de9",
+    "adapters/runtime-wasm/src/lib.rs": "7f3ff050b1418a6ee3b9ee42d26c34c83a23973033efc00e6e27634514fbcd60",
+    "adapters/runtime-wasm/src/managed.rs": "be3bd877b5aa3e76be1f22cd461f3a14e96c40a5e9a24f8659b570ae80bb06ff",
+    "adapters/runtime-wasm/src/private_runtime.rs": "fc297f158f67d53654519c05ac062f371c1dc01054fc8795e1f0ec97fd165bb2",
+    "adapters/runtime-wasm/tests/port.rs": "255d9df74a51f61d23333cc4f153864cba635de17824efdb24fd617af5fcb7a6",
+    "adapters/storage-sqlite/Cargo.toml": "951bed9d3f95cb069aafea2d6ebbe69833069f15a2538a20ba38bce3d5d52e39",
+    "adapters/storage-sqlite/src/lib.rs": "daaddff77ba64a81561edc7327b487d6f158d3ef28aefb8ac9132a3fe87f6006",
+    "adapters/storage-sqlite/src/unix.rs": "c769da9f562782250ddc72ce11882c56e5a35a8722c10999a787e81ab35d444c",
+    "adapters/storage-sqlite/src/unsupported.rs": "78fcb4476a0ee8c6faf4546dfaf9e638db379226545e6d1fdc01ffb671f1a30c",
+    "adapters/storage-sqlite/tests/transactions.rs": "4db6f8f656fcc4ddfe1b809d0a11a7ce0af2ab0dbd67936c48c102c25f95080e",
+    "config/architecture.toml": "96a1ac23a98f79c8707fa468f8cb0341c5e13bf3ea30ddc98ece7bccfc1bf02f",
+    "crates/core-api/Cargo.toml": "d8027ef6b91901ebb360e8857299830c126710b039a32c425c3ebd4e87e7b842",
+    "crates/core-api/src/contract.rs": "5f2a41176927913eac86859c2a7c724996cecfab0b030b50306324c0d3f8532b",
+    "crates/core-api/src/error.rs": "75394e7aa3d7750d5c50b49f0855b8a41ee615499b0a168579689b4f586a15fe",
+    "crates/core-api/src/knowledge.rs": "579a1ba4e400219ff34a64182229b0aa92b2703a992445dffd0c75554a01dfce",
+    "crates/core-api/src/lib.rs": "d587a55ce90d374972555fc8fdb66dceaf0c1e9af0a4a196ac02202fd6d4176d",
+    "crates/core-api/src/pdf_compound.rs": "59634bfd7055df2a2886ed74fe5871ecf04311cb3d6d87ed3e1bdfa4c48e761d",
+    "crates/core-api/src/pdf_contract.rs": "7673e004999b75d37fbe43e038df8e48803838493b066e907ce296a421f83609",
+    "crates/core-api/tests/contract.rs": "ebc242498b99b6f4b787b0a6bb577b1b9f113999255c57aa4fe9d739148f50d2",
+    "crates/core-api/tests/pdf_compound.rs": "4c12ed07bfe24236627e6b4b19fb84f078955b6af5789e686794b16817e51565",
+    "crates/core-api/tests/pdf_contract.rs": "55277fb27ae3dadf56bb7636264e4c429fa9f89fe6021bd48ea5df5de5a434e0",
+    "crates/extension-api/Cargo.toml": "aaf8ddb6728b50f4820153f5d29147b06f4f792ff0d18c37ce9f5b288295a208",
+    "crates/extension-api/fixtures/error.json": "1f8db65182f3ac2c9aae17f375cc54258cbd3991e5cbd1967776a3f70f3abde5",
+    "crates/extension-api/fixtures/manifest.json": "b79a16412becabd625042c6f89d4d473f79102ab4475ac0620ae2f7909673169",
+    "crates/extension-api/fixtures/request.json": "0acddae30d5b34ff2779d24081fb264f9ebb270168c5219c5a9df27223e78ec7",
+    "crates/extension-api/schema/policy-v0.1.schema.json": "a9ec0d843fa58b3835f14fd24a27211a4b40c7cb62aeecb0ee7973124335947b",
+    "crates/extension-api/schema/policy-v0.2.schema.json": "1cb65514f75c56864848d6c9cb760b8ddf494fe040f283c18c9835ab98f707de",
+    "crates/extension-api/schema/surface-v1.schema.json": "e56d9c3379eb4b1e87ec96750655740ac0a9819c0f7840cd17015407feb4de4a",
+    "crates/extension-api/src/invocation.rs": "56a2da6b501b750476db54b4c89f0edfff8d27965ff574f651a38a4f1e057955",
+    "crates/extension-api/src/lib.rs": "846e914bdd31097eddbcbf8540af54b296cf154a9426ab34b422b5cb47100320",
+    "crates/extension-api/src/surface.rs": "b4c0ea070e5e86734fd1f8131bd00ea1dffdbba81b5633b930c7fbf3ccc387b6",
+    "crates/extension-api/tests/surface.rs": "3a165f8a410b829deb43a6e07ec16ae2da2f9d49e11c9f3289bb48a24b2d575a",
+    "crates/extension-api/tests/wire.rs": "5307a4e63fbea67655d10478a6a40c78bc7ab0350cff3eba74ac77078a3b4e13",
+    "crates/extension-host/Cargo.toml": "61fe4d54e27d09279e5cdbd67c66d577fbee89cde65188bcc92a6cc2e6498e0e",
+    "crates/extension-host/src/lib.rs": "cd8b0ae8dde1c5e238a9481470184c902f9a68ad16aaac80ef6ae2568cdf3243",
+    "crates/extension-host/src/surface.rs": "273dd317678ebe38d105cc76d480fcd9b6c4fe81bc2ad7b6e5488d1d4c2b0c10",
+    "crates/extension-host/tests/policy.rs": "e5a0ce64396744a973ddf557821137005e1a3ec2342750fbfbe9e0f49767e487",
+    "crates/extension-host/tests/surface.rs": "8815d2bf9ac93703244e65fdff6132a0f6a24283de9e6291e781f14b4089d42d",
+    "crates/extension-package/Cargo.toml": "deb5558eebe9a3d5c2952c88e67691fc1d76206a008c6ad5307617f057585cd0",
+    "crates/extension-package/src/lib.rs": "4bef272e73fa6b08a17c4f8586462b00d362ec3d9b45ea3da0d3cedfb6a7c9ca",
+    "crates/extension-package/src/package.rs": "4de3ba3784a111d47683f41ceff6f625868fbb5d61148a0cfbfca70787d066f2",
+    "crates/extension-package/tests/package.rs": "7dea5481e3d3157953672048ccee6fc62f890c5181bcc5a197c2517f82430901",
+    "crates/extension-runtime-api/Cargo.toml": "d55d3d8861a44a90b24152d3a6debbe73c6c32a29b3397805f1f51144c91b13b",
+    "crates/extension-runtime-api/src/lib.rs": "3af36a786a3e22dcfb1a6f651c67a94cd54ca3c03c95d668fb9040bbc3ff29d7",
+    "crates/learning-application/Cargo.toml": "95ebe47f4919b118eba8e9962004d62a842188346c9dafd96b7a26c4fcd9756d",
+    "crates/learning-application/src/lib.rs": "328647b7e58e9ce59c8abdda3c051856ce07fe333b8ae840c1eefab24a638b3d",
+    "crates/learning-ports/Cargo.toml": "377a7d7900d4518ef779c7e88fe87b9164243c43341bdb8a45dc0173163ac12c",
+    "crates/learning-ports/src/lib.rs": "10a00942ac83fe3685317a38dd018df92a3bbe25de369a15573b3781f102d4ef",
+    "experiments/capture-core/Cargo.lock": "fd3d755708e534c2c8f80684afc6a4b6469f058f60b41daa05d72b38256dd097",
+    "experiments/capture-core/Cargo.toml": "37c3d01c159b317d5952ec778d22f8d41047516e45317b1e226e2a9570164f11",
+    "experiments/capture-core/author/Cargo.lock": "e2c8ba72512d7341c5ef5b577a095afa33b9bbb04f284a31e9725e41bb808dd2",
+    "experiments/capture-core/author/Cargo.toml": "dd040890602d2e2e89c61289131dd192f71963ce0d176ce00138b5035c35bd38",
+    "experiments/capture-core/author/src/main.rs": "c1ba01d2963dccb2cf0412c3cc8c5c29797e3fc8cb6bd65d7c68496e7479dc74",
+    "experiments/capture-core/export_sdk.py": "5a3d46748688bc0072669e6e8a1929430b7842a1298feca326710e91dbaf4430",
+    "experiments/capture-core/pdf_adapter.py": "87d4b28ffd904d2af314f89411b182b3e3af3d09356eb4f79c81ab815c4cf600",
+    "experiments/capture-core/selection_oracle.py": "aeec23f03dc8b072132b8313588673818076b00db4e0582c7fa4a297a5ada152",
+    "experiments/capture-core/src/contract.rs": "8ae96f8a1a898e5ee8bf4e73f264ee579c53eab4070b6f64cce254d8f94f58e1",
+    "experiments/capture-core/src/core.rs": "a78e900b2db7445d37346c70d94eb8b2b7e3c2b1f1554774afb64d4d81a7bd65",
+    "experiments/capture-core/src/host.rs": "8a5ecf41d3f0e786e5bd06d4b6a07790316323b0a53b439e454e57c5dbe91d36",
+    "experiments/capture-core/src/lib.rs": "11d327b054394e9b5af9233c2223e0d4fb356bec2b9c4fe157942e327b606b8e",
+    "experiments/capture-core/src/main.rs": "15a1bfa84e50cee96cce8fdca2ca4c12d515c5a02e043a01aa4c8ec8609bc498",
+    "experiments/capture-core/src/pdf_compound.rs": "8c2e5c486ac783a7967b22f0094da6ea1e12780b8115c6ab7ab0736919156b1a",
+    "experiments/capture-core/src/pdf_contract.rs": "3530822f6c5c5f8724209c39780351b9dc2b97959e5e67be43b70cae0b25893f",
+    "experiments/capture-core/src/pdf_host.rs": "7576ec5e1e94c55eb83c8674bdc0d13f854d1e888f721b360e08df6f2284d331",
+    "experiments/capture-core/tests/core.rs": "c713901852939be3d85e2412acb188158406cd436dfe69bd42664d5011dc5739",
+    "experiments/capture-core/tests/host.rs": "571ebcd039e830bdfb0fff86cd761ed032924a9dfd481b5fb07cd5477d245d86",
+    "experiments/capture-core/tests/pdf_compound_core.rs": "7bafc99862ead04a123d0aa5132e1fca096f89a9e71ebc6aacbbeac4314567c6",
+    "experiments/capture-core/tests/pdf_compound_host.rs": "746e1d30ba413c7e7f09b8c4925493710aa34c6b9aadca6fdb5334ca9d2c91d6",
+    "experiments/capture-core/tests/pdf_core.rs": "d62de382bc084bfd0be426c098a5fbba27baf396c211f695ec661ab40e77610a",
+    "experiments/capture-core/tests/pdf_host.rs": "109d3dcd5439c619611f4e306bee6ec04a97e34dc3eb9cfb4de3f441f235c50f",
+    "experiments/capture-core/validate.py": "2a4bdcc7630f5637e8a1b07ccc0800fb2b76955789d3c4a7752b4edaec0a2ff1",
+    "experiments/capture-core/validate_compound.py": "5155e323e53008f975fa925327b02b5ab4c44a63d063d7a7ad5e09b0b75ad47e",
+    "experiments/capture-core/validate_pdf.py": "b99f7173f62014d6af5d5cc2d8e57fa0ca5f2b6ea65362ae9a4a080c010fa9c8",
+    "experiments/extension-package/Cargo.lock": "ead77652970dd5d2c77204b2045682e573b2887854532a08f2cc3fd6f986ec79",
+    "experiments/extension-package/Cargo.toml": "b5e5b9e51573f2086bf36536fc602f1c94179d31fa09f86d7cafaa9e6d5646a7",
+    "experiments/extension-package/fixtures/managed-eight-calls.wat": "516e7c8946551d469ef02c3d7829040d1a4cea95be7b2705ebf1b30b017c3ee9",
+    "experiments/extension-package/fixtures/managed-invalid-entry.wat": "c1260fd7e65a2e195285bf48c603ba08853d65ce1725406e6bf68c8cbff8ea0d",
+    "experiments/extension-package/fixtures/managed-nine-calls.wat": "c393a51a9524c04ecbcf5b714f5fb2ed88132147ab4fbe16309aaf9b07fde3b2",
+    "experiments/extension-package/fixtures/metadata-loop.wat": "fd162ee47af7e3918eb5390c672642ff62b52d9fa3b231a72795eaa0950c4a1f",
+    "experiments/extension-package/fixtures/metadata-memory.wat": "f924b1c883895439912635a828ffa902846946023cdef7dae45303df63335e5c",
+    "experiments/extension-package/fixtures/metadata-trap.wat": "1fbb82bbab1775c5d9a01fcc63658d37ff83a65709534c6b431b5f75249ede16",
+    "experiments/extension-package/fixtures/metadata-unknown-import.wat": "4a4e005504b1666b1977ed630fcc6bca1fd25ab16038aa0e806f9e7f4fcc5d88",
+    "experiments/extension-package/fixtures/metadata-v2.wat": "94c0627cd901e5b81a9d198efdd728952ddc994bde600b8f895476f618372085",
+    "experiments/extension-package/fixtures/metadata-wrong-document.wat": "0884ce297a29874f351b6ad164af1bd0860e1a5ace73d03673fa1f1a3ac7963f",
+    "experiments/extension-package/fixtures/metadata.wat": "01e44ffd2dd81eff1a175dc68f3cefb9305379a899b97a4ce87affbc71df0858",
+    "experiments/extension-package/fixtures/private-migrate-alloc-loop.wat": "244337e41666005932fdc7f0674acf261971e92a8d3c7dd5e476ba708a3bb565",
+    "experiments/extension-package/fixtures/private-migrate-bad-pointer.wat": "b59a70530514689c583ac6c975f5b3cda75f5f8570ca555b0185034c88bab02d",
+    "experiments/extension-package/fixtures/private-migrate-good.wat": "b18a511a0e6fb4bdedfd79113692c6d9ad9f83a25af3a01aac4f180401462ae7",
+    "experiments/extension-package/fixtures/private-migrate-import.wat": "b8262badbd7718dc67ca9f3f63f521a8dc7af60db46eae28d6893ef544c5ae48",
+    "experiments/extension-package/fixtures/private-migrate-loop.wat": "93ed27559e5b5b35f40198585d2b0cc9bc5598a669a3c155ce2c755c463ed2dd",
+    "experiments/extension-package/fixtures/private-migrate-oversize.wat": "83c49bf0d0607a1732e4a7de4a6beb137c91b8608e1c6c3daa738ff3612ae896",
+    "experiments/extension-package/fixtures/private-migrate-start.wat": "c19659041e4c4fa673c6e7d2a0d8236344b1dca5158101afebc08daaccf09260",
+    "experiments/extension-package/fixtures/private-migrate-trap.wat": "e92dadb1feee2640659c728f5786891500b7bdcbdf88f8ddd4742c020bd5ade6",
+    "experiments/extension-package/fixtures/private-migrate-wrong-schema.wat": "4fe196e0aba7a6efd0341c74b3eabe59845b94b121f558b36e47c227a5dc2527",
+    "experiments/extension-package/fixtures/private-run-bad-abi.wat": "392008617343da21b874b3d94d2a6b6b248956678f8d606b88fe0d7838821880",
+    "experiments/extension-package/fixtures/private-run-host-call.wat": "a13010d4e505a78b0a1b54a8c6ffec56edd79b163c7d6457cc4296791478dc49",
+    "experiments/extension-package/fixtures/private-run-v1.wat": "1d2c08d64fadc87beb2275d344c8dd6c86d61540cd35f74e093b7764b5ac4bd6",
+    "experiments/extension-package/fixtures/private-run-v2.wat": "b9d831188359e0147774a8d0f3aac8c4ff9323bffbbe7309175c1f20b2f2a4a9",
+    "experiments/extension-package/src/lib.rs": "1fae9823c94918602e243f319e823dcd659480dbdf0de5eec4fd50c4916dd0a9",
+    "experiments/extension-package/src/main.rs": "1b4e889fe71b3fa6616d65f52f51f62da0dbf0e4c9864f1bcca625b6a3a9768d",
+    "experiments/extension-package/src/package.rs": "8a31baac4462e27bec93ebbf3956b1a32b715803210dc385ef7ee8eb21f7a3c8",
+    "experiments/extension-package/src/process_identity.rs": "d1a34e3cf9ea328c40557f91bef06d3800d26cfcf8436f027ac5e7c6727ee9df",
+    "experiments/extension-package/src/store/managed.rs": "ac5f2e11991092aa1130f2767050d1eb39eb154cd2a74bdcded812095c8afaff",
+    "experiments/extension-package/src/store/private_lifecycle.rs": "c20fdded5da8085ce6bcc19465ffeb0e7558786961d2068cdb8e8a766e178f3b",
+    "experiments/extension-package/src/store/worker_leases.rs": "36753e9dd2a1aa1ff2e5b9d834677be7ef623faaa17d436f3d386fea45291d89",
+    "experiments/extension-package/src/store.rs": "b1f3c91288952751638b1a836e10f036c16c1f7d68cc8f29bb8afc2837c57078",
+    "experiments/extension-package/src/supervisor.rs": "ab137c9ab3a9e76fceb5a290111c38709ffb19978ed3d9a474ca190671b502a5",
+    "experiments/extension-package/tests/host_api.rs": "7a341a604c5f9604f752132416c049a0c5f330cb8f5e2fe18290ae6dd92f86c0",
+    "experiments/extension-package/tests/private_store.rs": "d23dd6a3820b63d7dea8a5caf541ca9adbf2c6517dd70faa36ca582af4a86a77",
+    "experiments/extension-package/tests/process_identity.rs": "7642ac1d4c8dd0deff2c4848d3618d71c0476cffe8dbc1779a5a7be0625d2749",
+    "experiments/extension-package/tests/store.rs": "f9bbc93842b07416c47aaee7bdef6ccc6a09da6dbdfb70945ff24ab528207266",
+    "experiments/extension-package/tests/supervisor.rs": "900996ae8c23783fd447d658d16cc892a7de8696ed1db4c51914572ef120d138",
+    "experiments/extension-wasm/Cargo.lock": "5b424af242750b69cfc473d8e2d922b899492e8d1883dbf46c2ef89117de76fa",
+    "experiments/extension-wasm/Cargo.toml": "699650cdf83d7be25463c5d08dc86f3fa45d1b9dd32a4b9eba5401ef8b9785e4",
+    "experiments/extension-wasm/runner/Cargo.toml": "a76f78fffa1825020268144f7236d158ec986c997028ccbf35d417a75c239192",
+    "experiments/extension-wasm/runner/src/lib.rs": "4b53a2364d7624f84b35aed60027409ab1f998de219f1b69c9060b536e096e36",
+    "experiments/extension-wasm/runner/src/main.rs": "7ad1a4ec015a2563d0984f8aef1c42d4bd1ed00e5283a5dfe70d5b135835a8a7",
+    "experiments/extension-wasm/runner/src/managed_runtime.rs": "b14c83584029caf682068c82b41d9e94fe7c4fa67ac16747639c7eb44f8ce268",
+    "experiments/extension-wasm/runner/src/private_runtime.rs": "b1d62b4cdcb64d14decd1fbfb03dcce37d4b0070447e3533f80eb950a9c8b3a1"
+  },
+  "not_proven": [
+    "native NSH full product journey",
+    "production persistent installer/supervisor",
+    "formal library/reader/notes packages",
+    "IME/accessibility/touch/platform acceptance",
+    "EPUB"
+  ],
+  "support_checks": {
+    "commands": [
+      {
+        "command": [
+          "python3",
+          "scripts/check_architecture.py"
+        ],
+        "exit": 0
+      },
+      {
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts/tests",
+          "-v"
+        ],
+        "exit": 0
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/check_docs.py"
+        ],
+        "exit": 0
+      },
+      {
+        "command": [
+          "cargo",
+          "doc",
+          "--workspace",
+          "--no-deps",
+          "--locked",
+          "--offline"
+        ],
+        "exit": 0
+      }
+    ],
+    "rustdoc_flags": "-D warnings",
+    "log": "experiments/capture-core/evidence/linux-surface-support-checks.log",
+    "log_sha256": "3d9d741713197cc073e30dfdcc76db23c0ee3873213be4d1767fa14bf0a92dca"
+  },
+  "historical_detail_note": "The shared linux-compound-pdf.json was refreshed by later C7 validation. The compound hash here records the C6 result; its exact detailed JSON was not separately archived. Current fully archived detail is linux-compound-pdf-installation-c7.json. C6 root/package/Wasm/native records are retained separately."
+}

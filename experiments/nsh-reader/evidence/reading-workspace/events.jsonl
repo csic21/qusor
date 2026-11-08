@@ -1,0 +1,29 @@
+{"action": "resize", "pid": 274563, "window": "0x200005", "width": 1280, "height": 1000}
+{"window": "0x200005", "pid": 274563, "action": "tab", "fixture_path": null, "focus_verified": true, "path": "XTest→GTK native keyboard events; no IME claim"}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 1205, "y": 32}, {"kind": "down"}, {"kind": "up"}]}
+{"window": "0x200009", "pid": 274563, "action": "escape", "fixture_path": null, "focus_verified": true, "path": "XTest→GTK native keyboard events; no IME claim"}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 1205, "y": 32}, {"kind": "down"}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200013", "origin": [0, 0], "size": [821, 374], "events": [{"kind": "move", "x": 275, "y": 150}, {"kind": "down"}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200013", "origin": [0, 0], "size": [821, 374], "events": [{"kind": "move", "x": 782, "y": 349}, {"kind": "down"}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 168, "y": 81}, {"kind": "down"}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 168, "y": 81}, {"kind": "down"}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 89.0268817204301, "y": 207.43548387096774}, {"kind": "down"}, {"kind": "move", "x": 230.1021505376344, "y": 207.71102150537632}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 89.0268817204301, "y": 207.43548387096774}, {"kind": "down"}, {"kind": "move", "x": 230.1021505376344, "y": 207.71102150537632}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 222, "y": 259}, {"kind": "down"}, {"kind": "up"}]}
+{"window": "0x200005", "pid": 274563, "text": "quiet native thought", "focus_verified": true, "path": "XTest→GDK/GTK native Input→onChange; no IME"}
+{"action": "resize", "pid": 274563, "window": "0x200005", "width": 860, "height": 800}
+{"window": "0x200005", "pid": 274563, "text": " retained", "focus_verified": true, "path": "XTest→GDK/GTK native Input→onChange; no IME"}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [860, 800], "events": [{"kind": "move", "x": 795, "y": 157}, {"kind": "down"}, {"kind": "up"}]}
+{"window": "0x200005", "pid": 274563, "action": "tab", "fixture_path": null, "focus_verified": true, "path": "XTest→GTK native keyboard events; no IME claim"}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [860, 800], "events": [{"kind": "move", "x": 800, "y": 33}, {"kind": "down"}, {"kind": "up"}]}
+{"action": "resize", "pid": 274563, "window": "0x200005", "width": 1280, "height": 1000}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 1104, "y": 32}, {"kind": "down"}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 730, "y": 545}, {"kind": "down"}, {"kind": "up"}]}
+{"window": "0x20001b", "pid": 274563, "action": "escape", "fixture_path": null, "focus_verified": true, "path": "XTest→GTK native keyboard events; no IME claim"}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 1104, "y": 32}, {"kind": "down"}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 730, "y": 545}, {"kind": "down"}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200027", "origin": [0, 0], "size": [821, 374], "events": [{"kind": "move", "x": 275, "y": 86}, {"kind": "down"}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200027", "origin": [0, 0], "size": [821, 374], "events": [{"kind": "move", "x": 782, "y": 349}, {"kind": "down"}, {"kind": "up"}]}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 1007, "y": 573}, {"kind": "down"}, {"kind": "up"}]}
+{"window": "0x200005", "pid": 274563, "text": " denied", "focus_verified": true, "path": "XTest→GDK/GTK native Input→onChange; no IME"}
+{"pid": 274563, "window": "0x200005", "origin": [0, 0], "size": [1280, 1000], "events": [{"kind": "move", "x": 1090, "y": 570}, {"kind": "down"}, {"kind": "up"}]}

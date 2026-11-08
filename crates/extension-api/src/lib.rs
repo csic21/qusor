@@ -1,4 +1,4 @@
-//! Version 0.1 of the UI-independent extension policy wire contract.
+//! UI-independent extension policy wire: legacy 0.1 and explicitly negotiated 0.2/0.3.
 //!
 //! These DTOs describe requested capabilities, contribution registration, and an
 //! authorization query. They do not execute plugin code or read/write knowledge.
@@ -13,8 +13,43 @@ use std::{collections::BTreeSet, error::Error, fmt};
 
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
-/// The only request protocol implemented by this crate.
+/// Legacy default protocol; changing it would silently upgrade old callers.
 pub const HOST_API: ApiVersion = ApiVersion { major: 0, minor: 1 };
+/// Explicit opt-in protocol for controlled reader Surfaces.
+pub const HOST_API_V0_2: ApiVersion = ApiVersion { major: 0, minor: 2 };
+/// Versions implemented by this wire crate, not an authorization grant.
+pub const HOST_API_V0_3: ApiVersion = ApiVersion { major: 0, minor: 3 };
+/// Implemented versions; support alone grants no authority.
+pub const SUPPORTED_HOST_APIS: [ApiVersion; 3] = [HOST_API, HOST_API_V0_2, HOST_API_V0_3];
+
+pub mod component_invocation;
+pub mod composition;
+pub mod continuation;
+pub mod draft;
+pub mod invocation;
+pub mod projection;
+pub mod surface;
+
+/// Whether the protocol is implemented; ranges alone never enable future versions.
+pub fn is_supported_api(version: ApiVersion) -> bool {
+    SUPPORTED_HOST_APIS.contains(&version)
+}
+
+/// Check trusted host configuration before opening a store or executing a package.
+pub fn validate_supported_apis(supported: &[ApiVersion]) -> Result<(), ApiError> {
+    let unique: BTreeSet<_> = supported.iter().copied().collect();
+    if supported.is_empty()
+        || unique.len() != supported.len()
+        || supported.iter().any(|version| !is_supported_api(*version))
+    {
+        return Err(ApiError::new(
+            ErrorCode::UnsupportedVersion,
+            "invalid host API support set",
+        ));
+    }
+    Ok(())
+}
+
 /// Maximum encoded manifest size, including JSON whitespace, in bytes.
 pub const MAX_MANIFEST_BYTES: usize = 64 * 1024;
 /// Maximum encoded policy request size, including JSON whitespace, in bytes.
@@ -27,8 +62,8 @@ pub const MAX_CONTRIBUTION_ID_BYTES: usize = 192;
 pub const MAX_TITLE_BYTES: usize = 256;
 /// Maximum number of contributions in one manifest.
 pub const MAX_CONTRIBUTIONS: usize = 64;
-/// Number of distinct capabilities in version 0.1.
-pub const MAX_CAPABILITIES: usize = 3;
+/// Maximum distinct capability declarations across implemented protocol versions.
+pub const MAX_CAPABILITIES: usize = 5;
 /// Maximum UTF-8 bytes in a public error message.
 pub const MAX_ERROR_MESSAGE_BYTES: usize = 512;
 /// Maximum encoded error response size in bytes.
@@ -78,6 +113,10 @@ pub enum Capability {
     DocumentMetadataRead,
     #[serde(rename = "capture.propose")]
     CapturePropose,
+    #[serde(rename = "reader.surface")]
+    ReaderSurface,
+    #[serde(rename = "note.draft.edit")]
+    NoteDraftEdit,
 }
 
 /// Declarative entry types currently understood by the policy registry.
@@ -86,6 +125,43 @@ pub enum Capability {
 pub enum ContributionKind {
     Command,
     SelectionAction,
+    ReaderWorkspace,
+    ComponentProvider,
+}
+
+/// Version availability is checked even when a capability is declared optional.
+pub fn capability_available_in(capability: Capability, version: ApiVersion) -> bool {
+    match capability {
+        Capability::NoteDraftEdit => version == HOST_API_V0_3,
+        Capability::ReaderSurface => version == HOST_API_V0_2,
+        Capability::SelectionRead
+        | Capability::DocumentMetadataRead
+        | Capability::CapturePropose => version == HOST_API || version == HOST_API_V0_2,
+    }
+}
+
+/// Resource shapes accepted by one negotiated protocol. Existence, exact grants and
+/// native current-selection leases remain Host/broker responsibilities.
+pub fn capability_resource_valid(
+    capability: Capability,
+    resource: &Resource,
+    version: ApiVersion,
+) -> bool {
+    if !capability_available_in(capability, version) {
+        return false;
+    }
+    match capability {
+        Capability::SelectionRead => {
+            matches!(resource, Resource::Selection { .. })
+                || (version == HOST_API_V0_2 && matches!(resource, Resource::Document { .. }))
+        }
+        Capability::DocumentMetadataRead => {
+            matches!(resource, Resource::Vault { .. } | Resource::Document { .. })
+        }
+        Capability::CapturePropose => matches!(resource, Resource::Vault { .. }),
+        Capability::ReaderSurface => matches!(resource, Resource::Document { .. }),
+        Capability::NoteDraftEdit => matches!(resource, Resource::Draft { .. }),
+    }
 }
 
 /// Metadata for a discoverable entry. No executable code or native object is carried.
@@ -137,6 +213,38 @@ impl Manifest {
                 ));
             }
         }
+        if (declared.contains(&Capability::ReaderSurface)
+            || self
+                .contributions
+                .iter()
+                .any(|entry| entry.kind == ContributionKind::ReaderWorkspace))
+            && (self.host_api.major != 0 || self.host_api.min_minor < HOST_API_V0_2.minor)
+        {
+            return Err(ApiError::new(
+                code,
+                "Surface vocabulary requires minimum Host API0.2",
+            ));
+        }
+        let component_vocabulary = declared.contains(&Capability::NoteDraftEdit)
+            || self
+                .contributions
+                .iter()
+                .any(|c| c.kind == ContributionKind::ComponentProvider);
+        if component_vocabulary && (self.host_api.major != 0 || self.host_api.min_minor < 3) {
+            return Err(ApiError::new(
+                code,
+                "component vocabulary requires minimum Host API0.3",
+            ));
+        }
+        if self.host_api.major == 0
+            && self.host_api.min_minor == 3
+            && !declared.contains(&Capability::NoteDraftEdit)
+        {
+            return Err(ApiError::new(
+                code,
+                "Host API0.3 requires note.draft.edit declaration",
+            ));
+        }
         if self.contributions.len() > MAX_CONTRIBUTIONS {
             return Err(ApiError::new(code, "too many contributions"));
         }
@@ -164,6 +272,26 @@ impl Manifest {
                 "contribution title",
                 code,
             )?;
+            if contribution.kind == ContributionKind::ReaderWorkspace
+                && !contribution
+                    .required_capabilities
+                    .contains(&Capability::ReaderSurface)
+            {
+                return Err(ApiError::new(
+                    code,
+                    "reader workspace requires reader.surface",
+                ));
+            }
+            if contribution.kind == ContributionKind::ComponentProvider
+                && !contribution
+                    .required_capabilities
+                    .contains(&Capability::NoteDraftEdit)
+            {
+                return Err(ApiError::new(
+                    code,
+                    "component provider requires note.draft.edit",
+                ));
+            }
             for capability in validate_capabilities(&contribution.required_capabilities, code)? {
                 if !declared.contains(&capability) {
                     return Err(ApiError::new(
@@ -174,6 +302,37 @@ impl Manifest {
             }
         }
         Ok(())
+    }
+
+    /// Compatibility includes the manifest wire's feature vocabulary, not just
+    /// its declared numeric range. Optional permissions still use versioned names.
+    pub fn supports_api(&self, version: ApiVersion) -> bool {
+        is_supported_api(version)
+            && self.host_api.supports(version)
+            && self
+                .required_capabilities
+                .iter()
+                .chain(&self.optional_capabilities)
+                .all(|capability| capability_available_in(*capability, version))
+            && self
+                .contributions
+                .iter()
+                .all(|contribution| match contribution.kind {
+                    ContributionKind::ReaderWorkspace => version == HOST_API_V0_2,
+                    ContributionKind::ComponentProvider => version == HOST_API_V0_3,
+                    ContributionKind::Command | ContributionKind::SelectionAction => {
+                        version != HOST_API_V0_3
+                    }
+                })
+    }
+
+    /// Highest implemented version shared with a trusted host support set.
+    pub fn negotiate_api(&self, supported: &[ApiVersion]) -> Option<ApiVersion> {
+        supported
+            .iter()
+            .copied()
+            .filter(|version| self.supports_api(*version))
+            .max()
     }
 
     /// Decode bounded UTF-8 JSON and validate it before returning a manifest.
@@ -199,6 +358,10 @@ impl Manifest {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Resource {
+    Draft {
+        vault_id: String,
+        draft_id: String,
+    },
     Vault {
         vault_id: String,
     },
@@ -215,7 +378,8 @@ pub enum Resource {
 impl Resource {
     pub fn vault_id(&self) -> &str {
         match self {
-            Self::Vault { vault_id }
+            Self::Draft { vault_id, .. }
+            | Self::Vault { vault_id }
             | Self::Document { vault_id, .. }
             | Self::Selection { vault_id, .. } => vault_id,
         }
@@ -225,6 +389,7 @@ impl Resource {
     pub fn validate(&self) -> Result<(), ApiError> {
         validate_opaque_id(self.vault_id(), "vault_id")?;
         match self {
+            Self::Draft { draft_id, .. } => draft::validate_hex_id(draft_id, "draft_id"),
             Self::Vault { .. } => Ok(()),
             Self::Document { document_id, .. } => validate_opaque_id(document_id, "document_id"),
             Self::Selection { selection_id, .. } => {
@@ -249,13 +414,25 @@ pub struct CapabilityRequest {
 
 impl CapabilityRequest {
     pub fn validate(&self) -> Result<(), ApiError> {
-        if self.api_version != HOST_API {
+        if !is_supported_api(self.api_version) {
             return Err(ApiError::new(
                 ErrorCode::UnsupportedVersion,
-                "unsupported request api_version; expected 0.1",
+                "unsupported request api_version",
+            ));
+        }
+        if matches!(self.resource, Resource::Draft { .. }) && self.api_version != HOST_API_V0_3 {
+            return Err(ApiError::new(
+                ErrorCode::UnsupportedVersion,
+                "Draft resource requires Host API0.3",
             ));
         }
         validate_opaque_id(&self.request_id, "request_id")?;
+        if !capability_available_in(self.capability, self.api_version) {
+            return Err(ApiError::new(
+                ErrorCode::UnsupportedVersion,
+                "capability requires a newer negotiated API",
+            ));
+        }
         self.resource.validate()
     }
 

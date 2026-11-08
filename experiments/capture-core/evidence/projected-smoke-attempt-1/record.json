@@ -1,0 +1,16 @@
+{
+  "status": "failed",
+  "exit_code": 101,
+  "passed_cases": 7,
+  "failure_case": 7,
+  "failure_vm_index": 16,
+  "error": "deadline_exceeded",
+  "scope": "exact signed guest with realStore/freshHost/projectionbroker in-process Wasmi; noOSworker/native claim",
+  "recovery": "prior harness panicked and lost same-session memory; next attempt restarts fixture inputs, not a claimed resume of this process",
+  "logs": {
+    "harness.rs": "4ab7fc10c723dbf7e5a7cc9677c50cc9d6e09c32f9865a32d1026937acf42558",
+    "run.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run.stderr": "22ab8ab1faa9c9cc6fa6ce622c46094912421f401efd099508111bf00f2b67cf",
+    "cases.json": "66ea903980f51d702bf1904160fe188f2865285e6d8e0ae0df0d18445d72bbfe"
+  }
+}

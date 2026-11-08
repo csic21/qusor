@@ -1,0 +1,16 @@
+[package]
+name = "learning-application"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+core-api = { path = "../core-api" }
+learning-ports = { path = "../learning-ports" }
+serde_json = "=1.0.149"
+
+[lints]
+workspace = true

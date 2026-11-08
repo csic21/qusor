@@ -1,0 +1,8 @@
+{
+  "pid": 228263,
+  "display": ":98",
+  "GTK_USE_PORTAL": "0",
+  "GIO_USE_VFS": "local",
+  "GSETTINGS_BACKEND": "memory",
+  "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/qusor-no-session-bus"
+}

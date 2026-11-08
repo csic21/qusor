@@ -1,0 +1,24 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/component_paragraph_consumer.rs (experiments/capture-core/target/debug/deps/component_paragraph_consumer-00d2d83acfbc95a0)
+TRUSTED_FIXTURE_FAULT scan_checkpoint_reply_lost after applied checkpoint/effect; action=DropReply
+PARAGRAPH_FAULT_CASE_PASSED scan_checkpoint_reply_lost vms=27
+TRUSTED_FIXTURE_FAULT scan_mount_closed after applied checkpoint/effect; action=CloseMount
+TRUSTED_NATIVE_COPY_CONFIRMED scan_mount_closed bytes=19; explicit discard now closes event
+PARAGRAPH_FAULT_CASE_PASSED scan_mount_closed vms=31
+TRUSTED_FIXTURE_FAULT begin_mount_closed after applied checkpoint/effect; action=CloseMount
+TRUSTED_NATIVE_COPY_CONFIRMED begin_mount_closed bytes=19; explicit discard now closes event
+PARAGRAPH_FAULT_CASE_PASSED begin_mount_closed vms=41
+TRUSTED_FIXTURE_FAULT append_mount_closed after applied checkpoint/effect; action=CloseMount
+TRUSTED_NATIVE_COPY_CONFIRMED append_mount_closed bytes=19; explicit discard now closes event
+PARAGRAPH_FAULT_CASE_PASSED append_mount_closed vms=52
+TRUSTED_FIXTURE_FAULT scan_store_revoked after applied checkpoint/effect; action=RevokeInstallation
+TRUSTED_NATIVE_COPY_CONFIRMED scan_store_revoked bytes=19; explicit discard now closes event
+PARAGRAPH_FAULT_CASE_PASSED scan_store_revoked vms=56
+TRUSTED_FIXTURE_FAULT begin_store_revoked after applied checkpoint/effect; action=RevokeInstallation
+TRUSTED_NATIVE_COPY_CONFIRMED begin_store_revoked bytes=19; explicit discard now closes event
+PARAGRAPH_FAULT_CASE_PASSED begin_store_revoked vms=66
+
+thread 'main' (381636) panicked at tests/component_paragraph_consumer.rs:640:67:
+called `Result::unwrap()` on an `Err` value: ProcessError { kind: InvalidState, code: "stale_process_reply" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `--test component_paragraph_consumer`

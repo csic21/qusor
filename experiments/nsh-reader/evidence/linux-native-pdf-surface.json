@@ -1,0 +1,392 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-08",
+  "scope": "P03/P05/P07/P08 Linux via WSLg X11 native PDF Surface subset, not a released functional reader plugin",
+  "source_sha": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "source_tracked_clean": true,
+  "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+  "report_bytes_sha256": "6a732e91917b62159aa1c55199dc86065785a1ab4eddd3bc4874f39219093f19",
+  "frame_report_sha256": "bb62a3fded265b7616846384a47554cdba5280c51695968be4d01b589ed73abe",
+  "preparation": {
+    "preparation": {
+      "registry_lock_drift": {
+        "probe": [],
+        "helper": []
+      },
+      "supplemental_provider_lock_sha256": "2762b6e0736674334bcc0f3b7c26e5f0c1d321a14345602f44ca994d567b0939",
+      "source_sha": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+      "source_lock_sha256": "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b",
+      "probe_lock_sha256": "6d49f54851a45a856aa8ef0afa520010d812d0335fb6fcf3ebb983d0085ff6f4",
+      "commands": [
+        {
+          "command": [
+            "cargo",
+            "build",
+            "-p",
+            "nsh-cli",
+            "--locked",
+            "--offline"
+          ],
+          "exit_code": 0,
+          "seconds": 0.575,
+          "log": "target/native-prefix-downloads/native-probe-cli-build.log",
+          "log_sha256": "3e43b255d4b20a7b309afeb5012d5088aa471e53c75606d9df8a98bab335f40e"
+        },
+        {
+          "command": [
+            "cargo",
+            "build",
+            "--manifest-path",
+            "/workspace/qusor/experiments/nsh-reader/native-host/Cargo.toml",
+            "--locked",
+            "--offline"
+          ],
+          "exit_code": 0,
+          "seconds": 10.91,
+          "log": "target/native-prefix-downloads/native-probe-build.log",
+          "log_sha256": "626a5d7a3b135b3643b2e5cf84f706dc9cc08683460ed7f607f5bbd9a4f56ed7"
+        },
+        {
+          "command": [
+            "/workspace/qusor/experiments/nsh-reader/target/nsh/target/debug/nsh",
+            "build",
+            "/workspace/qusor/experiments/nsh-reader/target/nsh/examples/rust-exports",
+            "-o",
+            "/workspace/qusor/experiments/nsh-reader/target/native-bundle",
+            "--verbose"
+          ],
+          "exit_code": 0,
+          "seconds": 1.518,
+          "log": "target/native-prefix-downloads/native-probe-bundle.log",
+          "log_sha256": "464b4c3ebbc346f9c8f815945825b31f05643a8e8d1bf158d33e68c1f3eb5aa2"
+        }
+      ],
+      "web_dependencies": [],
+      "webview_features": []
+    },
+    "inspect_command": [
+      "/workspace/qusor/experiments/pdf-provider/target/debug/qusor-pdf-provider-probe",
+      "inspect",
+      "/workspace/qusor/experiments/pdf-provider/target/pdfium/lib/libpdfium.so",
+      "/workspace/qusor/experiments/pdf-provider/fixtures/text-two-pages.pdf",
+      "/workspace/qusor/experiments/nsh-reader/target/pdf-render-nryxoadr"
+    ],
+    "report_sha256": "6a732e91917b62159aa1c55199dc86065785a1ab4eddd3bc4874f39219093f19",
+    "original_sha256": "7fd4515748d1b14265ab2af851fe02fc231493e9bf443feb978f1dcff605fd9c",
+    "frame_report_sha256": "bb62a3fded265b7616846384a47554cdba5280c51695968be4d01b589ed73abe",
+    "resources": [
+      {
+        "page": 0,
+        "ppm_sha256": "2cfe25c12fbd1102812ac2ddce4d24a89fc9fb3a3851aa4293ed7bcdad7ddecf",
+        "png_sha256": "0b62419a361e45e2af6b06d63a7da05e97a6762fd9a39146cd5973bb6f0f415c",
+        "width": 1152,
+        "height": 1488
+      },
+      {
+        "page": 1,
+        "ppm_sha256": "0a39f0f744534709dd7ffbc779e0301cfd679471787a817b39b273bef8014545",
+        "png_sha256": "f9fc013184c4e55b3e755c7434a286f71be424efa255218b959ef5d3fe245339",
+        "width": 1152,
+        "height": 1464
+      }
+    ],
+    "registry_lock_drift": []
+  },
+  "window": {
+    "pid": 114616,
+    "window": "0x600005",
+    "initial_observed_size": [
+      1000,
+      1000
+    ],
+    "narrow_observed_size": [
+      600,
+      1000
+    ],
+    "close": "WM_DELETE_WINDOW then child wait",
+    "exit_code": 0
+  },
+  "actual_scenarios": {
+    "page0_drag": "raw Touch/responder: Dragging QUS, Dragging QUSOR, mouse release Ready QUSOR at60%; visible highlight and candidate match",
+    "page1_drag": "rotated actual PDF page: raw vertical drag to Ready Selection at70%; visible highlight/candidate/page2 match",
+    "blank": "real blank-page down returned NoHit; candidate/highlight cleared, no technical dialog",
+    "leave": "real pointer leaves paper during active preview; native Cancelled and candidate/highlight cleared",
+    "zoom": "real plus-button60%→70% generated new viewport and cleared prior QUSOR",
+    "page_change": "real next-page button switched binding to page1, clearing previous selection; async Image decode initially pending, generation-key onLoad blocks responder until current frame loaded",
+    "resize": "XResizeWindow1000→600, native onLayout reconfigured49%/generation7, cleared selection; page/controls and candidate below visible"
+  },
+  "frame_readiness": "Image remounted by immutable generation key, onLoad accepts only matching generation; every configure clears readyGeneration; raw responder claim requires current readyGeneration",
+  "unit_tests": {
+    "command": "cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --lib --locked --offline",
+    "passed": 3,
+    "coverage": [
+      "bounded report read and display/report digest mismatch",
+      "page/zoom stale generations and stale/non-owner gestures preserve successor",
+      "invalid endpoint clears gesture and close rejects later calls"
+    ]
+  },
+  "clippy": "all-targets --locked --offline -- -D warnings passed",
+  "pointer_traces": {
+    "drag": {
+      "pid": 114616,
+      "window": "0x600005",
+      "origin": [
+        1458,
+        243
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 87,
+          "y": 139
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "move",
+          "x": 108,
+          "y": 139
+        },
+        {
+          "kind": "move",
+          "x": 137,
+          "y": 139
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    "blank": {
+      "pid": 114616,
+      "window": "0x600005",
+      "origin": [
+        1458,
+        243
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 400,
+          "y": 500
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    "cancel": {
+      "pid": 114616,
+      "window": "0x600005",
+      "origin": [
+        1458,
+        243
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 87,
+          "y": 139
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "move",
+          "x": 108,
+          "y": 139
+        },
+        {
+          "kind": "move",
+          "x": 750,
+          "y": 139
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    "zoom": {
+      "pid": 114616,
+      "window": "0x600005",
+      "origin": [
+        1458,
+        243
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 87,
+          "y": 139
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "move",
+          "x": 137,
+          "y": 139
+        },
+        {
+          "kind": "up"
+        },
+        {
+          "kind": "move",
+          "x": 965,
+          "y": 33
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    "page": {
+      "pid": 114616,
+      "window": "0x600005",
+      "origin": [
+        1458,
+        243
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 820,
+          "y": 33
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    },
+    "rotated": {
+      "pid": 114616,
+      "window": "0x600005",
+      "origin": [
+        1458,
+        243
+      ],
+      "size": [
+        1000,
+        1000
+      ],
+      "events": [
+        {
+          "kind": "move",
+          "x": 625,
+          "y": 128
+        },
+        {
+          "kind": "down"
+        },
+        {
+          "kind": "move",
+          "x": 625,
+          "y": 160
+        },
+        {
+          "kind": "move",
+          "x": 625,
+          "y": 197
+        },
+        {
+          "kind": "up"
+        }
+      ]
+    }
+  },
+  "failures_preserved": [
+    "fresh generated helper resolved combine4.6.9; guard rejected, precise offline downgrade to qualified upstream4.6.8; clean helper seed now full upstream lock",
+    "initial thread_local report invisible to runtime JS worker; replaced by Mutex of neutral data",
+    "press recognizer PressUp ended before physical mouse-up; replaced by raw responder lifecycle",
+    "first auto-fit saw transient small layout and shrank to25%; desired zoom retained, actual stable window60%;25% is not readable-UX acceptance"
+  ],
+  "warnings": [
+    "MESA DRI3 unavailable",
+    "dzn Vulkan non-conformant/testing warning",
+    "one earlier raw-responder run emitted Vulkan out-of-pool warning; final log retained without claiming acceleration/performance"
+  ],
+  "unverified": [
+    "full P03 asynchronous cancellation/late callbacks",
+    "IME/composition, keyboard undo/accessibility validation",
+    "touch/multi-pointer platforms",
+    "formal SDK Surface capability and ordinary reader plugin",
+    "save/reopen/source-return/export product journey",
+    "EPUB, release package/install, other platforms, performance"
+  ],
+  "artifacts": {
+    "evidence/native-pdf-before.png": "f3c10d9404bde204f1ed4d78f777ff9087e005c02f565ef9737edd2e6f2860aa",
+    "evidence/native-pdf-selected.png": "f76bf83d9c0c1725b91693e60f1cc7927fd4a697054081ca591d7525757b835a",
+    "evidence/native-pdf-blank.png": "f3c10d9404bde204f1ed4d78f777ff9087e005c02f565ef9737edd2e6f2860aa",
+    "evidence/native-pdf-cancelled.png": "f3c10d9404bde204f1ed4d78f777ff9087e005c02f565ef9737edd2e6f2860aa",
+    "evidence/native-pdf-zoomed.png": "f518335f45835bfc0fbc2b1ce04fcf7b76f5a520b0e1be7d85b1f3daaf374881",
+    "evidence/native-pdf-rotated.png": "61df9cb318720d55a0e53efec77f3444a20fb14cfc4fb0a0d76683415e02ca00",
+    "evidence/native-pdf-narrow.png": "633e740a85e328c449329727fdedd70014da0a4a66c42782fd341af3b3d459d6",
+    "evidence/linux-native-pdf-window.log": "a16b2dd53121aa2db3c9ffd705a9f5c003214f5597476c6f319cafb73d412f77",
+    "evidence/linux-native-pdf-initial-failure.log": "3346bc5d245e77df30a9733a8d8770d253210e8f70b7c0d01742cb6275182ee3",
+    "evidence/linux-native-pdf-press-failure.log": "6fb6511fb2b3c81a8a300693bbfeb76d382e2c00c98e76edb248a03902c96ff4",
+    "evidence/linux-native-pdf-lock-rejection.log": "295b5e84f95e114be387d86945c00be56f9f57f39d5ecfde91e1c3e08d5086fe",
+    "evidence/linux-native-pdf-lock-pin.log": "d1792fe5067a86a5c45d140021da75aec3a8aa6e18192571c5d34aaef30727fb",
+    "evidence/linux-native-pdf-tests.log": "d5033e9a58168dbad5645e7e5b08e5d191e12f844d3c8d09e33ae6e5e7b420a6",
+    "evidence/linux-native-pdf-clippy.log": "4d73387cd4df6015bbf31e3dcd94f1bda935303660082cc7ff4b965a5f62a5fc",
+    "native-host/pdf_main.rs": "92bb99eaae72da43b03d874a8e6c8ed7c0247f6d4056eff20bbb8e425809c407",
+    "native-host/run_pdf.py": "7906f18e0729c87398ad9061477354e31e41f4c4597845977bae3d90dc8fd5fe",
+    "native-host/README.md": "2e0d7c44328957e22cb3388443d954931bd97b7a31f9a3895b9b9f935c8aad37",
+    "native-host/main.rs": "6f3452e297abba4d13d5c5b30bb20c23a56009caac91e4a433378cfae27c5dc5",
+    "native-host/pdf_module.rs": "8fdeb3a4d1cdf99427de0808cd398f057c1eae491d39c52209427c0a17d64efe",
+    "native-host/Cargo.toml": "1e4f509f868c8f621c52d254e34fe6d9c01f00c8b4a036507c9800dff7b54a04",
+    "native-host/prepare.py": "2d724803c712d18ed8e14d6536c8254a93656fb78a04aae512b64b754300355c",
+    "native-host/pointer_probe.py": "889f1a11d90ccb25d9c8b2d554b78d714d84c354ba87db87df34b15a34c2e6e6",
+    "native-host/Cargo.lock": "6d49f54851a45a856aa8ef0afa520010d812d0335fb6fcf3ebb983d0085ff6f4",
+    "native-host/capture_window.py": "eed35b01fd19f0eb95312cd246b2ade6b80a1d7cdb9ce494f06f68a7ad6ef9fa",
+    "native-host/run.py": "1cf1bfa5646a4b29dee37127b6b8f33235a01b1b63586b2f9b9e1718383efdbb",
+    "native-host/prepare_pdf.py": "25ff8de8f6bf743f8ae43c17e56181c3216724fdf63620f942553c2c9b6b6c61",
+    "native-host/close_window.py": "1c3ed88cb49bf6fcaf74cb1a59dc664ce0117825908d13158758df8f705985fa",
+    "pdf-surface/frame.ts": "bb1404e7bed8563be1143bd478670b5594ce49efbc54d52a01889800cd8b6a2b",
+    "pdf-surface/README.md": "fb53fa707cca654c361062336cffc6f0501fc9ba8454d4bb7f9a40b95cab2a94",
+    "pdf-surface/App.tsx": "55be0d815da1c0b2db14b42f28ea94eb75167f3573678183a150279c254df59b",
+    "pdf-surface/nsh.json": "abbf1b6008471a849bd980f0d92e89735864e1a6cea30b5fd2f02daf0066c783",
+    "pdf-surface/assets/page-0.png": "0b62419a361e45e2af6b06d63a7da05e97a6762fd9a39146cd5973bb6f0f415c",
+    "pdf-surface/assets/page-1.png": "f9fc013184c4e55b3e755c7434a286f71be424efa255218b959ef5d3fe245339",
+    "target/pdf-surface-resources/report.json": "6a732e91917b62159aa1c55199dc86065785a1ab4eddd3bc4874f39219093f19",
+    "target/pdf-surface-resources/preparation.json": "642cce05cf0033901d1718f3687785379d3b13e5ab7b1c22a6e9975ae588fe91",
+    "target/pdf-surface-bundle/bundle.nshc": "393a1df1798e3ab59882fd3e75839acdd048cff94b1fd5804fc762270d6bd9c1",
+    "target/pdf-surface-bundle/bundle.js": "ebc50e929eb1a84a6b187a225ada29c38f65adc3d3b3150e22684f2b19fbbe9b",
+    "target/nsh/target/debug/qusor-nsh-pdf-surface-probe": "1ddf2cb2eebc9a21fb9e432a34bde6fcf157e9ce08db2e6157a5f78b2e0a9cb7",
+    "evidence/linux-native-pdf-ldd.txt": "68b435bd46e1324c3989f0e697332be653332d019f16fb2dd60728e594681ed5"
+  },
+  "ldd": {
+    "exit_code": 0,
+    "missing_libraries": false,
+    "webkit_javascriptcore_soup_present": false
+  }
+}

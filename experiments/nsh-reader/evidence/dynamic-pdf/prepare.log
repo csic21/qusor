@@ -1,0 +1,277 @@
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-platform-android v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android)` was not used in the crate graph
+warning: patch `nsh-platform-ios v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios)` was not used in the crate graph
+warning: patch `nsh-platform-web v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+     Locking 54 packages to latest Rust 1.97.1 compatible versions
+      Adding serde v1.0.228 (available: v1.0.229)
+      Adding serde_core v1.0.228 (available: v1.0.229)
+      Adding serde_derive v1.0.228 (available: v1.0.229)
+      Adding serde_json v1.0.149 (available: v1.0.154)
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling version_check v0.9.5
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.228
+   Compiling semver v1.0.28
+   Compiling zmij v1.0.23
+   Compiling memchr v2.8.3
+   Compiling serde v1.0.228
+   Compiling cfg-if v1.0.5
+   Compiling cpufeatures v0.2.17
+   Compiling serde_json v1.0.149
+   Compiling itoa v1.0.18
+   Compiling wasm-encoder v0.228.0
+   Compiling subtle v2.6.1
+   Compiling rustc_version v0.4.1
+   Compiling leb128fmt v0.1.0
+   Compiling zeroize v1.9.1
+   Compiling generic-array v0.14.7
+   Compiling signature v2.2.0
+   Compiling unicode-width v0.2.3
+   Compiling bumpalo v3.20.3
+   Compiling ed25519 v2.2.3
+   Compiling unicode-segmentation v1.13.3
+   Compiling curve25519-dalek v4.1.3
+   Compiling syn v2.0.119
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling wast v228.0.0
+   Compiling sha2 v0.10.9
+   Compiling serde_derive v1.0.228
+   Compiling curve25519-dalek-derive v0.1.1
+   Compiling ed25519-dalek v2.2.0
+   Compiling extension-api v0.0.0 (/tmp/qusor-reader-sdk-krepl2xu/sdk/api)
+   Compiling core-api v0.0.0 (/tmp/qusor-reader-sdk-krepl2xu/sdk/capture)
+   Compiling wat v1.228.0
+   Compiling extension-package v0.0.0 (/tmp/qusor-reader-sdk-krepl2xu/sdk/package)
+   Compiling build-surface-plugin v0.1.0 (/tmp/qusor-reader-sdk-krepl2xu/sdk/author)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.12s
+    Checking typenum v1.20.1
+    Checking memchr v2.8.3
+    Checking cfg-if v1.0.5
+    Checking cpufeatures v0.2.17
+    Checking itoa v1.0.18
+    Checking serde_core v1.0.228
+    Checking zmij v1.0.23
+    Checking signature v2.2.0
+    Checking subtle v2.6.1
+    Checking zeroize v1.9.1
+    Checking leb128fmt v0.1.0
+    Checking bumpalo v3.20.3
+    Checking unicode-width v0.2.3
+    Checking unicode-segmentation v1.13.3
+    Checking ed25519 v2.2.3
+    Checking wasm-encoder v0.228.0
+    Checking generic-array v0.14.7
+    Checking wast v228.0.0
+    Checking crypto-common v0.1.7
+    Checking block-buffer v0.10.4
+    Checking digest v0.10.7
+    Checking sha2 v0.10.9
+    Checking curve25519-dalek v4.1.3
+    Checking serde_json v1.0.149
+    Checking serde v1.0.228
+    Checking ed25519-dalek v2.2.0
+    Checking extension-api v0.0.0 (/tmp/qusor-reader-sdk-krepl2xu/sdk/api)
+    Checking core-api v0.0.0 (/tmp/qusor-reader-sdk-krepl2xu/sdk/capture)
+    Checking extension-package v0.0.0 (/tmp/qusor-reader-sdk-krepl2xu/sdk/package)
+    Checking wat v1.228.0
+    Checking build-surface-plugin v0.1.0 (/tmp/qusor-reader-sdk-krepl2xu/sdk/author)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.67s
+warning: patch `nsh-bundler v0.4.0 (/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+   Compiling qusor-nsh-native-host-probe v0.1.0 (/workspace/qusor/experiments/nsh-reader/native-host)
+   Compiling nsh-app-qusor-nsh-native-host-probe-describe v0.0.0 (/workspace/qusor/experiments/nsh-reader/dynamic-pdf/.nsh/rust/describe)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.02s
+✓ built the Rust crate qusor-nsh-native-host-probe (6.1s)
+warn qusor/pdf-surface exports items without a doc comment, which TSX sees in its declarations: DynamicReader, DynamicReader.choose, DynamicReader.reopen, DynamicReader.cancel, DynamicReader.frame, DynamicReader.save, ReaderSurface, ReaderSurface.open, ReaderSurface.configure, ReaderSurface.ready, ReaderSurface.down, ReaderSurface.motion, ReaderSurface.up, ReaderSurface.cancel, ReaderSurface.save, ReaderSurface.failed, ReaderSurface.disable, ReaderSurface.close
+✓ built experiments/nsh-reader/dynamic-pdf/App.tsx into experiments/nsh-reader/target/dynamic-pdf-bundle (16.7 KB js, 72.3 KB bytecode, 65ms)
+{
+  "sdk_sources": {
+    "capture/contract.rs": "5f2a41176927913eac86859c2a7c724996cecfab0b030b50306324c0d3f8532b",
+    "capture/pdf_contract.rs": "7673e004999b75d37fbe43e038df8e48803838493b066e907ce296a421f83609",
+    "capture/pdf_compound.rs": "59634bfd7055df2a2886ed74fe5871ecf04311cb3d6d87ed3e1bdfa4c48e761d",
+    "package/package.rs": "4de3ba3784a111d47683f41ceff6f625868fbb5d61148a0cfbfca70787d066f2",
+    "api/src/invocation.rs": "56a2da6b501b750476db54b4c89f0edfff8d27965ff574f651a38a4f1e057955",
+    "api/src/lib.rs": "846e914bdd31097eddbcbf8540af54b296cf154a9426ab34b422b5cb47100320",
+    "api/src/surface.rs": "b4c0ea070e5e86734fd1f8131bd00ea1dffdbba81b5633b930c7fbf3ccc387b6",
+    "api/schema/policy-v0.1.schema.json": "a9ec0d843fa58b3835f14fd24a27211a4b40c7cb62aeecb0ee7973124335947b",
+    "api/schema/policy-v0.2.schema.json": "1cb65514f75c56864848d6c9cb760b8ddf494fe040f283c18c9835ab98f707de",
+    "api/schema/surface-v1.schema.json": "e56d9c3379eb4b1e87ec96750655740ac0a9819c0f7840cd17015407feb4de4a"
+  },
+  "packages": [
+    "base64ct",
+    "bitflags",
+    "block-buffer",
+    "build-surface-plugin",
+    "bumpalo",
+    "cfg-if",
+    "const-oid",
+    "core-api",
+    "cpufeatures",
+    "crypto-common",
+    "curve25519-dalek",
+    "curve25519-dalek-derive",
+    "der",
+    "digest",
+    "ed25519",
+    "ed25519-dalek",
+    "equivalent",
+    "extension-api",
+    "extension-package",
+    "fiat-crypto",
+    "generic-array",
+    "getrandom",
+    "hashbrown",
+    "indexmap",
+    "itoa",
+    "leb128fmt",
+    "libc",
+    "memchr",
+    "pkcs8",
+    "proc-macro2",
+    "quote",
+    "rand_core",
+    "rustc_version",
+    "semver",
+    "serde",
+    "serde_core",
+    "serde_derive",
+    "serde_json",
+    "sha2",
+    "signature",
+    "spki",
+    "subtle",
+    "syn",
+    "typenum",
+    "unicode-ident",
+    "unicode-segmentation",
+    "unicode-width",
+    "version_check",
+    "wasi",
+    "wasm-encoder",
+    "wasmparser",
+    "wast",
+    "wat",
+    "zeroize",
+    "zmij"
+  ],
+  "author_source_sha256": {
+    "main.rs": "4ec0ad8af677cdc17f41819e3dd55f63debe3a921eca70b054956718977638e6",
+    "reader.wat": "fed326b03ab5f507ba442778e400ba1a09415191e267c52224034b2dce0f4756"
+  },
+  "package_sha256": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+  "failure_packages": {
+    "trap": "4fb62966cfb63f2aa0bd52cdf4ab8dff9c9ec35538b0c592157245a267b72c8c",
+    "timeout": "610f70682f146b8dda5a5f00a7d8a80434c7193e502eb83025d9fbb8470f74e7",
+    "wrong": "8627f1597bfd583555f3cf13b21e1ef52afc3eea07a23c1df638902cd4900661",
+    "repeat": "4ee4b7672d31aaf48b3c3e19ef65ab6644f2582d41dd20f6540f0b3c0bfe4d0b"
+  },
+  "publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+  "local_sources_all_inside_sdk": true,
+  "package_file": "/workspace/qusor/experiments/nsh-reader/target/plugin-surface-resources/reader.package"
+}
+{
+  "artifacts": {
+    "experiments/nsh-reader/target/nsh/target/debug/qusor-nsh-dynamic-pdf-probe": "336edf06ddafac318ae0cc735dbdfeb16305623faf7e06a8ca794a0f1ed36873",
+    "experiments/nsh-reader/target/dynamic-pdf-bundle/bundle.nshc": "1994de4e89def652abf65842244b2845319116244411db1c14fe9b7735251214",
+    "experiments/nsh-reader/target/dynamic-pdf-resources/reader.package": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff"
+  },
+  "author_proof": {
+    "sdk_sources": {
+      "capture/contract.rs": "5f2a41176927913eac86859c2a7c724996cecfab0b030b50306324c0d3f8532b",
+      "capture/pdf_contract.rs": "7673e004999b75d37fbe43e038df8e48803838493b066e907ce296a421f83609",
+      "capture/pdf_compound.rs": "59634bfd7055df2a2886ed74fe5871ecf04311cb3d6d87ed3e1bdfa4c48e761d",
+      "package/package.rs": "4de3ba3784a111d47683f41ceff6f625868fbb5d61148a0cfbfca70787d066f2",
+      "api/src/invocation.rs": "56a2da6b501b750476db54b4c89f0edfff8d27965ff574f651a38a4f1e057955",
+      "api/src/lib.rs": "846e914bdd31097eddbcbf8540af54b296cf154a9426ab34b422b5cb47100320",
+      "api/src/surface.rs": "b4c0ea070e5e86734fd1f8131bd00ea1dffdbba81b5633b930c7fbf3ccc387b6",
+      "api/schema/policy-v0.1.schema.json": "a9ec0d843fa58b3835f14fd24a27211a4b40c7cb62aeecb0ee7973124335947b",
+      "api/schema/policy-v0.2.schema.json": "1cb65514f75c56864848d6c9cb760b8ddf494fe040f283c18c9835ab98f707de",
+      "api/schema/surface-v1.schema.json": "e56d9c3379eb4b1e87ec96750655740ac0a9819c0f7840cd17015407feb4de4a"
+    },
+    "packages": [
+      "base64ct",
+      "bitflags",
+      "block-buffer",
+      "build-surface-plugin",
+      "bumpalo",
+      "cfg-if",
+      "const-oid",
+      "core-api",
+      "cpufeatures",
+      "crypto-common",
+      "curve25519-dalek",
+      "curve25519-dalek-derive",
+      "der",
+      "digest",
+      "ed25519",
+      "ed25519-dalek",
+      "equivalent",
+      "extension-api",
+      "extension-package",
+      "fiat-crypto",
+      "generic-array",
+      "getrandom",
+      "hashbrown",
+      "indexmap",
+      "itoa",
+      "leb128fmt",
+      "libc",
+      "memchr",
+      "pkcs8",
+      "proc-macro2",
+      "quote",
+      "rand_core",
+      "rustc_version",
+      "semver",
+      "serde",
+      "serde_core",
+      "serde_derive",
+      "serde_json",
+      "sha2",
+      "signature",
+      "spki",
+      "subtle",
+      "syn",
+      "typenum",
+      "unicode-ident",
+      "unicode-segmentation",
+      "unicode-width",
+      "version_check",
+      "wasi",
+      "wasm-encoder",
+      "wasmparser",
+      "wast",
+      "wat",
+      "zeroize",
+      "zmij"
+    ],
+    "author_source_sha256": {
+      "main.rs": "4ec0ad8af677cdc17f41819e3dd55f63debe3a921eca70b054956718977638e6",
+      "reader.wat": "fed326b03ab5f507ba442778e400ba1a09415191e267c52224034b2dce0f4756"
+    },
+    "package_sha256": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+    "failure_packages": {
+      "trap": "4fb62966cfb63f2aa0bd52cdf4ab8dff9c9ec35538b0c592157245a267b72c8c",
+      "timeout": "610f70682f146b8dda5a5f00a7d8a80434c7193e502eb83025d9fbb8470f74e7",
+      "wrong": "8627f1597bfd583555f3cf13b21e1ef52afc3eea07a23c1df638902cd4900661",
+      "repeat": "4ee4b7672d31aaf48b3c3e19ef65ab6644f2582d41dd20f6540f0b3c0bfe4d0b"
+    },
+    "publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+    "local_sources_all_inside_sdk": true,
+    "package_file": "/workspace/qusor/experiments/nsh-reader/target/plugin-surface-resources/reader.package"
+  },
+  "helper_registry_drift": [],
+  "document_resources": [],
+  "qualification_requires_post_build_fixtures": true
+}

@@ -1,0 +1,81 @@
+[package]
+name = "qusor-nsh-native-host-probe"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[workspace]
+resolver = "3"
+
+[lib]
+path = "pdf_module.rs"
+
+[features]
+default = []
+native-qualification = []
+
+[[test]]
+name = "native_editor_retirement"
+path = "tests/native_editor_retirement.rs"
+harness = false
+required-features = ["native-qualification"]
+
+[dependencies]
+nsh-linux-host = { path = "../target/nsh/crates/nsh-linux-host", default-features = false }
+nsh-core = { path = "../target/nsh/crates/nsh-core" }
+nsh-base = { path = "../target/nsh/crates/nsh-base", features = ["highlight"] }
+nsh-platform-linux = { path = "../target/nsh/crates/nsh-platform-linux", default-features = false }
+qusor-pdf-provider-probe = { path = "../../pdf-provider" }
+serde_json = "=1.0.149"
+png = "=0.18.1"
+libc = "=0.2.191"
+extension-api = { path = "../../../crates/extension-api" }
+extension-host = { path = "../../../crates/extension-host" }
+extension-package = { path = "../../../crates/extension-package" }
+runtime-wasm = { path = "../../../adapters/runtime-wasm" }
+runtime-process = { path = "../../../adapters/runtime-process" }
+core-api = { path = "../../../crates/core-api" }
+qusor-capture-probe = { path = "../../capture-core" }
+learning-application = { path = "../../../crates/learning-application" }
+storage-sqlite = { path = "../../../adapters/storage-sqlite" }
+extension-store = { path = "../../../adapters/extension-store" }
+app_rust_exports_native = { package = "rust-exports-native", path = "../target/nsh/examples/rust-exports/native" }
+
+[[bin]]
+name = "qusor-nsh-native-host-probe"
+path = "main.rs"
+
+[[bin]]
+name = "qusor-nsh-pdf-surface-probe"
+path = "pdf_main.rs"
+
+[[bin]]
+name = "qusor-nsh-plugin-surface-probe"
+path = "plugin_main.rs"
+
+[[bin]]
+name = "qusor-nsh-dynamic-pdf-probe"
+path = "dynamic_main.rs"
+
+[profile.dev.package.quickjs-jit-sys]
+opt-level = 3
+[profile.dev.package.taffy]
+opt-level = 3
+
+[patch.crates-io]
+nsh-macros = { path = "../target/nsh/crates/nsh-macros" }
+nsh-core = { path = "../target/nsh/crates/nsh-core" }
+nsh-base = { path = "../target/nsh/crates/nsh-base" }
+nsh-package = { path = "../target/nsh/crates/nsh-package" }
+nsh-js = { path = "../target/nsh/crates/nsh-js" }
+nsh-engine = { path = "../target/nsh/crates/nsh-engine" }
+nsh-testing = { path = "../target/nsh/crates/nsh-testing" }
+nsh-bundler = { path = "../target/nsh/crates/nsh-bundler" }
+nsh-dev = { path = "../target/nsh/crates/nsh-dev" }
+nsh-platform-apple = { path = "../target/nsh/crates/nsh-platform-apple" }
+nsh-platform-ios = { path = "../target/nsh/crates/nsh-platform-ios" }
+nsh-platform-android = { path = "../target/nsh/crates/nsh-platform-android" }
+nsh-platform-linux = { path = "../target/nsh/crates/nsh-platform-linux" }
+nsh-platform-macos = { path = "../target/nsh/crates/nsh-platform-macos" }
+nsh-platform-windows = { path = "../target/nsh/crates/nsh-platform-windows" }
+nsh-platform-web = { path = "../target/nsh/crates/nsh-platform-web" }

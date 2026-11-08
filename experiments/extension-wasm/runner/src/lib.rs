@@ -6,7 +6,6 @@ use extension_host::{Grant, Host, InstallationId, Session};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
-    fmt,
     fs::{self, File},
     io::Read,
     path::Path,
@@ -14,32 +13,20 @@ use std::{
         Arc, Mutex,
         atomic::{AtomicBool, AtomicUsize, Ordering},
     },
-    time::{Duration, Instant},
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
-use wasmi::{
-    Caller, CompilationMode, Config, EnforcedLimits, Engine, Linker, Module, Store, StoreLimits,
-    StoreLimitsBuilder, TypedResumableCall,
-};
+use wasmi::{Caller, Engine, Linker, Module, Store, StoreLimits, TypedResumableCall};
+
+pub mod managed_runtime;
+pub mod private_runtime;
+
+use runtime_wasm::{bounded_runtime_config, bounded_runtime_limits};
 
 pub const MAX_WASM_BYTES: usize = 256 * 1024;
 pub const MAX_RESPONSE_BYTES: usize = 4096;
 pub const SYNTHETIC_SELECTION: &str = "本地选区: Rust & Wasm.";
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ProbeError {
-    pub code: &'static str,
-}
-impl ProbeError {
-    fn new(code: &'static str) -> Self {
-        Self { code }
-    }
-}
-impl fmt::Display for ProbeError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.code)
-    }
-}
-impl std::error::Error for ProbeError {}
+pub use extension_runtime_api::{ExecutionResult as RunResult, RuntimeError as ProbeError};
 type Result<T> = std::result::Result<T, ProbeError>;
 
 #[derive(Deserialize)]
@@ -169,6 +156,9 @@ pub struct Control {
     cancelled: Arc<AtomicBool>,
     slices: Arc<AtomicUsize>,
     calls: Arc<AtomicUsize>,
+    request: CapabilityRequest,
+    response: Arc<Vec<u8>>,
+    expires_at: Option<u64>,
 }
 impl Control {
     pub fn cancel(&self) {
@@ -206,9 +196,18 @@ impl Control {
         if started.elapsed() >= deadline {
             return Err(ProbeError::new("deadline_exceeded"));
         }
+        if let Some(expiry) = self.expires_at {
+            let now = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map_err(|_| ProbeError::new("invalid_clock"))?
+                .as_secs();
+            if now >= expiry {
+                return Err(ProbeError::new("grant_expired"));
+            }
+        }
         // Recheck lifecycle even while guest code loops without making a host call.
         authority
-            .authorize(&self.session, selection_request())
+            .authorize(&self.session, self.request.clone())
             .map_err(policy_error)?;
         Ok(())
     }
@@ -234,16 +233,21 @@ fn policy_error(error: extension_api::ApiError) -> ProbeError {
     })
 }
 
+/// Trusted adapter input, never a guest payload. No grants are created here.
+/// The host/session must already authorize this exact response scope.
+pub struct ExistingAuthority {
+    pub host: Host,
+    pub installation: InstallationId,
+    pub session: Session,
+    pub request: CapabilityRequest,
+    pub response: Vec<u8>,
+    pub expires_at: Option<u64>,
+}
+
 pub struct Probe {
     package: Package,
     options: Options,
     control: Control,
-}
-#[derive(Debug, Serialize, Deserialize)]
-pub struct RunResult {
-    pub output: String,
-    pub calls: usize,
-    pub fuel_consumed: u64,
 }
 struct State {
     control: Control,
@@ -277,13 +281,71 @@ impl Probe {
             .map_err(policy_error)?;
         authority.enable(installation).map_err(policy_error)?;
         let session = authority.open_session(installation).map_err(policy_error)?;
+        Self::from_authority(
+            package,
+            options,
+            ExistingAuthority {
+                host: authority,
+                installation,
+                session,
+                request: selection_request(),
+                response: SYNTHETIC_SELECTION.as_bytes().to_vec(),
+                expires_at: None,
+            },
+        )
+    }
+
+    /// Consume a previously authorized host/session without granting any capability.
+    /// The caller provides bounded service output, not guest-controlled authority.
+    pub fn from_authority(
+        package: Package,
+        options: Options,
+        mut existing: ExistingAuthority,
+    ) -> Result<Self> {
+        if options.slice_fuel == 0
+            || options.total_fuel == 0
+            || options.host_calls == 0
+            || existing.response.len() > MAX_RESPONSE_BYTES
+        {
+            return Err(ProbeError::new("invalid_options"));
+        }
+        if existing
+            .host
+            .manifest(existing.installation)
+            .map_err(policy_error)?
+            != &package.manifest
+        {
+            return Err(ProbeError::new("authority_package_mismatch"));
+        }
+        let permit = existing
+            .host
+            .authorize(&existing.session, existing.request.clone())
+            .map_err(policy_error)?;
+        existing
+            .host
+            .dispatch(permit, |context| {
+                if context.installation_id != existing.installation
+                    || context.package_id != package.manifest.package_id
+                    || context.package_digest != package.digest
+                {
+                    return Err(extension_api::ApiError::new(
+                        ErrorCode::PermissionDenied,
+                        "authority package mismatch",
+                    ));
+                }
+                Ok(())
+            })
+            .map_err(policy_error)?;
         let control = Control {
-            authority: Arc::new(Mutex::new(authority)),
-            installation,
-            session,
+            authority: Arc::new(Mutex::new(existing.host)),
+            installation: existing.installation,
+            session: existing.session,
             cancelled: Arc::new(AtomicBool::new(false)),
             slices: Arc::new(AtomicUsize::new(0)),
             calls: Arc::new(AtomicUsize::new(0)),
+            request: existing.request,
+            response: Arc::new(existing.response),
+            expires_at: existing.expires_at,
         };
         Ok(Self {
             package,
@@ -298,19 +360,7 @@ impl Probe {
     pub fn run(self) -> Result<RunResult> {
         let started = Instant::now();
         self.control.check(started, self.options.deadline)?;
-        let mut config = Config::default();
-        config
-            .consume_fuel(true)
-            .allow_start_fn(false)
-            .ignore_custom_sections(true)
-            .wasm_multi_memory(false)
-            .compilation_mode(CompilationMode::Eager)
-            .enforced_limits(EnforcedLimits::strict())
-            .set_min_stack_height(4096)
-            .set_max_stack_height(256 * 1024)
-            .set_max_recursion_depth(128)
-            .set_max_cached_stacks(0);
-        let engine = Engine::new(&config);
+        let engine = Engine::new(&bounded_runtime_config());
         let module = Module::new(&engine, &self.package.wasm)
             .map_err(|_| ProbeError::new("invalid_module"))?;
         if module
@@ -320,14 +370,7 @@ impl Probe {
             return Err(ProbeError::new("unknown_import"));
         }
         self.control.check(started, self.options.deadline)?;
-        let limits = StoreLimitsBuilder::new()
-            .memory_size(128 * 1024)
-            .memories(1)
-            .table_elements(16)
-            .tables(1)
-            .instances(1)
-            .trap_on_grow_failure(true)
-            .build();
+        let limits = bounded_runtime_limits();
         let mut store = Store::new(
             &engine,
             State {
@@ -484,16 +527,18 @@ fn broker_call(
     // therefore occurs either before this read or after it, never halfway through it.
     authority
         .dispatch(permit, |context| {
-            if context.request.capability != Capability::SelectionRead {
+            if context.request.capability != control.request.capability
+                || context.request.resource != control.request.resource
+            {
                 return Err(extension_api::ApiError::new(
                     ErrorCode::CapabilityUnavailable,
-                    "probe implements selection.read only",
+                    "adapter has no response for this exact capability resource",
                 ));
             }
             Ok(())
         })
         .map_err(policy_error)?;
-    let text = SYNTHETIC_SELECTION.as_bytes();
+    let text = control.response.as_slice();
     if capacity < text.len() {
         return Err(ProbeError::new("output_capacity"));
     }

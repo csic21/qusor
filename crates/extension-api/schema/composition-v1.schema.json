@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QUSOR native composition protocol1",
+  "description": "Explicit opt-in API0.3. Rust additionally enforces UTF-8/encoded byte budgets and cross-field relations. Schema validation grants no permission.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "composition_protocol",
+    "api_version",
+    "contribution_id",
+    "role",
+    "contract",
+    "view"
+  ],
+  "properties": {
+    "composition_protocol": {
+      "const": 1
+    },
+    "api_version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "major",
+        "minor"
+      ],
+      "properties": {
+        "major": {
+          "const": 0
+        },
+        "minor": {
+          "const": 3
+        }
+      }
+    },
+    "contribution_id": {
+      "type": "string",
+      "maxLength": 192,
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$"
+    },
+    "role": {
+      "const": "annotation.plain-text-editor"
+    },
+    "contract": {
+      "const": "annotation.plain-text-editor/v1"
+    },
+    "view": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "label",
+            "placeholder"
+          ],
+          "properties": {
+            "kind": {
+              "const": "text_editor"
+            },
+            "label": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1
+            },
+            "placeholder": {
+              "type": "string",
+              "maxLength": 256
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "label",
+            "placeholder"
+          ],
+          "properties": {
+            "kind": {
+              "const": "paragraph_editor"
+            },
+            "label": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1
+            },
+            "placeholder": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "protocols": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "component_invocation",
+                    "paragraph_projection"
+                  ],
+                  "properties": {
+                    "component_invocation": {
+                      "const": 1
+                    },
+                    "paragraph_projection": {
+                      "const": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+    Checking extension-api v0.0.0 (/workspace/qusor/crates/extension-api)
+    Checking core-api v0.0.0 (/workspace/qusor/crates/core-api)
+    Checking extension-runtime-api v0.0.0 (/workspace/qusor/crates/extension-runtime-api)
+    Checking learning-domain v0.0.0 (/workspace/qusor/crates/learning-domain)
+    Checking extension-host v0.0.0 (/workspace/qusor/crates/extension-host)
+    Checking runtime-wasm v0.0.0 (/workspace/qusor/adapters/runtime-wasm)
+    Checking extension-package v0.0.0 (/workspace/qusor/crates/extension-package)
+    Checking learning-ports v0.0.0 (/workspace/qusor/crates/learning-ports)
+    Checking blob-store v0.0.0 (/workspace/qusor/adapters/blob-store)
+    Checking learning-application v0.0.0 (/workspace/qusor/crates/learning-application)
+    Checking storage-sqlite v0.0.0 (/workspace/qusor/adapters/storage-sqlite)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.94s

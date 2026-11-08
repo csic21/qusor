@@ -1,0 +1,186 @@
+{
+  "source_before": {
+    "crates/nsh-core/src/image.rs": "5bf66214258ba26643b63b6ff84ac29b4ee180aef9135f225be6691aeece01f4",
+    "crates/nsh-core/src/image/decoded.rs": "37f791afea73c54c056af7fbcc98a0f90289d374b379f5b42b7e6b3444ca7be0",
+    "crates/nsh-core/src/image/loader.rs": "fdc1c15fa433d535eac1cfafbd7aeaa392caa0521f30d43f6745f2845d45b09c",
+    "crates/nsh-core/src/image/memory.rs": "bc77f7eb93f87d697902d6db3cf3454777cdc10ec56b540a6a2bc2f21b9a7cc8",
+    "crates/nsh-platform-linux/Cargo.toml": "06b53a5685d82565d786bdf1557c5b93f02d6fdd3ed03dabc98d07a3b42f69a6",
+    "crates/nsh-platform-linux/src/app.rs": "7b7b31feac5215230d43917f3e04c92a3030dacc8f1a9aab36c794b40b363a81",
+    "crates/nsh-platform-linux/src/image.rs": "6c816df59d7cf470f879d0c2ac89a76649f6877182810ee09e2d90d48ab714c2",
+    "crates/nsh-platform-linux/src/lib.rs": "c5554480ccd02c86ec766c9453e7a6e094ba6e3f6e5a2f0b20cb55c685f4d57c",
+    "crates/nsh-platform-linux/src/mount.rs": "de508e57da5044b500505d201fbab9549e122012dfaeb04ed9ba4bd78df7e074",
+    "crates/nsh-platform-linux/src/surface.rs": "e664eb1a50dfa56939afe51ae16962b7249ed3a126ac28ecb549a35ad9fc8e05",
+    "crates/nsh-platform-linux/src/view.rs": "91f1cba422c05972c81a43860561d286da6189a3dc4bcfac0dee117aabb6a5db",
+    "crates/nsh-platform-linux/src/retirement.rs": "50b5a49dec6f3b6c66a056ff5af4a4a615ba3f80fc678a2287161d596eafb72a",
+    "crates/nsh-platform-linux/src/retirement_work.rs": "c9a0d333863a99280fe2a0cd1fdc0da9d7637d9b48ab6cece95d587d4a19906b"
+  },
+  "compile_command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "/home/user/.cache/qusor-native-release-observer/nsh-913-image/Cargo.toml",
+    "-p",
+    "nsh-platform-linux",
+    "--no-default-features",
+    "--features",
+    "native-retirement-observer",
+    "--locked",
+    "--offline",
+    "-j1",
+    "--lib",
+    "--no-run",
+    "--message-format=json"
+  ],
+  "compile": {
+    "exit_code": 0,
+    "seconds": 23.957791207998525
+  },
+  "binary": {
+    "path": "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+    "sha256": "6e10ebc7f9aca2ec442bd144c3522065b52a0aabfa7dd7e257e9c84c3551aafc",
+    "bytes": 460836720
+  },
+  "xvfb": {
+    "pid": 498092,
+    "start_ticks": 5591193,
+    "display": ":114",
+    "exit_code": 0,
+    "terminal": true
+  },
+  "tests": [
+    {
+      "name": "image::retirement_image_tests::retirement_cancelled_queued_decode_drops_payload_outside_pool_lock",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "image::retirement_image_tests::retirement_cancelled_queued_decode_drops_payload_outside_pool_lock",
+        "--nocapture"
+      ],
+      "pid": 498096,
+      "start_ticks": 5591300,
+      "exit_code": 0,
+      "seconds": 0.016116254999360535
+    },
+    {
+      "name": "image::retirement_image_tests::retirement_decode_ticket_cancel_waits_for_real_running_decoder",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "image::retirement_image_tests::retirement_decode_ticket_cancel_waits_for_real_running_decoder",
+        "--nocapture"
+      ],
+      "pid": 498108,
+      "start_ticks": 5591302,
+      "exit_code": 0,
+      "seconds": 0.11428576600155793
+    },
+    {
+      "name": "image::retirement_image_tests::retirement_owner_cache_keeps_real_pixels_until_lease_and_cache_exit",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "image::retirement_image_tests::retirement_owner_cache_keeps_real_pixels_until_lease_and_cache_exit",
+        "--nocapture"
+      ],
+      "pid": 498151,
+      "start_ticks": 5591313,
+      "exit_code": 0,
+      "seconds": 0.0641197579971049
+    },
+    {
+      "name": "image::retirement_image_tests::retirement_queued_delivery_keeps_payload_after_subscription_cancel",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "image::retirement_image_tests::retirement_queued_delivery_keeps_payload_after_subscription_cancel",
+        "--nocapture"
+      ],
+      "pid": 498194,
+      "start_ticks": 5591320,
+      "exit_code": 0,
+      "seconds": 0.06412090900266776
+    },
+    {
+      "name": "retirement::tests::retirement_actual_image_snapshot_matches_exact_frame_identity",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "retirement::tests::retirement_actual_image_snapshot_matches_exact_frame_identity",
+        "--nocapture"
+      ],
+      "pid": 498228,
+      "start_ticks": 5591326,
+      "exit_code": 0,
+      "seconds": 0.11428915600117762
+    },
+    {
+      "name": "retirement::tests::retirement_frame_identity_and_payload_drop_are_owner_safe",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "retirement::tests::retirement_frame_identity_and_payload_drop_are_owner_safe",
+        "--nocapture"
+      ],
+      "pid": 498273,
+      "start_ticks": 5591338,
+      "exit_code": 0,
+      "seconds": 0.03223365499434294
+    },
+    {
+      "name": "retirement::tests::retirement_node_budget_counts_inflight_not_4353_historical_creates",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "retirement::tests::retirement_node_budget_counts_inflight_not_4353_historical_creates",
+        "--nocapture"
+      ],
+      "pid": 498275,
+      "start_ticks": 5591341,
+      "exit_code": 0,
+      "seconds": 0.2645671490026871
+    },
+    {
+      "name": "retirement::tests::retirement_one_shot_closed_admission_and_foreign_owner_fail_closed",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "retirement::tests::retirement_one_shot_closed_admission_and_foreign_owner_fail_closed",
+        "--nocapture"
+      ],
+      "pid": 498309,
+      "start_ticks": 5591367,
+      "exit_code": 0,
+      "seconds": 0.11498280199884903
+    },
+    {
+      "name": "retirement::tests::retirement_real_finalization_waits_for_clone_and_survives_dispose",
+      "command": [
+        "/home/user/.cache/qusor-native-release-observer/image-weak-observer-tests/observer-image-tests",
+        "--exact",
+        "retirement::tests::retirement_real_finalization_waits_for_clone_and_survives_dispose",
+        "--nocapture"
+      ],
+      "pid": 498343,
+      "start_ticks": 5591379,
+      "exit_code": 0,
+      "seconds": 0.11428543199872365
+    }
+  ],
+  "source_after": {
+    "crates/nsh-core/src/image.rs": "5bf66214258ba26643b63b6ff84ac29b4ee180aef9135f225be6691aeece01f4",
+    "crates/nsh-core/src/image/decoded.rs": "37f791afea73c54c056af7fbcc98a0f90289d374b379f5b42b7e6b3444ca7be0",
+    "crates/nsh-core/src/image/loader.rs": "fdc1c15fa433d535eac1cfafbd7aeaa392caa0521f30d43f6745f2845d45b09c",
+    "crates/nsh-core/src/image/memory.rs": "bc77f7eb93f87d697902d6db3cf3454777cdc10ec56b540a6a2bc2f21b9a7cc8",
+    "crates/nsh-platform-linux/Cargo.toml": "06b53a5685d82565d786bdf1557c5b93f02d6fdd3ed03dabc98d07a3b42f69a6",
+    "crates/nsh-platform-linux/src/app.rs": "7b7b31feac5215230d43917f3e04c92a3030dacc8f1a9aab36c794b40b363a81",
+    "crates/nsh-platform-linux/src/image.rs": "6c816df59d7cf470f879d0c2ac89a76649f6877182810ee09e2d90d48ab714c2",
+    "crates/nsh-platform-linux/src/lib.rs": "c5554480ccd02c86ec766c9453e7a6e094ba6e3f6e5a2f0b20cb55c685f4d57c",
+    "crates/nsh-platform-linux/src/mount.rs": "de508e57da5044b500505d201fbab9549e122012dfaeb04ed9ba4bd78df7e074",
+    "crates/nsh-platform-linux/src/surface.rs": "e664eb1a50dfa56939afe51ae16962b7249ed3a126ac28ecb549a35ad9fc8e05",
+    "crates/nsh-platform-linux/src/view.rs": "91f1cba422c05972c81a43860561d286da6189a3dc4bcfac0dee117aabb6a5db",
+    "crates/nsh-platform-linux/src/retirement.rs": "50b5a49dec6f3b6c66a056ff5af4a4a615ba3f80fc678a2287161d596eafb72a",
+    "crates/nsh-platform-linux/src/retirement_work.rs": "c9a0d333863a99280fe2a0cd1fdc0da9d7637d9b48ab6cece95d587d4a19906b"
+  },
+  "source_unchanged": true,
+  "status": "nine-independent-scenarios-terminal"
+}

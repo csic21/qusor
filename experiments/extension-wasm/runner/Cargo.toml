@@ -7,12 +7,17 @@ license.workspace = true
 publish.workspace = true
 
 [dependencies]
+extension-runtime-api = { path = "../../../crates/extension-runtime-api" }
+runtime-wasm = { path = "../../../adapters/runtime-wasm" }
 extension-api = { path = "../../../crates/extension-api" }
 extension-host = { path = "../../../crates/extension-host" }
 wasmi = { version = "=2.0.0", default-features = false, features = ["stable", "std", "validate", "portable-dispatch", "extra-checks"] }
 serde = { version = "=1.0.228", features = ["derive"] }
 serde_json = "=1.0.149"
 sha2 = "=0.10.9"
+
+[dev-dependencies]
+wat = "=1.228.0"
 
 [lints]
 workspace = true

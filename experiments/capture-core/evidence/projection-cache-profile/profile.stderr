@@ -1,0 +1,11 @@
+   Compiling extension-store v0.0.0 (/workspace/qusor/adapters/extension-store)
+   Compiling qusor-package-probe v0.1.0 (/workspace/qusor/experiments/extension-package)
+   Compiling qusor-capture-probe v0.1.0 (/workspace/qusor/experiments/capture-core)
+   Compiling projection-wasm-smoke v0.1.0 (/tmp/qusor-projection-fast64-variant/profile-baseline)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.45s
+     Running `experiments/capture-core/target/debug/projection-wasm-smoke`
+VM_TIMING case=0 vm=0 wall_us=47109 host_us=2758 calls=5 outcome=Ok(518391)
+VM_TIMING case=0 vm=1 wall_us=50910 host_us=2600 calls=5 outcome=Ok(637544)
+VM_TIMING case=0 vm=2 wall_us=61866 host_us=4430 calls=6 outcome=Ok(758925)
+VM_TIMING case=0 vm=3 wall_us=61414 host_us=3822 calls=6 outcome=Ok(705254)
+CASE 0 passed 3

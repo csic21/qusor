@@ -1,0 +1,26 @@
+0000000006e62830 T <core::option::Option<&extension_store::Receipt>>::is_some_and::<<extension_store::Store>::install::{closure#5}>
+0000000006e629b0 T <core::option::Option<&(alloc::string::String, alloc::string::String)>>::is_some_and::<<extension_store::Store>::install::{closure#1}>
+0000000006e488a0 T <core::result::Result<&rusqlite::row::Row, rusqlite::error::Error>>::and_then::<alloc::vec::Vec<u8>, <extension_store::Store>::install::{closure#3}>
+0000000006e48920 T <core::result::Result<&rusqlite::row::Row, rusqlite::error::Error>>::and_then::<alloc::vec::Vec<u8>, <extension_store::Store>::install::{closure#4}>
+0000000006e48f10 T <core::result::Result<&rusqlite::row::Row, rusqlite::error::Error>>::and_then::<(alloc::string::String, alloc::string::String), <extension_store::Store>::install::{closure#0}>
+0000000006e49970 T <core::result::Result<&rusqlite::row::Row, rusqlite::error::Error>>::and_then::<i64, <extension_store::Store>::install::{closure#6}>
+0000000006e29400 T <rusqlite::statement::Statement>::query_row::<alloc::vec::Vec<u8>, &[&dyn rusqlite::types::to_sql::ToSql], <extension_store::Store>::install::{closure#3}>
+0000000006e295f0 T <rusqlite::statement::Statement>::query_row::<alloc::vec::Vec<u8>, &[&dyn rusqlite::types::to_sql::ToSql], <extension_store::Store>::install::{closure#4}>
+0000000006e2a780 T <rusqlite::statement::Statement>::query_row::<(alloc::string::String, alloc::string::String), [&alloc::string::String; 1], <extension_store::Store>::install::{closure#0}>
+0000000006e2c480 T <rusqlite::statement::Statement>::query_row::<i64, [&alloc::string::String; 1], <extension_store::Store>::install::{closure#6}>
+0000000006e50510 T <rusqlite::Connection>::query_row::<alloc::vec::Vec<u8>, &[&dyn rusqlite::types::to_sql::ToSql], <extension_store::Store>::install::{closure#3}>
+0000000006e508b0 T <rusqlite::Connection>::query_row::<alloc::vec::Vec<u8>, &[&dyn rusqlite::types::to_sql::ToSql], <extension_store::Store>::install::{closure#4}>
+0000000006e52930 T <rusqlite::Connection>::query_row::<(alloc::string::String, alloc::string::String), [&alloc::string::String; 1], <extension_store::Store>::install::{closure#0}>
+0000000006e55ec0 T <rusqlite::Connection>::query_row::<i64, [&alloc::string::String; 1], <extension_store::Store>::install::{closure#6}>
+0000000006e1db30 T <alloc::vec::into_iter::IntoIter<extension_store::Receipt> as core::iter::traits::iterator::Iterator>::try_fold::<(), core::iter::traits::iterator::Iterator::find::check<extension_store::Receipt, <extension_store::Store>::install::{closure#2}>::{closure#0}, core::ops::control_flow::ControlFlow<extension_store::Receipt>>
+0000000006e1e170 T <alloc::vec::into_iter::IntoIter<extension_store::Receipt> as core::iter::traits::iterator::Iterator>::find::<<extension_store::Store>::install::{closure#2}>
+0000000006e1bc10 T core::iter::traits::iterator::Iterator::find::check::<extension_store::Receipt, <extension_store::Store>::install::{closure#2}>::{closure#0}
+0000000006e38a70 t <extension_store::Store>::install::{closure#0}
+0000000006e38d70 t <extension_store::Store>::install::{closure#2}
+0000000006e38da0 t <extension_store::Store>::install::{closure#3}
+0000000006e38dd0 t <extension_store::Store>::install::{closure#4}
+0000000006e38e00 t <extension_store::Store>::install::{closure#5}
+0000000006e38e20 t <extension_store::Store>::install::{closure#6}
+0000000006e38e50 t <extension_store::Store>::install::{closure#1}
+0000000006e77e30 T <extension_store::Store>::frozen_package_for_action
+0000000006e79210 T <extension_store::Store>::install

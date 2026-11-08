@@ -1,0 +1,14 @@
+{
+  "status": "passed-application-and-sqlite-tests",
+  "root_tests": 226,
+  "clippy": "passed",
+  "new_sqlite_tests": 3,
+  "source_sha256": {
+    "crates/learning-application/src/annotation_source.rs": "c71a71d6fa282e056c9a3feda222e6ef53a71cf851dde2c3e73b5bd8a6f07c5e",
+    "crates/learning-application/src/annotation_draft.rs": "d921494704a48b77030a7f1e478b25b26804bd6047f90c9a100376458487cdf0",
+    "adapters/storage-sqlite/tests/annotation_compound.rs": "7cbb2a0f2decc78648b89756d6f8cab1031631af236cd7a1ace620a3b0304333"
+  },
+  "scope": "Real Core SQLite save/reopen/export/empty restore, immutable compound source and exact receipt reconciliation; no native UI, capture permission or guest execution claimed",
+  "source_snapshot_scope": "Post-test selected source hashes; not a whole-build source archive",
+  "compatibility": "Legacy FrozenPdfSource API retained. Draft source getter preserves source kind; single consumers explicitly select Single; no first-segment fallback."
+}

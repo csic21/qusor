@@ -1,0 +1,37 @@
+{
+  "status": "bootstrap-wire-and-fresh-mount-dispatch-checks-passed",
+  "root_rust_tests": 214,
+  "bootstrap_wire_tests": 4,
+  "new_bootstrap_host_test": 1,
+  "source_sha256": {
+    "crates/extension-api/src/lib.rs": "db3adfc7ced0316e1943994ffac3a130729591a67ac0720982b29165caed6111",
+    "crates/extension-api/src/component_invocation.rs": "a432b7d6876d3705c6ecbfdf27ed3df34ce1e80a7b2ff97295c2bb7b8f7dbbf9",
+    "crates/extension-api/tests/component_invocation.rs": "1d9f4957fdf42d37590dd765f8052a4075d3cd68a997609dbbe0941045cbca1f",
+    "crates/extension-api/schema/component-invocation-v1.schema.json": "2c4d017dcfe9be621b4d737d3b63a4fe0ad99325b91f42ce18155afade4b58dd",
+    "crates/extension-host/src/component.rs": "897a79a0629df56a290633cabc329f5d65b26099828baccbe30f716e4e05d6ae",
+    "crates/extension-host/src/durable_component.rs": "1f811c6c22008ee967553399ab66f80527c8641ff8f409876584b610e24daeb0",
+    "crates/extension-host/tests/component_context.rs": "50e0ff8dcceb6df0bd079fe31ad086a605c8cc84e3c072ddfa56c5af2155181f"
+  },
+  "exit_codes": 0,
+  "external_sdk": {
+    "local_path": "/tmp/qusor-projection-sdk-probe/sdk-bootstrap",
+    "private_dependencies_absent": true,
+    "author_projection_and_bootstrap_types_compiled": true,
+    "api_sources_and_schemas_byte_equal": true
+  },
+  "purpose": "Only edit_event or paragraph_projection; no identity/text/approval or selected query. Old invocation/context semantics unchanged.",
+  "not_verified": [
+    "signed-asset support declaration",
+    "real readonly query coordinator/admission",
+    "real guest bootstrap branching and projection algorithm",
+    "native view/input/IME/Esc/release"
+  ],
+  "logs": {
+    "bootstrap-root-tests": "e57fae77c118cce72c106b19dbaa5417df3d01a1175241b939a83ac68ce9b6c2",
+    "bootstrap-root-clippy": "9099b2cd46b6b8bef708c9b7c3b50ede8168388fcee9d5c62a4829eedd1be93a",
+    "bootstrap-fmt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bootstrap-architecture": "52ddbe4185b631f8dc031f55ec2617819fb29709e97d05ce151c25014f2f3a2c",
+    "bootstrap-sdk.stdout": "1e2bb514c642ba0cd592275a4c84903864d7333b7eb0b9b5edbe1fb21c30532a",
+    "bootstrap-sdk.stderr": "fcf8aa417c74366e0dedc5f5ba05306e57bbf305100d45f6ec20c8f90cd31f38"
+  }
+}

@@ -1,0 +1,447 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QUSOR extension policy protocol 0.2",
+  "description": "Host API0.2 wire vocabulary. Legacy0.1 has its unchanged separate schema. Rust additionally enforces byte budgets, protocol negotiation, source ownership and version-specific resource/capability policy; this is not authorization.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/manifest"
+    },
+    {
+      "$ref": "#/$defs/capabilityRequest"
+    },
+    {
+      "$ref": "#/$defs/apiError"
+    }
+  ],
+  "$defs": {
+    "namespace": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$(?![\\s\\S])"
+    },
+    "opaqueId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$(?![\\s\\S])"
+    },
+    "apiVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "major",
+        "minor"
+      ],
+      "properties": {
+        "major": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "minor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        }
+      }
+    },
+    "requestApiVersion": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/apiVersion"
+        },
+        {
+          "properties": {
+            "major": {
+              "const": 0
+            },
+            "minor": {
+              "const": 2
+            }
+          }
+        }
+      ]
+    },
+    "apiRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "major",
+        "min_minor",
+        "max_minor"
+      ],
+      "description": "min_minor must be <= max_minor. The host independently checks that its API version is inside this range.",
+      "properties": {
+        "major": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "min_minor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "max_minor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        }
+      }
+    },
+    "packageVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "major",
+        "minor",
+        "patch"
+      ],
+      "properties": {
+        "major": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "minor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "patch": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        }
+      }
+    },
+    "capability": {
+      "type": "string",
+      "enum": [
+        "selection.read",
+        "document.metadata.read",
+        "capture.propose",
+        "reader.surface"
+      ]
+    },
+    "capabilities": {
+      "type": "array",
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/capability"
+      }
+    },
+    "contribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "kind",
+        "required_capabilities"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$(?![\\s\\S])",
+          "description": "Must begin with manifest.package_id followed by a dot; unique within the manifest."
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "allOf": [
+            {
+              "pattern": "\\S"
+            },
+            {
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$(?![\\s\\S])"
+            }
+          ],
+          "description": "At most 256 UTF-8 bytes, nonblank, without Unicode control characters. maxLength is a code-point upper bound; Rust enforces bytes."
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "command",
+            "selection_action",
+            "reader_workspace"
+          ]
+        },
+        "required_capabilities": {
+          "$ref": "#/$defs/capabilities"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "reader_workspace"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "required_capabilities": {
+                "contains": {
+                  "const": "reader.surface"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "At most 65536 bytes of encoded JSON. Required and optional capabilities must be disjoint; all contribution requirements must be declared by one of those lists. publisher_id is an unverified claim.",
+      "required": [
+        "manifest_version",
+        "package_id",
+        "publisher_id",
+        "package_version",
+        "host_api",
+        "required_capabilities",
+        "optional_capabilities",
+        "contributions"
+      ],
+      "properties": {
+        "manifest_version": {
+          "const": 1
+        },
+        "package_id": {
+          "$ref": "#/$defs/namespace"
+        },
+        "publisher_id": {
+          "$ref": "#/$defs/namespace"
+        },
+        "package_version": {
+          "$ref": "#/$defs/packageVersion"
+        },
+        "host_api": {
+          "$ref": "#/$defs/apiRange"
+        },
+        "required_capabilities": {
+          "$ref": "#/$defs/capabilities"
+        },
+        "optional_capabilities": {
+          "$ref": "#/$defs/capabilities"
+        },
+        "contributions": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/contribution"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "required_capabilities": {
+                    "contains": {
+                      "const": "reader.surface"
+                    }
+                  }
+                },
+                "required": [
+                  "required_capabilities"
+                ]
+              },
+              {
+                "properties": {
+                  "optional_capabilities": {
+                    "contains": {
+                      "const": "reader.surface"
+                    }
+                  }
+                },
+                "required": [
+                  "optional_capabilities"
+                ]
+              },
+              {
+                "properties": {
+                  "contributions": {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "reader_workspace"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "contributions"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "host_api": {
+                "properties": {
+                  "major": {
+                    "const": 0
+                  },
+                  "min_minor": {
+                    "minimum": 2
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "vaultResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "vault_id"
+      ],
+      "properties": {
+        "kind": {
+          "const": "vault"
+        },
+        "vault_id": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    },
+    "documentResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "vault_id",
+        "document_id"
+      ],
+      "properties": {
+        "kind": {
+          "const": "document"
+        },
+        "vault_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "document_id": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    },
+    "selectionResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "vault_id",
+        "selection_id"
+      ],
+      "properties": {
+        "kind": {
+          "const": "selection"
+        },
+        "vault_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "selection_id": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    },
+    "resource": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/vaultResource"
+        },
+        {
+          "$ref": "#/$defs/documentResource"
+        },
+        {
+          "$ref": "#/$defs/selectionResource"
+        }
+      ]
+    },
+    "capabilityRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "At most4096 UTF-8 bytes. A negotiated session0.2 is required. selection.read may use Document only for the broker-validated current native selection lease, never an arbitrary text range. reader.surface requires exact Document. All caller/session/grant checks are separate Host policy.",
+      "required": [
+        "api_version",
+        "request_id",
+        "capability",
+        "resource"
+      ],
+      "properties": {
+        "api_version": {
+          "$ref": "#/$defs/requestApiVersion"
+        },
+        "request_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "capability": {
+          "$ref": "#/$defs/capability"
+        },
+        "resource": {
+          "$ref": "#/$defs/resource"
+        }
+      }
+    },
+    "apiError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message"
+      ],
+      "description": "At most 4096 encoded JSON bytes. Diagnostics must not disclose credentials, unknown input fields or payloads.",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "invalid_manifest",
+            "invalid_request",
+            "unsupported_version",
+            "capability_unavailable",
+            "permission_denied",
+            "stale_context",
+            "not_found",
+            "already_installed",
+            "disabled",
+            "invalid_state",
+            "budget_exceeded"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "allOf": [
+            {
+              "pattern": "\\S"
+            },
+            {
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$(?![\\s\\S])"
+            }
+          ],
+          "description": "Nonblank, no Unicode control characters, at most 512 UTF-8 bytes; Rust enforces the byte limit."
+        }
+      }
+    }
+  }
+}

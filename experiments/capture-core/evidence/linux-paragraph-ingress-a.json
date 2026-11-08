@@ -1,0 +1,24 @@
+{
+  "calls": 35,
+  "capture_fixture_module_executed": false,
+  "capture_identity": "ordinary.capture-source",
+  "default_deadline_ms": 250,
+  "external_signed_component": "ordinary.text-editor",
+  "fixture_lost_replies": 3,
+  "knowledge_saves": 2,
+  "large": false,
+  "late_event_results_rejected": 1,
+  "max_call_us": 13006,
+  "ok": true,
+  "owned_workers_reaped": 10,
+  "revoked_save_rejected_before_freeze": true,
+  "source": "synthetic_Core_snapshot_not_parser_or_Surface_lease_evidence",
+  "sqlite_reopen_and_empty_restore": true,
+  "vms": 10,
+  "qualification_scope": "Current-source A small regression only; 1MiB not rerun; B/native UI not covered.",
+  "source_sha256": {
+    "experiments/capture-core/tests/component_text_consumer.rs": "1aae57f53022a2364a7703b3f0a909a535287a179eaec13cf26d907415871b01",
+    "crates/extension-api/src/composition.rs": "65dec6accec7458187a9e5fce44e142087fc6487436b0938cc880fcff46c24b9",
+    "crates/learning-application/src/provider_events.rs": "4090eff744258996fbcbdd6b0e2429fbade56d8061a7dc6e8812aff5e14517ac"
+  }
+}

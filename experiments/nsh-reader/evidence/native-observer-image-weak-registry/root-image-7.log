@@ -1,0 +1,9 @@
+
+running 1 test
+MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+OBSERVER_ADMISSION one_shot=true late_create_rejected=true foreign_isolated=true
+test retirement::tests::retirement_one_shot_closed_admission_and_foreign_owner_fail_closed ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 136 filtered out; finished in 0.05s
+

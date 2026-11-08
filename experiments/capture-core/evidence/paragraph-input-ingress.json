@@ -1,0 +1,53 @@
+{
+  "slice": "typed paragraph input ingress",
+  "root_rust_tests": 194,
+  "checks": {
+    "root_tests": {
+      "exit_code": 0,
+      "log": "/tmp/qusor-paragraph-root-final-tests.log",
+      "sha256": "4c43e5ba0de579a1ffd3b8df706834e819da79921b58fd70de9b5751ec30dbc1"
+    },
+    "root_clippy": {
+      "exit_code": 0,
+      "log": "/tmp/qusor-paragraph-root-clippy.log",
+      "sha256": "974485418380633f472405ca62c68f4c3d65b699ce370573ae06bc49fbb7c86c"
+    },
+    "fmt": {
+      "exit_code": 0,
+      "log": "/tmp/qusor-paragraph-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "architecture": {
+      "exit_code": 0,
+      "log": "/tmp/qusor-paragraph-architecture.log",
+      "sha256": "52ddbe4185b631f8dc031f55ec2617819fb29709e97d05ce151c25014f2f3a2c"
+    },
+    "docs": {
+      "exit_code": 0,
+      "log": "/tmp/qusor-paragraph-docs.log",
+      "sha256": "ce2e0372dd784eb65a3a9f3ae2586ea532a5d1571fe92d094e6ac08964c9dab8"
+    },
+    "consumer_compile": {
+      "exit_code": 0,
+      "log": "/tmp/qusor-paragraph-consumer-check.log",
+      "sha256": "78934c5749718d12c255c270a71ef343415ab2a675e4ab6517279a6c3cfbe057"
+    }
+  },
+  "source_sha256": {
+    "crates/extension-api/src/composition.rs": "65dec6accec7458187a9e5fce44e142087fc6487436b0938cc880fcff46c24b9",
+    "crates/extension-api/tests/component.rs": "97fcd335912156b88109cd33ba13be1adf5c0f703d5c5c88a81cfcd1f5becc99",
+    "crates/extension-api/schema/component-context-v1.schema.json": "339a2b6ec996d471ff6cc0a92b4d4a77e00fd78dfa1b0cb81c71884cfadcb06d",
+    "crates/learning-application/src/provider_events.rs": "4090eff744258996fbcbdd6b0e2429fbade56d8061a7dc6e8812aff5e14517ac",
+    "crates/learning-application/tests/provider_events.rs": "98ce5d2c16ead3a42ea6198e78fe0c328b092f5abca2f02e0c7b37b799ec01ca",
+    "experiments/capture-core/tests/component_text_consumer.rs": "1aae57f53022a2364a7703b3f0a909a535287a179eaec13cf26d907415871b01"
+  },
+  "scope": "Typed ReplaceParagraph wire/schema and application pending-input coalescing with live-upload/clock/state regression. A current-source small real-process regression passed separately. B runtime, A/B switching, UI and native release ack remain unqualified.",
+  "additional_row_regression": {
+    "tests": 8,
+    "exit_code": 0,
+    "log": "/tmp/qusor-paragraph-row-independent.log",
+    "test_file_sha256": "98ce5d2c16ead3a42ea6198e78fe0c328b092f5abca2f02e0c7b37b799ec01ca",
+    "scope": "Rejections preserve live upload/checkpoint/CAS/input/logical clock; Expired and Completed row/base transitions"
+  },
+  "a_small_regression": "linux-paragraph-ingress-a.json"
+}

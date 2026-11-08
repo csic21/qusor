@@ -1,0 +1,15 @@
+{
+  "status": "passed-build-abi-and-library-regression",
+  "lib_tests": 11,
+  "native_gui_or_new_editor_chain_validated": false,
+  "preparation_artifact_hashes": {
+    "experiments/nsh-reader/target/nsh/target/debug/qusor-nsh-dynamic-pdf-probe": "d3635e16248c805738c12615cbe4a8762e134650f5f9a5e49c37f4bc93956828",
+    "experiments/nsh-reader/target/dynamic-pdf-bundle/bundle.nshc": "b196b67f8b872f809b0dc7b04d75e6e96981361cec77673216cdadf63c9bd391",
+    "experiments/nsh-reader/target/dynamic-pdf-resources/reader.package": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff"
+  },
+  "abi_sha256": "4d305b128dba2fe3f4bb2725e77d6f73fed9ca3d4d55ac494bf63b01812d7716",
+  "scope": "Generated declarations from actual native module; bundled App at this build still used prior editor UI. Not a current UI source freeze or native interaction qualification.",
+  "build_jobs": 1,
+  "temporary_builds": "outside repository on home cache disk",
+  "helper_registry_drift": []
+}

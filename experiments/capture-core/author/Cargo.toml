@@ -1,0 +1,21 @@
+[workspace]
+resolver = "3"
+
+[package]
+name = "build-capture-plugin"
+default-run = "build-capture-plugin"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97.1"
+license = "MIT"
+publish = false
+
+[dependencies]
+qusor-capture-probe = { package = "core-api", path = "../../../crates/core-api" }
+qusor-package-probe = { package = "extension-package", path = "../../../crates/extension-package" }
+extension-api = { path = "../../../crates/extension-api" }
+serde_json = "=1.0.149"
+wat = "=1.228.0"
+
+[lints.rust]
+unsafe_code = "forbid"

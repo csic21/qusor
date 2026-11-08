@@ -1,0 +1,292 @@
+{
+  "status": "passed-default-feature-Linux-Xvfb-native-GUI",
+  "recorded_utc": "2026-11-08T14:41:33.946126+00:00",
+  "feature": "default=[]; native-qualification absent",
+  "build": {
+    "native": [
+      "cargo",
+      "build",
+      "-j1",
+      "--manifest-path",
+      "/workspace/qusor/experiments/nsh-reader/native-host/Cargo.toml",
+      "--locked",
+      "--offline",
+      "--bin",
+      "qusor-nsh-dynamic-pdf-probe"
+    ],
+    "features": "default only; no native-qualification",
+    "jobs": 1
+  },
+  "build_artifacts": {
+    "native_binary": "/workspace/qusor/experiments/nsh-reader/target/qualified-native-shutdown-gui-default/native-binary",
+    "native_binary_sha256": "59d2febbe03057061b6e4b7a2d996451fdcc40f4f224907a156b80fecd4da549",
+    "bundle_sha256": "93a8d4079ac3df9949c4ebf2a6e9f197687c6c1f674b49a40508a6d8559f3a83",
+    "source_fingerprints": 150
+  },
+  "source_inputs": 150,
+  "source_archive": "build-sources.zip",
+  "source_archive_sha256": "e76f9a3a8b932615773a9ffb655fc5d930bc2e65248985f025f7c69156b5efbc",
+  "source_checked_at_terminal": true,
+  "source_scope": "Selected Rust/TSX/TS/config/manifests/locks; matching fingerprints before build and after GUI; upstream fixed pin recorded separately, not full dependency rebuild provenance",
+  "fixture_generated_after_build": true,
+  "fixture": {
+    "after_build": true,
+    "lines": [
+      [
+        "Shutdown fresh source page 1",
+        "A runtime selected local document.",
+        "Dynamic selection stays on this source."
+      ],
+      [
+        "Shutdown fresh source page 2",
+        "A runtime selected local document.",
+        "Dynamic selection stays on this source."
+      ],
+      [
+        "Shutdown fresh source page 3",
+        "A runtime selected local document.",
+        "Dynamic selection stays on this source."
+      ]
+    ],
+    "sha256": "f1cff8439b1b8e2fc0045eff622af00fb08e9405600f57142a97d1a1c18eb403"
+  },
+  "chooser": "actual GTK portal chooser on private DBus with DISPLAY/XDG set before bus startup",
+  "autofocus_no_field_click": true,
+  "autofocus_requested_count": 2,
+  "saved_note": "shutdown native thought",
+  "saved_capture_count_after_discard": 1,
+  "second_draft_note": "discard native thought",
+  "discard_cancel_preserves_note": true,
+  "discard_confirm_returns_to_reading": true,
+  "app_exit": 0,
+  "xvfb_exit": 0,
+  "normal_close": "verified native window WM_DELETE_WINDOW; no process signal sent to App",
+  "actual_editor_vms": 30,
+  "actual_editor_calls": 100,
+  "actual_owned_reaps": 30,
+  "max_fuel": 119998,
+  "worker_leases": 0,
+  "shutdown_log": [
+    "NATIVE_EDITOR_SHUTDOWN pending_owner=false retirement=not_needed"
+  ],
+  "core_reopen_empty_restore_exact": true,
+  "original_pdf_exact": true,
+  "native_release_ack": false,
+  "processes_terminal": "App/Xvfb/harness/private DBus and observed portal PIDs absent; see process-terminal.json",
+  "test_driver_observations": [
+    "Initial selection NoHit retained then visible glyph retry succeeded",
+    "Second long drag endpoint NoHit; premature write/type hit body only, not counted as Input qualification; shorter real selection then Write/autofocus/type succeeded"
+  ],
+  "not_gui_qualified": [
+    "partial-read preparation failure",
+    "unknown apply/save recovery",
+    "IME/Esc composition",
+    "native resource release ACK",
+    "future dynamic FrameScheduler caller changes"
+  ],
+  "upstream": {
+    "checked_utc": "2026-11-08T14:33:29Z",
+    "pin": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+    "release": "official releases verified v0.4.0 stable/nightly f81b965",
+    "docs": "official fixed-pin docs/dev/linux.md reread",
+    "impact": "no upgrade; frozen Linux native qualification only",
+    "recent": [
+      {
+        "id": "tag:github.com,2008:Grit::Commit/058a745ad2d837374b99a9e46715e9b212d9b7a8",
+        "title": "cli: Log the performance monitor's readings only with -v (#1322)",
+        "updated": "2026-11-08T14:30:08Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/33f1015da8166f297c6ac01936aea6086d6a93d9",
+        "title": "core: Render far rows of an Each in a scroll view as they come near (…",
+        "updated": "2026-11-08T14:19:19Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/c89c4f09bc946fd068ba108c0304f0e8330d63c6",
+        "title": "engine: Measure the performance monitor's CPU over a second (#1313)",
+        "updated": "2026-11-08T14:14:10Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/25474f943c20a70e010469c903bfe306e7095f63",
+        "title": "macos: Picture a backdrop of only what draws under it, and only when …",
+        "updated": "2026-11-08T14:13:55Z"
+      },
+      {
+        "id": "tag:github.com,2008:Grit::Commit/760a025bbb2c50f83734c145c810930251a6e946",
+        "title": "cli: Build an optimized development host with nsh run --release (#1317)",
+        "updated": "2026-11-08T14:04:07Z"
+      }
+    ]
+  },
+  "artifacts": {
+    "core-recovery.stdout": {
+      "sha256": "c56653271477d4582cfe1d39b917ddeedd4150a3f98f0abdc7638013f32d6185",
+      "bytes": 9055
+    },
+    "build-command.json": {
+      "sha256": "d4fdf24c0b804cd303eca3b264ca52086b6bd0af5fe23897121698333919a3b5",
+      "bytes": 309
+    },
+    "window.log": {
+      "sha256": "6c6e36f0de4f74b44a4c3a1ae8ce0dc1760a2a2cade18681947233772ed298f0",
+      "bytes": 93282
+    },
+    "build-sources.zip": {
+      "sha256": "e76f9a3a8b932615773a9ffb655fc5d930bc2e65248985f025f7c69156b5efbc",
+      "bytes": 407293
+    },
+    "control.py": {
+      "sha256": "6cd77db46508daee5471f865d387cc0267e989370c52cfb1d1e9690747e0da17",
+      "bytes": 1110
+    },
+    "gui.py": {
+      "sha256": "f8a26688849054d200b54cdaae3a1e1a89f610d6a702b302e7ce55cd919eb49a",
+      "bytes": 1758
+    },
+    "process-terminal.json": {
+      "sha256": "21f9b2509a523046580dc5628bc10b3e5d97e567db8b3fe0ec05772e904d4d8b",
+      "bytes": 231
+    },
+    "xvfb.log": {
+      "sha256": "b4c7eeeb685d357271d5d414216d2d02523a3720e8b721504d7b177ea6cc0713",
+      "bytes": 264
+    },
+    "bundle.nshc": {
+      "sha256": "93a8d4079ac3df9949c4ebf2a6e9f197687c6c1f674b49a40508a6d8559f3a83",
+      "bytes": 200186
+    },
+    "typing-without-field-click.json": {
+      "sha256": "53fed106fe0579fa39b81858e42d117e9e1cc5bc214a7f4d1b170737b2a0de9b",
+      "bytes": 162
+    },
+    "discard-cancelled.png": {
+      "sha256": "94afaf0706ce7643b2e92a5c3681112e5a713a453ebcfbc0d1a759396ef3681d",
+      "bytes": 33104
+    },
+    "applied.png": {
+      "sha256": "b4e66b1c7b7307d33a5b85bb2749d2a0455d95297cc7fef90acdd39fc292214c",
+      "bytes": 34833
+    },
+    "core-recovery.json": {
+      "sha256": "c22ebf3874e53f4e31aaf32e756a484ee5b8afddc9d1f2cfe1093eb588314f9e",
+      "bytes": 14599
+    },
+    "build-artifacts.json": {
+      "sha256": "a06d9f76174d6bda0e25829b3bf59090a538fa29e33f4055f11a5db8e6608242",
+      "bytes": 344
+    },
+    "document.png": {
+      "sha256": "6611cce6e1d4ee4d2a9ee01b1e27aea37ff856c1030a4d86ebbbb49a08c0bea2",
+      "bytes": 36191
+    },
+    "second-typed-confirmed.png": {
+      "sha256": "286540c9501eac863a01f5d8d3fe808801c574ceb934e81c1165a05a8b974508",
+      "bytes": 38580
+    },
+    "source-before.json": {
+      "sha256": "9db63dd2da0136e7e570def08f5097a644fd710a214e7c29d1a10e0a3101801d",
+      "bytes": 17396
+    },
+    "selection-drag-2.json": {
+      "sha256": "5e87f13decdecfac3bf9074250e16144a72794b7a170bd01ae6068c7253c5868",
+      "bytes": 275
+    },
+    "selection-second-draft.json": {
+      "sha256": "9b0338701119d1a28a026c0cba833ac549c1a4a3537a64104633790ed0049a0b",
+      "bytes": 237
+    },
+    "second-typed.png": {
+      "sha256": "841fe7ea93b0e2e018dd5a6c3bf7f5033dc210ae6b05f6345f8d9ed02379cc9c",
+      "bytes": 32301
+    },
+    "native-build.log": {
+      "sha256": "8b65e700a141ce6b288a6c0c4232cc4b7891232877f1bce4453669fa7d157a64",
+      "bytes": 1146
+    },
+    "upstream-check.json": {
+      "sha256": "ce8bc76cc312bdb3a5d7b309d8abca34f560cc2913f9143848c0d96896bdbf7e",
+      "bytes": 1468
+    },
+    "selected-second.png": {
+      "sha256": "55dd6697cee2d7376bf76c8315f437984f294f68d2ab8140f2f7464bd3f44905",
+      "bytes": 27257
+    },
+    "selection-drag.json": {
+      "sha256": "15683cf55e37f2b58c11586fd425dbc2c6755201898266e7b930c5dc9a54ac8f",
+      "bytes": 276
+    },
+    "selected-2.png": {
+      "sha256": "0bd62895b7b32010615c81ba2f8912ed51a7bd5e0b1a43b7ba5bd873ed27c995",
+      "bytes": 27456
+    },
+    "autofocus.png": {
+      "sha256": "73a6e47c8bcc026cf8c281a2472eef3c368f2d8d08aa1af5650d82888bbaa1a1",
+      "bytes": 35368
+    },
+    "selection-second-draft-retry.json": {
+      "sha256": "38a0a8d6f5a979c00e2a0ff4dab975f9f320fa0cc5248e4adcc34686ff09cfac",
+      "bytes": 237
+    },
+    "startup.png": {
+      "sha256": "54535ea44f49808c900d3be5145f9135ca33846f7c7df1bbcd2ef43f5d4f7e70",
+      "bytes": 19577
+    },
+    "saving.png": {
+      "sha256": "e1b0b3678a03a3bc598e0ee4066244ff4249cd3d651bd0e98176a506cf7f4a89",
+      "bytes": 25987
+    },
+    "bundle-build.log": {
+      "sha256": "e06485d65d03a1e4e8f1a28e3950955c3089219deb2dbf588754a341c9aee8f3",
+      "bytes": 1614
+    },
+    "saved.png": {
+      "sha256": "ab594b0be01f2d4a2abf4e3ec779d4168ff9ecbbf67aa142b95d8f52459a240b",
+      "bytes": 35808
+    },
+    "continued.png": {
+      "sha256": "56718fe08e07685615d4bb807718c94112d221e9d9745d4db3621f765f891a90",
+      "bytes": 35964
+    },
+    "postrun-checks.json": {
+      "sha256": "986920c87f2685599c187258c7d22254a5d3cf6d2fd80dd9e3589426933c1b1b",
+      "bytes": 218
+    },
+    "typing-second-draft-retry.json": {
+      "sha256": "1dc581d29ebc6490182abd0a01ef2e91cb3cf3ef59c0bb4efe022c76853341be",
+      "bytes": 161
+    },
+    "upstream.atom": {
+      "sha256": "d0502d5b2342980168688e6756d10d4841402258d3d95c8e714b6c29742db2a6",
+      "bytes": 58088
+    },
+    "typing-second-draft.json": {
+      "sha256": "1dc581d29ebc6490182abd0a01ef2e91cb3cf3ef59c0bb4efe022c76853341be",
+      "bytes": 161
+    },
+    "discard-confirm.png": {
+      "sha256": "c3b89b84bd6027bc118ec6aef6ba393edda634d99b474c00c7edf2173823353a",
+      "bytes": 46620
+    },
+    "typed.png": {
+      "sha256": "b7b8dc71ef4ce53b135ba8dda82c543c6e815f09b2bcef3540552edf178ad9f3",
+      "bytes": 40217
+    },
+    "discarded.png": {
+      "sha256": "56718fe08e07685615d4bb807718c94112d221e9d9745d4db3621f765f891a90",
+      "bytes": 35964
+    },
+    "live.json": {
+      "sha256": "7abad152577c28aa7d27bcad89596ff8d2f63d94cb172dff958306bbda3e4d0c",
+      "bytes": 806
+    },
+    "selected.png": {
+      "sha256": "6611cce6e1d4ee4d2a9ee01b1e27aea37ff856c1030a4d86ebbbb49a08c0bea2",
+      "bytes": 36191
+    },
+    "build.py": {
+      "sha256": "95ca988142953a8daf0da7581ed835bcb529cc04079f7be5044736f6b6f23dea",
+      "bytes": 3452
+    }
+  },
+  "capture_count_verification": "readonly SELECT count(*) FROM pdf_capture"
+}

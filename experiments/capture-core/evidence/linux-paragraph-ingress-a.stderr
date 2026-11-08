@@ -1,0 +1,16 @@
+   Compiling extension-api v0.0.0 (/workspace/qusor/crates/extension-api)
+   Compiling learning-application v0.0.0 (/workspace/qusor/crates/learning-application)
+   Compiling extension-host v0.0.0 (/workspace/qusor/crates/extension-host)
+   Compiling extension-package v0.0.0 (/workspace/qusor/crates/extension-package)
+   Compiling runtime-wasm v0.0.0 (/workspace/qusor/adapters/runtime-wasm)
+   Compiling qusor-wasm-probe v0.1.0 (/workspace/qusor/experiments/extension-wasm/runner)
+   Compiling extension-store v0.0.0 (/workspace/qusor/adapters/extension-store)
+   Compiling qusor-package-probe v0.1.0 (/workspace/qusor/experiments/extension-package)
+   Compiling qusor-capture-probe v0.1.0 (/workspace/qusor/experiments/capture-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.97s
+     Running tests/component_text_consumer.rs (experiments/capture-core/target/debug/deps/component_text_consumer-6dcf7840a19cd092)
+FIXTURE_REPLY_LOST begin_reply_lost after applied effect; terminate owned worker
+FIXTURE_REPLY_LOST append_reply_lost after applied effect; terminate owned worker
+FIXTURE_REPLY_LOST commit_reply_lost after applied effect; terminate owned worker
+REAL_COMPONENT_INPUT_COMPLETED bytes=1120 vms=8
+REAL_COMPONENT_INPUT_COMPLETED bytes=0 vms=10

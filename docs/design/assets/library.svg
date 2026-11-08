@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1000" viewBox="0 0 1440 1000" role="img">
+<title>资料库 · 稳定入口与内容扫描</title><desc>① 工作区导航   ② 当前工作区工具   ③ 主内容；组件来源不改变区域职责</desc>
+<defs><clipPath id="body"><rect x="120" y="168" width="1256" height="684"/></clipPath></defs>
+<g font-family="Noto Sans CJK SC, sans-serif">
+<rect x="0" y="0" width="1440" height="1000" rx="0" fill="#E6E8E1"/>
+<text x="64" y="49" font-size="26" fill="#242824" font-weight="600">资料库 · 稳定入口与内容扫描</text>
+<text x="64" y="78" font-size="14" fill="#596159" font-weight="400">① 工作区导航   ② 当前工作区工具   ③ 主内容；组件来源不改变区域职责</text>
+<rect x="64" y="112" width="1312" height="792" rx="12" fill="#F4F3EF" stroke="#C9CFC5"/>
+<rect x="64" y="112" width="208" height="792" rx="12" fill="#ECEDE8"/>
+<path transform="translate(86 139) scale(.75)" d="M2 3H9L12 5L15 3H22V20H15L12 22L9 20H2ZM12 5V22" stroke="#315B46" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<text x="116" y="157" font-size="18" fill="#242824" font-weight="600">QUSOR</text>
+<rect x="80" y="200" width="176" height="40" rx="6" fill="#DCE4D8"/>
+<path transform="translate(95 211) scale(.75)" d="M2 3H9L12 5L15 3H22V20H15L12 22L9 20H2ZM12 5V22" stroke="#315B46" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<text x="125" y="227" font-size="14" fill="#315B46" font-weight="500">资料库</text>
+<path transform="translate(95 263) scale(.75)" d="M4 2H17L21 6V22H4ZM17 2V7H21M8 11H17M8 15H17" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<text x="125" y="279" font-size="14" fill="#242824" font-weight="400">笔记</text>
+<text x="94" y="349" font-size="12" fill="#596159" font-weight="400">阅读清单</text>
+<text x="96" y="386" font-size="14" fill="#242824" font-weight="400">稍后阅读</text>
+<text x="96" y="425" font-size="14" fill="#242824" font-weight="400">已归档</text>
+<path d="M88 807L248 807" stroke="#D9DDD5" fill="none"/>
+<text x="95" y="842" font-size="13" fill="#596159" font-weight="400">本地资料</text>
+<text x="95" y="877" font-size="13" fill="#596159" font-weight="400">设置与扩展</text>
+<path d="M272 112L272 904" stroke="#D9DDD5" fill="none"/>
+<text x="312" y="174" font-size="24" fill="#242824" font-weight="600">资料库</text>
+<text x="312" y="204" font-size="13" fill="#596159" font-weight="400">12 份资料 · 保存在本机</text>
+<rect x="1212" y="147" width="124" height="36" rx="6" fill="#FFFFFF" stroke="#D9DDD5"/>
+<text x="1226" y="171" font-size="14" fill="#242824" font-weight="500">导入资料…</text>
+<rect x="312" y="232" width="798" height="40" rx="6" fill="#FFFFFF" stroke="#D9DDD5"/>
+<path transform="translate(326 243) scale(.75)" d="M15 15L22 22M18 10A8 8 0 1 1 2 10A8 8 0 1 1 18 10" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<text x="356" y="258" font-size="14" fill="#596159" font-weight="400">搜索标题、作者或内容</text>
+<rect x="1126" y="234" width="210" height="36" rx="6" fill="#FFFFFF" stroke="#D9DDD5"/>
+<text x="1140" y="258" font-size="14" fill="#242824" font-weight="500">全部类型          ⌄</text>
+<text x="312" y="320" font-size="16" fill="#242824" font-weight="500">继续阅读</text>
+<rect x="312" y="340" width="1024" height="120" rx="8" fill="#FFFFFF" stroke="#D9DDD5"/>
+<rect x="332" y="358" width="64" height="84" rx="4" fill="#E5E9DF"/>
+<text x="344" y="388" font-size="14" fill="#315B46" font-weight="500">阅读</text>
+<text x="344" y="411" font-size="14" fill="#315B46" font-weight="500">思考</text>
+<text x="420" y="378" font-size="17" fill="#242824" font-weight="500">阅读与思考：如何理解材料</text>
+<text x="420" y="406" font-size="13" fill="#596159" font-weight="400">第二章 · 第 12 页</text>
+<rect x="420" y="426" width="300" height="3" rx="1" fill="#E7EAE4"/>
+<rect x="420" y="426" width="102" height="3" rx="1" fill="#789477"/>
+<text x="737" y="432" font-size="12" fill="#596159" font-weight="400">继续上次的位置</text>
+<rect x="1194" y="380" width="120" height="36" rx="6" fill="#FFFFFF" stroke="#D9DDD5"/>
+<text x="1208" y="404" font-size="14" fill="#242824" font-weight="500">继续阅读</text>
+<text x="312" y="515" font-size="16" fill="#242824" font-weight="500">全部资料</text>
+<text x="1150" y="515" font-size="13" fill="#596159" font-weight="400">最近阅读  ↓</text>
+<path d="M312 536L1336 536" stroke="#D9DDD5" fill="none"/>
+<text x="328" y="563" font-size="12" fill="#596159" font-weight="400">标题</text>
+<text x="1066" y="563" font-size="12" fill="#596159" font-weight="400">类型</text>
+<text x="1178" y="563" font-size="12" fill="#596159" font-weight="400">最近阅读</text>
+<rect x="312" y="580" width="1024" height="70" rx="4" fill="#E7EDE5"/>
+<path transform="translate(328 601) scale(.75)" d="M2 3H9L12 5L15 3H22V20H15L12 22L9 20H2ZM12 5V22" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<text x="365" y="608" font-size="15" fill="#242824" font-weight="500">阅读与思考：如何理解材料</text>
+<text x="365" y="632" font-size="12" fill="#596159" font-weight="400">独立文档 · 128 页</text>
+<text x="1066" y="616" font-size="12" fill="#596159" font-weight="400">PDF</text>
+<text x="1178" y="616" font-size="13" fill="#596159" font-weight="400">今天</text>
+<path transform="translate(1297 601) scale(.75)" d="M4 12H5M11 12H12M18 12H19" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<path d="M312 650L1336 650" stroke="#E4E7E0" fill="none"/>
+<path transform="translate(328 673) scale(.75)" d="M2 3H9L12 5L15 3H22V20H15L12 22L9 20H2ZM12 5V22" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<text x="365" y="680" font-size="15" fill="#242824" font-weight="500">证据与判断</text>
+<text x="365" y="704" font-size="12" fill="#596159" font-weight="400">学习笔记选编 · 64 页</text>
+<text x="1066" y="688" font-size="12" fill="#596159" font-weight="400">PDF</text>
+<text x="1178" y="688" font-size="13" fill="#596159" font-weight="400">昨天</text>
+<path transform="translate(1297 673) scale(.75)" d="M4 12H5M11 12H12M18 12H19" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<path d="M312 722L1336 722" stroke="#E4E7E0" fill="none"/>
+<path transform="translate(328 745) scale(.75)" d="M2 3H9L12 5L15 3H22V20H15L12 22L9 20H2ZM12 5V22" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<text x="365" y="752" font-size="15" fill="#242824" font-weight="500">知识如何相互连接</text>
+<text x="365" y="776" font-size="12" fill="#596159" font-weight="400">研究材料 · 92 页</text>
+<text x="1066" y="760" font-size="12" fill="#596159" font-weight="400">PDF</text>
+<text x="1178" y="760" font-size="13" fill="#596159" font-weight="400">11 月 6 日</text>
+<path transform="translate(1297 745) scale(.75)" d="M4 12H5M11 12H12M18 12H19" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<path d="M312 794L1336 794" stroke="#E4E7E0" fill="none"/>
+<path transform="translate(328 817) scale(.75)" d="M2 3H9L12 5L15 3H22V20H15L12 22L9 20H2ZM12 5V22" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<text x="365" y="824" font-size="15" fill="#242824" font-weight="500">观察、问题与解释</text>
+<text x="365" y="848" font-size="12" fill="#596159" font-weight="400">个人收藏 · 48 页</text>
+<text x="1066" y="832" font-size="12" fill="#596159" font-weight="400">PDF</text>
+<text x="1178" y="832" font-size="13" fill="#596159" font-weight="400">11 月 5 日</text>
+<path transform="translate(1297 817) scale(.75)" d="M4 12H5M11 12H12M18 12H19" stroke="#596159" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<path d="M312 866L1336 866" stroke="#E4E7E0" fill="none"/>
+<text x="64" y="942" font-size="14" fill="#596159" font-weight="400">资料库由工作区插件提供；导航、动作样式和焦点由宿主统一。导入进度与阅读位置须连接真实持久数据。</text>
+<text x="64" y="970" font-size="12" fill="#596159" font-weight="400">设计工作基线 v0.1 · 自拟示例内容 · 非运行截图 · 功能、长书与原生平台能力仍须分别验收</text>
+</g></svg>

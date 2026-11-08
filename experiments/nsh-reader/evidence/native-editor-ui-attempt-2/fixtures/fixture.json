@@ -1,0 +1,22 @@
+{
+  "license": "MIT synthetic",
+  "generated_after_build": true,
+  "sha256": "c71e765a798ed5c818b87b42971b50fac9db9ba1f87b0ae69fe617dae05eae1f",
+  "text": [
+    [
+      "Focused component source page 1",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ],
+    [
+      "Focused component source page 2",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ],
+    [
+      "Focused component source page 3",
+      "A runtime selected local document.",
+      "Dynamic selection stays on this source."
+    ]
+  ]
+}

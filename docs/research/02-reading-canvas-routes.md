@@ -4,10 +4,12 @@
 
 ## 1 路线决定
 
+2026-11-08 更新：用户确认 C-09“尽量 native、少用 web”。下表是早期验证建议，涉及 EPUB、Markdown/富文本和画布的 Web 路线不再作为无条件首选；优先验证 NSH 原生 UI 与可复用原生服务，具体原生缺口及 Web 备选代价另行留证。PDFium 主线保持，长期格式、插件边界及平台要求不变。
+
 | 模块 | M-1首选验证路线 | 条件性备选 | 开工门槛 |
 |---|---|---|---|
 | PDF | Rust PDFium adapter，分页/分块位图，自有选择/高亮层 | NSH WebView + PDF.js | 五端构建、位图显示成本、文字选择、精确锚点 |
-| EPUB | 受控WebView + EPUB.js；Rust负责包结构、文件与来源 | Readium TS；移动必要时Readium Swift/Kotlin Navigator | 离线资源、中文重排、CFI、多章节标注、桥接隔离 |
+| EPUB | 按 C-09 先验证可复用原生阅读/排版服务与 NSH Surface 适配 | 有明确原生缺口再评估受控 WebView + EPUB.js/Readium Web | 离线资源、中文重排、稳定锚点、多章节标注、平台适配；原生支持仍未验 |
 | Markdown | 原始Markdown + 稳定块ID；NSH Editor/TextView | WebView编辑器 | 中文IME、源码到选择映射、持久化 |
 | 富文本 | NSH原生RichEditor + QUSOR受限schema | WebView Tiptap/ProseMirror；M0可只做Markdown | 移动IME、undo、格式往返、块ID |
 | Think Space | Rust canvas-engine + NSH Canvas/Painter | 经测量必要时NativeComponent专用Surface；WebView React Flow另备选 | 大小图、命中、DPI/触控、帧时间、无障碍替代 |

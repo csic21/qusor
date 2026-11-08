@@ -1,0 +1,38 @@
+{
+  "status": "app-terminal",
+  "run": "/home/user/.cache/qusor-ime/runs/native-ime-1-1794142930",
+  "display": ":111",
+  "session_bus": "unix:path=/tmp/dbus-EweOzHXiDI,guid=e14d38b8a6b2d483511200ac6af073b2",
+  "engine_wrapper": "bwrap engine only; not a product sandbox",
+  "personal_configuration_read": false,
+  "xvfb": {
+    "pid": 461925,
+    "start_ticks": 4518277
+  },
+  "ibus": {
+    "pid": 461928,
+    "start_ticks": 4518377
+  },
+  "preparation_repair": "Started explicit private-bus ibus-memconf after libpinyin required config component; original daemon/display/session retained",
+  "memconf": {
+    "pid": 462328
+  },
+  "selected_engine": "libpinyin",
+  "app": {
+    "pid": 462545,
+    "start_ticks": 4542891
+  },
+  "command": [
+    "/workspace/qusor/experiments/nsh-reader/target/nsh/target/debug/qusor-nsh-dynamic-pdf-probe",
+    "--bundle",
+    "/workspace/qusor/experiments/nsh-reader/evidence/native-editor-ime-attempt-1/bundle.nshc",
+    "--trace",
+    "--app-id",
+    "org.qusor.nativeprobe",
+    "--data-dir",
+    "/workspace/qusor/experiments/nsh-reader/evidence/native-editor-ime-attempt-1/data/ui",
+    "--window-size",
+    "1000x1000"
+  ],
+  "app_exit": 0
+}

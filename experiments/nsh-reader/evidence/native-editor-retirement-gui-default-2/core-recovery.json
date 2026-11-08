@@ -1,0 +1,413 @@
+{
+  "restore": {
+    "ok": true,
+    "receipt": {
+      "pdf_captures": 1,
+      "pdf_documents": 1,
+      "text_captures": 0
+    }
+  },
+  "captures_equal_before_after_restore": true,
+  "records": [
+    {
+      "capture": {
+        "draft": {
+          "end": 19,
+          "exact": "Retirement fresh so",
+          "extraction_revision": "2f8d430465f9e49aa0c38cac091b37d2b0bdd2faad671764ec108dfe1a572b6b",
+          "original_sha256": "1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3",
+          "page_index": 0,
+          "page_text_sha256": "aaf2765fbb71f765fd3064ed1f770f6761394e85ba1bd7ad5330ebe1759aab5d",
+          "protocol_version": 1,
+          "start": 0,
+          "unit": "unicode_scalar"
+        },
+        "provenance": {
+          "installation_id": 1,
+          "package_digest": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+          "package_id": "org.example.surface-reader",
+          "publisher_id": "org.example.author"
+        },
+        "receipt": {
+          "capture_id": 1,
+          "commit_rev": 2,
+          "document_id": 1,
+          "draft_hash": "c7bf4cd9fddd83b68950c4e3446f43383817d4b197e426c630370a1a570a800d",
+          "extraction_revision": "2f8d430465f9e49aa0c38cac091b37d2b0bdd2faad671764ec108dfe1a572b6b",
+          "operation_id": "surface-save-83f561bec0c984bf74e0bae80029d75b-5",
+          "original_sha256": "1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3"
+        },
+        "user_note": "default retirement thought"
+      },
+      "ok": true
+    }
+  ],
+  "exact_resolutions": [
+    {
+      "ok": true,
+      "selection": {
+        "anchor": {
+          "end": 19,
+          "exact": "Retirement fresh so",
+          "extraction_revision": "2f8d430465f9e49aa0c38cac091b37d2b0bdd2faad671764ec108dfe1a572b6b",
+          "original_sha256": "1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3",
+          "page_index": 0,
+          "page_text_sha256": "aaf2765fbb71f765fd3064ed1f770f6761394e85ba1bd7ad5330ebe1759aab5d",
+          "protocol_version": 1,
+          "start": 0,
+          "unit": "unicode_scalar"
+        },
+        "byte_end": 19,
+        "byte_start": 0,
+        "characters": [
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 73.23200225830078,
+              "right": 81.57600402832031,
+              "top": 710.052001953125
+            },
+            "pdf_char_index": 0,
+            "scalar_end": 1,
+            "scalar_start": 0,
+            "unicode_value": 82,
+            "utf16_end": 1,
+            "utf16_start": 0,
+            "utf8_end": 1,
+            "utf8_start": 0
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.8040161132812,
+              "left": 82.66799926757812,
+              "right": 89.33200073242188,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 1,
+            "scalar_end": 2,
+            "scalar_start": 1,
+            "unicode_value": 101,
+            "utf16_end": 2,
+            "utf16_start": 1,
+            "utf8_end": 2,
+            "utf8_start": 1
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.916015625,
+              "left": 90.08799743652344,
+              "right": 93.48999786376953,
+              "top": 709.3660278320312
+            },
+            "pdf_char_index": 2,
+            "scalar_end": 3,
+            "scalar_start": 2,
+            "unicode_value": 116,
+            "utf16_end": 3,
+            "utf16_start": 2,
+            "utf8_end": 3,
+            "utf8_start": 2
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 94.72200012207031,
+              "right": 95.9540023803711,
+              "top": 710.052001953125
+            },
+            "pdf_char_index": 3,
+            "scalar_end": 4,
+            "scalar_start": 3,
+            "unicode_value": 105,
+            "utf16_end": 4,
+            "utf16_start": 3,
+            "utf8_end": 4,
+            "utf8_start": 3
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 97.97000122070312,
+              "right": 101.54000091552734,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 4,
+            "scalar_end": 5,
+            "scalar_start": 4,
+            "unicode_value": 114,
+            "utf16_end": 5,
+            "utf16_start": 4,
+            "utf8_end": 5,
+            "utf8_start": 4
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.8040161132812,
+              "left": 102.11399841308594,
+              "right": 108.77799987792969,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 5,
+            "scalar_end": 6,
+            "scalar_start": 5,
+            "unicode_value": 101,
+            "utf16_end": 6,
+            "utf16_start": 5,
+            "utf8_end": 6,
+            "utf8_start": 5
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 110.24800109863281,
+              "right": 120.10400390625,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 6,
+            "scalar_end": 7,
+            "scalar_start": 6,
+            "unicode_value": 109,
+            "utf16_end": 7,
+            "utf16_start": 6,
+            "utf8_end": 7,
+            "utf8_start": 6
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.8040161132812,
+              "left": 121.55999755859375,
+              "right": 128.2239990234375,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 7,
+            "scalar_end": 8,
+            "scalar_start": 7,
+            "unicode_value": 101,
+            "utf16_end": 8,
+            "utf16_start": 7,
+            "utf8_end": 8,
+            "utf8_start": 7
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 129.69400024414062,
+              "right": 135.6580047607422,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 8,
+            "scalar_end": 9,
+            "scalar_start": 8,
+            "unicode_value": 110,
+            "utf16_end": 9,
+            "utf16_start": 8,
+            "utf8_end": 9,
+            "utf8_start": 8
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.916015625,
+              "left": 136.76400756835938,
+              "right": 140.16600036621094,
+              "top": 709.3660278320312
+            },
+            "pdf_char_index": 9,
+            "scalar_end": 10,
+            "scalar_start": 9,
+            "unicode_value": 116,
+            "utf16_end": 10,
+            "utf16_start": 9,
+            "utf8_end": 10,
+            "utf8_start": 9
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": null,
+            "pdf_char_index": 10,
+            "scalar_end": 11,
+            "scalar_start": 10,
+            "unicode_value": 32,
+            "utf16_end": 11,
+            "utf16_start": 10,
+            "utf8_end": 11,
+            "utf8_start": 10
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 144.54800415039062,
+              "right": 148.01998901367188,
+              "top": 710.1920166015625
+            },
+            "pdf_char_index": 11,
+            "scalar_end": 12,
+            "scalar_start": 11,
+            "unicode_value": 102,
+            "utf16_end": 12,
+            "utf16_start": 11,
+            "utf8_end": 12,
+            "utf8_start": 11
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 149.32199096679688,
+              "right": 152.89199829101562,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 12,
+            "scalar_end": 13,
+            "scalar_start": 12,
+            "unicode_value": 114,
+            "utf16_end": 13,
+            "utf16_start": 12,
+            "utf8_end": 13,
+            "utf8_start": 12
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.8040161132812,
+              "left": 153.46600341796875,
+              "right": 160.1300048828125,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 13,
+            "scalar_end": 14,
+            "scalar_start": 13,
+            "unicode_value": 101,
+            "utf16_end": 14,
+            "utf16_start": 13,
+            "utf8_end": 14,
+            "utf8_start": 13
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.8040161132812,
+              "left": 161.13800048828125,
+              "right": 167.18600463867188,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 14,
+            "scalar_end": 15,
+            "scalar_start": 14,
+            "unicode_value": 115,
+            "utf16_end": 15,
+            "utf16_start": 14,
+            "utf8_end": 15,
+            "utf8_start": 14
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 700.0,
+              "left": 168.60000610351562,
+              "right": 174.56399536132812,
+              "top": 710.052001953125
+            },
+            "pdf_char_index": 15,
+            "scalar_end": 16,
+            "scalar_start": 15,
+            "unicode_value": 104,
+            "utf16_end": 16,
+            "utf16_start": 15,
+            "utf8_end": 16,
+            "utf8_start": 15
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": null,
+            "pdf_char_index": 16,
+            "scalar_end": 17,
+            "scalar_start": 16,
+            "unicode_value": 32,
+            "utf16_end": 17,
+            "utf16_start": 16,
+            "utf8_end": 17,
+            "utf8_start": 16
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.8040161132812,
+              "left": 179.81399536132812,
+              "right": 185.86199951171875,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 17,
+            "scalar_end": 18,
+            "scalar_start": 17,
+            "unicode_value": 115,
+            "utf16_end": 18,
+            "utf16_start": 17,
+            "utf8_end": 18,
+            "utf8_start": 17
+          },
+          {
+            "generated": false,
+            "mapping": "scalar",
+            "pdf_bounds": {
+              "bottom": 699.8179931640625,
+              "left": 186.85598754882812,
+              "right": 193.6599884033203,
+              "top": 707.531982421875
+            },
+            "pdf_char_index": 18,
+            "scalar_end": 19,
+            "scalar_start": 18,
+            "unicode_value": 111,
+            "utf16_end": 19,
+            "utf16_start": 18,
+            "utf8_end": 19,
+            "utf8_start": 18
+          }
+        ],
+        "end": 19,
+        "exact": "Retirement fresh so",
+        "page_index": 0,
+        "start": 0,
+        "utf16_end": 19,
+        "utf16_start": 0
+      }
+    }
+  ],
+  "originals": [
+    {
+      "document_id": 1,
+      "source": "experiments/nsh-reader/evidence/native-editor-retirement-gui-default-2/fixtures/input.pdf",
+      "sha256": "1200135392a4a307cb8cce8781c6ea7690d11803d851e28b82ebbc5195a34ff3"
+    }
+  ],
+  "archive_sha256": "3a3c1a69245f46c2f010dfcfcf9d4ac0cd0f30afc407272001d3fb0c845ed819"
+}

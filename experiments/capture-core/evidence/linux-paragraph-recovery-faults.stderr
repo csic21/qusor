@@ -1,0 +1,31 @@
+TRUSTED_FIXTURE_FAULT scan_checkpoint_late_reply after applied checkpoint/effect; action=LateReply
+RECOVERABLE_RUN_INTERRUPTION {"cause":"late_reply_fixture:ProcessError { kind: InvalidState, code: \"stale_process_reply\" }","checkpoint_after":{"checkpoint_bytes":161,"checkpoint_revision":2,"last_effect":"None","state":"Active"},"checkpoint_before":{"checkpoint_bytes":0,"checkpoint_revision":1,"last_effect":"None","state":"Active"},"checkpoint_retries":1,"planned_fixture":true,"run":"3a7f027ad2c044b6b839cfa763c0124a-4","status_after":"Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: \"process_cancelled\" }), pid: Some(390565), pending_call: None, exit: None })","status_before":"Ok(WorkerStatus { state: Running, error: None, pid: Some(390565), pending_call: Some(4), exit: None })"}
+PROCESS_FAILURE run=3a7f027ad2c044b6b839cfa763c0124a-4 error=ProcessError { kind: Cancelled, code: "process_cancelled" } status=Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: "process_cancelled" }), pid: Some(390565), pending_call: None, exit: None })
+PARAGRAPH_FAULT_CASE_PASSED scan_checkpoint_late_reply vms=27
+TRUSTED_FIXTURE_FAULT scan_checkpoint_reply_lost after applied checkpoint/effect; action=DropReply
+PROCESS_FAILURE run=3a7f027ad2c044b6b839cfa763c0124a-31 error=ProcessError { kind: Cancelled, code: "process_cancelled" } status=Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: "process_cancelled" }), pid: Some(390648), pending_call: None, exit: None })
+PARAGRAPH_FAULT_CASE_PASSED scan_checkpoint_reply_lost vms=54
+TRUSTED_FIXTURE_FAULT scan_mount_closed after applied checkpoint/effect; action=CloseMount
+PROCESS_FAILURE run=3a7f027ad2c044b6b839cfa763c0124a-58 error=ProcessError { kind: Cancelled, code: "process_cancelled" } status=Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: "process_cancelled" }), pid: Some(390866), pending_call: None, exit: None })
+TRUSTED_NATIVE_COPY_CONFIRMED scan_mount_closed bytes=19; explicit discard now closes event
+PARAGRAPH_FAULT_CASE_PASSED scan_mount_closed vms=58
+TRUSTED_FIXTURE_FAULT begin_mount_closed after applied checkpoint/effect; action=CloseMount
+PROCESS_FAILURE run=3a7f027ad2c044b6b839cfa763c0124a-68 error=ProcessError { kind: Cancelled, code: "process_cancelled" } status=Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: "process_cancelled" }), pid: Some(390903), pending_call: None, exit: None })
+TRUSTED_NATIVE_COPY_CONFIRMED begin_mount_closed bytes=19; explicit discard now closes event
+PARAGRAPH_FAULT_CASE_PASSED begin_mount_closed vms=68
+TRUSTED_FIXTURE_FAULT append_mount_closed after applied checkpoint/effect; action=CloseMount
+PROCESS_FAILURE run=3a7f027ad2c044b6b839cfa763c0124a-79 error=ProcessError { kind: Cancelled, code: "process_cancelled" } status=Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: "process_cancelled" }), pid: Some(390944), pending_call: None, exit: None })
+TRUSTED_NATIVE_COPY_CONFIRMED append_mount_closed bytes=19; explicit discard now closes event
+PARAGRAPH_FAULT_CASE_PASSED append_mount_closed vms=79
+TRUSTED_FIXTURE_FAULT scan_store_revoked after applied checkpoint/effect; action=RevokeInstallation
+PROCESS_FAILURE run=3a7f027ad2c044b6b839cfa763c0124a-83 error=ProcessError { kind: Cancelled, code: "process_cancelled" } status=Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: "process_cancelled" }), pid: Some(390957), pending_call: None, exit: None })
+TRUSTED_NATIVE_COPY_CONFIRMED scan_store_revoked bytes=19; explicit discard now closes event
+PARAGRAPH_FAULT_CASE_PASSED scan_store_revoked vms=83
+TRUSTED_FIXTURE_FAULT begin_store_revoked after applied checkpoint/effect; action=RevokeInstallation
+PROCESS_FAILURE run=3a7f027ad2c044b6b839cfa763c0124a-93 error=ProcessError { kind: Cancelled, code: "process_cancelled" } status=Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: "process_cancelled" }), pid: Some(390988), pending_call: None, exit: None })
+TRUSTED_NATIVE_COPY_CONFIRMED begin_store_revoked bytes=19; explicit discard now closes event
+PARAGRAPH_FAULT_CASE_PASSED begin_store_revoked vms=93
+TRUSTED_FIXTURE_FAULT append_store_revoked after applied checkpoint/effect; action=RevokeInstallation
+PROCESS_FAILURE run=3a7f027ad2c044b6b839cfa763c0124a-104 error=ProcessError { kind: Cancelled, code: "process_cancelled" } status=Ok(WorkerStatus { state: Retiring, error: Some(ProcessError { kind: Cancelled, code: "process_cancelled" }), pid: Some(391022), pending_call: None, exit: None })
+TRUSTED_NATIVE_COPY_CONFIRMED append_store_revoked bytes=19; explicit discard now closes event
+PARAGRAPH_FAULT_CASE_PASSED append_store_revoked vms=104

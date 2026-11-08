@@ -1,0 +1,129 @@
+{
+  "status": "passed",
+  "exact_executable": "/workspace/qusor/experiments/nsh-reader/target/native-retirement-qualified/shutdown-final-qualification",
+  "executable_sha256": "5e3d5db355bec31eaad02ba62ce760fb6fc37470910b9b7ef0e044fd4018d61d",
+  "qualification_feature": "native-qualification (nondefault)",
+  "manifest": "experiments/nsh-reader/native-host/Cargo.toml",
+  "execution": "harness=false integration entry dispatches real runtime_process worker_main(WasmiRuntime); synthetic immutable reader source; actual signed A/Store/Controller",
+  "actual_cases": [
+    {
+      "actual_reaped": [
+        "5f3612f34f7efb1b74b5db2d79847772-1"
+      ],
+      "case": "invocation",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "dfe88653663cfeffacc7687cd35d7b4f-1"
+      ],
+      "case": "gate",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "895551d2c41f4023eb2d440bd9181186-1"
+      ],
+      "case": "finish",
+      "faults": 1,
+      "leases": 0
+    },
+    {
+      "actual_reaped": [
+        "3d729e63a561934bc4777171613129b6-1"
+      ],
+      "case": "unknown_wait",
+      "faults": 0,
+      "leases": 0
+    },
+    {
+      "actual_reaped": true,
+      "case": "foreign_install",
+      "guarded": true,
+      "lease_record_unchanged": true,
+      "remaining_leases": 0
+    },
+    {
+      "actual_reaped": true,
+      "case": "same_install",
+      "guarded": true,
+      "lease_record_unchanged": true,
+      "remaining_leases": 0
+    },
+    {
+      "actual_reaped": [
+        "305c4fc6fbc8b43c3fd2f1a394898ee7-1"
+      ],
+      "busy_before": false,
+      "case": "shutdown_idle_unknown",
+      "leases_after": 0,
+      "native_release_ack": false,
+      "new_business_rejected": true,
+      "service_closed_after_real_reap": true,
+      "unconfirmed_service_and_lease_retained": false
+    },
+    {
+      "actual_reaped": [
+        "75ee9b6ef5d4867592a4ad490bc84bcd-1"
+      ],
+      "busy_before": false,
+      "case": "shutdown_live_guard",
+      "leases_after": 0,
+      "native_release_ack": false,
+      "new_business_rejected": true,
+      "service_closed_after_real_reap": true,
+      "unconfirmed_service_and_lease_retained": true
+    }
+  ],
+  "completed_guest_vms": 7,
+  "completed_guest_calls": 23,
+  "max_completed_fuel": 119072,
+  "editor_actual_reaps": 12,
+  "additional_guarded_owned_reaps": 2,
+  "budgets": {
+    "worker_deadline_ms": 250,
+    "worker_fuel": 1000000,
+    "worker_calls": 8,
+    "default_shutdown_parent_budget_seconds": 10
+  },
+  "qualification_hooks": "Feature-only once-zero parent wait/shutdown budgets; actual GuardReady yield before Boot, preserving real handle+Store bound identity; no fake Reaped/Store semantics/budget increase",
+  "validation": {
+    "check_attempt1": "compile failure: NSH Later is opaque, not Rust Future; retained log",
+    "check_attempt2": 0,
+    "os_attempt1": 0,
+    "clippy_attempt1": "one collapsible_if in qualification only; retained log and prelint passed exe/source",
+    "clippy_final": 0,
+    "native_editor_unit_tests": 5,
+    "full_native_lib_tests": {
+      "passed": 16,
+      "failed": 0,
+      "seconds": 11.31
+    },
+    "os_attempt2_final_source": 0
+  },
+  "source_capture": {
+    "description": "postrun selected project Rust/manifests/locks, excludes App/TSX; not complete upstream/dependency build input freeze",
+    "files": 132,
+    "archive_sha256": "71aa67db478e99a8d16de99a993bbe732d1cfa9fa4b56d9a90c4afa6f3b0b52e",
+    "nsh_pin": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f"
+  },
+  "packages": {
+    "editor-a.package": "7769c10ae964187765e8e7de9c84ff6422d00da7426b7581ed961f18c6a030b8",
+    "editor-a-publickey.txt": "343aeea983bbf0fd6171872828c0899aaa80650667c2146b22f870b975e2529e"
+  },
+  "unverified": [
+    "new default GUI/IME with shutdown lifecycle",
+    "native renderer/resource release ACK",
+    "terminate backpressure",
+    "poison/start-prepare OS fault combinations"
+  ],
+  "artifact_warning": "Integration Cargo implicitly builds existing native bins with qualification feature. Rebuild default features before default GUI; TSX changes by Root are separately versioned.",
+  "independent_root_run": {
+    "record": "root-independent.json",
+    "log": "root-independent.log",
+    "reported_exit_code": 0,
+    "scope": "Root separately verified exact qualification exe; eight cases passed"
+  }
+}

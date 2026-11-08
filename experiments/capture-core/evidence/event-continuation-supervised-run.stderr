@@ -1,0 +1,17 @@
+supervised starting org.supervised.metadata1
+supervised metadata api=1 calls=1 observed=Observed { calls: 1, boot: true, accepted: Some("{\"commit_rev\":1,\"document_version_id\":1,\"title\":\"Actual supervised Core document\",\"version\":\"3421540780324ff2838fd83a75769f98550c8fdbf5c71ee9c4a474bc81002ea5\"}"), failure: None, rejected: false, reaped: true, call_microseconds: [11464], total_milliseconds: 60, cleanup_failure: None, cleanup_quarantined: false }
+supervised starting org.supervised.metadata2
+supervised metadata api=2 calls=1 observed=Observed { calls: 1, boot: true, accepted: Some("{\"commit_rev\":1,\"document_version_id\":1,\"title\":\"Actual supervised Core document\",\"version\":\"3421540780324ff2838fd83a75769f98550c8fdbf5c71ee9c4a474bc81002ea5\"}"), failure: None, rejected: false, reaped: true, call_microseconds: [11785], total_milliseconds: 61, cleanup_failure: None, cleanup_quarantined: false }
+supervised starting org.supervised.metadata3
+supervised metadata api=1 calls=8 observed=Observed { calls: 8, boot: true, accepted: Some("{\"commit_rev\":1,\"document_version_id\":1,\"title\":\"Actual supervised Core document\",\"version\":\"3421540780324ff2838fd83a75769f98550c8fdbf5c71ee9c4a474bc81002ea5\"}"), failure: None, rejected: false, reaped: true, call_microseconds: [11568, 11623, 12291, 12239, 13145, 12230, 12003, 12086], total_milliseconds: 203, cleanup_failure: None, cleanup_quarantined: false }
+supervised starting org.supervised.metadata4
+supervised metadata api=1 calls=9 observed=Observed { calls: 8, boot: true, accepted: None, failure: Some("host_call_limit"), rejected: false, reaped: true, call_microseconds: [11448, 11834, 11346, 11183, 11723, 11661, 11599, 11572], total_milliseconds: 201, cleanup_failure: None, cleanup_quarantined: false }
+supervised starting org.supervised.raw
+supervised starting org.supervised.budget12
+supervised starting org.supervised.budget13
+supervised starting org.supervised.revoked
+supervised starting org.supervised.revoked
+supervised starting org.supervised.blocked
+supervised starting org.supervised.cleanup
+supervised starting org.supervised.compute
+supervised starting org.supervised.wrongversion

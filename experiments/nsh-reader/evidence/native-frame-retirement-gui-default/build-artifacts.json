@@ -1,0 +1,6 @@
+{
+  "native_binary": "/workspace/qusor/experiments/nsh-reader/target/qualified-native-frame-retirement-gui-default/native-binary",
+  "native_binary_sha256": "4a9c3f5b90dee521827102702b27c3bb11aafc6f8fd7856971a28454db6b7acb",
+  "bundle_sha256": "93a8d4079ac3df9949c4ebf2a6e9f197687c6c1f674b49a40508a6d8559f3a83",
+  "source_fingerprints": 155
+}

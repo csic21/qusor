@@ -1,0 +1,3 @@
+{"app": {"pid": 486857, "start_ticks": 5322560}, "xvfb": {"pid": 486854, "start_ticks": 5322459}, "harness": {"pid": 486853, "start_ticks": 5322457}, "display": ":116", "bus": "unix:path=/tmp/dbus-6rV0MR9yJd,guid=1a0182a206687db37a693e716af0931c", "environment": {"DISPLAY": ":116", "HOME": "/home/user/.cache/qusor-frame-gui-run/home", "XDG_RUNTIME_DIR": "/home/user/.cache/qusor-frame-gui-run/runtime", "XDG_CONFIG_HOME": "/home/user/.cache/qusor-frame-gui-run/config", "XDG_DATA_HOME": "/home/user/.cache/qusor-frame-gui-run/data", "XDG_CACHE_HOME": "/home/user/.cache/qusor-frame-gui-run/cache", "GTK_USE_PORTAL": "0", "GTK_IM_MODULE": "simple"}, "status": "running"}
+SpiRegistry daemon is running with well-known name - org.a11y.atspi.Registry
+APP_EXIT 0

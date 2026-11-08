@@ -1,0 +1,451 @@
+Command: python3 scripts/check_architecture.py
+Exit: 0
+Architecture guard passed: managed manifest inventory, production source boundaries, workspace declarations and configured resolved closures.
+
+Command: python3 -m unittest discover -s scripts/tests -v
+Exit: 0
+test_accepts_dependency_free_domain (test_check_architecture.ArchitectureGuardTests.test_accepts_dependency_free_domain) ... ok
+test_accepts_explicitly_allowed_resolved_closure (test_check_architecture.ArchitectureGuardTests.test_accepts_explicitly_allowed_resolved_closure) ... ok
+test_closure_check_is_applied_independently_to_each_workspace_member (test_check_architecture.ArchitectureGuardTests.test_closure_check_is_applied_independently_to_each_workspace_member) ... ok
+test_dependency_cycle_terminates_and_does_not_hide_forbidden_package (test_check_architecture.ArchitectureGuardTests.test_dependency_cycle_terminates_and_does_not_hide_forbidden_package) ... ok
+test_direct_allowlist_uses_package_name_even_when_closure_is_allowed (test_check_architecture.ArchitectureGuardTests.test_direct_allowlist_uses_package_name_even_when_closure_is_allowed) ... ok
+test_either_cargo_edge_representation_still_covers_all_dependencies (test_check_architecture.ArchitectureGuardTests.test_either_cargo_edge_representation_still_covers_all_dependencies) ... ok
+test_inconsistent_edge_representations_cannot_hide_a_dependency (test_check_architecture.ArchitectureGuardTests.test_inconsistent_edge_representations_cannot_hide_a_dependency) ... ok
+test_rejects_accidental_publishing (test_check_architecture.ArchitectureGuardTests.test_rejects_accidental_publishing) ... ok
+test_rejects_aliased_optional_target_dependency (test_check_architecture.ArchitectureGuardTests.test_rejects_aliased_optional_target_dependency) ... ok
+test_rejects_dev_and_build_dependency_paths (test_check_architecture.ArchitectureGuardTests.test_rejects_dev_and_build_dependency_paths) ... ok
+test_rejects_forbidden_transitive_dependency_through_allowed_helper (test_check_architecture.ArchitectureGuardTests.test_rejects_forbidden_transitive_dependency_through_allowed_helper) ... ok
+test_rejects_incomplete_and_duplicate_nodes (test_check_architecture.ArchitectureGuardTests.test_rejects_incomplete_and_duplicate_nodes) ... ok
+test_rejects_manifest_outside_repository (test_check_architecture.ArchitectureGuardTests.test_rejects_manifest_outside_repository) ... ok
+test_rejects_missing_resolve_when_closure_policy_is_present (test_check_architecture.ArchitectureGuardTests.test_rejects_missing_resolve_when_closure_policy_is_present) ... ok
+test_rejects_missing_root_or_reachable_resolve_nodes (test_check_architecture.ArchitectureGuardTests.test_rejects_missing_root_or_reachable_resolve_nodes) ... ok
+test_rejects_missing_workspace_package_metadata (test_check_architecture.ArchitectureGuardTests.test_rejects_missing_workspace_package_metadata) ... ok
+test_rejects_resolved_edge_without_package_metadata (test_check_architecture.ArchitectureGuardTests.test_rejects_resolved_edge_without_package_metadata) ... ok
+test_rejects_unregistered_workspace_member (test_check_architecture.ArchitectureGuardTests.test_rejects_unregistered_workspace_member) ... ok
+test_resolved_alias_cannot_hide_actual_package_name (test_check_architecture.ArchitectureGuardTests.test_resolved_alias_cannot_hide_actual_package_name) ... ok
+test_resolved_closure_does_not_filter_dev_build_or_foreign_target_edges (test_check_architecture.ArchitectureGuardTests.test_resolved_closure_does_not_filter_dev_build_or_foreign_target_edges) ... ok
+test_transitive_allowlist_includes_directly_resolved_packages (test_check_architecture.ArchitectureGuardTests.test_transitive_allowlist_includes_directly_resolved_packages) ... ok
+test_accepts_current_style_and_registered_independent_workspaces (test_check_architecture.ManifestInventoryTests.test_accepts_current_style_and_registered_independent_workspaces) ... ok
+test_detects_unregistered_packages_in_each_managed_root (test_check_architecture.ManifestInventoryTests.test_detects_unregistered_packages_in_each_managed_root) ... ok
+test_does_not_follow_a_managed_root_symlink (test_check_architecture.ManifestInventoryTests.test_does_not_follow_a_managed_root_symlink) ... ok
+test_does_not_follow_source_directory_or_manifest_symlinks (test_check_architecture.ManifestInventoryTests.test_does_not_follow_source_directory_or_manifest_symlinks) ... ok
+test_excluded_source_cannot_be_registered_as_a_real_package (test_check_architecture.ManifestInventoryTests.test_excluded_source_cannot_be_registered_as_a_real_package) ... ok
+test_invalid_managed_manifest_is_reported_without_crashing (test_check_architecture.ManifestInventoryTests.test_invalid_managed_manifest_is_reported_without_crashing) ... ok
+test_registered_path_does_not_allow_a_different_package (test_check_architecture.ManifestInventoryTests.test_registered_path_does_not_allow_a_different_package) ... ok
+test_rejects_duplicate_registration_and_cross_scope_registration (test_check_architecture.ManifestInventoryTests.test_rejects_duplicate_registration_and_cross_scope_registration) ... ok
+test_rejects_manifest_with_no_package_or_workspace (test_check_architecture.ManifestInventoryTests.test_rejects_manifest_with_no_package_or_workspace) ... ok
+test_rejects_missing_package_and_workspace_registrations (test_check_architecture.ManifestInventoryTests.test_rejects_missing_package_and_workspace_registrations) ... ok
+test_rejects_production_registration_under_isolated_directory (test_check_architecture.ManifestInventoryTests.test_rejects_production_registration_under_isolated_directory) ... ok
+test_rejects_undocumented_virtual_and_combined_workspaces (test_check_architecture.ManifestInventoryTests.test_rejects_undocumented_virtual_and_combined_workspaces) ... ok
+test_skips_hidden_build_and_cache_trees_even_with_invalid_manifests (test_check_architecture.ManifestInventoryTests.test_skips_hidden_build_and_cache_trees_even_with_invalid_manifests) ... ok
+test_accepts_registered_production_source (test_check_architecture.ProductionSourceBoundaryTests.test_accepts_registered_production_source) ... ok
+test_all_dependency_kinds_and_targets_cannot_use_isolated_sources (test_check_architecture.ProductionSourceBoundaryTests.test_all_dependency_kinds_and_targets_cannot_use_isolated_sources) ... ok
+test_independent_validate_graph_api_does_not_apply_production_layout (test_check_architecture.ProductionSourceBoundaryTests.test_independent_validate_graph_api_does_not_apply_production_layout) ... ok
+test_inspects_path_declarations_of_resolved_helpers (test_check_architecture.ProductionSourceBoundaryTests.test_inspects_path_declarations_of_resolved_helpers) ... ok
+test_parent_segments_cannot_disguise_an_isolated_dependency (test_check_architecture.ProductionSourceBoundaryTests.test_parent_segments_cannot_disguise_an_isolated_dependency) ... ok
+test_rejects_isolated_local_package_even_without_a_direct_path_edge (test_check_architecture.ProductionSourceBoundaryTests.test_rejects_isolated_local_package_even_without_a_direct_path_edge) ... ok
+test_rejects_unregistered_or_external_local_path_dependencies (test_check_architecture.ProductionSourceBoundaryTests.test_rejects_unregistered_or_external_local_path_dependencies) ... ok
+test_root_workspace_cannot_absorb_isolated_packages_even_if_allowlisted (test_check_architecture.ProductionSourceBoundaryTests.test_root_workspace_cannot_absorb_isolated_packages_even_if_allowlisted) ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 0.021s
+
+OK
+
+Command: cargo fmt --all -- --check
+Exit: 0
+
+Command: cargo clippy --workspace --all-targets --locked --offline -- -D warnings
+Exit: 0
+    Checking extension-store v0.0.0 (/workspace/qusor/adapters/extension-store)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.52s
+
+Command: cargo test --workspace --locked --offline
+Exit: 0
+   Compiling extension-api v0.0.0 (/workspace/qusor/crates/extension-api)
+   Compiling core-api v0.0.0 (/workspace/qusor/crates/core-api)
+   Compiling rusqlite v0.32.1
+   Compiling wasmparser v0.228.0
+   Compiling extension-runtime-api v0.0.0 (/workspace/qusor/crates/extension-runtime-api)
+   Compiling runtime-process v0.0.0 (/workspace/qusor/adapters/runtime-process)
+   Compiling extension-host v0.0.0 (/workspace/qusor/crates/extension-host)
+   Compiling extension-package v0.0.0 (/workspace/qusor/crates/extension-package)
+   Compiling extension-store v0.0.0 (/workspace/qusor/adapters/extension-store)
+   Compiling learning-ports v0.0.0 (/workspace/qusor/crates/learning-ports)
+   Compiling blob-store v0.0.0 (/workspace/qusor/adapters/blob-store)
+   Compiling learning-application v0.0.0 (/workspace/qusor/crates/learning-application)
+   Compiling storage-sqlite v0.0.0 (/workspace/qusor/adapters/storage-sqlite)
+   Compiling wasmi v2.0.0
+   Compiling runtime-wasm v0.0.0 (/workspace/qusor/adapters/runtime-wasm)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.35s
+     Running unittests src/lib.rs (target/debug/deps/blob_store-df34a034d6028ff2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/core_api-e1c468e1bb8d68ee)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/contract.rs (target/debug/deps/contract-90c6d8855b35bc94)
+
+running 8 tests
+test anchor_requires_identical_version_and_bytes ... ok
+test duplicate_quotes_never_choose_a_match ... ok
+test graphemes_cannot_be_split_even_at_scalar_boundaries ... ok
+test malformed_ranges_and_missing_quotes_are_typed ... ok
+test preserves_raw_text_and_scalar_byte_coordinates ... ok
+test rejects_unknown_duplicate_and_authority_fields ... ok
+test request_budget_and_canonical_digest_are_deterministic ... ok
+test uri_metadata_has_no_credential_or_navigation_authority ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/pdf_compound.rs (target/debug/deps/pdf_compound-1bf9211709fa3558)
+
+running 8 tests
+test both_actual_draft_and_envelope_must_fit_the_wire_budget ... ok
+test cross_page_order_is_explicit_and_local_ranges_can_repeat_on_different_pages ... ok
+test each_segment_enforces_grapheme_and_mapping_rules ... ok
+test every_segment_is_bound_to_the_same_immutable_tuple ... ok
+test pairwise_overlap_and_duplicate_ranges_are_rejected_but_adjacent_are_valid ... ok
+test rotated_lines_keep_explicit_order_without_fabricating_source_separators ... ok
+test typed_json_rejects_unknown_duplicate_and_native_authority_fields ... ok
+test version_profile_separator_segment_count_and_composed_quote_are_strict ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running tests/pdf_contract.rs (target/debug/deps/pdf_contract-15e41cc48c4fc9d4)
+
+running 10 tests
+test all_hash_constraints_are_required_without_fallback ... ok
+test budgeted_request_has_no_approval_identity_or_storage_fields ... ok
+test geometry_is_finite_ordered_pdf_space_and_generated_gaps_stay_explicit ... ok
+test immutable_raw_stream_and_every_coordinate_round_trip ... ok
+test no_text_pages_and_invalid_selectors_are_explicit ... ok
+test refuses_partial_graphemes_including_emoji_flags_and_crlf ... ok
+test semantic_revision_excludes_only_render_report_provenance ... ok
+test strict_json_and_profile_reject_unknown_duplicate_and_render_fields ... ok
+test unknown_mappings_are_explicit_evidence_never_exact_anchors ... ok
+test validates_all_map_offsets_and_raw_unicode ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/lib.rs (target/debug/deps/extension_api-75ead24eb0a4adde)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/surface.rs (target/debug/deps/surface-9b6258dd1ba38182)
+
+running 6 tests
+test capability_scope_extension_is_explicitly_versioned ... ok
+test explicit_support_set_and_manifest_vocabulary_prevent_silent_legacy_upgrade ... ok
+test invocation_query_has_no_guest_selected_context_identity_or_authority ... ok
+test only_bounded_guest_operations_round_trip_and_native_claims_are_rejected ... ok
+test source_scope_status_generation_and_geometry_are_checked_before_use ... ok
+test whole_selection_payload_is_preserved_and_full_envelope_budget_is_enforced ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/wire.rs (target/debug/deps/wire-01982c241b39ccc9)
+
+running 21 tests
+test api_range_has_inclusive_minor_bounds_and_never_crosses_major_versions ... ok
+test contribution_and_capability_list_limits_apply_to_in_memory_values ... ok
+test contributions_cannot_require_undeclared_capabilities ... ok
+test display_title_limits_count_utf8_bytes_and_reject_blank_or_control_text ... ok
+test duplicates_are_rejected_in_json_objects_and_declarations ... ok
+test malformed_utf8_trailing_documents_and_missing_fields_are_rejected ... ok
+test manifest_parsing_keeps_host_compatibility_separate_from_structure ... ok
+test manifest_rejects_unknown_fields_at_every_object_level ... ok
+test namespace_containment_uses_a_segment_boundary ... ok
+test namespace_fields_are_bounded_ascii_and_not_display_names ... ok
+test opaque_ids_are_bounded_and_never_accept_paths_or_whitespace ... ok
+test package_version_orders_numeric_components_without_loss ... ok
+test parser_errors_do_not_echo_untrusted_fields_or_payload_values ... ok
+test published_fixtures_round_trip_through_validated_wire_entries ... ok
+test request_rejects_unknown_fields_and_self_reported_identity ... ok
+test request_requires_the_implemented_protocol_version ... ok
+test resource_variants_are_closed_and_require_their_own_identifiers ... ok
+test unknown_capabilities_and_contribution_kinds_are_rejected ... ok
+test unsigned_numeric_types_reject_overflow_fractional_and_string_encodings ... ok
+test wire_error_messages_are_bounded_and_codes_are_closed ... ok
+test wire_limits_count_all_bytes_before_deserialization ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/extension_host-ff7b242e069a959a)
+
+running 2 tests
+test internal_tests::exhausted_epoch_revocation_fails_closed ... ok
+test internal_tests::exhausted_identifiers_fail_without_reuse ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/durable.rs (target/debug/deps/durable-32356fc9eb681ad4)
+
+running 6 tests
+test changed_or_unreadable_durable_state_fences_only_that_package ... ok
+test durable_exact_version_needs_the_current_host_resolved_version ... ok
+test failed_reactivation_expiry_and_identity_alias_do_not_resurrect_authority ... ok
+test negotiated_api_rejects_grant_semantics_from_a_newer_version ... ok
+test one_host_restores_two_packages_with_explicit_versions_and_fresh_sessions ... ok
+test precommit_validation_uses_same_policy_and_does_not_publish_a_session ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/policy.rs (target/debug/deps/policy-4e80a48683c96a77)
+
+running 12 tests
+test dispatch_binds_identity_and_only_exposes_authorized_contributions ... ok
+test every_revocation_path_prevents_an_in_flight_callback ... ok
+test exact_scope_cannot_read_other_selection_vault_or_optional_capability ... ok
+test handles_and_management_ids_cannot_cross_hosts_even_in_same_vault ... ok
+test incompatible_and_identity_changing_updates_leave_old_session_alive ... ok
+test independent_packages_follow_the_same_policy ... ok
+test invalid_grants_leave_live_authorization_unchanged ... ok
+test metadata_vault_scope_only_covers_metadata_in_its_vault ... ok
+test registration_is_not_authorization_or_activation ... ok
+test request_version_is_checked_on_typed_entrypoint_too ... ok
+test successful_update_never_inherits_old_or_expanded_permissions ... ok
+test unavailable_required_capability_rejects_but_optional_can_degrade ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/surface.rs (target/debug/deps/surface-db3be6eedf888cd5)
+
+running 13 tests
+test cleanup_must_finish_before_capacity_is_reused_and_handles_never_alias ... ok
+test close_result_can_be_revalidated_without_reopening_a_closing_surface ... ok
+test every_lifecycle_invalidation_denies_results_until_native_cleanup_is_acknowledged ... ok
+test explicit_close_and_blank_or_cancel_do_not_reuse_candidates ... ok
+test failed_frames_block_input_until_an_explicit_fresh_generation_is_ready ... ok
+test handles_and_native_tickets_cannot_cross_installations_sessions_or_hosts ... ok
+test invocation_preflight_uses_exact_live_scope_and_does_not_mutate_state ... ok
+test pending_frames_and_old_jobs_cannot_accept_input ... ok
+test publication_is_bound_to_current_native_gesture_source_and_full_wire_budget ... ok
+test required_workspace_capabilities_are_checked_for_the_actual_document ... ok
+test selection_reads_need_their_own_document_grant_without_replacing_grants_per_gesture ... ok
+test session_protocol_is_explicit_and_legacy_selection_scope_is_not_broadened ... ok
+test workspace_scope_truth_and_boot_identity_are_checked_before_a_surface_exists ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/extension_package-a219ddc5bb4f266a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/package.rs (target/debug/deps/package-b170c782529ddb3d)
+
+running 15 tests
+test ambiguous_json_and_hex_encodings_are_rejected ... ok
+test declared_and_actual_size_and_count_budgets_are_enforced ... ok
+test deterministic_package_binds_frozen_bytes_and_all_files ... ok
+test duplicate_case_conflicting_ancestor_and_unsorted_entries_are_rejected ... ok
+test entrypoint_must_resolve_to_a_listed_wasm_file ... ok
+test explicit_host_compatibility_does_not_upgrade_legacy_verifier_or_signed_bytes ... ok
+test host_trust_is_required_even_for_a_valid_other_key_signature ... ok
+test invalid_signature_and_fingerprint_are_rejected ... ok
+test manifest_identity_permissions_and_file_metadata_are_signed ... ok
+test module_asset_bytes_and_rehashed_tampering_are_rejected ... ok
+test strict_signature_verification_rejects_weak_identity_keys ... ok
+test traversal_absolute_platform_aliases_and_excessive_paths_are_rejected ... ok
+test unknown_fields_duplicate_fields_and_capabilities_are_rejected ... ok
+test unsupported_profile_format_api_and_contributions_are_rejected ... ok
+test verified_content_cannot_change_after_the_input_buffer_is_reused ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.07s
+
+     Running unittests src/lib.rs (target/debug/deps/extension_runtime_api-e06779c6d5632077)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/extension_store-dc0429e89c131953)
+
+running 1 test
+test writer_lock_tests::closed_store_unlocks_even_when_a_live_child_inherited_a_lock_clone ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ports.rs (target/debug/deps/ports-ea265a3a9cdf68af)
+
+running 3 tests
+test current_authority_rechecks_binding_without_executing_private_guest ... ok
+test migration_runs_after_durable_revocation_outside_sql_transaction ... ok
+test unavailable_services_fail_closed_without_committing_intent_or_state ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s
+
+     Running unittests src/lib.rs (target/debug/deps/learning_application-e60a757eb5f41d24)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/learning_domain-47843fd37326a344)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/learning_ports-15615019e9c3f9a5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/runtime_process-10d6e9ce31bb0ea5)
+
+running 3 tests
+test linux::tests::current_identity_has_a_native_image_and_worker_nonce_is_required ... ok
+test linux::tests::exited_or_absent_target_is_confirmed_before_native_image_compatibility ... ok
+test linux::tests::stat_parser_does_not_confuse_comm_parentheses_or_spaces_with_fields ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/runtime_wasm-236d375069077435)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/port.rs (target/debug/deps/port-63517760aabe13ca)
+
+running 3 tests
+test actual_runtime_port_uses_only_external_authority_and_enforces_request_budget ... ok
+test private_port_executes_migration_without_business_grants ... ok
+test trusted_port_limits_are_validated_and_actual_guest_fuel_is_bounded ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/storage_sqlite-e5b2a555a99d5445)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/transactions.rs (target/debug/deps/transactions-f6e6c8d07281b34d)
+
+running 10 tests
+test application_reports_actionable_error_categories ... ok
+test corrupt_and_missing_referenced_blobs_prevent_reads_and_retries ... ok
+test idempotence_ignores_later_global_revisions_and_detects_changed_payload ... ok
+test malformed_plan_is_rejected_before_blob_publication ... ok
+test mixed_operations_share_identity_and_retries_keep_original_receipts ... ok
+test oversized_restore_is_a_budget_failure_before_json_parsing ... ok
+test restore_rechecks_empty_inside_its_transaction ... ok
+test self_consistent_forged_history_is_not_an_append ... ok
+test stale_and_bulk_plans_cannot_partially_commit ... ok
+test transaction_rechecks_the_validated_input_hash_history ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+
+   Doc-tests blob_store
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests core_api
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests extension_api
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests extension_host
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests extension_package
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests extension_runtime_api
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests extension_store
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests learning_application
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests learning_domain
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests learning_ports
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests runtime_process
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests runtime_wasm
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests storage_sqlite
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+Command: cargo doc --workspace --no-deps --locked --offline
+Exit: 0
+    Checking core-api v0.0.0 (/workspace/qusor/crates/core-api)
+    Checking extension-host v0.0.0 (/workspace/qusor/crates/extension-host)
+ Documenting core-api v0.0.0 (/workspace/qusor/crates/core-api)
+ Documenting extension-host v0.0.0 (/workspace/qusor/crates/extension-host)
+ Documenting extension-runtime-api v0.0.0 (/workspace/qusor/crates/extension-runtime-api)
+ Documenting extension-package v0.0.0 (/workspace/qusor/crates/extension-package)
+ Documenting extension-api v0.0.0 (/workspace/qusor/crates/extension-api)
+ Documenting runtime-wasm v0.0.0 (/workspace/qusor/adapters/runtime-wasm)
+ Documenting runtime-process v0.0.0 (/workspace/qusor/adapters/runtime-process)
+ Documenting extension-store v0.0.0 (/workspace/qusor/adapters/extension-store)
+    Checking learning-ports v0.0.0 (/workspace/qusor/crates/learning-ports)
+    Checking blob-store v0.0.0 (/workspace/qusor/adapters/blob-store)
+ Documenting blob-store v0.0.0 (/workspace/qusor/adapters/blob-store)
+ Documenting learning-ports v0.0.0 (/workspace/qusor/crates/learning-ports)
+ Documenting learning-application v0.0.0 (/workspace/qusor/crates/learning-application)
+ Documenting storage-sqlite v0.0.0 (/workspace/qusor/adapters/storage-sqlite)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.57s
+   Generated /workspace/qusor/target/doc/blob_store/index.html and 12 other files
+

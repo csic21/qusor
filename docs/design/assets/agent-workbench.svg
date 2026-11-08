@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960" role="img" aria-labelledby="title desc"><title id="title">QUSOR Agent 工作台设计稿</title><desc id="desc">模拟场景：Codex负责实现，OpenCode审查。显示机器项目、任务关系、待处理问题及代码差异。此为未实现的设计图。</desc><style>text{font-family:"Noto Sans CJK SC","Microsoft YaHei",sans-serif;font-size:14px;fill:#242824}.small{font-size:12px;fill:#596159}.muted{fill:#596159}.h{font-size:21px;font-weight:600}.label{font-weight:600}.mono{font-family:monospace;font-size:13px}</style>
+<rect x="0" y="0" width="1440" height="960" rx="0" fill="#F4F3EF"/>
+<rect x="24" y="24" width="1392" height="880" rx="12" fill="#FFFFFF" stroke="#D9DDD5"/>
+<rect x="25" y="25" width="175" height="878" rx="10" fill="#ECEDE8"/>
+<text x="48" y="68" class="h">QUSOR</text>
+<text x="48" y="98" class="small">求索 · 本地工作空间</text>
+<text x="56" y="158" class="">资料库</text>
+<text x="56" y="204" class="">笔记</text>
+<text x="56" y="250" class="">研究</text>
+<rect x="38" y="270" width="147" height="40" rx="6" fill="#DCE5DA"/>
+<text x="56" y="296" class="label">任务</text>
+<path d="M40 338H182" stroke="#D9DDD5"/>
+<text x="48" y="374" class="label">待你处理  1</text>
+<text x="48" y="413" class="small">最近项目</text>
+<text x="48" y="447" class="">qusor</text>
+<text x="48" y="481" class="muted">个人网站</text>
+<text x="48" y="814" class="muted">插件与连接</text>
+<text x="48" y="853" class="muted">设置</text>
+<rect x="201" y="25" width="1214" height="65" rx="0" fill="#FAFAF7"/>
+<path d="M200 90H1415" stroke="#D9DDD5"/>
+<text x="224" y="64" class="label">任务  /  qusor</text>
+<text x="806" y="64" class="small">本机 · Linux / WSL    ~/workspace/qusor</text>
+<rect x="1212" y="42" width="176" height="30" rx="5" fill="#FFFFFF" stroke="#D9DDD5"/>
+<text x="1227" y="62" class="">分支  task/reader</text>
+<rect x="201" y="91" width="257" height="812" rx="0" fill="#FAFAF7"/>
+<path d="M458 90L458 903" stroke="#D9DDD5"/>
+<text x="224" y="127" class="label">项目任务</text>
+<rect x="224" y="147" width="210" height="34" rx="5" fill="#315B46"/>
+<text x="278" y="170" class="" style="fill:#FFFFFF">＋ 新建任务</text>
+<rect x="213" y="197" width="234" height="81" rx="6" fill="#E7EDE5"/>
+<text x="228" y="226" class="label">阅读位置恢复</text>
+<text x="228" y="254" class="small">待你处理 · Codex</text>
+<text x="228" y="324" class="label">优化检索排序</text>
+<text x="228" y="352" class="small">进行中 · dsh</text>
+<text x="228" y="422" class="label">检查插件兼容</text>
+<text x="228" y="450" class="small">已完成 · OpenCode</text>
+<path d="M224 488H434" stroke="#D9DDD5"/>
+<text x="228" y="524" class="small">筛选</text>
+<text x="228" y="561" class="">进行中  2</text>
+<text x="228" y="600" class="">待你处理  1</text>
+<text x="228" y="639" class="">已完成  8</text>
+<text x="228" y="857" class="muted">会话与历史  →</text>
+<text x="488" y="133" class="h">阅读位置恢复</text>
+<text x="488" y="163" class="small">Codex 负责实现 · 模型由实际后端回执确认</text>
+<rect x="488" y="184" width="176" height="29" rx="5" fill="#F6E9CE"/>
+<text x="501" y="204" class="">待你处理 · 接口行为</text>
+<text x="687" y="204" class="small">已运行 4 分钟</text>
+<path d="M480 234H1003" stroke="#D9DDD5"/>
+<text x="488" y="267" class="label">目标</text>
+<text x="488" y="296" class="">关闭重开后恢复阅读位置，保留精确来源。</text>
+<text x="488" y="324" class="muted">实现后交给 OpenCode 审查，并运行回归。</text>
+<rect x="488" y="349" width="492" height="116" rx="6" fill="#F7F8F5" stroke="#D9DDD5"/>
+<text x="504" y="378" class="label">委派与进展</text>
+<text x="504" y="408" class="">Codex    实现恢复逻辑</text>
+<text x="807" y="408" class="small">等待你的回复</text>
+<text x="504" y="440" class="">↳ OpenCode    检查边界与差异</text>
+<text x="849" y="440" class="small">审查完成</text>
+<text x="488" y="502" class="label">最近动作</text>
+<text x="488" y="534" class="">已修改 3 个文件 · 当前在独立工作树</text>
+<text x="488" y="562" class="muted">OpenCode：发现一个版本变化后的恢复问题。</text>
+<text x="488" y="590" class="small">检查记录与审查意见分别保留。</text>
+<rect x="488" y="615" width="492" height="122" rx="6" fill="#FFF9EE" stroke="#DACBAA"/>
+<text x="505" y="646" class="label">Codex 需要你决定</text>
+<text x="505" y="677" class="">原文件版本变化后，是否保留旧阅读位置？</text>
+<text x="505" y="707" class="" style="fill:#315B46">查看上下文  →</text>
+<rect x="488" y="760" width="492" height="91" rx="6" fill="#FFFFFF" stroke="#B6C4B8"/>
+<text x="504" y="787" class="muted">回复 Codex…</text>
+<text x="504" y="829" class="small">仅向当前任务发送 · 资料范围可检查</text>
+<rect x="886" y="809" width="77" height="29" rx="5" fill="#315B46"/>
+<text x="907" y="829" class="" style="fill:#FFFFFF">发送</text>
+<text x="489" y="881" class="" style="fill:#315B46">接管输入</text>
+<text x="610" y="881" class="muted">查看终端</text>
+<text x="883" y="881" class="" style="fill:#A23732">停止任务</text>
+<path d="M1005 90L1005 903" stroke="#D9DDD5"/>
+<text x="1030" y="127" class="label">成果检查</text>
+<text x="1350" y="127" class="small">收起</text>
+<text x="1030" y="169" class="label">变更 3</text>
+<text x="1141" y="169" class="muted">检查</text>
+<text x="1226" y="169" class="muted">输出</text>
+<path d="M1029 186H1389" stroke="#D9DDD5"/>
+<rect x="1028" y="203" width="361" height="63" rx="5" fill="#F7F8F5"/>
+<text x="1041" y="228" class="label">独立工作树 · 尚未整合</text>
+<text x="1041" y="251" class="small">原项目已有修改保持原位</text>
+<text x="1030" y="302" class="label">reader / restore.rs</text>
+<text x="1030" y="331" class="small">+ 18    − 4    查看完整差异 →</text>
+<rect x="1028" y="354" width="361" height="145" rx="5" fill="#F9FAF8"/>
+<text x="1041" y="382" class="mono">if version == saved.version {</text>
+<rect x="1035" y="393" width="347" height="32" rx="0" fill="#E4F0E4"/>
+<text x="1041" y="415" class="mono">+  restore_exact(anchor)?;</text>
+<text x="1041" y="447" class="mono">} else {</text>
+<rect x="1035" y="458" width="347" height="32" rx="0" fill="#E4F0E4"/>
+<text x="1041" y="480" class="mono">+  require_resolution();</text>
+<text x="1030" y="539" class="label">实际检查</text>
+<text x="1030" y="573" class="">通过  ·  来源版本回归</text>
+<text x="1030" y="605" class="muted">待执行  ·  完整项目测试</text>
+<path d="M1030 632H1389" stroke="#D9DDD5"/>
+<text x="1030" y="668" class="small">整合前将再次核对项目基线。</text>
+<text x="1030" y="695" class="small">测试通过与接受成果分别记录。</text>
+<rect x="1028" y="724" width="361" height="37" rx="5" fill="#F2F3EF" stroke="#D9DDD5"/>
+<text x="1138" y="748" class="muted">检查并整合…</text>
+<text x="1030" y="854" class="" style="fill:#315B46">打开工作树  ↗</text>
+<text x="28" y="939" class="small">设计稿 v0.1 · 自拟内容 / 模拟状态 · 尚未接通 Agent · 窄窗使用单任务视图</text>
+<text x="1052" y="939" class="small">QUSOR / 2026-11-08</text>
+</svg>

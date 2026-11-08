@@ -1,0 +1,98 @@
+   Compiling syn v2.0.119
+   Compiling zerofrom v0.1.8
+   Compiling yoke v0.8.3
+   Compiling zerovec v0.11.8
+   Compiling smallvec v1.16.3
+   Compiling zerocopy-derive v0.8.63
+   Compiling zerocopy v0.8.63
+   Compiling tinystr v0.8.4
+   Compiling icu_locale_core v2.3.0
+   Compiling zerotrie v0.2.5
+   Compiling potential_utf v0.1.6
+   Compiling icu_collections v2.3.0
+   Compiling num-traits v0.2.19
+   Compiling icu_provider v2.3.1
+   Compiling bytemuck v1.25.2
+   Compiling ppv-lite86 v0.2.21
+   Compiling tiny-skia-path v0.11.4
+   Compiling rand_chacha v0.9.0
+   Compiling kurbo v0.13.1
+   Compiling icu_properties v2.3.0
+   Compiling icu_normalizer v2.3.0
+   Compiling curve25519-dalek-derive v0.1.1
+   Compiling proc-macro2 v1.0.107
+   Compiling svgtypes v0.16.1
+   Compiling tokio v1.53.3
+   Compiling curve25519-dalek v4.1.3
+   Compiling idna_adapter v1.2.2
+   Compiling rand v0.9.5
+   Compiling futures-sink v0.3.34
+   Compiling futures-core v0.3.34
+   Compiling quote v1.0.47
+   Compiling tungstenite v0.28.0
+   Compiling usvg v0.46.0
+   Compiling futures-util v0.3.34
+   Compiling hashbrown v0.16.1
+   Compiling serde v1.0.229
+   Compiling ed25519-dalek v2.2.0
+   Compiling idna v1.1.0
+   Compiling tokio-rustls v0.26.6
+   Compiling tiny-skia v0.11.4
+   Compiling half v2.7.1
+   Compiling rgb v0.8.53
+   Compiling naga v29.0.4
+   Compiling nsh-macros v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913-image/crates/nsh-macros)
+   Compiling resvg v0.46.0
+   Compiling tokio-tungstenite v0.28.0
+   Compiling url v2.5.8
+   Compiling nsh-updater v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913-image/crates/nsh-updater)
+   Compiling ordered-float v5.5.1
+   Compiling taffy v0.15.0
+   Compiling nsh-core v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913-image/crates/nsh-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3m 29s
+     Running unittests src/lib.rs (/workspace/qusor/experiments/nsh-reader/target/nsh/target/debug/deps/nsh_core-739b99d546b89e5e)
+
+running 40 tests
+test image::cache::tests::drops_corrupt_entries ... ok
+test image::cache::tests::evicts_the_least_recently_used ... ok
+test image::cache::tests::freshness_follows_the_headers ... ok
+test image::cache::tests::honors_no_store ... ok
+test image::cache::tests::loads_through_a_fetch ... ok
+test image::cache::tests::no_disk_cache_without_bytes ... ok
+test image::cache::tests::reads_headers_in_any_case ... ok
+test image::cache::tests::revalidates_stale_entries ... ok
+test image::cache::tests::serves_stale_copies_when_offline ... ok
+test image::cache::tests::stores_and_serves_fresh_entries ... ok
+test image::cache::tests::surfaces_share_a_directory_safely ... ok
+test image::cache::tests::trims_what_dead_writers_left ... ok
+test image::decoded::tests::failed_decodes_keep_no_metadata_and_successful_ones_report_the_decoder_size ... ok
+test image::decoded::tests::metadata_lives_until_the_last_bucket_and_replacement_go ... ok
+test image::decoded::tests::unique_sources_release_metadata_but_keep_active_images ... ok
+test image::loader::tests::a_backend_transport_downloads_within_the_loaders_limits ... ok
+test image::loader::tests::a_decode_nobody_waits_for_is_cancelled ... ok
+test image::loader::tests::a_full_queue_turns_away_the_lowest_priority ... ok
+test image::loader::tests::a_read_nobody_waits_for_is_cancelled ... ok
+test image::loader::tests::asset_directories_take_the_first_that_has_the_file ... ok
+test image::loader::tests::encoded_bytes_are_kept_least_recently_used_out ... ok
+test image::loader::tests::failures_are_remembered_for_a_while ... ok
+test image::loader::tests::images_decode_at_the_bucket_of_their_view_once_per_key ... ok
+test image::loader::tests::one_read_per_source_however_many_wait ... ok
+test image::loader::tests::reads_go_highest_priority_first ... ok
+test image::loader::tests::reads_keep_to_the_per_host_limit ... ok
+test image::loader::tests::redirects_never_go_from_https_to_http ... ok
+test image::loader::tests::resolves_uris ... ok
+test image::loader::tests::wanted_sizes_pick_buckets_by_natural_size ... ok
+test image::memory::retirement_cache_drop_tests::retirement_finite_cache_debits_budget_only_after_last_real_lease ... ok
+test image::memory::tests::an_entry_larger_than_the_budget_goes_with_its_last_lease ... ok
+test image::memory::tests::buckets_are_powers_of_root_two_up_to_the_natural_size ... ok
+test image::memory::tests::leased_entries_are_never_evicted ... ok
+test image::memory::tests::one_budget_counts_every_cache_and_cost ... ok
+test image::memory::tests::replacing_an_entry_keeps_its_leases_and_count ... ok
+test image::memory::tests::unused_entries_go_oldest_first ... ok
+test image::memory::tests::wanted_sizes_follow_the_resize_mode ... ok
+test image::tests::data_sources_are_decoded_once_under_a_short_key ... ok
+test image::tests::decodes_base64_and_percent_encoded_uris ... ok
+test image::tests::inline_images_live_as_long_as_their_sources ... ok
+
+test result: ok. 40 passed; 0 failed; 0 ignored; 0 measured; 1208 filtered out; finished in 0.33s
+

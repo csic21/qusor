@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/workspace/qusor/experiments/nsh-reader/native-host/recover_plugin_surface.py", line 25, in <module>
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--interaction',type=Path,required=True);p.add_argument('--restored',type=Path,required=True);p.add_argument('--evidence',type=Path,required=True);a=p.parse_args();main(a.interaction,a.restored,a.evidence)
+                                                                                                                                                                                                                                      ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/qusor/experiments/nsh-reader/native-host/recover_plugin_surface.py", line 18, in main
+    resolutions.append(run('pdf-compound-resolve' if 'compound' in capture else 'pdf-resolve',restored,capture['receipt']['document_id'],draft_file))
+                       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/qusor/experiments/nsh-reader/native-host/recover_plugin_surface.py", line 6, in run
+    result=json.loads(subprocess.check_output([str(BINARY),*map(str,args)],text=True))
+                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 473, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/workspace/qusor/experiments/capture-core/target/debug/qusor-capture-probe', 'pdf-resolve', 'experiments/nsh-reader/target/plugin-surface-restored-core', '1', 'experiments/nsh-reader/target/plugin-surface-recovered-draft-2.json']' returned non-zero exit status 1.

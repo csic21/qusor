@@ -1,0 +1,19 @@
+{
+  "status": "failed",
+  "exit_code": 101,
+  "session_id": 83674,
+  "failure": "Controller.reply returned stale_process_reply; consumer unwrapped and panicked",
+  "last_completed_case": "begin_store_revoked",
+  "parallel_activity": [
+    "1MiB Wasmi algorithm proof",
+    "C3 compatibility including default consumer"
+  ],
+  "cause": "Possible runtime deadline/scheduling contention; root cause under review, not proven by this record",
+  "scope": "No successful seven-case qualification inferred; pending recovery in process lost at harness panic",
+  "source_sha256": "cc54637d5aa828471d622d9b77e4f8c3e3978d21642080c17f01276fb935d8a0",
+  "binary_sha256": "3a6174971e90ca7602aa3e25ad36d24f783ea1fc8526ace5bf40c745cb0c3ddd",
+  "logs": {
+    "run.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run.stderr": "4ed9aa285b3a27302d27877c136311c9dc1768b82c9fca6b69f370d6e1efde4c"
+  }
+}

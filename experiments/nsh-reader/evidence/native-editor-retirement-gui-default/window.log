@@ -1,0 +1,20 @@
+MESA-EGL: warning: DRI3 error: Could not get DRI3 device
+MESA-EGL: warning: Ensure your X server supports DRI3 to get accelerated rendering
+ INFO nsh::perf commit: 91 ops, 60566µs (list js 117µs), 87 mount items, 27 nodes
+ INFO nsh::perf first frame: eval 8777µs, total 97053µs
+WARNING: dzn is not a conformant Vulkan implementation, testing use only.
+ INFO nsh::perf gc: 392µs
+ INFO nsh::perf commit: 0 ops, 1114µs (list js 91µs), 32 mount items, 27 nodes
+ INFO nsh::perf turn: 1264µs (timers and tasks 104µs)
+ INFO nsh::perf commit: 0 ops, 258µs (list js 16µs), 1 mount items, 27 nodes
+ INFO nsh::perf turn: 356µs (timers and tasks 39µs)
+ INFO nsh::perf event PressDown on view 34
+ INFO nsh::perf commit: 0 ops, 262µs (list js 38µs), 1 mount items, 27 nodes
+ INFO nsh::perf turn: 328µs (timers and tasks 35µs)
+ INFO nsh::perf event PressUp on view 34
+ INFO nsh::perf event Press on view 34
+ INFO nsh::perf commit: 43 ops, 5518µs (list js 621µs), 35 mount items, 34 nodes
+ INFO nsh::perf turn: 5619µs (timers and tasks 34µs)
+ INFO nsh::perf commit: 0 ops, 61µs (list js 28µs), 1 mount items, 34 nodes
+ INFO nsh::perf turn: 1540µs (timers and tasks 1433µs)
+ INFO nsh::perf gc: 253µs

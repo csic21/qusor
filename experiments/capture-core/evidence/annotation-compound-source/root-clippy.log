@@ -1,0 +1,3 @@
+    Checking learning-application v0.0.0 (/workspace/qusor/crates/learning-application)
+    Checking storage-sqlite v0.0.0 (/workspace/qusor/adapters/storage-sqlite)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.73s

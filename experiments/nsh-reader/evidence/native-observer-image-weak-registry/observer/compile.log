@@ -1,0 +1,5 @@
+   Compiling nsh-core v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913-image/crates/nsh-core)
+   Compiling nsh-base v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913-image/crates/nsh-base)
+   Compiling nsh-engine v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913-image/crates/nsh-engine)
+   Compiling nsh-platform-linux v0.4.0 (/home/user/.cache/qusor-native-release-observer/nsh-913-image/crates/nsh-platform-linux)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 23.92s

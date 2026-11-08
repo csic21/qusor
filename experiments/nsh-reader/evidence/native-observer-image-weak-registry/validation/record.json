@@ -1,0 +1,100 @@
+{
+  "status": "passed-core-checks-nine-observer-subprocesses",
+  "steps": [
+    {
+      "name": "core-image",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "/home/user/.cache/qusor-native-release-observer/nsh-913-image/Cargo.toml",
+        "-p",
+        "nsh-core",
+        "--no-default-features",
+        "--features",
+        "svg,loader",
+        "--locked",
+        "--offline",
+        "-j1",
+        "--lib",
+        "image::",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "pid": 496211,
+      "exit_code": 0,
+      "seconds": 43.54247277099785
+    },
+    {
+      "name": "check-on",
+      "command": [
+        "cargo",
+        "check",
+        "--manifest-path",
+        "/home/user/.cache/qusor-native-release-observer/nsh-913-image/Cargo.toml",
+        "-p",
+        "nsh-platform-linux",
+        "--no-default-features",
+        "--locked",
+        "--offline",
+        "-j1",
+        "--features",
+        "native-retirement-observer"
+      ],
+      "pid": 496932,
+      "exit_code": 0,
+      "seconds": 6.507397228997434
+    },
+    {
+      "name": "check-off",
+      "command": [
+        "cargo",
+        "check",
+        "--manifest-path",
+        "/home/user/.cache/qusor-native-release-observer/nsh-913-image/Cargo.toml",
+        "-p",
+        "nsh-platform-linux",
+        "--no-default-features",
+        "--locked",
+        "--offline",
+        "-j1"
+      ],
+      "pid": 496968,
+      "exit_code": 0,
+      "seconds": 1.0041903679957613
+    }
+  ],
+  "source_before": {
+    "crates/nsh-core/src/image.rs": "5bf66214258ba26643b63b6ff84ac29b4ee180aef9135f225be6691aeece01f4",
+    "crates/nsh-core/src/image/decoded.rs": "37f791afea73c54c056af7fbcc98a0f90289d374b379f5b42b7e6b3444ca7be0",
+    "crates/nsh-core/src/image/loader.rs": "fdc1c15fa433d535eac1cfafbd7aeaa392caa0521f30d43f6745f2845d45b09c",
+    "crates/nsh-core/src/image/memory.rs": "bc77f7eb93f87d697902d6db3cf3454777cdc10ec56b540a6a2bc2f21b9a7cc8",
+    "crates/nsh-platform-linux/Cargo.toml": "06b53a5685d82565d786bdf1557c5b93f02d6fdd3ed03dabc98d07a3b42f69a6",
+    "crates/nsh-platform-linux/src/app.rs": "7b7b31feac5215230d43917f3e04c92a3030dacc8f1a9aab36c794b40b363a81",
+    "crates/nsh-platform-linux/src/image.rs": "6c816df59d7cf470f879d0c2ac89a76649f6877182810ee09e2d90d48ab714c2",
+    "crates/nsh-platform-linux/src/lib.rs": "c5554480ccd02c86ec766c9453e7a6e094ba6e3f6e5a2f0b20cb55c685f4d57c",
+    "crates/nsh-platform-linux/src/mount.rs": "de508e57da5044b500505d201fbab9549e122012dfaeb04ed9ba4bd78df7e074",
+    "crates/nsh-platform-linux/src/surface.rs": "e664eb1a50dfa56939afe51ae16962b7249ed3a126ac28ecb549a35ad9fc8e05",
+    "crates/nsh-platform-linux/src/view.rs": "91f1cba422c05972c81a43860561d286da6189a3dc4bcfac0dee117aabb6a5db",
+    "crates/nsh-platform-linux/src/retirement.rs": "50b5a49dec6f3b6c66a056ff5af4a4a615ba3f80fc678a2287161d596eafb72a",
+    "crates/nsh-platform-linux/src/retirement_work.rs": "c9a0d333863a99280fe2a0cd1fdc0da9d7637d9b48ab6cece95d587d4a19906b"
+  },
+  "observer_exit": 0,
+  "source_after": {
+    "crates/nsh-core/src/image.rs": "5bf66214258ba26643b63b6ff84ac29b4ee180aef9135f225be6691aeece01f4",
+    "crates/nsh-core/src/image/decoded.rs": "37f791afea73c54c056af7fbcc98a0f90289d374b379f5b42b7e6b3444ca7be0",
+    "crates/nsh-core/src/image/loader.rs": "fdc1c15fa433d535eac1cfafbd7aeaa392caa0521f30d43f6745f2845d45b09c",
+    "crates/nsh-core/src/image/memory.rs": "bc77f7eb93f87d697902d6db3cf3454777cdc10ec56b540a6a2bc2f21b9a7cc8",
+    "crates/nsh-platform-linux/Cargo.toml": "06b53a5685d82565d786bdf1557c5b93f02d6fdd3ed03dabc98d07a3b42f69a6",
+    "crates/nsh-platform-linux/src/app.rs": "7b7b31feac5215230d43917f3e04c92a3030dacc8f1a9aab36c794b40b363a81",
+    "crates/nsh-platform-linux/src/image.rs": "6c816df59d7cf470f879d0c2ac89a76649f6877182810ee09e2d90d48ab714c2",
+    "crates/nsh-platform-linux/src/lib.rs": "c5554480ccd02c86ec766c9453e7a6e094ba6e3f6e5a2f0b20cb55c685f4d57c",
+    "crates/nsh-platform-linux/src/mount.rs": "de508e57da5044b500505d201fbab9549e122012dfaeb04ed9ba4bd78df7e074",
+    "crates/nsh-platform-linux/src/surface.rs": "e664eb1a50dfa56939afe51ae16962b7249ed3a126ac28ecb549a35ad9fc8e05",
+    "crates/nsh-platform-linux/src/view.rs": "91f1cba422c05972c81a43860561d286da6189a3dc4bcfac0dee117aabb6a5db",
+    "crates/nsh-platform-linux/src/retirement.rs": "50b5a49dec6f3b6c66a056ff5af4a4a615ba3f80fc678a2287161d596eafb72a",
+    "crates/nsh-platform-linux/src/retirement_work.rs": "c9a0d333863a99280fe2a0cd1fdc0da9d7637d9b48ab6cece95d587d4a19906b"
+  },
+  "source_unchanged": true
+}

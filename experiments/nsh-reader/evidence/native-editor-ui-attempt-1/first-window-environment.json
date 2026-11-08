@@ -1,0 +1,5 @@
+{
+  "result": "native window visible; chooser unresolved without isolated GTK/DBus environment",
+  "normal_close_requested": true,
+  "app_proc_absent": false
+}
