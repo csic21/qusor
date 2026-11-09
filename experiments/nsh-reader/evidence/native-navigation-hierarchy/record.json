@@ -1,0 +1,189 @@
+{
+  "date": "2026-11-09",
+  "feature_ids": [
+    "F-UX-01",
+    "F-UX-02",
+    "F-EXT-01",
+    "F-EXT-04",
+    "F-EXT-06"
+  ],
+  "stage": "isolated-native-ui-fixture",
+  "environment": {
+    "os": "macOS",
+    "version": "27.0",
+    "build": "26A428",
+    "architecture": "arm64"
+  },
+  "source_sha256": {
+    "experiments/nsh-reader/native-workbench/App.tsx": "0fbc38f7f606c731862425bc310afa800dd1cddcd5b8fe9c53909051b72a5e10",
+    "experiments/nsh-reader/native-workbench/contributions.tsx": "e247881122ca859c2e65d5d514d378ee138c820b2ef55ada7fedcb2f30e03f6a",
+    "experiments/nsh-reader/native-workbench/ui.tsx": "16d593063a261c583ee8aba30a0c2231ef3f5b8531eb7e5aad16650f9b92c5ee",
+    "experiments/nsh-reader/native-workbench/theme.json": "f72ccbe0a16e1570af4a44854e8e7a1be158981a78147f640251470b84e6de55",
+    "experiments/nsh-reader/native-workbench/nsh.json": "55ae317e6baa4d6479ece6c2a09ab7c984662d8cf07b752d8850d79b14e0dd19",
+    "experiments/nsh-reader/native-workbench/prepare.py": "d3420696227a7718b131028d9bc7470aac686c5c7220c04234b00e3ebb5829f6"
+  },
+  "artifacts": [
+    {
+      "app": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app",
+      "command": [
+        "/workspace/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app/Contents/MacOS/qusor-native-host",
+        "--bundle",
+        "/workspace/qusor/experiments/nsh-reader/target/native-workbench/bundle/bundle.nshc",
+        "--app-id",
+        "org.qusor.workbenchstudy",
+        "--data-dir",
+        "/workspace/qusor/experiments/nsh-reader/target/native-workbench/data",
+        "--name",
+        "QUSOR 工作台研究",
+        "--window-size",
+        "1280x820"
+      ],
+      "size": [
+        1280,
+        820
+      ],
+      "bundle_tree_sha256": "9049a8d2171fa3b33386e94e369d84826aa48a0847a990317f58a74ad920e2be",
+      "host_sha256": "42b60abbdf6a332757af0ce94dec578ce11b1388978ab0d19cbd068f40d3edc9",
+      "fixture": "Self-authored, window-local. No Core, external agents, network or real plugin packages."
+    },
+    {
+      "app": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app",
+      "command": [
+        "/workspace/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app/Contents/MacOS/qusor-native-host",
+        "--bundle",
+        "/workspace/qusor/experiments/nsh-reader/target/native-workbench/bundle/bundle.nshc",
+        "--app-id",
+        "org.qusor.workbenchstudy",
+        "--data-dir",
+        "/workspace/qusor/experiments/nsh-reader/target/native-workbench/data",
+        "--name",
+        "QUSOR 工作台研究",
+        "--window-size",
+        "900x680"
+      ],
+      "size": [
+        900,
+        680
+      ],
+      "bundle_tree_sha256": "abdd1088daafd84e8a5ee9f4819d303ed48d9d55cebf1e22df3bba978dc45214",
+      "host_sha256": "42b60abbdf6a332757af0ce94dec578ce11b1388978ab0d19cbd068f40d3edc9",
+      "fixture": "Self-authored, window-local. No Core, external agents, network or real plugin packages."
+    }
+  ],
+  "observations": [
+    {
+      "case": "NAV-01",
+      "size": [
+        1280,
+        820
+      ],
+      "result": "passed",
+      "observed": [
+        "一个工作区导航容器",
+        "隐藏导航/显示导航",
+        "返回产品设计概览",
+        "文稿插件提供的界面",
+        "收起后当前文稿标签与输入不变"
+      ]
+    },
+    {
+      "case": "NAV-02",
+      "size": [
+        1280,
+        820
+      ],
+      "result": "passed",
+      "observed": [
+        "空间导航/产品设计导航",
+        "范围切换后画布标签仍激活",
+        "文稿/画布提供者身份随标签切换",
+        "导航验收：折叠、标签切换与插件返回后仍保留。"
+      ]
+    },
+    {
+      "case": "NAV-03",
+      "size": [
+        1280,
+        820
+      ],
+      "result": "passed",
+      "observed": [
+        "QUSOR",
+        "返回产品设计 · 从想法到成果",
+        "阅读插件提供的界面",
+        "阅读插件工作区",
+        "宿主导航与对象标签退出"
+      ]
+    },
+    {
+      "case": "NAV-04",
+      "size": [
+        900,
+        680
+      ],
+      "result": "passed",
+      "observed": [
+        "返回书架",
+        "准原生应用的秩序",
+        "返回产品设计 · 概览",
+        "局部返回恢复书架，外层来源不变"
+      ]
+    },
+    {
+      "case": "NAV-05",
+      "size": [
+        1280,
+        820
+      ],
+      "result": "passed",
+      "observed": [
+        "回到原画布标签",
+        "恢复空间导航范围、展开状态与信息面板",
+        "从隐藏导航的功能目录进入后显示返回功能列表",
+        "外层返回后仍是功能目录且导航隐藏"
+      ]
+    },
+    {
+      "case": "NAV-06",
+      "size": [
+        900,
+        680
+      ],
+      "result": "passed",
+      "observed": [
+        "显示书库导航",
+        "返回书架内容",
+        "阅读正文占主区域",
+        "QUSOR与阅读插件身份保留"
+      ]
+    },
+    {
+      "case": "NAV-07",
+      "size": [
+        900,
+        680
+      ],
+      "result": "passed-for-exercised-subset",
+      "observed": [
+        "插件内更多菜单的功能样例进入宿主目录",
+        "深色折叠状态的工作区与文稿插件身份可读",
+        "搜索打开后AX树只保留搜索对话框与系统窗口元素",
+        "搜索画布后回车激活从想法到成果"
+      ]
+    },
+    {
+      "case": "NAV-08",
+      "result": "not-run",
+      "observed": []
+    }
+  ],
+  "input_method": "中文验收文本通过原生粘贴输入并逐字核对；早期typeText尝试未形成可见文字，不计作键入或IME通过。",
+  "limits": [
+    "无真实插件包安装/隔离/SDK装配",
+    "无Core写入或持久恢复",
+    "无滚动位置/焦点恢复资格",
+    "未覆盖完整键盘/读屏/IME/动态字号",
+    "未运行其他五端"
+  ],
+  "screenshot_evidence": "使用CUA getAXStateAndScreenshot现场观察并在聊天中呈现；本目录不伪造或重绘截图。"
+}

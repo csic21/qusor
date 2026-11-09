@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-09",
+  "scope": "macOS native host and plugin workspace composition fixture",
+  "upstream": {
+    "fixed_checkout": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+    "checked_main": "64ab8a1dad8c419f6c34768d938049619b080f5b",
+    "latest_release": "v0.4.0",
+    "release_tag_object": "06771fff7150e9ae115a0edde2ab764ec4e8454d",
+    "release_peeled_commit": "e626a8dd8f8d8b277b9507cfd5ac74d0e67020f3",
+    "cargo_lock_sha256": "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b"
+  },
+  "host": {
+    "os": "macOS 27.0 / 26A428",
+    "arch": "arm64",
+    "backend": "AppKit",
+    "sha256": "42b60abbdf6a332757af0ce94dec578ce11b1388978ab0d19cbd068f40d3edc9"
+  },
+  "source_sha256": {
+    "App.tsx": "f35cd679b8bed3b64dc99f1ea002e2ddff4d699e75fdfd6e75462af1eb99a7b1",
+    "contributions.tsx": "309904f7515f395192e4692f8c1d1b002f012843cf83c68ebb15962b7d7095aa",
+    "ui.tsx": "50daff86fd3f648cbaa6d5fe4551ceb01b2c82c22d78201c28e7ea8fe9c49e72"
+  },
+  "artifacts": {
+    "bundle_nshc_sha256": "6b1113c432ca7a054a2239484ea4017994cd095d159c7bb269a105f3fea2de13",
+    "wide": {
+      "size": [1280, 820],
+      "bundle_tree_sha256": "9cdded38d9ea61a00be6d9c57d15e8d0b275bd1baf2e8ece68141ea8250fdb96"
+    },
+    "compact": {
+      "size": [900, 680],
+      "bundle_tree_sha256": "eef8979d754ea120057a930d111fb77483804759a62f553ae2afd3b2b94c62ba"
+    }
+  },
+  "scenarios": [
+    "wide workspace-to-plugin transition",
+    "plugin-owned library navigation and reader",
+    "search and format filter",
+    "non-reading return target preservation",
+    "compact plugin navigation",
+    "compact reader and host return",
+    "window-local bookmark state"
+  ],
+  "not_verified": [
+    "signed plugin installation",
+    "SDK release and isolated UI execution",
+    "Core persistence, reopen, export and source return",
+    "keyboard, screen reader and IME completeness",
+    "non-macOS application profiles",
+    "native resource release acknowledgement"
+  ]
+}

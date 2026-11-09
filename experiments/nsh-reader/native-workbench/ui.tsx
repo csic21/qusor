@@ -8,6 +8,8 @@ const paths: Record<string, string> = {
     close: "M6 6l12 12 M18 6L6 18",
     chevron: "M7 10l5 5l5-5",
     back: "M14 6l-6 6l6 6",
+    forward: "M9 6l6 6l-6 6",
+    list: "M4 5h2 M10 5h10 M4 12h2 M10 12h10 M4 19h2 M10 19h10",
     document: "M5 3h10l4 4v14H5z M14 3v5h5 M8 12h8 M8 16h6",
     book: "M12 5v15 M3 4q5-2 9 1q4-3 9-1v15q-5-2-9 1q-4-3-9-1z",
     pen: "M5 16L16 5l3 3L8 19l-4 1z M14 7l3 3",
@@ -154,6 +156,33 @@ export function Badge(props: { icon: string; size?: number; tone?: string }) {
                 size={(props.size ?? 34) * 0.55}
                 color={ink("text-accent")}
             />
+        </View>
+    );
+}
+export function ProviderIdentity(props: { title: string; icon: string }) {
+    return (
+        <View
+            accessibilityLabel={`${props.title}插件提供的界面`}
+            style={{
+                flexDirection: "row",
+                gap: 7,
+                alignItems: "center",
+                minWidth: 0,
+            }}
+        >
+            <Glyph name={props.icon} size={16} />
+            <Copy strong>{props.title}</Copy>
+            <View
+                style={{
+                    paddingHorizontal: 5,
+                    borderRadius: 4,
+                    backgroundColor: ink("surface-inset"),
+                }}
+            >
+                <Copy size={11} muted>
+                    插件
+                </Copy>
+            </View>
         </View>
     );
 }

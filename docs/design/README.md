@@ -1,5 +1,7 @@
 # QUSOR 界面与交互设计
 
+2026-11-09导航修正：用户指出重复侧栏开关易误导，收起后看不出插件下钻。新增[基座与插件导航层级](navigation-hierarchy.md)：一个宿主导航区、稳定的工作区路径与插件身份、具名的局部/外层返回和来源布局恢复。该增量优先于下方旧候选的双导航呈现，具体外观继续待评审；实际范围见[实窗记录](../../experiments/nsh-reader/evidence/native-navigation-hierarchy/README.md)。
+
 2026-11-09最新视觉方向：用户确认参考 T3 Code、macOS 自带应用和所附 Plannotator 界面；另提供书库图，明确仅用于阅读插件，基座须能适配这种插件工作区。先读 [UI技能与参考取舍](../research/14-ui-craft-and-native-references.md)、[原生工作台候选 v0.4](native-workbench.md) 与 [实窗证据](../../experiments/nsh-reader/evidence/native-workbench/README.md)。本机已制作可操作样例；具体视觉仍待用户评审，正式包、数据与恢复另验。结构沿用 [外壳布局 v0.3](shell-layout.md)，不以阅读、代码或固定对话定义整个基座。
 
 更新：2026-11-09。功能结构沿 [通用 Agent 基座与场景组合](agent-foundation.md)，视觉改按 [原生软件方向](native-art-direction.md) 评审。用户进一步否定已有稿的 Web 感，要求参考具体设计师的软件作品；v0.1/v0.2 与早期 HTML 稿保留为历史流程草案，不再作为当前视觉方案。本轮有独立 NSH 实窗样例，仍非生产装配或最终品牌；六端资格分别验证。
@@ -8,6 +10,7 @@
 
 | 文档 | 回答的问题 |
 |---|---|
+| [导航层级与返回](navigation-hierarchy.md) | 收起、下钻、标签切换怎样区分；如何辨认当前插件并返回真实来源 |
 | [原生工作台 v0.4](native-workbench.md) / [研究 14](../research/14-ui-craft-and-native-references.md) | T3 Code、macOS、Plannotator 的取舍，固定版本 UI skill、实窗修正及阅读插件参考边界 |
 | [基座布局与交互研究](../research/13-shell-layout-interaction-study.md) | 最新界面哪里偏离基座；设计 skill 如何筛选；四种外壳模型怎样取舍 |
 | [外壳布局与交互 v0.3](shell-layout.md) | 对象、功能、任务怎样分层；区域预算、切换/返回、工具目标与插件增长怎样落实 |

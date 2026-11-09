@@ -1,0 +1,46 @@
+{
+  "checked_date": "2026-11-09",
+  "repository": "https://github.com/longbridge/nsh",
+  "stable_release": {
+    "tag": "v0.4.0",
+    "commit": "e626a8dd8f8d8b277b9507cfd5ac74d0e67020f3",
+    "published_at": "2026-11-04T12:23:58Z",
+    "url": "https://github.com/longbridge/nsh/releases/tag/v0.4.0"
+  },
+  "main": "530b73170f61e5bf16380959de9e622f8ce130cd",
+  "recent_commits": [
+    {
+      "sha": "530b73170f61e5bf16380959de9e622f8ce130cd",
+      "date": "2026-11-09T10:17:26Z",
+      "title": "ios: Find an input's event target when the host wraps its delegate (#1394)"
+    },
+    {
+      "sha": "81d8c41c618be5bb3738b58ae050f282152c67b0",
+      "date": "2026-11-09T10:14:43Z",
+      "title": "core: Include file URLs in desktop drag entry events (#938)"
+    },
+    {
+      "sha": "db46bd3dd974a3eca92a4d8d55f42c41e9a0c0e7",
+      "date": "2026-11-09T09:19:48Z",
+      "title": "text: Show link URL on hover (#1370)"
+    },
+    {
+      "sha": "686e346f028e5e415ec65dc324d86f1874c50610",
+      "date": "2026-11-09T08:25:52Z",
+      "title": "linux: Let assistive technologies activate plain buttons (#1255)"
+    },
+    {
+      "sha": "a5bdeeea507acbae1e25075aa724507abcaab424",
+      "date": "2026-11-09T08:20:17Z",
+      "title": "image: Skip the environment proxy for loopback asset URLs (#1396)"
+    }
+  ],
+  "pinned_checkout": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "cargo_lock_sha256": "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b",
+  "design_guides": {
+    "url": "https://github.com/longbridge/nsh/blob/530b73170f61e5bf16380959de9e622f8ce130cd/skills/nsh-design-guides/references/design-guides.md",
+    "sha256": "86f3482bb692a5dae053d1cf21da8d855d083ab3363b2c2469684dc2c76c27f0",
+    "matches_pinned_checkout": true
+  },
+  "impact": "近期提交涉及iOS输入委托、桌面文件拖入、链接提示、Linux辅助技术与loopback资源代理。本轮只使用已有Button/Tabs/Menu/Dialog/Command和原生布局，保留固定CLI与native-host，不升级运行时；输入法及其他平台资格不由本轮证明。"
+}

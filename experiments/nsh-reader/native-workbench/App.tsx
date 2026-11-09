@@ -1,12 +1,18 @@
 import { mount, Scroll, setColorScheme, signal, Text, View } from "nsh";
 import { Button, Command, Dialog, Menu, MenuItem, Tab, Tabs } from "nsh/base";
 import { titleBar } from "nsh/desktop";
-import { entries, Diagram, type Entry } from "./contributions";
-import { Badge, Copy, focus, Glyph, ink, Rule, Tool } from "./ui";
+import {
+    entries,
+    pluginWorkspaces,
+    Diagram,
+    type Entry,
+} from "./contributions";
+import { Badge, Copy, focus, Glyph, ink, ProviderIdentity, Rule, Tool } from "./ui";
 
-// No view-specific route branches in the shell. All contribution identities are fixtures.
+// The shell branches by generic contribution role; identities remain fixtures.
 const active = signal("overview"),
-    opened = signal(["overview", "note", "canvas"]);
+    opened = signal(["overview", "note", "canvas"]),
+    activePlugin = signal("");
 const sidebar = signal(true),
     inspector = signal(false),
     library = signal(false),
@@ -15,36 +21,76 @@ const searchOpen = signal(false),
     query = signal("");
 const narrow = signal(false),
     frameWidth = signal(1280),
-    listOpen = signal(true);
+    navigationScope = signal("space");
+const pluginOrigin = signal<{
+    active: string;
+    library: boolean;
+    sidebar: boolean;
+    inspector: boolean;
+    navigationScope: string;
+} | null>(null);
 function showSearch() {
     query.set("");
     searchOpen.set(true);
 }
-const showSidebar = () => sidebar() && !(narrow() && inspector() && !library());
-const showLeading = () =>
-    listOpen() &&
-    !library() &&
-    !inspector() &&
-    active() !== "overview" &&
-    frameWidth() - (showSidebar() ? 200 : 0) >= 900;
-function toggleLeading() {
-    if (showLeading()) {
-        listOpen.set(false);
-        return;
-    }
-    inspector.set(false);
-    listOpen.set(true);
-    if (frameWidth() < 1100) sidebar.set(false);
-}
+const showSidebar = () =>
+    !activePlugin() &&
+    sidebar() &&
+    !(narrow() && inspector() && !library());
 function revealSidebar() {
     if (narrow()) inspector.set(false);
     sidebar.set(true);
 }
+function toggleNavigation() {
+    if (showSidebar()) sidebar.set(false);
+    else revealSidebar();
+}
 function openEntry(id: string) {
     if (!opened().includes(id)) opened.set([...opened(), id]);
+    activePlugin.set("");
+    pluginOrigin.set(null);
     active.set(id);
     library.set(false);
+    navigationScope.set("workspace");
     searchOpen.set(false);
+}
+function openLibrary() {
+    if (activePlugin()) closePluginWorkspace();
+    library.set(true);
+    inspector.set(false);
+    navigationScope.set("space");
+    searchOpen.set(false);
+}
+function currentPlugin() {
+    return pluginWorkspaces.find((workspace) => workspace.id === activePlugin());
+}
+function openPluginWorkspace(id: string) {
+    if (!pluginWorkspaces.some((workspace) => workspace.id === id)) return;
+    if (!activePlugin()) {
+        pluginOrigin.set({
+            active: active(),
+            library: library(),
+            sidebar: sidebar(),
+            inspector: inspector(),
+            navigationScope: navigationScope(),
+        });
+    }
+    activePlugin.set(id);
+    library.set(false);
+    inspector.set(false);
+    searchOpen.set(false);
+}
+function closePluginWorkspace() {
+    activePlugin.set("");
+    const origin = pluginOrigin();
+    if (origin) {
+        active.set(origin.active);
+        library.set(origin.library);
+        sidebar.set(origin.sidebar);
+        inspector.set(origin.inspector);
+        navigationScope.set(origin.navigationScope);
+    }
+    pluginOrigin.set(null);
 }
 function current() {
     return entries.find((e) => e.id === active());
@@ -166,29 +212,10 @@ function Sidebar() {
                 searchOpen() ? "no-hide-descendants" : "auto"
             }
             style={{
-                width: 200,
-                flexShrink: 0,
+                flex: 1,
                 backgroundColor: ink("transparent"),
             }}
         >
-            <View
-                desktop={{ windowDrag: true }}
-                style={{
-                    height: 52,
-                    flexShrink: 0,
-                    paddingLeft: titleBar().left + 12,
-                    paddingRight: 8,
-                    flexDirection: "row",
-                    alignItems: "center",
-                }}
-            >
-                <View style={{ flex: 1 }} />
-                <Tool
-                    label="隐藏侧栏"
-                    icon="panel"
-                    onPress={() => sidebar.set(false)}
-                />
-            </View>
             <View
                 style={{
                     paddingHorizontal: 12,
@@ -200,10 +227,7 @@ function Sidebar() {
                 <View
                     style={{ paddingHorizontal: 10, paddingBottom: 4, gap: 3 }}
                 >
-                    <Copy size={17} strong>
-                        QUSOR
-                    </Copy>
-                    <Copy size={12} muted>
+                    <Copy size={15} strong>
                         个人空间
                     </Copy>
                 </View>
@@ -240,8 +264,27 @@ function Sidebar() {
                         title="功能"
                         icon="grid"
                         selected={library()}
-                        onPress={() => library.set(true)}
+                        onPress={openLibrary}
                     />
+                </View>
+                <View style={{ gap: 5 }}>
+                    <View style={{ paddingHorizontal: 10, paddingBottom: 3 }}>
+                        <Copy size={11} muted strong>
+                            工作区样例
+                        </Copy>
+                    </View>
+                    <Each of={pluginWorkspaces}>
+                        {(workspace) => (
+                            <SidebarRow
+                                title={workspace().title}
+                                icon={workspace().icon}
+                                onPress={() =>
+                                    openPluginWorkspace(workspace().id)
+                                }
+                                trailing="样例"
+                            />
+                        )}
+                    </Each>
                 </View>
                 <View style={{ gap: 5 }}>
                     <View style={{ paddingHorizontal: 10, paddingBottom: 3 }}>
@@ -291,41 +334,29 @@ function CollectionPane() {
                 searchOpen() ? "no-hide-descendants" : "auto"
             }
             style={{
-                width: 288,
-                flexShrink: 0,
-                marginTop: 8,
-                marginRight: 8,
-                marginBottom: 8,
-                borderRadius: 12,
-                borderCurve: "continuous",
-                borderWidth: 1,
-                borderColor: ink("border-subtle"),
-                backgroundColor: ink("surface-base"),
+                flex: 1,
+                minHeight: 0,
                 overflow: "hidden",
             }}
         >
             <View
-                desktop={{ windowDrag: true }}
                 style={{
-                    height: 51,
+                    height: 43,
                     flexShrink: 0,
-                    paddingLeft: showSidebar() ? 17 : titleBar().left + 12,
-                    paddingRight: 9,
+                    paddingHorizontal: 19,
                     flexDirection: "row",
                     alignItems: "center",
                     gap: 7,
                 }}
             >
                 <View style={{ flex: 1, minWidth: 0 }}>
-                    <Copy size={16} strong>
-                        产品设计
+                    <Copy size={12} muted strong>
+                        工作区内容
                     </Copy>
                 </View>
-                <Tool
-                    label="收起内容列表"
-                    icon="panel"
-                    onPress={() => listOpen.set(false)}
-                />
+                <Copy size={11} muted>
+                    4 项
+                </Copy>
             </View>
             <Rule />
             <Scroll style={{ flex: 1 }}>
@@ -440,6 +471,75 @@ function CollectionPane() {
                     4 个内容 · 当前工作区
                 </Copy>
             </View>
+        </View>
+    );
+}
+function NavigationPane() {
+    return (
+        <View
+            accessibilityLabel="工作区导航"
+            accessibilityElementsHidden={searchOpen()}
+            importantForAccessibility={
+                searchOpen() ? "no-hide-descendants" : "auto"
+            }
+            style={{ width: 248, flexShrink: 0 }}
+        >
+            <Tabs
+                accessibilityLabel="导航范围"
+                style={{
+                    marginHorizontal: 12,
+                    marginTop: 5,
+                    marginBottom: 10,
+                    height: 32,
+                    flexShrink: 0,
+                    flexDirection: "row",
+                    padding: 2,
+                    borderRadius: 7,
+                    backgroundColor: ink("surface-inset"),
+                }}
+                indicatorStyle={{
+                    top: 2,
+                    bottom: 2,
+                    borderRadius: 5,
+                    backgroundColor: ink("surface-active-tab"),
+                }}
+            >
+                <Each
+                    of={[
+                        { id: "space", title: "空间" },
+                        { id: "workspace", title: "产品设计" },
+                    ]}
+                >
+                    {(scope) => (
+                        <Tab
+                            accessibilityLabel={`${scope().title}导航`}
+                            selected={navigationScope() === scope().id}
+                            onPress={() => navigationScope.set(scope().id)}
+                            style={{
+                                flex: 1,
+                                alignItems: "center",
+                                justifyContent: "center",
+                                borderRadius: 5,
+                            }}
+                            focusStyle={focus()}
+                        >
+                            <Copy
+                                size={12}
+                                strong={navigationScope() === scope().id}
+                                muted={navigationScope() !== scope().id}
+                            >
+                                {scope().title}
+                            </Copy>
+                        </Tab>
+                    )}
+                </Each>
+            </Tabs>
+            <If when={navigationScope() === "space"}>
+                <Sidebar />
+            </If>
+            <If when={navigationScope() === "workspace"}>
+                <CollectionPane />
+            </If>
         </View>
     );
 }
@@ -649,8 +749,51 @@ function Library() {
                 </Copy>
                 <Copy muted>选择一种适合当前工作的视图</Copy>
                 <Copy size={12} muted>
-                    以下为界面样例，尚未安装真实插件包
+                    以下为贡献样例，尚未安装真实插件包
                 </Copy>
+                <Each of={pluginWorkspaces}>
+                    {(workspace) => (
+                        <View
+                            style={{
+                                paddingVertical: 18,
+                                borderBottomWidth: 1,
+                                borderColor: ink("border-subtle"),
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: 15,
+                            }}
+                        >
+                            <Badge icon={workspace().icon} size={42} />
+                            <View style={{ flex: 1, gap: 4 }}>
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        gap: 8,
+                                    }}
+                                >
+                                    <Copy size={15} strong>
+                                        {workspace().title}
+                                    </Copy>
+                                    <Copy size={11} muted>
+                                        {workspace().kind}
+                                    </Copy>
+                                </View>
+                                <Copy size={12} muted>
+                                    {workspace().description}
+                                </Copy>
+                            </View>
+                            <Tool
+                                label={`打开${workspace().title}工作区样例`}
+                                text="打开工作区"
+                                raised
+                                onPress={() =>
+                                    openPluginWorkspace(workspace().id)
+                                }
+                            />
+                        </View>
+                    )}
+                </Each>
                 <Each of={entries}>
                     {(entry) => (
                         <View
@@ -726,6 +869,12 @@ function Inspector() {
                     所在位置
                 </Copy>
                 <Copy>个人空间 / 产品设计</Copy>
+                <If when={current()}>
+                    <Copy size={11} muted>
+                        界面提供者
+                    </Copy>
+                    <Copy>{current()?.provider}插件 · 窗口内样例</Copy>
+                </If>
                 <Copy size={11} muted>
                     内容状态
                 </Copy>
@@ -859,6 +1008,116 @@ function Search() {
         </Dialog>
     );
 }
+function HostToolbar() {
+    return (
+        <View
+            desktop={{ windowDrag: true }}
+            accessibilityElementsHidden={searchOpen()}
+            importantForAccessibility={searchOpen() ? "no-hide-descendants" : "auto"}
+            style={{
+                height: 52,
+                flexShrink: 0,
+                paddingLeft: titleBar().left + 12,
+                paddingRight: titleBar().right + 17,
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+                backgroundColor: ink("surface-frame"),
+            }}
+        >
+            <Copy size={12} muted strong>
+                QUSOR
+            </Copy>
+            <If when={!activePlugin()}>
+                <Tool
+                    label={showSidebar() ? "隐藏导航" : "显示导航"}
+                    icon="panel"
+                    text="导航"
+                    selected={showSidebar()}
+                    onPress={toggleNavigation}
+                />
+            </If>
+            <If when={currentPlugin()}>
+                <Tool
+                    label={
+                        pluginOrigin()?.library
+                            ? "返回功能列表"
+                            : `返回产品设计 · ${current()?.title ?? "概览"}`
+                    }
+                    icon="back"
+                    text={pluginOrigin()?.library ? "返回功能" : "返回产品设计"}
+                    onPress={closePluginWorkspace}
+                />
+                <Glyph name="forward" size={13} />
+                <ProviderIdentity
+                    title={currentPlugin()!.title}
+                    icon={currentPlugin()!.icon}
+                />
+            </If>
+            <If when={!activePlugin() && library()}>
+                <Glyph name="forward" size={13} />
+                <Copy strong>功能</Copy>
+            </If>
+            <If when={!activePlugin() && !library()}>
+                <If when={active() === "overview"}>
+                    <Copy strong>产品设计</Copy>
+                </If>
+                <If when={active() !== "overview"}>
+                    <Tool
+                        label="返回产品设计概览"
+                        text="产品设计"
+                        icon="folder"
+                        onPress={() => openEntry("overview")}
+                    />
+                    <Glyph name="forward" size={13} />
+                    <ProviderIdentity
+                        title={current()?.provider ?? ""}
+                        icon={current()?.icon ?? "plug"}
+                    />
+                </If>
+            </If>
+            <View style={{ flex: 1, minWidth: 0 }} />
+            <If when={!activePlugin()}>
+                <Tool
+                    label="搜索内容…"
+                    icon="search"
+                    onPress={showSearch}
+                />
+                <NewMenu />
+                <Tool
+                    label={inspector() ? "关闭信息" : "显示信息"}
+                    icon="info"
+                    selected={inspector()}
+                    onPress={() => inspector.set(!inspector())}
+                />
+            </If>
+            <Menu
+                offset={8}
+                margin={10}
+                popupStyle={popupStyle()}
+                trigger={<Tool label="更多工作区操作…" icon="more" />}
+            >
+                <MenuRow
+                    title={dark() ? "浅色外观" : "深色外观"}
+                    icon={dark() ? "sun" : "moon"}
+                    onSelect={toggleDark}
+                />
+                <MenuRow
+                    title="功能样例"
+                    icon="grid"
+                    onSelect={openLibrary}
+                />
+                <If when={!currentPlugin()}>
+                    <MenuRow
+                        title="关闭当前标签"
+                        icon="close"
+                        onSelect={closeActive}
+                    />
+                </If>
+            </Menu>
+        </View>
+    );
+}
 function App() {
     return (
         <View
@@ -866,125 +1125,31 @@ function App() {
                 narrow.set(bounds.size.width < 1120);
                 frameWidth.set(bounds.size.width);
             }}
-            style={{
-                flex: 1,
-                flexDirection: "row",
-                backgroundColor: ink("surface-frame"),
-            }}
+            style={{ flex: 1, backgroundColor: ink("surface-frame") }}
         >
-            <If when={showSidebar()}>
-                <Sidebar />
-            </If>
-            <If when={showLeading()}>
-                <CollectionPane />
-            </If>
-            <View
-                accessibilityElementsHidden={searchOpen()}
-                importantForAccessibility={
-                    searchOpen() ? "no-hide-descendants" : "auto"
-                }
-                style={{
-                    flex: 1,
-                    minWidth: 0,
-                    marginTop: 8,
-                    marginRight: 8,
-                    marginBottom: 8,
-                    borderRadius: 12,
-                    borderCurve: "continuous",
-                    borderWidth: 1,
-                    borderColor: ink("border-subtle"),
-                    overflow: "hidden",
-                    backgroundColor: ink("surface-base"),
-                }}
-            >
+            <HostToolbar />
+            <View style={{ flex: 1, flexDirection: "row", minHeight: 0 }}>
+                <If when={showSidebar()}>
+                    <NavigationPane />
+                </If>
                 <View
-                    desktop={{ windowDrag: true }}
+                    accessibilityElementsHidden={searchOpen()}
+                    importantForAccessibility={searchOpen() ? "no-hide-descendants" : "auto"}
                     style={{
-                        height: 52,
-                        flexShrink: 0,
-                        paddingLeft:
-                            showSidebar() || showLeading()
-                                ? 14
-                                : titleBar().left + 12,
-                        paddingRight: titleBar().right + 13,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 8,
-                        backgroundColor: ink("surface-toolbar"),
+                        flex: 1,
+                        minWidth: 0,
+                        marginLeft: showSidebar() ? 0 : 8,
+                        marginRight: 8,
+                        marginBottom: 8,
+                        borderRadius: 12,
+                        borderCurve: "continuous",
+                        borderWidth: 1,
+                        borderColor: ink("border-subtle"),
+                        overflow: "hidden",
+                        backgroundColor: ink("surface-base"),
                     }}
                 >
-                    <If when={!showSidebar()}>
-                        <Tool
-                            label={
-                                narrow() && inspector()
-                                    ? "关闭信息并显示侧栏"
-                                    : "显示侧栏"
-                            }
-                            icon="panel"
-                            onPress={revealSidebar}
-                        />
-                    </If>
-                    <Tool
-                        label="返回工作区"
-                        icon="back"
-                        disabled={active() === "overview" && !library()}
-                        onPress={() => openEntry("overview")}
-                    />
-                    <If when={active() !== "overview" && !library()}>
-                        <Tool
-                            label={
-                                showLeading() ? "隐藏内容列表" : "显示内容列表"
-                            }
-                            icon="panel"
-                            selected={showLeading()}
-                            onPress={toggleLeading}
-                        />
-                    </If>
-                    <View style={{ flex: 1, minWidth: 0 }}>
-                        <Copy strong>
-                            {library()
-                                ? "功能"
-                                : (current()?.title ?? "产品设计")}
-                        </Copy>
-                    </View>
-                    <View style={{ flex: 1 }} />
-                    <Tool
-                        label="搜索内容…"
-                        icon="search"
-                        onPress={showSearch}
-                    />
-                    <NewMenu />
-                    <Tool
-                        label="显示信息"
-                        icon="info"
-                        selected={inspector()}
-                        onPress={() => inspector.set(!inspector())}
-                    />
-                    <Menu
-                        offset={8}
-                        margin={10}
-                        popupStyle={popupStyle()}
-                        trigger={<Tool label="更多工作区操作…" icon="more" />}
-                    >
-                        <MenuRow
-                            title={dark() ? "浅色外观" : "深色外观"}
-                            icon={dark() ? "sun" : "moon"}
-                            onSelect={toggleDark}
-                        />
-                        <MenuRow
-                            title="功能样例"
-                            icon="grid"
-                            onSelect={() => library.set(true)}
-                        />
-                        <MenuRow
-                            title="关闭当前标签"
-                            icon="close"
-                            onSelect={closeActive}
-                        />
-                    </Menu>
-                </View>
-                <Rule />
-                <If when={!library()}>
+                <If when={!library() && !activePlugin()}>
                     <View
                         style={{
                             height: 40,
@@ -1072,26 +1237,51 @@ function App() {
                 </If>
                 <View style={{ flex: 1, flexDirection: "row", minHeight: 0 }}>
                     <View style={{ flex: 1, minWidth: 0 }}>
-                        <If when={library()}>
+                        <If when={!activePlugin() && library()}>
                             <Library />
                         </If>
-                        <If when={!library() && active() === "overview"}>
+                        <If
+                            when={
+                                !activePlugin() &&
+                                !library() &&
+                                active() === "overview"
+                            }
+                        >
                             <Overview />
                         </If>
+                        <Each of={pluginWorkspaces}>
+                            {(workspace) => (
+                                <If
+                                    when={
+                                        activePlugin() === workspace().id
+                                    }
+                                >
+                                    {workspace().render({
+                                        compact: narrow(),
+                                    })}
+                                </If>
+                            )}
+                        </Each>
                         <Each of={entries}>
                             {(entry) => (
                                 <If
-                                    when={!library() && active() === entry().id}
+                                    when={
+                                        !activePlugin() &&
+                                        !library() &&
+                                        active() === entry().id
+                                    }
                                 >
                                     {entry().render()}
                                 </If>
                             )}
                         </Each>
                     </View>
-                    <If when={inspector() && !library()}>
+                    <If when={!activePlugin() && inspector() && !library()}>
                         <Inspector />
                     </If>
                 </View>
+            </View>
+
             </View>
             <Search />
         </View>
