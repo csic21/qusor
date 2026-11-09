@@ -9,10 +9,10 @@ name = "nsh-app-qusor-nsh-native-host-probe-ios-host"
 path = "main.rs"
 
 [dependencies]
-nsh-ios-host = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-ios-host" }
-nsh-core = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-core" }
-nsh-base = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-base", features = ["highlight"] }
-app_qusor_nsh_native_host_probe = { package = "qusor-nsh-native-host-probe", path = "/workspace/qusor/experiments/nsh-reader/native-host" }
+nsh-ios-host = { path = "../../../../target/nsh/crates/nsh-ios-host" }
+nsh-core = { path = "../../../../target/nsh/crates/nsh-core" }
+nsh-base = { path = "../../../../target/nsh/crates/nsh-base", features = ["highlight"] }
+app_qusor_nsh_native_host_probe = { package = "qusor-nsh-native-host-probe", path = "../../../../native-host" }
 
 [target.'cfg(target_os = "ios")'.dependencies]
-nsh-platform-ios = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios" }
+nsh-platform-ios = { path = "../../../../target/nsh/crates/nsh-platform-ios" }

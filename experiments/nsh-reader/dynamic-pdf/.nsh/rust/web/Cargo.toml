@@ -18,9 +18,9 @@ dev = ["nsh-platform-web/dev"]
 linkable = ["nsh-platform-web/linkable"]
 
 [dependencies]
-nsh-core = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-core" }
-nsh-base = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-base", features = ["highlight"] }
-app_qusor_nsh_native_host_probe = { package = "qusor-nsh-native-host-probe", path = "/workspace/qusor/experiments/nsh-reader/native-host" }
+nsh-core = { path = "../../../../target/nsh/crates/nsh-core" }
+nsh-base = { path = "../../../../target/nsh/crates/nsh-base", features = ["highlight"] }
+app_qusor_nsh_native_host_probe = { package = "qusor-nsh-native-host-probe", path = "../../../../native-host" }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-nsh-platform-web = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web", default-features = false }
+nsh-platform-web = { path = "../../../../target/nsh/crates/nsh-platform-web", default-features = false }

@@ -302,7 +302,10 @@ pub fn worker_main() -> Result<bool> {
     if boot.fault == Fault::OrphanSurvivor {
         // Explicit trusted crash experiment only: exercise actual pidfd cleanup,
         // rather than only observing children killed by the default guard.
+        #[cfg(target_os = "linux")]
         rustix::process::set_parent_process_death_signal(None)?;
+        #[cfg(not(target_os = "linux"))]
+        return Err("orphan-survivor fault profile is qualified only on Linux".into());
     }
     write_frame(
         &mut output,

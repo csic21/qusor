@@ -33,6 +33,8 @@ jobs:
         run: python scripts/check_architecture.py
       - name: Test architecture guard
         run: python -m unittest discover -s scripts/tests -v
+      - name: Test platform prerequisite reporting
+        run: python -m unittest discover -s experiments/nsh-reader -p test_platforms.py -v
       - name: Check local documentation links
         run: python scripts/check_docs.py
       - name: Lint Core
@@ -45,3 +47,30 @@ jobs:
         env:
           RUSTDOCFLAGS: "-D warnings"
         run: cargo doc --workspace --no-deps --locked --offline
+
+  portable-libraries:
+    name: Core libraries (${{ matrix.target }})
+    # These jobs prove library compilation only. They do not qualify NSH hosts,
+    # storage adapters, a device, plugin execution, GUI flows or store distribution.
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - aarch64-apple-ios-sim
+          - aarch64-linux-android
+          - wasm32-unknown-unknown
+          - x86_64-pc-windows-gnu
+          - aarch64-unknown-linux-gnu
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Install pinned toolchain and target
+        run: rustup target add --toolchain 1.97.1 ${{ matrix.target }}
+      - name: Fetch locked dependencies
+        run: cargo fetch --locked
+      - name: Check portable Core, policy, package and interpreter libraries
+        env:
+          CARGO_BUILD_JOBS: "1"
+        run: cargo check --locked --offline --lib --target ${{ matrix.target }} -p extension-api -p extension-host -p core-api -p learning-application -p runtime-wasm -p extension-package

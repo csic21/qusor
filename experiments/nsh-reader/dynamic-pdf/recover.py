@@ -16,6 +16,9 @@ def run(*args):
 
 
 def recover(store, restored, output, capture_ids, documents):
+    capture_ids = list(capture_ids)
+    if not capture_ids:
+        raise ValueError('capture recovery requires at least one saved capture')
     if restored.exists():
         raise ValueError('restore requires a new empty destination')
     work = restored.parent / (restored.name + '-artifacts'); work.mkdir()

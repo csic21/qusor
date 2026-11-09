@@ -4,10 +4,9 @@
 
 Rust 版本以 [rust-toolchain.toml](../rust-toolchain.toml) 为准；Python 3.11+ 用于标准库检查脚本。没有 Node/npm、数据库、Supabase CLI 或模型服务的启动要求。
 
-当前工作区位于 WSL 的 /workspace/qusor。建议在 Ubuntu 中进入这个 Linux 路径运行 Cargo，避免从 Windows 跨 UNC 编译。将来使用 SQLite 时运行数据放在应用本地目录，不能把源码工作区的位置当作数据库部署位置。
+在本机原生文件系统中的仓库根目录执行以下检查；不绑定历史 WSL 工作区路径。运行数据使用明确的应用本地目录，不能把源码工作区的位置当作数据库部署位置。macOS 原生阅读预览及六端实际资格见 [跨平台结果](../experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md)。
 
 ```sh
-cd /workspace/qusor
 cargo fmt --all -- --check
 python3 scripts/check_architecture.py
 python3 -m unittest discover -s scripts/tests -v

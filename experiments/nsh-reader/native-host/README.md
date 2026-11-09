@@ -1,6 +1,6 @@
 # 原生 Rust+TSX 桥接探针
 
-关联 P02/P03、F-PLAT-01 和 C-09。此独立 Workspace 适配固定 NSH 的 `rust-exports` 示例，注册真实 Rust module/class/component 与 GTK Meter；显式关闭 `nsh-linux-host` 的可选 WebView 默认 feature。示例没有 WebView 功能，未用占位框代替阅读。它不是正式 QUSOR UI 或插件 SDK。
+关联 P02/P03、F-PLAT-01 和 C-09。2026-11-09 起增加 [macOS AppKit 准备入口](../prepare_macos.py)，使用同一 Core、普通签名阅读/编辑包及 TSX，按 [ADR 0033](../../../docs/architecture/adr/0033-cross-platform-runtime.md) 逐平台资格；不把构建通过当作全平台交付。此独立 Workspace 适配固定 NSH 的 `rust-exports` 示例，注册真实 Rust module/class/component 与 GTK Meter；显式关闭 `nsh-linux-host` 的可选 WebView 默认 feature。示例没有 WebView 功能，未用占位框代替阅读。它不是正式 QUSOR UI 或插件 SDK。
 
 前置：按 [上级说明](../README.md) 准备固定 `target/nsh`、锁定 Cargo 缓存和已校验的 `target/native-prefix`。源码固定 SHA 不得改变，全部原生链接库必须可解析。根生产 Workspace 不引入 NSH。
 

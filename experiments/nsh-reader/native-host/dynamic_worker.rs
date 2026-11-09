@@ -18,7 +18,17 @@ pub type Result<T> = std::result::Result<T, String>;
 pub const MAX_PDF: usize = 16 * 1024 * 1024;
 const MAX_OUTPUT: usize = 8 * 1024 * 1024;
 const MAX_BITMAP: usize = 16 * 1024 * 1024;
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 const LIBRARY_SHA: &str = "1c251efce460d67437a4c76d4be9033ae2f17bf5603f5bff1af10209b94ca723";
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+const LIBRARY_SHA: &str = "a45c44645523968525c710462691dd974f4efb1013ce1c249919a0939cfb373a";
+#[cfg(all(target_os = "macos", target_arch = "x86_64"))]
+const LIBRARY_SHA: &str = "a9f428a16f46bab89646c8724b348e01c3fe707e3126d9356026cd876a74aecb";
+#[cfg(not(any(
+    all(target_os = "linux", target_arch = "x86_64"),
+    all(target_os = "macos", any(target_arch = "aarch64", target_arch = "x86_64"))
+)))]
+const LIBRARY_SHA: &str = "unqualified-pdfium-target";
 static SERIAL_WORKER: Mutex<()> = Mutex::new(());
 fn text(e: impl std::fmt::Display) -> String {
     e.to_string()
@@ -127,6 +137,9 @@ impl ChildLease {
             return self.confirmed();
         }
         if let Some(identity) = &self.identity {
+            #[cfg(target_os = "macos")]
+            let _ = runtime_process::cleanup_owned(&mut self.child, identity).map_err(text)?;
+            #[cfg(not(target_os = "macos"))]
             let _ = runtime_process::cleanup(identity).map_err(text)?;
         } else {
             let _ = self.child.kill();
@@ -601,7 +614,7 @@ mod tests {
         )
         .unwrap();
         let retain = Arc::new(AtomicBool::new(false));
-        let mut child = Command::new("/bin/true").spawn().unwrap();
+        let mut child = Command::new("/usr/bin/true").spawn().unwrap();
         child.wait().unwrap();
         let mut lease = ChildLease {
             child,

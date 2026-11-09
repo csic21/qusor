@@ -1,0 +1,328 @@
+{
+  "recorded_date": "2026-11-09",
+  "scope": "isolated macOS arm64 native reading qualification; not six-platform application delivery",
+  "host": {
+    "os": "macOS 27.0",
+    "cpu": "arm64",
+    "xcode": "27.2 (27B52)",
+    "rust": "1.97.1",
+    "ios_sdk": "27.2",
+    "installed_simulator_runtime": "iOS 18.4; no application run"
+  },
+  "base_commit": "15dfd17252ab7606fc92bf01fbbe65dca4923f5d",
+  "working_tree_modified": true,
+  "source_sha256": {
+    "adapters/runtime-process/src/macos.rs": "352a1f36b824c36ee0ab1076d1b2ef810ed5efca3858091a5adeec4302ad37d0",
+    "adapters/runtime-process/src/controller.rs": "ca53c50bb18d9d63f2777dd51e0b6aa5807658ad307d861d32727b4b38828741",
+    "adapters/extension-store/src/lib.rs": "cda99bffef4fcbec9a414245fd4e76e888c200edd02f8a82dfb8d59aa4767ad1",
+    "crates/extension-api/src/platform.rs": "f6546ac71f1410ffa2147866c5535136a17621dbcc6136dbf5d1503ad7d262ac",
+    "crates/extension-host/src/platform.rs": "03978e8f7ae9ae6d42edf561cca511066a319db7b77295996ab1b9a293959c99",
+    "experiments/nsh-reader/native-host/dynamic_main.rs": "57817457e8cbf2274d27e97540dcb16d36bfc53484b7cf54eb6dfad9a03b04c5",
+    "experiments/nsh-reader/native-host/dynamic_worker.rs": "349f2c22dae97cad28ac2396ff66c7271669987cd21dd556955fe049b2cd810f",
+    "experiments/nsh-reader/native-host/plugin_surface.rs": "225e0f1c04a9a5e84a3e3b0ac9841373082637f61202aac4fc4966e2dcc55e64",
+    "experiments/nsh-reader/dynamic-pdf/run.py": "d170c365872d172fc9e0db34e438d9d440964317e402abe39558d3483cb21ecd",
+    "experiments/nsh-reader/prepare_macos.py": "aca2681e634bb0b1c01aa914d2660835779f126749092209d33ecbb5acec8fe2",
+    "adapters/runtime-process/tests/controller.rs": "369fca38b333fbb3d3f189189ef3ebfd7e2c49fec8cbcde1e5e18bc4518a3c13",
+    "experiments/nsh-reader/native-host/desktop_platform.rs": "7a900d1ed39e34d66553b24c0d2a4371e4fcab4ea4a8ae6862ea932119b83038",
+    "experiments/nsh-reader/native-host/main.rs": "d38d0f60e1f73dc4b22927e839e5054cfdf2ddce79f02bd9243931780219dbe9",
+    "experiments/nsh-reader/native-host/pdf_main.rs": "452b2b7a9aa7397227585d31d00d7d53b64317b9dc156cafaedbf6ebc0bb9eef",
+    "experiments/nsh-reader/native-host/plugin_main.rs": "9bcb722c540c701a89ab9245956bf0b6a34c6d1b239f76f5a00f908f2bd8ef0a"
+  },
+  "locks_sha256": {
+    "Cargo.lock": "8950feb923d027db9aa821deda0aad97876e5735a1243ee0cf95387b50898423",
+    "experiments/capture-core/Cargo.lock": "ad59a8e17ac98d1c5c54a88eb27912592bcf246b5d6371364bec008b513a5951",
+    "experiments/nsh-reader/native-host/Cargo.lock": "858686ba363dadfa1a44ec636df4c2a6e624d592420594f9ab203c993f85f34b",
+    "experiments/nsh-reader/dynamic-pdf/.nsh/rust/Cargo.lock": "81df4acbeb8b91f55c5d6939bfcd36cc0f645f8cdc3b48053c9412baee8d7229"
+  },
+  "preparation": {
+    "platform": "macos",
+    "target": "aarch64-apple-darwin",
+    "nsh_commit": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+    "built": true,
+    "registry_lock_drift": {
+      "probe": [],
+      "helper": []
+    },
+    "architecture_errors": [],
+    "web_dependencies_or_features": [],
+    "pdfium_library_sha256": "a45c44645523968525c710462691dd974f4efb1013ce1c249919a0939cfb373a",
+    "started": false,
+    "interaction_verified": false,
+    "artifacts": {
+      "experiments/nsh-reader/target/nsh/target/debug/qusor-nsh-dynamic-pdf-probe": "2a90f9d6a3af70e25c9fcf321df4e0d17a957f09c37ac663c0ca76fba012c4b4",
+      "experiments/nsh-reader/target/dynamic-pdf-bundle/bundle.nshc": "93a8d4079ac3df9949c4ebf2a6e9f197687c6c1f674b49a40508a6d8559f3a83",
+      "experiments/nsh-reader/target/dynamic-pdf-resources/reader.package": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+      "experiments/nsh-reader/target/dynamic-pdf-resources/editor-a.package": "7769c10ae964187765e8e7de9c84ff6422d00da7426b7581ed961f18c6a030b8"
+    },
+    "reader_author": {
+      "sdk_sources": {
+        "capture/contract.rs": "5f2a41176927913eac86859c2a7c724996cecfab0b030b50306324c0d3f8532b",
+        "capture/pdf_contract.rs": "7673e004999b75d37fbe43e038df8e48803838493b066e907ce296a421f83609",
+        "capture/pdf_compound.rs": "59634bfd7055df2a2886ed74fe5871ecf04311cb3d6d87ed3e1bdfa4c48e761d",
+        "package/package.rs": "4de3ba3784a111d47683f41ceff6f625868fbb5d61148a0cfbfca70787d066f2",
+        "api/src/component_invocation.rs": "a432b7d6876d3705c6ecbfdf27ed3df34ce1e80a7b2ff97295c2bb7b8f7dbbf9",
+        "api/src/composition.rs": "32bb8f741fd78113af905cf7574c30360848f2b54a402bdb7cca09f98ed24f0c",
+        "api/src/continuation.rs": "fffcb559ceade8671a103484ba562fc3200f535dca160745acdd12513d33e036",
+        "api/src/draft.rs": "c89c51d1f1bc9d135a6143d1cfdd335152b151d084fa4d03732d3654790bacf6",
+        "api/src/invocation.rs": "56a2da6b501b750476db54b4c89f0edfff8d27965ff574f651a38a4f1e057955",
+        "api/src/lib.rs": "6d09183569761ff7a0260030de974807638cf95e487cd59aefbb29ba0bc0e0c7",
+        "api/src/platform.rs": "f6546ac71f1410ffa2147866c5535136a17621dbcc6136dbf5d1503ad7d262ac",
+        "api/src/projection.rs": "8d7a1a83d839ffc2482328d127b8a392198b88deff5ee0c525ef70ba4dfcfbb2",
+        "api/src/surface.rs": "b4c0ea070e5e86734fd1f8131bd00ea1dffdbba81b5633b930c7fbf3ccc387b6",
+        "api/schema/component-context-v1.schema.json": "339a2b6ec996d471ff6cc0a92b4d4a77e00fd78dfa1b0cb81c71884cfadcb06d",
+        "api/schema/component-invocation-v1.schema.json": "2c4d017dcfe9be621b4d737d3b63a4fe0ad99325b91f42ce18155afade4b58dd",
+        "api/schema/composition-v1.schema.json": "3a75b6840ae47a322bedc3866869863cc11405d554de72fbed28aca4c4674b83",
+        "api/schema/continuation-v1.schema.json": "e58ed374c8974394c33297667025da4953291dfe714200428251f9b6ce164458",
+        "api/schema/draft-v1.schema.json": "90ed8de0bd92577325f2a2bbb364557d91859bddd937eec014d5e7bf2b5d88fd",
+        "api/schema/paragraph-projection-v1.schema.json": "17eeff4b2da272e2530c386c0f9960c7d7c12842afcf5fd685c4d51ed88283ab",
+        "api/schema/policy-v0.1.schema.json": "a9ec0d843fa58b3835f14fd24a27211a4b40c7cb62aeecb0ee7973124335947b",
+        "api/schema/policy-v0.2.schema.json": "1cb65514f75c56864848d6c9cb760b8ddf494fe040f283c18c9835ab98f707de",
+        "api/schema/policy-v0.3.schema.json": "909b434bbafe126e4208b18f0ad2fa7a2330a6ba2ee3a149d06310e4b873bdaf",
+        "api/schema/surface-v1.schema.json": "e56d9c3379eb4b1e87ec96750655740ac0a9819c0f7840cd17015407feb4de4a",
+        "author/src/bin/component_author.rs": "2f414b38c73b788fc016a0fd3afd8f57e67969a58f6c75a9957c5a95f2b687f3",
+        "author/src/bin/component_paragraph_author.rs": "9ea4426732fe84504bc61da3b16ff8002158433f812b0922bc1ae37640d043af",
+        "author/src/bin/component_paragraph_projected_author.rs": "29a39cf0b0f64f279dc0a8bc33a3b0122ea90d81b195cc2aa09b8669dc63a842",
+        "author/src/component_paragraph.c": "bea64b7630c3ef28c29db08fdd3bda3383db683a9c25aa357a882b8a4bda6222",
+        "author/src/component_paragraph_entry.s": "cbe7bb988a2ba77c9a2f22593631e5e9c21e909997495dc38112e9c1dea7cdd4",
+        "author/src/component_paragraph_projected.c": "e1d78640bdde781ff7b5a4766a3b1dda948c5e522f694e9549eff32fd6eeb765",
+        "author/src/component_text.wat": "9bfec0cd13241bae659f3813f977ae0539f0877e0e19f7aa572a442de33aaa01",
+        "author/src/main.rs": "c1ba01d2963dccb2cf0412c3cc8c5c29797e3fc8cb6bd65d7c68496e7479dc74"
+      },
+      "packages": [
+        "base64",
+        "base64ct",
+        "bitflags",
+        "block-buffer",
+        "build-surface-plugin",
+        "bumpalo",
+        "cfg-if",
+        "const-oid",
+        "core-api",
+        "cpufeatures",
+        "crypto-common",
+        "curve25519-dalek",
+        "curve25519-dalek-derive",
+        "der",
+        "digest",
+        "ed25519",
+        "ed25519-dalek",
+        "equivalent",
+        "extension-api",
+        "extension-package",
+        "fiat-crypto",
+        "generic-array",
+        "getrandom",
+        "hashbrown",
+        "indexmap",
+        "itoa",
+        "leb128fmt",
+        "libc",
+        "memchr",
+        "pkcs8",
+        "proc-macro2",
+        "quote",
+        "rand_core",
+        "rustc_version",
+        "semver",
+        "serde",
+        "serde_core",
+        "serde_derive",
+        "serde_json",
+        "sha2",
+        "signature",
+        "spki",
+        "subtle",
+        "syn",
+        "typenum",
+        "unicode-ident",
+        "unicode-segmentation",
+        "unicode-width",
+        "version_check",
+        "wasi",
+        "wasm-encoder",
+        "wasmparser",
+        "wast",
+        "wat",
+        "zeroize",
+        "zmij"
+      ],
+      "author_source_sha256": {
+        "main.rs": "4ec0ad8af677cdc17f41819e3dd55f63debe3a921eca70b054956718977638e6",
+        "reader.wat": "fed326b03ab5f507ba442778e400ba1a09415191e267c52224034b2dce0f4756"
+      },
+      "package_sha256": "895b6b116c114dba2f12a67ae6e07b38f37fc99f152e070d86964ed65fcf0dff",
+      "failure_packages": {
+        "trap": "4fb62966cfb63f2aa0bd52cdf4ab8dff9c9ec35538b0c592157245a267b72c8c",
+        "timeout": "610f70682f146b8dda5a5f00a7d8a80434c7193e502eb83025d9fbb8470f74e7",
+        "wrong": "8627f1597bfd583555f3cf13b21e1ef52afc3eea07a23c1df638902cd4900661",
+        "repeat": "4ee4b7672d31aaf48b3c3e19ef65ab6644f2582d41dd20f6540f0b3c0bfe4d0b"
+      },
+      "publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+      "local_sources_all_inside_sdk": true,
+      "package_file": "/workspace/qusor/experiments/nsh-reader/target/plugin-surface-resources/reader.package"
+    },
+    "editor_author": {
+      "package_sha256": "7769c10ae964187765e8e7de9c84ff6422d00da7426b7581ed961f18c6a030b8",
+      "publisher_public_key": "2152f8d19b791d24453242e15f2eab6cb7cffa7b6a5ed30097960e069881db12",
+      "author_record_sha256": "04b3a05ade7874848d71f7e2330da0c44ce0353e4b4849abafb5889e1a562549",
+      "authority": "ordinary SDK; exact Draft approval still required at use"
+    }
+  },
+  "checks": {
+    "root_tests": {
+      "exit_code": 0,
+      "passed": 218,
+      "suites": 54
+    },
+    "native_library_tests": {
+      "exit_code": 0,
+      "passed": 30,
+      "mode": "default parallel tests"
+    },
+    "root_clippy": {
+      "exit_code": 0
+    },
+    "rustdoc_warnings_denied": {
+      "exit_code": 0
+    },
+    "architecture_guard": {
+      "exit_code": 0
+    },
+    "architecture_tests": {
+      "exit_code": 0,
+      "passed": 42
+    },
+    "reader_python_tests": {
+      "exit_code": 0,
+      "run": 22,
+      "skipped": 3
+    },
+    "ios_native_library_check": {
+      "exit_code": 0,
+      "target": "aarch64-apple-ios-sim",
+      "log_sha256": "b075bc6074fe252680acd34a07aa217ccfab32fda5aabc333112c000aaf2b15e",
+      "app_linked": false,
+      "app_started": false
+    },
+    "real_process_controller": {
+      "exit_code": 0,
+      "scenario_groups": 5,
+      "parent_loss_pipe_eof_ms": 30,
+      "child_ignored_stdin_during_five_second_sleep": true,
+      "no_raw_pid_signal_for_cleanup": true
+    },
+    "all_native_desktop_bins_macos": {
+      "exit_code": 0,
+      "count": 4,
+      "log_sha256": "d9318c0a48c4509627731222d68eae7b6ddbd65326c76aa7c4f3d4d9c7ed247c",
+      "other_three_gui_runs": false,
+      "qualified_dynamic_binary_unchanged": true
+    }
+  },
+  "gui": {
+    "method": "CUA native AppKit accessibility and screenshot observations in this chat",
+    "picker": true,
+    "pdf_page": 3,
+    "selected_exact": "A runtime selected local document",
+    "ordinary_reader_package": true,
+    "ordinary_editor_package_a": true,
+    "native_editor_auto_focus": true,
+    "unicode_method": "paste into focused native input; no Chinese IME qualification",
+    "saved_notes": [
+      "macOS 原生阅读：第三页摘录与想法已连接 Core。🧭",
+      "macOS 重开后再次保存：普通签名插件、中文与 🧭 保留到 Core。"
+    ],
+    "observed_status": "已保存到本机",
+    "automatic_position_restore": false,
+    "saved_note_browser": false,
+    "closed_normally": true,
+    "owned_launcher_exit_code": 0,
+    "final_window_left_running": true,
+    "final_preview_page": 1
+  },
+  "core_recovery": {
+    "capture_ids": [
+      1,
+      2
+    ],
+    "exact_resolution_count": 2,
+    "original_document_count": 3,
+    "captures_equal": true,
+    "archive_sha256": "9c8ed9f019249dd13228fbb07b17b9387748d97a78bc668fcef251694916e864",
+    "evidence_sha256": "5acd473494a2da9b0ee8ad8a936b98545d2eb1250e92b4ca588226f79bc7ca6a"
+  },
+  "shutdown": {
+    "editor": {
+      "native_release_ack": false,
+      "pending_owner": false,
+      "retirement_confirmed": true,
+      "retirement_error": null,
+      "service_retained": false
+    },
+    "frames": {
+      "native_release_ack": false,
+      "owners": [
+        {
+          "bridge_attempts": 1,
+          "encoded_containers": 0,
+          "encoded_referenced_bytes": 0,
+          "frame_id": "fr.bbef9e27fc4373070031fa91a34df268.1.5",
+          "generation": 3,
+          "local_delivery": 0,
+          "mount_id": "mt.bbef9e27fc4373070031fa91a34df268.1.3",
+          "pending": 0,
+          "running": 0,
+          "undelivered": 0
+        },
+        {
+          "bridge_attempts": 1,
+          "encoded_containers": 0,
+          "encoded_referenced_bytes": 0,
+          "frame_id": "fr.bbef9e27fc4373070031fa91a34df268.1.6",
+          "generation": 4,
+          "local_delivery": 0,
+          "mount_id": "mt.bbef9e27fc4373070031fa91a34df268.1.3",
+          "pending": 0,
+          "running": 0,
+          "undelivered": 0
+        }
+      ],
+      "phase": "Closing"
+    },
+    "encoded": {
+      "allocation_may_remain_in_native_png_cache": true,
+      "containers": 0,
+      "created": 3,
+      "native_release_ack": false,
+      "referenced_bytes": 0,
+      "released": 3,
+      "retainer_class": "unknown_ImageData_Blob_ImageSource_cache_or_loader",
+      "uncertain": false
+    },
+    "remaining_durable_worker_leases": 0
+  },
+  "earlier_failures": [
+    {
+      "scope": "uncontrolled initial PDF picker attempt",
+      "result": "PdfiumLibraryInternalError(Unknown); not counted as successful import"
+    },
+    {
+      "scope": "cold import after app restart before the fix",
+      "result": "Core retained import, reader unavailable: fixed grant operation ID reused with different document input",
+      "fixed_by": "fresh trusted-open operation identity; headless cold-open/permission regression and final native GUI flow passed"
+    }
+  ],
+  "not_qualified": [
+    "native image/cache release ACK",
+    "OS sandbox",
+    "Chinese IME composition",
+    "Intel Mac",
+    "long PDF or EPUB",
+    "production app assembly or installable release",
+    "Windows native app",
+    "iOS app or physical device",
+    "Android app or physical device",
+    "Web browser runtime/persistence",
+    "signed multi-implementation package/install/recovery routing"
+  ]
+}

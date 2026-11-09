@@ -22,6 +22,7 @@ use extension_api::{
 pub mod component;
 pub mod durable;
 mod durable_surface;
+pub mod platform;
 pub mod surface;
 
 const MAX_INSTALLATIONS: usize = 256;

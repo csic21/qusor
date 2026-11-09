@@ -261,9 +261,7 @@ fn begin(candidate_id: String, provider: String) -> Result<Value> {
     .map_err(text)?;
     let binding = next(&mut g, "editor")?;
     let mut nonce = [0u8; 16];
-    std::fs::File::open("/dev/urandom")
-        .and_then(|mut f| f.read_exact(&mut nonce))
-        .map_err(text)?;
+    getrandom::getrandom(&mut nonce).map_err(text)?;
     let boot = nonce.iter().map(|b| format!("{b:02x}")).collect::<String>();
     let mut events = ProviderEvents::new();
     let controller = Controller::new().map_err(text)?;

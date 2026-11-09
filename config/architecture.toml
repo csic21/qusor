@@ -141,7 +141,7 @@ manifest = "experiments/extension-package/Cargo.toml"
 # WAT is dev-only: compile adversarial migration/preflight fixtures without external build prerequisites.
 # Rustix safe Linux pidfd/prctl/event APIs implement identity-pinned cleanup and parent-death fencing.
 allowed_dependencies = ["extension-store", "extension-runtime-api", "runtime-process", "extension-package", "extension-api", "extension-host", "sha2", "serde", "serde_json", "fs2", "libc", "rusqlite", "qusor-wasm-probe", "wat", "rustix"]
-allowed_transitive_dependencies = ["base64", "extension-store", "runtime-process",
+allowed_transitive_dependencies = ["aho-corasick", "bindgen", "cexpr", "cfg-if", "clang-sys", "either", "glob", "itertools", "libloading", "libproc", "minimal-lexical", "nom", "regex", "regex-automata", "regex-syntax", "rustc-hash", "shlex", "base64", "extension-store", "runtime-process",
   "extension-runtime-api", "runtime-wasm",
   "extension-package",
   "extension-api",
@@ -244,7 +244,7 @@ allowed_transitive_dependencies = ["base64", "base64ct", "bitflags", "block-buff
 [experiments.capture-core.packages.qusor-capture-probe]
 manifest = "experiments/capture-core/Cargo.toml"
 allowed_dependencies = ["runtime-process", "extension-store", "extension-package", "extension-runtime-api", "runtime-wasm", "core-api", "learning-application", "storage-sqlite", "extension-api", "extension-host", "qusor-package-probe", "qusor-wasm-probe", "serde_json", "libc", "rusqlite", "wat"]
-allowed_transitive_dependencies = ["extension-store", "runtime-process",
+allowed_transitive_dependencies = ["aho-corasick", "bindgen", "cexpr", "cfg-if", "clang-sys", "either", "glob", "itertools", "libloading", "libproc", "minimal-lexical", "nom", "regex", "regex-automata", "regex-syntax", "rustc-hash", "shlex", "extension-store", "runtime-process",
   "extension-runtime-api", "runtime-wasm",
   "extension-package",
   "learning-application", "learning-ports", "storage-sqlite", "blob-store",
@@ -373,7 +373,7 @@ allowed_transitive_dependencies = [
 manifest = "experiments/nsh-reader/native-host/Cargo.toml"
 # Shared edit/projection brokers are reused only by this isolated native experiment.
 # This does not make an experiment crate a production Core or plugin dependency.
-allowed_dependencies = ["qusor-capture-probe", "runtime-process", "libc", "png", "nsh-linux-host", "nsh-core", "nsh-base", "nsh-platform-linux", "rust-exports-native", "qusor-pdf-provider-probe", "serde_json", "extension-api", "extension-host", "extension-package", "runtime-wasm", "core-api", "learning-application", "storage-sqlite", "extension-store"]
+allowed_dependencies = ["getrandom", "nsh-macos-host", "nsh-platform-macos", "nsh-windows-host", "nsh-platform-windows", "qusor-capture-probe", "runtime-process", "libc", "png", "nsh-linux-host", "nsh-core", "nsh-base", "nsh-platform-linux", "rust-exports-native", "qusor-pdf-provider-probe", "serde_json", "extension-api", "extension-host", "extension-package", "runtime-wasm", "core-api", "learning-application", "storage-sqlite", "extension-store"]
 
 
 # ADR 0019: real knowledge application / atomic persistence boundary.
@@ -410,5 +410,6 @@ allowed_transitive_dependencies = ["base64", "extension-host", "ahash", "base64c
 # Serde/JSON encode private IPC only; no Host, Store, Probe, Wasmi or UI dependency.
 [packages.runtime-process]
 manifest = "adapters/runtime-process/Cargo.toml"
-allowed_dependencies = ["extension-runtime-api", "rustix", "serde", "serde_json"]
-allowed_transitive_dependencies = ["bitflags", "errno", "extension-runtime-api", "itoa", "libc", "linux-raw-sys", "memchr", "proc-macro2", "quote", "rustix", "serde", "serde_core", "serde_derive", "serde_json", "syn", "unicode-ident", "windows-link", "windows-sys", "zmij"]
+allowed_dependencies = ["extension-runtime-api", "libproc", "rustix", "serde", "serde_json"]
+# libproc uses generated Darwin bindings; these are its audited build-time closure.
+allowed_transitive_dependencies = ["aho-corasick", "bindgen", "cexpr", "cfg-if", "clang-sys", "either", "glob", "itertools", "libloading", "libproc", "minimal-lexical", "nom", "regex", "regex-automata", "regex-syntax", "rustc-hash", "shlex", "bitflags", "errno", "extension-runtime-api", "itoa", "libc", "linux-raw-sys", "memchr", "proc-macro2", "quote", "rustix", "serde", "serde_core", "serde_derive", "serde_json", "syn", "unicode-ident", "windows-link", "windows-sys", "zmij"]

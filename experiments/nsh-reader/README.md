@@ -1,5 +1,7 @@
 # NSH 最小阅读宿主实验
 
+2026-11-09：平台目标扩为 macOS / Windows / Linux / iOS / Android / Web。macOS 原生启动入口、共享库交叉检查及各端未完成门槛见 [跨平台结果](CROSS_PLATFORM_RESULTS.md)；下文旧 Linux 记录保留其原始范围。
+
 新增 [TSX 插件 UI 通路研究](tsx-plugin-ui/README.md)：已核对最新上游并用现有固定 CLI 完成仓库外 TSX 作者构建；普通包的独立 VM/原生挂载/权限和替换仍待验证，完整结论见 [研究09](../../docs/research/09-tsx-plugin-native-ui.md)。
 
 状态：隔离的本地原生依赖目录已解除平台编译阻断，native 平台 Cargo check 与 NSH CLI 链接通过；Rust 示例描述程序和 TSX 字节码已构建。独立原生窗口已显示离线 Rust+TSX、实际按钮回调并正常关闭重开；原生 PDF 页图/窗口拖选已有子项，完整打包、输入与阅读仍待验证。实际结果见 [RESULTS.md](RESULTS.md)。

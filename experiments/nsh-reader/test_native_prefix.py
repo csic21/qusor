@@ -8,7 +8,7 @@ spec.loader.exec_module(native)
 class NativePrefixTests(unittest.TestCase):
     def test_relocation_preserves_raw_and_is_repeatable(self):
         with tempfile.TemporaryDirectory() as temporary:
-            prefix=Path(temporary)
+            prefix=Path(temporary).resolve()
             pc=prefix/'usr/lib/x86_64-linux-gnu/pkgconfig/example.pc'
             pc.parent.mkdir(parents=True)
             raw='prefix=/usr\nincludedir=${prefix}/include\n'

@@ -1,3 +1,5 @@
+2026-11-09 增量：macOS profile 使用 libproc 的微秒创建时间、内核 boot session、UID 与 image inode 记录观测；父进程守卫通过受信线程检测重父化/原父身份消失，仅退出自身。终止只允许仍持有的 `Child`，恢复记录的裸 PID 不发送信号；未知恢复进程继续隔离。四组真实控制器场景与当前身份/拒绝伪造的测试在 macOS 通过。父死延迟与完整 Core/GUI 另行留证；Windows、移动及 Web 执行 profile 尚未实现。
+
 # runtime-process：进程身份、受控传输与独立监督
 
 关联 F-EXT-01/03/05/06。Linux `/proc` 身份、父死守卫与 pidfd 清理从已有监督实验迁入，实验兼容模块转发同一实现；现已增加有界原始字节传输、独立controller/watchdog及注入执行器的worker入口；不包含Host授权、数据库、具体guest执行器或完整产品supervisor。
@@ -25,3 +27,5 @@ cargo test --manifest-path experiments/extension-package/Cargo.toml --test proce
 Call/Reply传原始字节，业务协议由外层解析。请求64KiB、响应4KiB、Boot模块256KiB，JSON信封按最坏膨胀独立设限。Result仅在输出干净结束且子进程正常退出后接纳；真实回收事件与持久lease清理仍是不同步骤。`forget`不重置启动nonce下的运行序号，不能以清记录复用run_id。
 
 统一消费者资格见 [九场景结果](../../experiments/capture-core/supervised-results.md)：真实普通签名0.1/0.2包、Core查询、撤权、独立超时、SQLite清理失败及未绑定身份的父进程崩溃均留证。它不证明NSH、其他平台、完整安装UI或安全沙箱已完成。
+
+2026-11-09，macOS 另通过五类真实控制器场景。父进程跳过析构退出后，已消费 stdin 并进入五秒测试睡眠的子进程在本机约 30 ms 结束继承管道；这是实际父死终止的观察，不是所有设备的最大延迟保证。当前 Mac 原生阅读的具体范围见 [本机记录](../../experiments/nsh-reader/evidence/macos-native-reader-20261109/README.md)。

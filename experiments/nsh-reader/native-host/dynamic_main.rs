@@ -51,11 +51,11 @@ fn main() -> std::process::ExitCode {
         eprintln!("dynamic initialization failed: {error}");
         return std::process::ExitCode::FAILURE;
     }
-    nsh_platform_linux::set_ui_sets(vec![
+    platform::set_ui_sets(vec![
         nsh_base::registry(),
         qusor_nsh_native_host_probe::__nsh_native_module(),
     ]);
-    let code = nsh_linux_host::main();
+    let code = platform::main();
     // First latch editor admission without waiting, invalidate dynamic State,
     // stop frames and wait for the entire parser/COMMITTING Job to finish.
     let frame_shutdown = qusor_nsh_native_host_probe::dynamic_module::shutdown();
@@ -73,4 +73,20 @@ fn main() -> std::process::ExitCode {
         return std::process::ExitCode::FAILURE;
     }
     code
+}
+
+#[cfg(target_os = "linux")]
+mod platform {
+    pub use nsh_linux_host::main;
+    pub use nsh_platform_linux::set_ui_sets;
+}
+#[cfg(target_os = "macos")]
+mod platform {
+    pub use nsh_macos_host::main;
+    pub use nsh_platform_macos::set_ui_sets;
+}
+#[cfg(target_os = "windows")]
+mod platform {
+    pub use nsh_windows_host::main;
+    pub use nsh_platform_windows::set_ui_sets;
 }

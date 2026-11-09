@@ -107,6 +107,10 @@ impl TrackedEncodedBytes {
     pub fn owner_snapshot(&self) -> Result<Snapshot> {
         self._guard.owner.snapshot()
     }
+    #[cfg(test)]
+    pub fn owner_for_test(&self) -> Owner {
+        self._guard.owner.clone()
+    }
 }
 impl AsRef<[u8]> for TrackedEncodedBytes {
     fn as_ref(&self) -> &[u8] {

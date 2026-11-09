@@ -294,9 +294,19 @@ mod tests {
     fn fixture() -> (Scratch, String, DocumentReport) {
         let tmp = Scratch::new();
         let provider = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../pdf-provider");
-        let output = Command::new(provider.join("target/debug/qusor-pdf-provider-probe"))
+        let adjacent = std::env::current_exe().unwrap().parent().unwrap().parent().unwrap()
+            .join("qusor-pdf-provider-probe");
+        let binary = std::env::var_os("QUSOR_PDF_PROVIDER_PROBE").map(PathBuf::from)
+            .unwrap_or_else(|| if adjacent.is_file() { adjacent } else { provider.join("target/debug/qusor-pdf-provider-probe") });
+        let library = std::env::var_os("QUSOR_PDF_LIBRARY").map(PathBuf::from).unwrap_or_else(|| {
+            if cfg!(target_os = "macos") {
+                let arch = if cfg!(target_arch = "aarch64") { "aarch64" } else { "x86_64" };
+                provider.join(format!("target/pdfium-macos-{arch}/lib/libpdfium.dylib"))
+            } else { provider.join("target/pdfium/lib/libpdfium.so") }
+        });
+        let output = Command::new(binary)
             .arg("inspect")
-            .arg(provider.join("target/pdfium/lib/libpdfium.so"))
+            .arg(library)
             .arg(provider.join("fixtures/text-two-pages.pdf"))
             .arg(tmp.0.join("render"))
             .output()

@@ -324,9 +324,7 @@ fn initialize_document_inner(
         extension_package::package::verify_for_host(&bytes, key.trim(), &SUPPORTED_HOST_APIS)
             .map_err(text)?;
     let mut nonce = [0; 16];
-    std::fs::File::open("/dev/urandom")
-        .and_then(|mut f| f.read_exact(&mut nonce))
-        .map_err(text)?;
+    getrandom::getrandom(&mut nonce).map_err(text)?;
     let (mut host, installation, package) =
         ReaderAuthority::install(&data.join("packages"), &verified, nonce)?;
     let mut core =
@@ -342,8 +340,11 @@ fn initialize_document_inner(
         .map_err(text)?;
     committed.set(true);
     let document = core.query_document(receipt.document_id).map_err(text)?;
-    let session =
-        host.authorize_document(&document, "fixture-reader-grants-v2", allow_scope_change)?;
+    // A cold start can import a different document while retaining the journal.
+    // Each trusted open action needs its own operation identity; persisted grants
+    // still retain their original expiry, capability set and disabled state.
+    let grant_operation = format!("reader-grants-{}", qusor_pdf_provider_probe::sha256(&nonce));
+    let session = host.authorize_document(&document, &grant_operation, allow_scope_change)?;
     let contribution = package
         .manifest()
         .contributions
@@ -1496,6 +1497,58 @@ mod reader_guest_tests {
         drop(service);
         SERVICE.lock().unwrap().take();
         std::fs::remove_dir_all(data).unwrap();
+    }
+
+    #[test]
+    fn cold_open_of_another_document_keeps_grant_expiry_and_uses_distinct_operation() {
+        let _test = SERVICE_TEST.lock().unwrap();
+        let resources =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../target/plugin-surface-resources");
+        let data = std::env::temp_dir().join(format!("qusor-reader-cold-open-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&data);
+        std::fs::create_dir_all(&data).unwrap();
+        initialize(&resources, &data).unwrap();
+        let first = service().unwrap().gate.lock().unwrap().document.receipt.document_id;
+        let saved = service().unwrap().gate.lock().unwrap().host.saved_authorization_for_test().unwrap();
+        shutdown().unwrap();
+
+        let mut next = fixture_prepared_for_cold_open(&resources);
+        next.operation = "cold-open-second-import".into();
+        assert!(initialize_document(&resources, &data, next).is_err(),
+            "passive recovery must not change the document permission scope");
+        assert!(service().is_err());
+        let mut next = fixture_prepared_for_cold_open(&resources);
+        next.operation = "cold-open-second-import".into();
+        assert!(matches!(initialize_document_checked(&resources, &data, next).unwrap(),
+            DocumentInitialization::Ready));
+        let active = service().unwrap();
+        let gate = active.gate.lock().unwrap();
+        assert_ne!(first, gate.document.receipt.document_id);
+        let restored = gate.host.saved_authorization_for_test().unwrap();
+        match (saved, restored) {
+            (extension_store::SavedAuthorization::V2(before), extension_store::SavedAuthorization::V2(after)) => {
+                assert_eq!(before.scope.expires_at, after.scope.expires_at);
+                assert_eq!(before.scope.grants.iter().map(|g| g.capability).collect::<Vec<_>>(),
+                           after.scope.grants.iter().map(|g| g.capability).collect::<Vec<_>>());
+            }
+            _ => panic!("expected ordinary versioned grants"),
+        }
+        drop(gate);
+        drop(active);
+        shutdown().unwrap();
+        std::fs::remove_dir_all(data).unwrap();
+    }
+
+    fn fixture_prepared_for_cold_open(resources: &Path) -> PreparedDocument {
+        let bytes = std::fs::read(resources.join("report.json")).unwrap();
+        PreparedDocument {
+            report: serde_json::from_slice(&bytes).unwrap(),
+            report_digest: qusor_pdf_provider_probe::sha256(&bytes),
+            snapshot: serde_json::from_slice(&std::fs::read(resources.join("snapshot.json")).unwrap()).unwrap(),
+            original: std::fs::read(resources.join("original.pdf")).unwrap(),
+            title: "text-two-pages.pdf".into(),
+            operation: String::new(),
+        }
     }
 
     #[test]

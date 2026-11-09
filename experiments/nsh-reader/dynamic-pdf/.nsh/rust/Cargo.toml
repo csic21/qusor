@@ -43,19 +43,19 @@ opt-level = 3
 opt-level = 3
 
 [patch.crates-io]
-nsh-macros = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-macros" }
-nsh-core = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-core" }
-nsh-base = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-base" }
-nsh-package = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-package" }
-nsh-js = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-js" }
-nsh-engine = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-engine" }
-nsh-testing = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-testing" }
-nsh-bundler = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-bundler" }
-nsh-dev = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-dev" }
-nsh-platform-apple = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-apple" }
-nsh-platform-ios = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-ios" }
-nsh-platform-android = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-android" }
-nsh-platform-linux = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-linux" }
-nsh-platform-macos = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-macos" }
-nsh-platform-windows = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-windows" }
-nsh-platform-web = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-platform-web" }
+nsh-macros = { path = "../../../target/nsh/crates/nsh-macros" }
+nsh-core = { path = "../../../target/nsh/crates/nsh-core" }
+nsh-base = { path = "../../../target/nsh/crates/nsh-base" }
+nsh-package = { path = "../../../target/nsh/crates/nsh-package" }
+nsh-js = { path = "../../../target/nsh/crates/nsh-js" }
+nsh-engine = { path = "../../../target/nsh/crates/nsh-engine" }
+nsh-testing = { path = "../../../target/nsh/crates/nsh-testing" }
+nsh-bundler = { path = "../../../target/nsh/crates/nsh-bundler" }
+nsh-dev = { path = "../../../target/nsh/crates/nsh-dev" }
+nsh-platform-apple = { path = "../../../target/nsh/crates/nsh-platform-apple" }
+nsh-platform-ios = { path = "../../../target/nsh/crates/nsh-platform-ios" }
+nsh-platform-android = { path = "../../../target/nsh/crates/nsh-platform-android" }
+nsh-platform-linux = { path = "../../../target/nsh/crates/nsh-platform-linux" }
+nsh-platform-macos = { path = "../../../target/nsh/crates/nsh-platform-macos" }
+nsh-platform-windows = { path = "../../../target/nsh/crates/nsh-platform-windows" }
+nsh-platform-web = { path = "../../../target/nsh/crates/nsh-platform-web" }

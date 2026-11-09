@@ -186,7 +186,7 @@ pub struct Controller {
 }
 impl Controller {
     pub fn new() -> ProcessResult<Self> {
-        if !cfg!(target_os = "linux") {
+        if !cfg!(any(target_os = "linux", target_os = "macos")) {
             return Err(error(
                 ProcessErrorKind::Unsupported,
                 "process_platform_unsupported",
@@ -549,6 +549,13 @@ impl Run {
             if self.identity.is_none() {
                 self.identity = crate::inspect(self.child.id(), self.handle.run_id()).ok();
             }
+            #[cfg(target_os = "macos")]
+            if let Some(identity) = self.identity.clone() {
+                self.cleanup_started = true;
+                let result = crate::cleanup_owned(&mut self.child, &identity);
+                let _ = incoming.try_send(Incoming::Cleanup(self.handle.key, result));
+            }
+            #[cfg(not(target_os = "macos"))]
             if let Some(identity) = self.identity.clone() {
                 self.cleanup_started = true;
                 let sender = incoming.clone();

@@ -76,8 +76,10 @@ impl Store {
         services: StoreServices,
     ) -> Result<Self> {
         extension_api::validate_supported_apis(supported_apis)?;
-        if !cfg!(target_os = "linux") {
-            return Err(StoreError::unsupported("store profile is Linux only"));
+        if !cfg!(unix) {
+            return Err(StoreError::unsupported(
+                "store requires a qualified native filesystem profile",
+            ));
         }
         private_directory(path)?;
         for name in ["writer.lock", "state.sqlite3", "state.sqlite3-journal"] {

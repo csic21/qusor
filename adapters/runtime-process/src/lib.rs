@@ -1,6 +1,6 @@
 //! Platform process identity and confirmed cleanup, independent of Host policy.
 //!
-//! The first implementation supports Linux and the trusted same-executable
+//! Desktop implementations support Linux and macOS with the trusted same-executable
 //! `--managed-worker <parent-pid> <parent-start> <run-id>` command profile.
 //! Other platforms fail explicitly. This adapter provides process control, not Host
 //! authorization, an OS sandbox or a complete product supervisor.
@@ -11,7 +11,12 @@ mod linux;
 #[cfg(target_os = "linux")]
 pub use linux::{cleanup, current, guard_worker, inspect};
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(target_os = "macos")]
+mod macos;
+#[cfg(target_os = "macos")]
+pub use macos::{cleanup, cleanup_owned, current, guard_worker, inspect};
+
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 mod unsupported {
     use super::{CleanupOutcome, ProcessIdentity};
     use std::io;
@@ -19,7 +24,7 @@ mod unsupported {
     fn unsupported<T>() -> io::Result<T> {
         Err(io::Error::new(
             io::ErrorKind::Unsupported,
-            "process identity profile is implemented only for Linux",
+            "process identity profile is implemented only for Linux and macOS",
         ))
     }
     pub fn current() -> io::Result<ProcessIdentity> {
@@ -39,7 +44,7 @@ mod unsupported {
         unsupported()
     }
 }
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 pub use unsupported::{cleanup, current, guard_worker, inspect};
 
 mod controller;

@@ -92,6 +92,16 @@ fn malicious(counter: u64, args: &[String]) {
             io::stdout().flush().unwrap();
         }
         107 => thread::sleep(Duration::from_secs(30)),
+        108 => {
+            std::fs::write(
+                std::env::var_os("QUSOR_TEST_PARENT_GUARD_MARKER").unwrap(),
+                b"guard registered; stdin already consumed",
+            )
+            .unwrap();
+            // EOF on stdin cannot interrupt this trusted test sleep. Early
+            // stdout EOF therefore exercises actual parent-loss termination.
+            thread::sleep(Duration::from_secs(5));
+        }
         _ => {}
     }
 }
@@ -262,8 +272,62 @@ fn drop_does_not_turn_full_event_queue_into_fake_cleanup_failure() {
         ));
     }
 }
+fn parent_death_driver(marker: &str) {
+    use std::process::{Command, Stdio};
+    let identity = current().unwrap();
+    let mut child = Command::new(std::env::current_exe().unwrap())
+        .args([
+            "--managed-worker",
+            &identity.pid.to_string(),
+            &identity.start_time_ticks.to_string(),
+            &run_id(108),
+        ])
+        .env("QUSOR_TEST_PARENT_GUARD_MARKER", marker)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::inherit())
+        .spawn()
+        .unwrap();
+    child.stdin.take().unwrap().write_all(b"{}\n").unwrap();
+    wait(|| std::path::Path::new(marker).is_file());
+    write(serde_json::json!({"kind":"parent_driver_exit"}));
+    // Deliberately bypass destructors. The child inherits our stdout pipe;
+    // the outer test cannot observe EOF until both this parent and it exit.
+    std::process::exit(0);
+}
+fn parent_loss_terminates_a_guarded_child_without_a_stdin_read() {
+    let scratch = std::env::temp_dir().join(format!(
+        "qusor-parent-loss-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    std::fs::create_dir(&scratch).unwrap();
+    let start = Instant::now();
+    let output = std::process::Command::new(std::env::current_exe().unwrap())
+        .arg("--parent-death-driver")
+        .arg(scratch.join("guard-ready"))
+        .output()
+        .unwrap();
+    assert!(output.status.success(), "{output:?}");
+    let events: Vec<serde_json::Value> = String::from_utf8(output.stdout)
+        .unwrap()
+        .lines()
+        .map(|line| serde_json::from_str(line).unwrap())
+        .collect();
+    for kind in ["guard_ready", "ready", "result", "parent_driver_exit"] {
+        assert!(events.iter().any(|event| event["kind"] == kind));
+    }
+    assert!(start.elapsed() < Duration::from_secs(4));
+    println!(
+        "guarded parent-loss pipe EOF observed in {} ms",
+        start.elapsed().as_millis()
+    );
+    std::fs::remove_dir_all(scratch).unwrap();
+}
 fn main() {
-    if !cfg!(target_os = "linux") {
+    if !cfg!(any(target_os = "linux", target_os = "macos")) {
         assert!(matches!(
             Controller::new(),
             Err(ProcessError {
@@ -275,9 +339,13 @@ fn main() {
         return;
     }
     let args: Vec<_> = std::env::args().collect();
+    if args.get(1).map(String::as_str) == Some("--parent-death-driver") {
+        parent_death_driver(&args[2]);
+        return;
+    }
     if args.get(1).map(String::as_str) == Some("--managed-worker") {
         let n = args[4].rsplit_once('-').unwrap().1.parse::<u64>().unwrap();
-        if (101..=107).contains(&n) {
+        if (101..=108).contains(&n) {
             malicious(n, &args);
         } else {
             worker_main(&Executor).unwrap();
@@ -288,5 +356,6 @@ fn main() {
     invalid_candidate_streams_never_escape();
     watchdog_and_drop_need_no_poll();
     drop_does_not_turn_full_event_queue_into_fake_cleanup_failure();
-    println!("4 real process controller scenarios passed");
+    parent_loss_terminates_a_guarded_child_without_a_stdin_read();
+    println!("5 real process controller scenarios passed");
 }

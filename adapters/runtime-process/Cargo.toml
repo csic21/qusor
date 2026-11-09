@@ -16,6 +16,9 @@ extension-runtime-api = { path = "../../crates/extension-runtime-api" }
 [target.'cfg(target_os = "linux")'.dependencies]
 rustix = { version = "=1.1.4", default-features = false, features = ["std", "process", "event"] }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+libproc = "=0.14.11"
+
 [lints]
 workspace = true
 

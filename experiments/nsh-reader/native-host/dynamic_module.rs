@@ -12,7 +12,6 @@ use nsh_core::{
 use serde_json::{Value, json};
 use std::{
     future::Future,
-    io::Read,
     path::{Path, PathBuf},
     pin::Pin,
     sync::{
@@ -69,9 +68,7 @@ fn text(e: impl std::fmt::Display) -> String {
 pub fn initialize(resources: &Path, data: &Path, worker: &Path, library: &Path) -> Result<()> {
     plugin_surface::native_editor::initialize(resources)?;
     let mut nonce = [0; 16];
-    std::fs::File::open("/dev/urandom")
-        .and_then(|mut f| f.read_exact(&mut nonce))
-        .map_err(text)?;
+    getrandom::getrandom(&mut nonce).map_err(text)?;
     let config = Config {
         resources: resources.into(),
         data: data.into(),

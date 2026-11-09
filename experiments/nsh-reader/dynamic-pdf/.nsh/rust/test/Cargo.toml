@@ -9,7 +9,7 @@ name = "nsh-app-qusor-nsh-native-host-probe-test"
 path = "main.rs"
 
 [dependencies]
-nsh-core = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-core" }
-nsh-testing = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-testing", features = ["js"] }
-nsh-base = { path = "/workspace/qusor/experiments/nsh-reader/target/nsh/crates/nsh-base" }
-app_qusor_nsh_native_host_probe = { package = "qusor-nsh-native-host-probe", path = "/workspace/qusor/experiments/nsh-reader/native-host" }
+nsh-core = { path = "../../../../target/nsh/crates/nsh-core" }
+nsh-testing = { path = "../../../../target/nsh/crates/nsh-testing", features = ["js"] }
+nsh-base = { path = "../../../../target/nsh/crates/nsh-base" }
+app_qusor_nsh_native_host_probe = { package = "qusor-nsh-native-host-probe", path = "../../../../native-host" }

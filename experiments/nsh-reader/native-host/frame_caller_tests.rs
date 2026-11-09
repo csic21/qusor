@@ -47,10 +47,10 @@ fn delivered(
 }
 #[test]
 fn more_than64_deliver_close_reclaim_with_an_old_encoded_guard_still_alive() {
-    let baseline = encoded_bytes::snapshot().unwrap();
     let caller = frame_owner_map::FrameCaller::new().unwrap();
     let bytes: Arc<[u8]> = Arc::from([1u8, 2, 3, 4]);
     let (old, lease) = delivered(&caller, 0, bytes.clone());
+    let old_owner = old.owner_for_test();
     lease.record_bridge_attempt().unwrap();
     drop(lease);
     for i in 1..130 {
@@ -62,8 +62,6 @@ fn more_than64_deliver_close_reclaim_with_an_old_encoded_guard_still_alive() {
         assert_eq!(retained.encoded_containers, 1);
         assert_eq!(retained.encoded_referenced_bytes, 4);
         assert_eq!(retained.handed_to_bridge, 1);
-        let summary = encoded_bytes::snapshot().unwrap();
-        assert_eq!(summary.containers, baseline.containers + 1);
         assert!(
             caller.snapshot_owners().unwrap().len() <= 3,
             "historical task map accumulated"
@@ -90,13 +88,13 @@ fn more_than64_deliver_close_reclaim_with_an_old_encoded_guard_still_alive() {
             .unwrap()
     );
     assert_eq!(
-        encoded_bytes::snapshot().unwrap().containers,
-        baseline.containers + 1
+        old_owner.snapshot().unwrap().encoded_containers,
+        1
     );
     drop(old);
     assert_eq!(
-        encoded_bytes::snapshot().unwrap().containers,
-        baseline.containers
+        old_owner.snapshot().unwrap().encoded_containers,
+        0
     );
     assert_eq!(Arc::strong_count(&bytes), 1); // modeled independent cache Arc remains
 }
@@ -130,10 +128,12 @@ impl AsRef<[u8]> for BlobBytes {
 }
 #[test]
 fn shared_full_slice_retainer_and_decoded_copy_have_distinct_lifetimes() {
-    let baseline = encoded_bytes::snapshot().unwrap();
     let caller = frame_owner_map::FrameCaller::new().unwrap();
     let png_cache: Arc<[u8]> = Arc::from([5u8, 6, 7, 8]);
     let (tracked, lease) = delivered(&caller, 300, png_cache.clone());
+    // Other tests also own encoded containers concurrently. Observe this frame's
+    // exact owner rather than asserting an isolated process-wide counter.
+    let owner = tracked.owner_for_test();
     lease.record_bridge_attempt().unwrap();
     let image = ImageData::new(SharedTracked(tracked.clone()));
     let file = Blob {
@@ -159,22 +159,23 @@ fn shared_full_slice_retainer_and_decoded_copy_have_distinct_lifetimes() {
     drop(full_source);
     drop(slice);
     assert_eq!(
-        encoded_bytes::snapshot().unwrap().containers,
-        baseline.containers + 1
+        owner.snapshot().unwrap().encoded_containers,
+        1
     );
     assert_eq!(sliced_source.bytes(), [6, 7]);
     drop(sliced_source);
     assert_eq!(
-        encoded_bytes::snapshot().unwrap().containers,
-        baseline.containers + 1
+        owner.snapshot().unwrap().encoded_containers,
+        1
     ); // generic shared retainer; do NOT label it mount pin or actual L3
     drop(shared_retainer);
     assert_eq!(
-        encoded_bytes::snapshot().unwrap().containers,
-        baseline.containers
+        owner.snapshot().unwrap().encoded_containers,
+        0
     );
     assert_eq!(decoded_copy, [5, 6, 7, 8]);
     assert_eq!(Arc::strong_count(&png_cache), 1);
+    drop(owner);
     let ticket = caller.retirement_ticket();
     caller.close().unwrap();
     assert!(
