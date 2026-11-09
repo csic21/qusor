@@ -1,0 +1,32 @@
+The following is a diff from the previous accessibility tree for Window: "QUSOR 工作台研究" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 1-6, 8, 16
++	16 button 隐藏侧栏
++	17 text QUSOR 个人空间
++	18 button 搜索工作区…
++	19 button 最近内容
++	20 button 功能
++	21 text 工作区
++	22 button 产品设计
++	23 text 固定内容
++	24 button 工作区设计备忘
++	25 button 从想法到成果
++	26 text 原生界面研究
++	27 button 切换浅色
++	28 button 返回工作区
++	29 text 个人空间 / 产品设计
++	30 button 搜索内容…
++	31 button 新建内容…
++	32 button 显示信息
++	33 button 更多工作区操作…
++	34 tab group
++		35 tab 工作区概览
++		36 tab 工作区设计备忘
++		37 tab 从想法到成果
++		38 tab (selected) 下一步的讨论
++	39 button 关闭当前标签
++	40 text 产品设计 / 新会话 一起想一想下一步 准备好当前材料，再选择适合的 Agent。这次会话还没有开始。 工作区设计备忘 可以选择的上下文 · 尚未发送 先连接 Agent，再开始会话 未连接
++	41 button (disabled) 尚未连接，无法发送
++	42 text 界面样例 · 没有生成或发送消息 信息
++	43 button 关闭信息
++	44 text 下一步的讨论 会话 所在位置 个人空间 / 产品设计 内容状态 窗口内样例 此窗口用于检查布局与交互，内容尚未接入正式保存与恢复。
+The focused UI element is 0 standard window QUSOR 工作台研究, Secondary Actions: Raise

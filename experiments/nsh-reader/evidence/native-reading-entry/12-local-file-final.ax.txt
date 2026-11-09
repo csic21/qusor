@@ -1,0 +1,31 @@
+Window: "QUSOR 原生设计", App: QUSOR 原生设计.
+0 standard window QUSOR 原生设计, Secondary Actions: Raise
+	1 button 展开全局导航
+	2 button 返回书架
+	3 text 本地阅读验证.txt
+	4 button 打开或收起目录
+	5 button 减小阅读字号
+	6 button 增大阅读字号
+	7 text 本地阅读验证.txt · 本机文件 · 当前窗口 第 1 段
+	8 container 可选择的阅读正文
+		9 text 本地文件读取验证
+
+这段文字来自刚才在系统文件选择器中选择的文件。它包含中文、English 和 emoji 📚。
+
+请在正文中拖动选择这句话，检查实际选文与复制。
+
+这个文件不会上传，原文件不会被修改。
+
+	10 text 在正文上按住并拖动即可选中文字。选文可复制；正式摘录与笔记保存尚未接入本样例。 文字阅读 · 当前窗口
+	11 button (disabled) 上一章或上一段
+	12 text 1 / 1
+	13 button (disabled) 下一章或下一段
+	14 close button
+	15 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	16 minimize button
+17 menu bar
+	18 QUSOR 原生设计
+	19 Edit
+	20 Window
+
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

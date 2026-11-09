@@ -1,0 +1,14 @@
+The following is a diff from the previous accessibility tree for Window: "QUSOR 原生设计" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 15-17, 20-24
++	33 button 返回当前任务
+~	14 text 扩展与能力
++	34 text 选择适合的工作界面 以下是界面样例，尚未安装真实插件包。 研究工作台 原生软件体验研究
++	35 button 预览研究工作台
++	36 text 写作工作台 把想法整理成文章
++	37 button 预览写作工作台
++	38 text 流程工作台 安排一次工作流程
++	39 button 预览流程工作台
++	40 text 开发工作台 制作一个小工具
++	41 button 预览开发工作台
++	42 text 所有场景共用任务导航、标签与外观规则。 Agent 尚未连接 当前任务的材料与草稿，在需要时交给 Agent。
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

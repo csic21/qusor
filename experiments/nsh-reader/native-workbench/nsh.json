@@ -1,0 +1,12 @@
+{
+  "name": "QUSOR 工作台研究",
+  "id": "org.qusor.workbenchstudy",
+  "theme": "theme.json",
+  "window": {
+    "title": "QUSOR 工作台研究",
+    "defaultSize": { "width": 1280, "height": 820 },
+    "minSize": { "width": 900, "height": 680 },
+    "titleBar": { "style": "hidden", "height": 52 },
+    "backdrop": "sidebar"
+  }
+}

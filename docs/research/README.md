@@ -21,6 +21,11 @@
 | [07 UI / UX 设计参考研究](./07-ui-ux-design-study.md) | 官方案例、视觉观察、交互机制、QUSOR设计假设与待验证任务 |
 | [08 微信读书插件研究](./08-weread-plugin-study.md) | dsh-weread 固定源码、Agent Gateway 候选入口、QUSOR 插件接入与验收 |
 | [09 TSX 插件原生 UI 通路](./09-tsx-plugin-native-ui.md) | 最新固定 NSH 源码、独立 VM/原生嵌入/宿主桥、权限与字节码边界、仓库外构建实测及剩余验证 |
+| [10 产品设计研究与结论](./10-product-design-synthesis.md) | 按阅读、知识、开发、Agent、插件和手机任务比较官方设计，形成采用/舍弃结论与v0.2视觉规范 |
+| [11 通用 Agent 基座组合研究](./11-agent-foundation-composition.md) | 根据用户纠正，将开发稿降为场景；区分Agent接入、工具、原生视图与场景组合 |
+| [12 原生软件作品研究](./12-native-software-design-study.md) | 具体软件作品、作者与原生视觉候选；不替代整体布局和交互研究 |
+| [13 基座布局与交互研究](./13-shell-layout-interaction-study.md) | 最新界面证据、设计skill筛选、四种外壳比较、导航/对象/工具/活动及下一步验证 |
+| [14 UI 细节与原生参考](./14-ui-craft-and-native-references.md) | 用户指定的 T3 Code/macOS/Plannotator、社区 UI skill 的固定源码、原生工作台及书库仅属阅读插件的边界 |
 
 协议冲突时：来源定位与实体定义以03为准；云同步wire/服务端表以05为准；运行支持承诺以06的设备证据为准。实施前按M-1结果统一修改并冻结v1，不能各模块独立解释同一字段。
 
@@ -76,3 +81,5 @@ Core保持独立Cargo Workspace。除了原设想模块，增加learning-applica
 M0验收是PDF/EPUB导入→阅读→高亮→真实AI工具与引用→审核保存Note→重开精确回源→导出恢复。M1再扩展到多书研究Canvas、知识关系、候选结构、人审撤销和双设备离线冲突同步。
 
 品牌仍使用内部QUSOR代号；商标、域名和GitHub Organization尚未核查，不作已可用声明。
+
+- [12 原生软件作品研究](12-native-software-design-study.md)：具体设计师 / 团队作品、官方画面观察、原生视觉取舍与实窗样例。

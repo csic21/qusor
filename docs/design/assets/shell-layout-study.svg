@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1190" viewBox="0 0 1440 1190" role="img">
+<title>同一个基座，按当前工作分配空间</title><desc>布局研究 v0.3 · 中性线框，非最终视觉稿 · 内容与状态均为自拟示例</desc>
+<g font-family="-apple-system, BlinkMacSystemFont, PingFang SC, Noto Sans CJK SC, sans-serif">
+<rect x="0" y="0" width="1440" height="1190" rx="0" fill="#f2f3f5"/>
+<text x="48" y="52" font-size="28" fill="#20262e" font-weight="600">同一个基座，按当前工作分配空间</text>
+<text x="48" y="84" font-size="15" fill="#586472" font-weight="400">布局研究 v0.3 · 中性线框，非最终视觉稿 · 内容与状态均为自拟示例</text>
+<rect x="48" y="120" width="1344" height="615" rx="10" fill="#ffffff" stroke="#d6dce2"/>
+<rect x="49" y="121" width="1342" height="51" rx="9" fill="#f7f8f9"/>
+<text x="66" y="153" font-size="16" fill="#20262e" font-weight="500">个人空间 ▾</text>
+<text x="218" y="153" font-size="14" fill="#586472" font-weight="400">日常工作 ▾</text>
+<rect x="523" y="131" width="420" height="31" rx="5" fill="#ffffff" stroke="#d6dce2"/>
+<text x="539" y="152" font-size="14" fill="#586472" font-weight="400">搜索、打开或执行…</text>
+<text x="1246" y="153" font-size="14" fill="#20262e" font-weight="400">活动  1</text>
+<path d="M48 172L1392 172" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<rect x="49" y="173" width="207" height="561" rx="0" fill="#f7f8f9"/>
+<path d="M256 172L256 735" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<rect x="60" y="187" width="80" height="30" rx="5" fill="#e7edf4"/>
+<text x="70" y="208" font-size="13" fill="#315c85" font-weight="500">空间</text>
+<rect x="145" y="187" width="99" height="30" rx="5" fill="#f7f8f9"/>
+<text x="155" y="208" font-size="13" fill="#586472" font-weight="500">当前内容</text>
+<rect x="58" y="238" width="188" height="34" rx="5" fill="#e7edf4"/>
+<text x="73" y="261" font-size="15" fill="#20262e" font-weight="500">当前工作区</text>
+<text x="72" y="311" font-size="12" fill="#586472" font-weight="400">固定入口</text>
+<text x="72" y="348" font-size="15" fill="#20262e" font-weight="400">资料库</text>
+<text x="72" y="386" font-size="15" fill="#20262e" font-weight="400">流程</text>
+<text x="72" y="424" font-size="15" fill="#20262e" font-weight="400">开发</text>
+<text x="72" y="487" font-size="14" fill="#20262e" font-weight="400">全部功能…</text>
+<text x="72" y="518" font-size="12" fill="#586472" font-weight="400">仅固定常用入口</text>
+<path d="M64 630L240 630" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="72" y="664" font-size="14" fill="#20262e" font-weight="400">扩展…</text>
+<text x="72" y="701" font-size="14" fill="#20262e" font-weight="400">设置…</text>
+<rect x="257" y="172" width="1135" height="42" rx="0" fill="#f7f8f9"/>
+<rect x="265" y="178" width="140" height="35" rx="4" fill="#ffffff"/>
+<text x="277" y="200" font-size="14" fill="#20262e" font-weight="500">发布清单</text>
+<text x="382" y="200" font-size="14" fill="#586472" font-weight="400">×</text>
+<rect x="414" y="178" width="140" height="35" rx="4" fill="#f7f8f9"/>
+<text x="426" y="200" font-size="14" fill="#586472" font-weight="400">设计草稿</text>
+<text x="531" y="200" font-size="14" fill="#586472" font-weight="400">×</text>
+<rect x="563" y="178" width="140" height="35" rx="4" fill="#f7f8f9"/>
+<text x="575" y="200" font-size="14" fill="#586472" font-weight="400">资料 A</text>
+<text x="680" y="200" font-size="14" fill="#586472" font-weight="400">×</text>
+<path d="M257 214L1392 214" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="279" y="248" font-size="18" fill="#20262e" font-weight="600">发布清单</text>
+<text x="404" y="248" font-size="13" fill="#586472" font-weight="400">表格视图</text>
+<text x="866" y="248" font-size="14" fill="#20262e" font-weight="400">检查…     工具…    ···</text>
+<path d="M257 266L1071 266" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="285" y="309" font-size="23" fill="#20262e" font-weight="600">内容采用自己的结构与密度</text>
+<text x="285" y="338" font-size="14" fill="#586472" font-weight="400">表格占满工作面；文稿、画布、会话可以选择不同呈现。</text>
+<rect x="284" y="371" width="760" height="36" rx="3" fill="#f7f8f9"/>
+<text x="297" y="395" font-size="13" fill="#586472" font-weight="400">项目</text>
+<text x="605" y="395" font-size="13" fill="#586472" font-weight="400">类型</text>
+<text x="777" y="395" font-size="13" fill="#586472" font-weight="400">负责人</text>
+<text x="297" y="439" font-size="14" fill="#20262e" font-weight="400">桌面入口</text>
+<text x="605" y="439" font-size="14" fill="#20262e" font-weight="400">应用</text>
+<text x="777" y="439" font-size="14" fill="#20262e" font-weight="400">我</text>
+<path d="M285 456L1043 456" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="297" y="487" font-size="14" fill="#20262e" font-weight="400">插件兼容</text>
+<text x="605" y="487" font-size="14" fill="#20262e" font-weight="400">契约</text>
+<text x="777" y="487" font-size="14" fill="#20262e" font-weight="400">我</text>
+<path d="M285 504L1043 504" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="297" y="535" font-size="14" fill="#20262e" font-weight="400">备份恢复</text>
+<text x="605" y="535" font-size="14" fill="#20262e" font-weight="400">数据</text>
+<text x="777" y="535" font-size="14" fill="#20262e" font-weight="400">我</text>
+<path d="M285 552L1043 552" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="297" y="583" font-size="14" fill="#20262e" font-weight="400">发布说明</text>
+<text x="605" y="583" font-size="14" fill="#20262e" font-weight="400">文稿</text>
+<text x="777" y="583" font-size="14" fill="#20262e" font-weight="400">我</text>
+<path d="M285 600L1043 600" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="285" y="703" font-size="13" fill="#586472" font-weight="400">示例记录 · 内容状态放在对应对象附近</text>
+<rect x="1072" y="214" width="319" height="520" rx="0" fill="#f7f8f9"/>
+<path d="M1072 214L1072 735" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="1092" y="248" font-size="16" fill="#20262e" font-weight="500">检查规则</text>
+<text x="1362" y="248" font-size="17" fill="#586472" font-weight="400">×</text>
+<path d="M1072 266L1392 266" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<rect x="1088" y="284" width="288" height="30" rx="5" fill="#f7f8f9"/>
+<text x="1098" y="305" font-size="13" fill="#586472" font-weight="500">跟随当前：发布清单</text>
+<text x="1092" y="359" font-size="15" fill="#20262e" font-weight="400">每项有明确负责人</text>
+<path d="M1092 373L1372 373" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="1092" y="398" font-size="15" fill="#20262e" font-weight="400">来源与结果可以打开</text>
+<path d="M1092 412L1372 412" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="1092" y="437" font-size="15" fill="#20262e" font-weight="400">必需项不能遗漏</text>
+<path d="M1092 451L1372 451" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="1092" y="522" font-size="13" fill="#586472" font-weight="400">用户打开后才占用此区域</text>
+<text x="1092" y="548" font-size="13" fill="#586472" font-weight="400">可固定目标或移到主区域</text>
+<text x="48" y="775" font-size="15" fill="#586472" font-weight="400">组合示例：支持工具已被用户打开。默认只有导航与主区域，Agent 不常驻。</text>
+<text x="48" y="827" font-size="21" fill="#20262e" font-weight="600">主区域的资格相同，工作方式不同</text>
+<rect x="48" y="852" width="318" height="216" rx="7" fill="#ffffff" stroke="#d6dce2"/>
+<text x="64" y="880" font-size="15" fill="#20262e" font-weight="500">阅读插件</text>
+<path d="M48 894L366 894" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<rect x="49" y="895" width="69" height="172" rx="0" fill="#f7f8f9"/>
+<text x="60" y="921" font-size="12" fill="#586472" font-weight="400">目录</text>
+<rect x="131" y="909" width="220" height="145" rx="3" fill="#faf9f5"/>
+<text x="148" y="936" font-size="14" fill="#20262e" font-weight="400">内容自己的版心</text>
+<path d="M148 958L329 958" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M148 973L329 973" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M148 988L329 988" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M148 1003L329 1003" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M148 1018L329 1018" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<rect x="390" y="852" width="318" height="216" rx="7" fill="#ffffff" stroke="#d6dce2"/>
+<text x="406" y="880" font-size="15" fill="#20262e" font-weight="500">流程插件</text>
+<path d="M390 894L708 894" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="407" y="923" font-size="15" fill="#20262e" font-weight="400">准备一次资料整理</text>
+<text x="407" y="955" font-size="12" fill="#586472" font-weight="400">输入范围</text>
+<rect x="407" y="965" width="283" height="30" rx="3" fill="#f7f8f9" stroke="#d6dce2"/>
+<text x="416" y="985" font-size="13" fill="#20262e" font-weight="400">当前选择的 3 项</text>
+<text x="407" y="1024" font-size="13" fill="#20262e" font-weight="400">校验输入 → 检查计划 → 执行</text>
+<rect x="407" y="1032" width="100" height="30" rx="5" fill="#f7f8f9"/>
+<text x="417" y="1053" font-size="13" fill="#586472" font-weight="500">检查计划…</text>
+<rect x="732" y="852" width="318" height="216" rx="7" fill="#ffffff" stroke="#d6dce2"/>
+<text x="748" y="880" font-size="15" fill="#20262e" font-weight="500">开发插件</text>
+<path d="M732 894L1050 894" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<rect x="733" y="895" width="68" height="172" rx="0" fill="#f7f8f9"/>
+<text x="742" y="923" font-size="12" fill="#586472" font-weight="400">文件</text>
+<text x="816" y="930" font-size="14" fill="#20262e" font-weight="400">fn main() {</text>
+<text x="816" y="955" font-size="14" fill="#20262e" font-weight="400">    build();</text>
+<text x="816" y="980" font-size="14" fill="#20262e" font-weight="400">}</text>
+<path d="M801 1002L1050 1002" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="815" y="1028" font-size="13" fill="#586472" font-weight="400">按需输出 / 检查</text>
+<rect x="1074" y="852" width="318" height="216" rx="7" fill="#ffffff" stroke="#d6dce2"/>
+<text x="1090" y="880" font-size="15" fill="#20262e" font-weight="500">会话插件</text>
+<path d="M1074 894L1392 894" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<rect x="1090" y="911" width="224" height="39" rx="5" fill="#f7f8f9"/>
+<text x="1101" y="936" font-size="14" fill="#20262e" font-weight="400">讨论目标与材料</text>
+<rect x="1139" y="963" width="237" height="39" rx="5" fill="#eef3f8"/>
+<text x="1151" y="988" font-size="14" fill="#20262e" font-weight="400">会话本身就是主内容</text>
+<rect x="1090" y="1023" width="286" height="30" rx="4" fill="#ffffff" stroke="#d6dce2"/>
+<text x="1101" y="1044" font-size="13" fill="#586472" font-weight="400">输入消息…</text>
+<text x="48" y="1112" font-size="15" fill="#20262e" font-weight="400">宿主统一：打开 / 标签 / 布局 / 返回 / 焦点 / 活动     插件提供：对象 / 主交互 / 适用动作 / 紧凑呈现</text>
+<text x="48" y="1146" font-size="13" fill="#586472" font-weight="400">静态结构候选 · 不代表普通包接入、原生控件行为、持久恢复或六端资格已通过</text>
+</g></svg>

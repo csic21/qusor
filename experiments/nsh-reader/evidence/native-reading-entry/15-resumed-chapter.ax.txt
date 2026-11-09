@@ -1,0 +1,30 @@
+Window: "QUSOR 原生设计", App: QUSOR 原生设计.
+0 standard window QUSOR 原生设计, Secondary Actions: Raise
+	1 button 展开全局导航
+	2 button 返回书架
+	3 text 求索：阅读与思考
+	4 button 打开或收起目录
+	5 button 减小阅读字号
+	6 button 增大阅读字号
+	7 text 求索：阅读与思考 · QUSOR · 自拟示例文集 第二章　给思考留一点空白
+	8 container 可选择的阅读正文
+		9 text 读书的时候，我们常常同时做两件事：理解作者在说什么，以及辨认自己的想法。两者有关联，却值得分开保留。
+
+原文是原文，个人理解是个人理解。一段准确的引用应当保留来源；一条想法可以提出疑问，也可以联系另一段经验。界面需要帮助我们核对这些关系。
+
+在完整的阅读流程里，选择文字后可以保存摘录、写想法或主动向 Agent 提问。这个窗口目前只接通文字阅读、选择和复制；正式摘录、笔记保存与来源定位仍走既有 Core 和插件链路。
+
+工具在需要时出现，阅读便能保持连续。你可以调大字号，重新阅读前一段，也可以切回书架选择另一份文本。
+	10 text 在正文上按住并拖动即可选中文字。选文可复制；正式摘录与笔记保存尚未接入本样例。 文字阅读 · 当前窗口
+	11 button 上一章或上一段
+	12 text 2 / 3
+	13 button 下一章或下一段
+	14 close button
+	15 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	16 minimize button
+17 menu bar
+	18 QUSOR 原生设计
+	19 Edit
+	20 Window
+
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

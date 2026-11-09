@@ -1,0 +1,12 @@
+{
+  "name": "QUSOR 原生设计",
+  "id": "org.qusor.designpreview",
+  "theme": "theme.json",
+  "window": {
+    "title": "QUSOR 原生设计",
+    "defaultSize": { "width": 1240, "height": 820 },
+    "minSize": { "width": 860, "height": 600 },
+    "titleBar": { "style": "hidden", "height": 52 },
+    "backdrop": "sidebar"
+  }
+}

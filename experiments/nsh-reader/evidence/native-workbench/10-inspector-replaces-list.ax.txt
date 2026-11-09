@@ -1,0 +1,39 @@
+Window: "QUSOR 工作台研究", App: QUSOR 工作台研究.
+0 standard window QUSOR 工作台研究, Secondary Actions: Raise
+	1 button 隐藏侧栏
+	2 text QUSOR 个人空间
+	3 button 搜索工作区…
+	4 button 最近内容
+	5 button 功能
+	6 text 工作区
+	7 button 产品设计
+	8 text 原生界面研究
+	9 button 切换浅色
+	10 button 返回工作区
+	11 button 显示内容列表
+	12 text 下一步的讨论
+	13 button 搜索内容…
+	14 button 新建内容…
+	15 button 显示信息
+	16 button 更多工作区操作…
+	17 tab group
+		18 tab 工作区概览
+		19 tab 从想法到成果
+		20 tab 工作区设计备忘
+		21 tab 留一点空间给思考
+		22 tab (selected) 下一步的讨论
+	23 button 关闭当前标签
+	24 text 产品设计 / 新会话 一起想一想下一步 准备好当前材料，再选择适合的 Agent。这次会话还没有开始。 工作区设计备忘 可以选择的上下文 · 尚未发送 先连接 Agent，再开始会话 未连接
+	25 button (disabled) 尚未连接，无法发送
+	26 text 界面样例 · 没有生成或发送消息 信息
+	27 button 关闭信息
+	28 text 下一步的讨论 会话 所在位置 个人空间 / 产品设计 内容状态 窗口内样例 此窗口用于检查布局与交互，内容尚未接入正式保存与恢复。
+	29 close button
+	30 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	31 minimize button
+32 menu bar
+	33 QUSOR 工作台研究
+	34 Edit
+	35 Window
+
+The focused UI element is 0 standard window QUSOR 工作台研究, Secondary Actions: Raise

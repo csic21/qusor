@@ -1,0 +1,32 @@
+Window: "QUSOR 原生设计", App: QUSOR 原生设计.
+0 standard window QUSOR 原生设计, Secondary Actions: Raise
+	1 button 收起侧栏
+	2 text QUSOR 个人空间
+	3 container 查找设计样例
+		4 text field (settable) 查找任务
+	5 text 工作中的任务 样例
+	6 button 原生软件体验研究
+	7 button 把想法整理成文章
+	8 button 安排一次工作流程
+	9 button 制作一个小工具
+	10 text 固定空间 个人工作室
+	11 button 打开扩展样例
+	12 text 原生视觉样例
+	13 button 切换明暗外观
+	14 text 安排一次工作流程
+	15 tab group
+		16 tab (selected) 工作台
+		17 tab 任务过程
+	18 button 任务信息
+	19 button 打开扩展样例
+	20 text 工作流程 · 设计样例 安排一次工作流程 把过程铺开，逐步检查输入与结果。Agent 连接后才可以执行；当前步骤均未开始。 1 准备资料与目标 未开始 2 选择适用的 Agent 与工具 未开始 3 检查计划并允许执行 未开始 4 审阅结果，保留需要的内容 未开始 Agent 尚未连接 当前任务的材料与草稿，在需要时交给 Agent。
+	21 button 选择 Agent 接入方式
+	22 close button
+	23 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	24 minimize button
+25 menu bar
+	26 QUSOR 原生设计
+	27 Edit
+	28 Window
+
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

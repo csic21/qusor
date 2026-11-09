@@ -1,0 +1,5 @@
+The following is a diff from the previous accessibility tree for Window: "QUSOR 工作台研究" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 7
+~			4 text field (settable) 搜索当前工作区
++			16 text 留一点空间给思考 下一步的讨论 从想法到成果 工作区设计备忘
+The focused UI element is 4 text field (settable) 搜索当前工作区

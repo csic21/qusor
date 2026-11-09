@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-09",
+  "kind": "design-research-and-static-wireframes",
+  "feature_ids": [
+    "F-EXT-01",
+    "F-EXT-04",
+    "F-EXT-06",
+    "F-EXT-07",
+    "F-UX-01",
+    "F-UX-02",
+    "F-PLAT-01",
+    "F-AGENT-01",
+    "F-AGENT-02",
+    "F-AGENT-03",
+    "F-AGENT-04",
+    "F-AGENT-05"
+  ],
+  "user_confirmed": [
+    "generic foundation",
+    "reading belongs to a plugin",
+    "layout and overall interaction research first",
+    "evaluate established design skills"
+  ],
+  "candidate_not_approved": [
+    "object workspace shell",
+    "one default navigation region",
+    "navigation scope switch",
+    "region width budgets",
+    "specific interaction rules"
+  ],
+  "observed_current_ui": [
+    "experiments/nsh-reader/evidence/native-reading-entry/42-receipted-ready-shelf.jpg",
+    "experiments/nsh-reader/native-design/App.tsx",
+    "experiments/nsh-reader/native-design/ReadingWorkspace.tsx"
+  ],
+  "skills": [
+    {
+      "repository": "https://github.com/Dammyjay93/interface-design",
+      "commit": "2f9be3206855bcb2d1d0af262c8bae25cba6658d",
+      "files_read": [
+        ".claude/skills/interface-design/SKILL.md"
+      ],
+      "use": "intent, hierarchy, proportion and state review adapted to existing native requirements"
+    },
+    {
+      "repository": "https://github.com/pbakaus/impeccable",
+      "commit": "613fbf88e0ef08709eaf238653285f430250c0ea",
+      "files_read": [
+        ".agents/skills/impeccable/SKILL.md",
+        ".agents/skills/impeccable/reference/shape.md",
+        ".agents/skills/impeccable/reference/operate.md"
+      ],
+      "use": "research reference only; engine, automated scoring, hooks and multi-agent workflow not run"
+    },
+    {
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "commit": "4f2dbb67e64969a9a30ab00742f2d55d66ddec2b",
+      "files_read": [
+        ".claude/skills/ui-ux-pro-max/SKILL.md"
+      ],
+      "use": "evaluated; search engine and design-system generator not run"
+    },
+    {
+      "repository": "https://github.com/anthropics/skills",
+      "commit": "2c5958ecac7cee2b583967a2c4981d0f4a75c579",
+      "files_read": [
+        "skills/frontend-design/SKILL.md"
+      ],
+      "use": "evaluated as later visual-direction reference"
+    }
+  ],
+  "installation": {
+    "global_skills_changed": false,
+    "third_party_installer_run": false,
+    "hooks_enabled": false
+  },
+  "nsh": {
+    "release_url": "https://github.com/longbridge/nsh/releases",
+    "stable": "v0.4.0",
+    "main": "091049a67e5597787a11c7f154d45fb93c49701d",
+    "nightly": "36b91689c1e7c38379179a56381de7ddab16c6a5",
+    "runtime_checkout_unchanged": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+    "verification": "git ls-remote, isolated cached fetch/log, official releases and fixed Design Guides",
+    "recent_commits": [
+      {
+        "sha": "091049a67e5597787a11c7f154d45fb93c49701d",
+        "subject": "desktop: Fire a window's key bindings only in that window (#1354)"
+      },
+      {
+        "sha": "5fbac32816b1de9ed1be4424f7fa64d4161b7bc6",
+        "subject": "linux: Keep a menu of one item from being taller than the item (#1359)"
+      },
+      {
+        "sha": "047fe53f29d37ef2de46f1caa55686a44664c6fd",
+        "subject": "android: Run on Android 8 (API 26) (#1363)"
+      },
+      {
+        "sha": "02a9e978ae5021139c9f3265247cc0f2b128181f",
+        "subject": "windows: Test tinted images at fractional display scales (#1362)"
+      },
+      {
+        "sha": "21648204e66b3792090c216383f345a9d628f0b8",
+        "subject": "website: Link the Chinese gallery page to the English section id (#1361)"
+      }
+    ]
+  },
+  "primary_sources": [
+    "https://code.visualstudio.com/api/ux-guidelines/overview",
+    "https://code.visualstudio.com/api/ux-guidelines/views",
+    "https://developer.apple.com/design/human-interface-guidelines/sidebars",
+    "https://developer.apple.com/design/human-interface-guidelines/tab-bars",
+    "https://obsidian.md/help/tabs",
+    "https://help.obsidian.md/Plugins/Workspaces",
+    "https://developer.android.com/develop/adaptive-apps/guides/canonical-layouts",
+    "https://docs.blender.org/manual/en/latest/interface/window_system/workspaces.html",
+    "https://developers.raycast.com/api-reference/user-interface/action-panel",
+    "https://developers.raycast.com/api-reference/user-interface/navigation",
+    "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/"
+  ],
+  "checks": {
+    "local_markdown_links": {
+      "status": "passed",
+      "files": 160,
+      "remote_urls_and_heading_anchors_checked": false
+    },
+    "git_diff_whitespace": "passed",
+    "static_renderer": "python3 docs/design/assets/generate_shell_boards.py --png; macOS Quick Look plus ImageIO crop",
+    "visual_inspection": "both final PNGs inspected; all four plugin variations, four input-target states and two compact screens visible",
+    "svg_xml_and_png_dimensions": "passed: 1440x1190 and 1440x1030",
+    "proposed_scenarios": "SL-01 through SL-12 present; native scenarios not run"
+  },
+  "limitations": [
+    "static boards only",
+    "no new native UI run",
+    "no user usability test",
+    "SL-01 through SL-12 not run",
+    "no public SDK or real plugin integration proof",
+    "no six-platform qualification from this work"
+  ],
+  "artifact_sha256": {
+    "docs/research/13-shell-layout-interaction-study.md": "2ef07dc58f61e4e8cef66c273e4bccf42b65ce939dc3624e41b0cdf330af86e0",
+    "docs/design/shell-layout.md": "f15ab80de369ae5e6aa6a9192e057fdb0d46d2fa1130556ac0c498b1f9fa20eb",
+    "docs/design/assets/generate_shell_boards.py": "a8d144123e8683812ec72c0522cb60349cdd2526cdbd2ce427f5e5b8eebb93e4",
+    "docs/design/assets/crop_shell_board.swift": "76729b5e07c67360088cd3809d559df29899036064bdc2bf7ca5fd097ed11b21",
+    "docs/design/assets/shell-layout-study.svg": "0c5db7fe99617c150fcf2b6735d03e7c8468386a109bd2c2b082adb7ecde973f",
+    "docs/design/assets/shell-layout-study.png": "a83c79390e0ab8b1d26690e3cb9d90d57a0ca65a5938ecdda3b400621fb9b8d2",
+    "docs/design/assets/shell-context-flow.svg": "b1391e6cf9f01af61604fbfe54267fc0367f5a490c8644958172ef6ffe0057ee",
+    "docs/design/assets/shell-context-flow.png": "402e760ceb106be0369c3ee5f0c47fef433dd64c253e2884ee86f87646227a1f"
+  }
+}

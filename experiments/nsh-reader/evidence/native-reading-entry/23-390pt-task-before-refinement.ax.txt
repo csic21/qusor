@@ -1,0 +1,24 @@
+Window: "QUSOR 原生设计", App: QUSOR 原生设计.
+0 standard window QUSOR 原生设计, Secondary Actions: Raise
+	1 button 展开侧栏
+	2 text 原生软件体验研究
+	3 button 任务信息
+	4 button 打开扩展样例
+	5 tab group
+		6 tab (selected) 工作台
+		7 tab 任务过程
+	8 text 研究札记 2026.11.09 原生软件的秩序与手感 QUSOR 设计研究 · 自拟材料 好的工具让人专注于眼前的内容。窗口、文字与操作保持稳定，复杂能力在需要的时候出现。 参考作品 Things  ·  Reeder  ·  Kino 01　让内容建立层级 用字阶、行距和对齐组织一张清晰的工作台。文稿像文稿，画布像画布；工具不需要用一排卡片争夺注意力。 02　让扩展自然进入工作 进入研究、写作或开发任务时，更换的是主内容与适用工具。侧栏保留任务的位置，检查器按需展开，Agent 从当前任务接手。 随手记
+	9 container 研究札记草稿
+		10 scroll area
+			11 text entry area (settable) 工作台需要保持安静，扩展能力在需要时出现。
+	12 text 草稿只保留在当前窗口 Agent 尚未连接 当前任务的材料与草稿，在需要时交给 Agent。
+	13 button 选择 Agent 接入方式
+	14 close button
+	15 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	16 minimize button
+17 menu bar
+	18 QUSOR 原生设计
+	19 Edit
+	20 Window
+
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

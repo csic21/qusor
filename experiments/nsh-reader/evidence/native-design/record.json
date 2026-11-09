@@ -1,0 +1,282 @@
+{
+  "recorded_at_utc": "2026-11-09T04:57:08.487974+00:00",
+  "feature_ids": [
+    "F-UX-01",
+    "F-UX-02"
+  ],
+  "m1_scope": "P02 native window display subset only",
+  "status": "visual candidate; macOS local subset observed",
+  "environment": {
+    "os": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+    "upstream_checkout_sha": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+    "upstream_checkout_status": [],
+    "cli_version": "nsh 0.4.0 (913fd76)",
+    "rust_rebuilt_this_task": false,
+    "host_sha256": "42b60abbdf6a332757af0ce94dec578ce11b1388978ab0d19cbd068f40d3edc9",
+    "host_profile_path": "target/debug",
+    "active_task_owned_host_pids": [
+      41795
+    ],
+    "screenshot_dimensions": [
+      1240,
+      820
+    ],
+    "font": "NSH system default; OS CJK fallback; actual family not instrumented",
+    "ime_and_dpi": "Not measured; pasted Chinese input is not an IME qualification",
+    "capture_format": "JPEG bytes returned by native CUA; renamed to .jpg without modifying image bytes."
+  },
+  "upstream_check": {
+    "date": "2026-11-09",
+    "stable": "v0.4.0",
+    "nightly_target": "36b91689c1e7c38379179a56381de7ddab16c6a5",
+    "main": "84b2cf9195d00ba4e5dbfaca25473a959add1c54",
+    "main_change": "Linux shader device opens OpenGL first (#1357)",
+    "impact": "Reviewed official design guide at main; keep fixed local checkout and existing host; no runtime upgrade."
+  },
+  "final_bundle_tree_sha256": "b283387b04a26265f12c3e2e1becbb06e949db4173b087076d765787188be4a0",
+  "commands_observed": [
+    {
+      "command": "../target/nsh/target/debug/nsh check App.tsx",
+      "cwd": "experiments/nsh-reader/native-design",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 experiments/nsh-reader/native-design/run.py --build-only",
+      "exit_code": 0
+    }
+  ],
+  "final_observations": [
+    {
+      "case": "NV-01",
+      "result": "Native window visible",
+      "evidence": [
+        "06-light-final.jpg",
+        "15-default-final.jpg",
+        "15-default-final.ax.txt"
+      ]
+    },
+    {
+      "case": "NV-02",
+      "result": "Writing input pasted and retained after task-tab round trip; research task still shows its separate original draft",
+      "evidence": [
+        "08-writing-retained-final.jpg",
+        "08-writing-retained-final.ax.txt",
+        "09-dark-final.ax.txt"
+      ]
+    },
+    {
+      "case": "NV-03",
+      "result": "Capability list opened and preview-writing returned to selected task",
+      "evidence": [
+        "07-capabilities-final.jpg",
+        "07-capabilities-final.ax.txt",
+        "08-writing-retained-final.ax.txt"
+      ]
+    },
+    {
+      "case": "NV-04",
+      "result": "Dark appearance displayed and returned to light",
+      "evidence": [
+        "09-dark-final.jpg",
+        "10-flow-final.jpg"
+      ]
+    },
+    {
+      "case": "NV-05",
+      "result": "Flow and development views displayed; no execution claimed",
+      "evidence": [
+        "10-flow-final.ax.txt",
+        "11-development-final.ax.txt"
+      ]
+    },
+    {
+      "case": "NV-06",
+      "result": "Inspector and Agent menu displayed; sidebar collapsed and restored",
+      "evidence": [
+        "12-inspector-final.jpg",
+        "13-agent-menu-final.jpg",
+        "14-sidebar-collapsed-final.jpg",
+        "15-default-final.jpg"
+      ]
+    }
+  ],
+  "initial_attempt_limits": [
+    "01–05 artifacts use the initial-launch.json bundle hash; initial bundle itself was not archived.",
+    "Independent panel attempt produced no visible change in the captured main-window state; this does not establish an upstream multiwindow limitation. Final preview uses an in-window capability list.",
+    "Left/Tab after pointer selection did not establish a keyboard focus/activation path; full keyboard access is not passed."
+  ],
+  "not_verified": [
+    "Real Agent connection/execution",
+    "Real plugin packaging/provider replacement",
+    "Core writes/save/recovery",
+    "Full keyboard/IME/accessibility/dynamic type",
+    "Touch and non-macOS targets",
+    "Performance and exact font metrics"
+  ],
+  "artifacts": {
+    "01-light.ax.txt": {
+      "sha256": "bbac21ed15430cc961a69bf75d2d8a7d4af8bb161ff61f3624b8c161b636f1ee",
+      "bytes": 173
+    },
+    "01-light.jpg": {
+      "sha256": "4ecdd2a86310beb4e403d9995070e8cf38b8dee91ebda41530f6446e26bb9bf6",
+      "bytes": 113770
+    },
+    "02-draft-retained.ax.txt": {
+      "sha256": "5bb33ae6e5fc82bf06029a5ee35f6b2d3981c54f13e5c54f24ad4913ed800f96",
+      "bytes": 1245
+    },
+    "03-inspector.ax.txt": {
+      "sha256": "2c3c066226834786d6746bc2b22799e341981f11f450d1742fea8f2c5dc053a3",
+      "bytes": 761
+    },
+    "03-inspector.jpg": {
+      "sha256": "cde49e199bd88efb0ccce02f0076dc1750286347bfdeaef5348fd95fc07a2559",
+      "bytes": 136038
+    },
+    "04-agent-menu.ax.txt": {
+      "sha256": "f284c9953c64990e50be7a60f75c566d4f0b56b8d6541b964e4a507bfdeda5cb",
+      "bytes": 633
+    },
+    "04-agent-menu.jpg": {
+      "sha256": "42f44a382af2167653977222978e717f78bfd38a76c58fc5587b236bf9210095",
+      "bytes": 125593
+    },
+    "05-panel-not-shown.ax.txt": {
+      "sha256": "bbac21ed15430cc961a69bf75d2d8a7d4af8bb161ff61f3624b8c161b636f1ee",
+      "bytes": 173
+    },
+    "05-panel-not-shown.jpg": {
+      "sha256": "a314b25ff000a33d4a2b850599b1a8b67842779a65b9260fe86903c604480a9b",
+      "bytes": 115256
+    },
+    "06-light-final.ax.txt": {
+      "sha256": "bbac21ed15430cc961a69bf75d2d8a7d4af8bb161ff61f3624b8c161b636f1ee",
+      "bytes": 173
+    },
+    "06-light-final.jpg": {
+      "sha256": "e93d081fe8455e4b383813d2ef5d3840dc2e88df9cfb30071ee36da8d5515947",
+      "bytes": 114336
+    },
+    "07-capabilities-final.ax.txt": {
+      "sha256": "749c395627d408eeeb8a382d1118c08d97ae0e99cc4e98bf4be84ef44c5ad98e",
+      "bytes": 954
+    },
+    "07-capabilities-final.jpg": {
+      "sha256": "8b30f6edd300ebc9ea466e2eca0e676bc84978b7182b7c16ffb9c9ae860c0ba2",
+      "bytes": 79426
+    },
+    "08-writing-retained-final.ax.txt": {
+      "sha256": "0c52471721f2c3eff77d77da4fd7e7ae54c37181f1945f8f49f9067108bb4b3d",
+      "bytes": 858
+    },
+    "08-writing-retained-final.jpg": {
+      "sha256": "59f28117cc8fa0781e5de5d16b63bbba810448748939165721eb71d67e7f87bd",
+      "bytes": 79744
+    },
+    "09-dark-final.ax.txt": {
+      "sha256": "4014c65d1de2a2cbbe5da058b3cb4a08aa4f6aa087efc240f10a56403247921b",
+      "bytes": 1936
+    },
+    "09-dark-final.jpg": {
+      "sha256": "2d8fc6e3b535ab865a86ef6ccac99a9e3581f4401b39a0d73301c77002b09a17",
+      "bytes": 115867
+    },
+    "10-flow-final.ax.txt": {
+      "sha256": "8915037b55148f97ecace3d03366ac74347ce7b62879870cecdc1737348a9816",
+      "bytes": 1442
+    },
+    "10-flow-final.jpg": {
+      "sha256": "5530c069a343b1beb5d5138dcde8e810ed6dda01d3f8a2e7531bd49a174cd2be",
+      "bytes": 84783
+    },
+    "11-development-final.ax.txt": {
+      "sha256": "6f55568fd7f88276d86ce080c2d18a7bba5c6e951f2ff80a4ddcf98054ba99ee",
+      "bytes": 1524
+    },
+    "11-development-final.jpg": {
+      "sha256": "904e3cb545a0c1ca1ff3e8be20653b49667f207723723f842b8837f3c84e5f6b",
+      "bytes": 90860
+    },
+    "12-inspector-final.ax.txt": {
+      "sha256": "6daa46982a8f0baede147c6d7cf48d88ad51d492da50573cfae04bd01f35136d",
+      "bytes": 2279
+    },
+    "12-inspector-final.jpg": {
+      "sha256": "eeffa56bcfe86ae6929900293fbfe0ec7df5f957736a4a4ffc85fa2d151fb8b9",
+      "bytes": 134706
+    },
+    "13-agent-menu-final.ax.txt": {
+      "sha256": "76e46d80ed83c24d1f2c8248e1f6f1fb7b77ebf3ce48ce66c98c67fae19d1702",
+      "bytes": 2123
+    },
+    "13-agent-menu-final.jpg": {
+      "sha256": "1f7942684780644c1a3692b3cce6b0122ce031dd64c60c124cda11098b410c65",
+      "bytes": 124414
+    },
+    "14-sidebar-collapsed-final.ax.txt": {
+      "sha256": "0257a3da37324123479cb4b2afdf8a7947737aba5a753179e78b625712bee44c",
+      "bytes": 1533
+    },
+    "14-sidebar-collapsed-final.jpg": {
+      "sha256": "eb4eee8306d7f491aaeecd5dd65fe877872815e6ab5b620247cab17c85da588d",
+      "bytes": 97659
+    },
+    "15-default-final.ax.txt": {
+      "sha256": "4014c65d1de2a2cbbe5da058b3cb4a08aa4f6aa087efc240f10a56403247921b",
+      "bytes": 1936
+    },
+    "15-default-final.jpg": {
+      "sha256": "bfb0114e9496b92128714ca6c706331768af139880399527a30784807d663569",
+      "bytes": 114522
+    },
+    "frozen-bundle/app.json": {
+      "sha256": "eb414171508051210039f986110cb42609b874a85792551da7c83ac2918705a8",
+      "bytes": 214
+    },
+    "frozen-bundle/bundle.js": {
+      "sha256": "4412392042f86875f5c37fd05b8fa4160c80689a01211323e4b077c221e45630",
+      "bytes": 44010
+    },
+    "frozen-bundle/bundle.js.map": {
+      "sha256": "a44bc0dd60f35b01366a218f1f709b8be3e79e092af29130411ac0f73a5ea6f9",
+      "bytes": 72595
+    },
+    "frozen-bundle/bundle.nshc": {
+      "sha256": "c5613d063abf0fc8b0797bd982bc3e644609b2250a9b2018f92d28d902706e07",
+      "bytes": 141708
+    },
+    "frozen-source/App.tsx": {
+      "sha256": "8d9b16e4200e2e3f0caa62147cde22d3e5b1fa56b96b0855385fe3ceb1024845",
+      "bytes": 18948
+    },
+    "frozen-source/nsh.json": {
+      "sha256": "c6c61f3df4a1972605c78bab922a3d64af9e51f8cd78aa62ca8da574868fe748",
+      "bytes": 329
+    },
+    "frozen-source/run.py": {
+      "sha256": "cd6e83cc67bcffecc81d4ffb645902154dcbcda6a5204902bc58a0e5d377d8c1",
+      "bytes": 3580
+    },
+    "frozen-source/theme.json": {
+      "sha256": "84bcc701faf98d7669822de5c6187f3b77af5b952175f2472a4fc8e9cc0ccfca",
+      "bytes": 2857
+    },
+    "frozen-source/tsconfig.json": {
+      "sha256": "9a30b492d5c8bcf444243e40dcea00f45918c80f85af34258386c83b152d8a74",
+      "bytes": 60
+    },
+    "frozen-source/ui.tsx": {
+      "sha256": "b9b9fc3b13ea1600690280c0349d8928c5e7f744afca76184e3e07046cfa1332",
+      "bytes": 5415
+    },
+    "frozen-source/upstream-Cargo.lock": {
+      "sha256": "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b",
+      "bytes": 210378
+    },
+    "initial-launch.json": {
+      "sha256": "d7a16cfea5cd22e3caa61f577b83a7f94d00bd062f5c042218f23d8ae0f72a1e",
+      "bytes": 916
+    }
+  }
+}

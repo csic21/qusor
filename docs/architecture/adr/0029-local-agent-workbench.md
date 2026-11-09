@@ -1,5 +1,7 @@
 # ADR 0029：本地 Agent 工作台与可替换后端
 
+2026-11-09整体定位补充：用户明确要求通用插件/Agent基座，开发工作区仅为场景之一。任务/会话/运行/视图分离继续有效；非项目任务不强制 ProjectRef，执行环境按实际能力另绑定。后端接入、工具/资源、交互视图与场景组合通过公开贡献协作；场景包不拥有宿主授权或默认执行权限。对话与代码均可作为主交互或按需组件，布局不固定为IDE三栏。具体设计与AF验收见 [通用基座](../../design/agent-foundation.md)；本补充不发布新wire、不创建新crate，也不改变既有安装/运行隔离/Core事务边界。
+
 日期：2026-11-08。状态：采用设计方向，协议、运行服务和后端适配尚未实现。关联 C-13、F-AGENT-01–05、F-AI-02/03/07、F-EXT-01/03/05/06。用户要求在阅读知识系统之外加入电脑操作、编程、多 Agent 调度与会话管理，并同步设计 UI/UX/UE。规格见 [Agent 工作台](../../product/agent-workbench.md)。
 
 ## 选择与理由
@@ -45,7 +47,7 @@ flowchart TB
 |---|---|---|
 | Codex | App Server 的 thread/turn、事件和批准 | 已查官方文档；尚未在 QUSOR 启动、认证、恢复或验证委派工具 |
 | OpenCode | server/SDK 的 session、事件、provider/model | 已查官方文档；实际版本固定、取消与模型回执待测 |
-| dsh | 固定官方项目后检查会话/工具扩展协议 | 当前只有候选发现；官方发布身份、具体 API 与取消恢复均待固定，不承诺某条命令可直接工作 |
+| dsh | scoped 官方包的固定版本 headless 有界任务；会话/工具协议另核对 | AGENTS 已记录 `@deepseek-ai/dsh@0.2.2-rc.1 --profile headless` 本机小任务实测；这不证明 QUSOR 持续会话、取消/恢复或权限隔离已集成，裸 `dsh` 不据名称视为同一项目 |
 | Pi | 内置助手的可替换执行器；或独立后端 | 官方 SDK 面向 Node/Bun；与 Rust 的运行/通信、许可和分发成本待验证 |
 | Herdr | 借鉴或可选终端后端 | 已查官方 agent automation；是否嵌入/桥接/复用源码另验协议、版本、许可与平台，不直接引入依赖 |
 
@@ -96,3 +98,19 @@ flowchart TB
 - [Codex App Server](https://learn.chatgpt.com/docs/app-server)：thread/turn、批准和事件；[OpenCode SDK](https://docs.opencode.ai/docs/sdk/)：session 与显式模型选择。
 - [Herdr agent automation](https://herdr.dev/tui/docs/agent-automation/)：布局、pane、agent 分责与调度原语；[Pi SDK](https://pi.dev/docs/latest/sdk)：Node/Bun 嵌入及 CLI 集成。
 - NSH [发布记录](https://github.com/longbridge/nsh/releases)：稳定 v0.4.0、nightly f81b965；GitHub commits API 核对 HEAD `1042a80d876adcc3b9f86e75ebdf52bef4352083`（2026-11-08 06:05:30 UTC），近五次包括性能监视、TUI 嵌入选项/停止和启动响应等待。[固定 README](https://github.com/longbridge/nsh/blob/1042a80d876adcc3b9f86e75ebdf52bef4352083/README.md) 已读取。TUI 是终端渲染目标，不能推导已具有桌面 PTY 终端控件；新提交也不证明 QUSOR 中文输入或 Surface 隔离已通过。本轮不升级已有固定实验 `913fd76e1f8434ec6cdf248f4476c1ebe08af19f`，原生终端、代码差异/编辑、长日志与电脑控制另做隔离实验。
+
+## 2026-11-09：日常开发工作区补充
+
+用户进一步明确今后希望在 QUSOR 中完成日常编程。F-AGENT-04细化为 [开发工作区](../../design/development-workspace.md)；项目/代码、Agent、终端、Git、运行/预览和后续调试使用同一外壳。既有任务、会话、输入租约、成果与Core知识边界继续有效。
+
+新增设计实体为工作区资源身份（设备/项目/实际worktree/文件）、编辑缓冲区修订与磁盘文件版本、运行目标/服务实例和对应诊断。代码文件归项目文件系统；缓冲区、打开对象与编辑偏好由受控编辑服务/操作记录管理，不加入知识domain或写进extension-store。选中代码显式收录为知识时才走Core捕获/来源事务。
+
+普通编辑提供者通过公开文件/缓冲区能力工作，Host核对资源身份、expected buffer revision和磁盘基线，再提交受控保存；不向插件开放任意平台指针。外部Agent可能直接写文件，协议连接不构成所有I/O必经Host的保证。受控写入序列化，检测到外部磁盘变化时保留输入并进入比较/合并；无法协调的写者不声称具备跨进程原子CAS。任意外部竞争和文件锁语义须平台实测，需要更强隔离时采用独立工作树或暂停并发写入。
+
+LSP/DAP/PTY、Git/worktree、文件监视与开发服务身份由adapters提供受控连接；纯协议/策略/端口留crates，apps只装配，`development-workspace`、代码/差异、运行/Git、终端/预览及Agent提供者均走同权SDK。角色/能力仍是设计名，尚未发布协议，也不预创建空crate。
+
+主内容按视图组承载代码、diff、资料、任务或预览；辅助区承载当前Agent，新增按需output设计区承载运行输出。视图切换不更改任务/后端/工作树身份。选区附件冻结精确内容和版本；尚未保存的附件显式标为编辑器内容，不自动写磁盘或扩展为整库上下文。终端输入权与代码编辑冲突分别处理。
+
+后端文档于2026-11-09重新核对：[Codex App Server](https://learn.chatgpt.com/docs/app-server)适用于认证、会话历史、批准与流式事件的自定义客户端；[OpenCode server](https://docs.opencode.ai/docs/server/)与[SDK](https://docs.opencode.ai/docs/sdk/)支持程序化会话接入。具体字段需固定后端版本和schema后验证。本机仅运行 `codex --version`（0.167.0）和 `codex app-server --help`；未启动连接、读取账号或执行模型任务。NSH同日上游版本/提交及影响完整记录在开发工作区的依据段，保持原固定版本不变。
+
+建议先完成一项目/一后端的真实开发纵向流程及AW-11–17，再补第二后端、多Agent整合与深度IDE能力；不以CLI存在、帮助输出、设计稿或headless小任务宣布完整研发环境可用。

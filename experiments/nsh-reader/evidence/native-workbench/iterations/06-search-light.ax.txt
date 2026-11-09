@@ -1,0 +1,19 @@
+Window: "QUSOR 工作台研究", App: QUSOR 工作台研究.
+0 standard window QUSOR 工作台研究, Secondary Actions: Raise
+	1 container 搜索当前工作区
+		2 button
+		3 container 搜索内容
+			4 text field (settable) Value: 画布, Placeholder: 搜索当前工作区
+		5 button 关闭搜索
+		6 list 工作区内容
+			7 text 从想法到成果
+		8 text ↑ ↓ 选择　↵ 打开　Esc 清空 / 返回
+	9 close button
+	10 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	11 minimize button
+12 menu bar
+	13 QUSOR 工作台研究
+	14 Edit
+	15 Window
+
+The focused UI element is 4 text field (settable) Value: 画布, Placeholder: 搜索当前工作区

@@ -1,0 +1,43 @@
+Window: "QUSOR 工作台研究", App: QUSOR 工作台研究.
+0 standard window QUSOR 工作台研究, Secondary Actions: Raise
+	1 button 隐藏侧栏
+	2 text QUSOR 个人空间
+	3 button 搜索工作区…
+	4 button 最近内容
+	5 button 功能
+	6 text 工作区
+	7 button 产品设计
+	8 text 原生界面研究
+	9 button 切换浅色
+	10 text 产品设计
+	11 button 收起内容列表
+	12 text 固定 2
+	13 button 浏览工作区设计备忘
+	14 button 浏览从想法到成果
+	15 text 其他内容 2
+	16 button 浏览下一步的讨论
+	17 button 浏览留一点空间给思考
+	18 text 4 个内容 · 当前工作区
+	19 button 返回工作区
+	20 button 隐藏内容列表
+	21 text 留一点空间给思考
+	22 button 搜索内容…
+	23 button 新建内容…
+	24 button 显示信息
+	25 button 更多工作区操作…
+	26 tab group
+		27 tab 工作区概览
+		28 tab 从想法到成果
+		29 tab 工作区设计备忘
+		30 tab (selected) 留一点空间给思考
+	31 button 关闭当前标签
+	32 text 阅读视图 / 自写样本文稿 留一点空间给思考 今天试着把工具放轻一点。桌面上只留眼前的材料，不急着给每个念头命名。等它们慢慢长出联系，再决定要把什么保留下来。 阅读是一种进入内容的方式。写作、讨论和绘图也一样。每一种方式，都值得拥有适合自己的空间。 样本文字可选择；不读取文件或写入正式知识库
+	33 close button
+	34 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	35 minimize button
+36 menu bar
+	37 QUSOR 工作台研究
+	38 Edit
+	39 Window
+
+The focused UI element is 0 standard window QUSOR 工作台研究, Secondary Actions: Raise

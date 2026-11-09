@@ -1,0 +1,6 @@
+The following is a diff from the previous accessibility tree for Window: "QUSOR 原生设计" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~	10 text 在正文上按住并拖动即可选中文字。选文可复制；正式摘录与笔记保存尚未接入本样例。
++	22 container 阅读状态提示
++		23 text 选文已复制。
++	24 text 已选 23 字 · 阅读从选择一本书开始。找到书架，打开内容，选中
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

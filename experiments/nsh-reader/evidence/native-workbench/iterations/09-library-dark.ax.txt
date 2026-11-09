@@ -1,0 +1,37 @@
+Window: "QUSOR 工作台研究", App: QUSOR 工作台研究.
+0 standard window QUSOR 工作台研究, Secondary Actions: Raise
+	1 button 隐藏侧栏
+	2 text QUSOR 个人空间
+	3 button 搜索工作区…
+	4 button 最近内容
+	5 button 功能
+	6 text 工作区
+	7 button 产品设计
+	8 text 固定内容
+	9 button 工作区设计备忘
+	10 button 从想法到成果
+	11 text 原生界面研究
+	12 button 切换浅色
+	13 button 返回工作区
+	14 text 个人空间 / 功能
+	15 button 搜索内容…
+	16 button 新建内容…
+	17 button 显示信息
+	18 button 更多工作区操作…
+	19 text 功能 选择一种适合当前工作的视图 以下为界面样例，尚未安装真实插件包 文稿 关于内容、工具与工作区的几条想法
+	20 button 打开文稿样例
+	21 text 画布 收集、整理与形成结果
+	22 button 打开画布样例
+	23 text 会话 尚未连接 Agent
+	24 button 打开会话样例
+	25 text 阅读 自写样本文稿
+	26 button 打开阅读样例
+	27 close button
+	28 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	29 minimize button
+30 menu bar
+	31 QUSOR 工作台研究
+	32 Edit
+	33 Window
+
+The focused UI element is 0 standard window QUSOR 工作台研究, Secondary Actions: Raise

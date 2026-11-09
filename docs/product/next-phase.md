@@ -1,5 +1,13 @@
 # 下一阶段：插件支撑的最小本地阅读闭环
 
+2026-11-09最新 UI 增量：参考 T3 Code、macOS 自带应用及用户提供的 Plannotator，完成 [原生工作台 v0.4 候选](../design/native-workbench.md) 的 macOS 独立实窗研究。候选优先检查分区、列表/对象切换、搜索、面板预算与输入保留，见 [证据](../../experiments/nsh-reader/evidence/native-workbench/README.md)。用户另明确书库图只参考阅读插件；下一组合切片需验证插件自有书库导航/工具栏/主区及宿主返回，避免双重侧栏。正式阅读/插件/Core 的交付门槛继续保留。
+
+2026-11-09最新设计优先级：用户再次指出基座应优先解决布局和整体交互，阅读只是插件，并要求查找高质量设计 skill。本轮先完成 [外壳机制与技能研究](../research/13-shell-layout-interaction-study.md)、[v0.3候选规格](../design/shell-layout.md) 和静态结构/流程板；下一原生界面切片先验证通用总览、对象切换、工具绑定与紧凑返回，用阅读及非阅读交互共同检验，再装入真实普通插件。候选尚待评审，现有原生工作台为独立研究切片、尚未生产装配；既有阅读、资源释放、同权包和六端门槛继续保留。
+
+2026-11-09阅读入口与跨端增量：原生视觉样例已补书架、窗口内 UTF-8 文本、目录、选文/复制及宽窄呈现，见[独立记录](../../experiments/nsh-reader/evidence/native-reading-entry/README.md)。后续装配按[六端基座与插件安放](../design/cross-platform-shell.md)推进，宿主统一导航/标签/返回/面板，插件提供角色与适配信息。macOS 窄窗资格不替代其他平台，窗口内阅读不计作正式入库、持久进度或公开插件交付。
+
+2026-11-09视觉增量：按用户最新要求，优先评审[原生视觉方向](../design/native-art-direction.md)与[实窗样例](../../experiments/nsh-reader/native-design/README.md)，以具体作者的软件作品研究支撑。旧HTML稿不再作为当前视觉方案；通用Agent/插件结构和既有阅读/包门槛保持，各类真实业务仍独立接通与验收。
+
 
 2026-11-09 平台优先级更新：用户要求一次推进 macOS / Windows / Linux / iOS / Android / Web。先解除 Linux 专用宿主和服务绑定，完成共享平台契约、对应运行入口及每端资格记录；原有第三方插件、Core 事务与原生优先门槛保持。平台支持以真实结果表为准，不将矩阵配置当作交付。见 [ADR 0033](../architecture/adr/0033-cross-platform-runtime.md)。
 新增 C-14/F-EXT-07 设计增量见 [插件平台兼容](../architecture/plugin-platforms.md)：后续包/SDK 切片先补纯兼容解析与旧协议回归，再补签名多实现包、安装/恢复，最后按真实平台/渠道验证。纯兼容解析已实现，签名包/安装/恢复接线待推进；不自动启动语音插件或改变既有阅读闭环优先级。
@@ -49,6 +57,8 @@ B真实段落编辑/移动及无界面A→B→A已通过默认稳定包独立复
 只读投影的公开wire、应用registry与Host挂载授权局部实现通过全根209项Rust及仓库外SDK检查，见[记录](../../experiments/capture-core/evidence/projection-foundation/record.json)和[ADR0030](../architecture/adr/0030-readonly-paragraph-projection.md)。component-invocation bootstrap的wire与fresh挂载方法也已局部实现，全根214项Rust通过并由仓库外SDK编译（[记录](../../experiments/capture-core/evidence/projection-foundation/bootstrap-record.json)）。只读协调器、新B签名支持声明及实际投影算法已实现。原签名包八项真实进程投影在精确材料验包缓存后通过76 worker/412 calls，0 deadline，仍为250ms/100万fuel/8calls；根Workspace223项及Clippy通过，详见[缓存验证与诊断](../../experiments/capture-core/evidence/projection-cache-profile/record.json)和[ADR0032](../architecture/adr/0032-verified-package-material-cache.md)。完整包543/Wasm20/C3（314命令/286 CLI/8 native）兼容回归已通过；共享编辑broker已抽出并通过4项局部测试。共享编辑服务与投影已通过同原包/同mount/Draft/同调度链的真实共存：原8例加4阶段共101 VM/547 calls，0中断；主负责人独立复验共存25 VM/135 calls，2次Begin/Append暂停不改输入、4次正文revision使旧查询失效，含换行替换及移动/逆移动逐字节恢复，见[记录](../../experiments/capture-core/evidence/projection-edit-coexistence/record.json)。接下来接既有NSH分区；不伪造编辑事件，不让native parent切段/拼正文。既有119源UI资格不覆盖新链，真实释放ack、IME/Esc、长书/EPUB、正式功能包与完整本地旅程继续按原门槛推进。
 
 ## 新增工作台设计范围
+
+2026-11-09，用户进一步纠正整体定位为 [通用插件/Agent基座](../design/agent-foundation.md)。后续切片先明确通用任务/会话、Agent能力协商与工具/交互组合；用非编程任务和开发任务共同验收AF-01–07，避免把项目/文件树变成宿主强制前置。此前建议的一项目/一后端真实开发纵向流程保留为开发场景资格：文件/基础编辑→委派→实际diff→测试→重开与未保存冲突，再补第二后端、多Agent与深度IDE能力。此调整不取代已授权阅读与插件门槛，也不自动开启账号/远程/部署；AW-11–17与原AW-01–10分别留证。
 
 2026-11-08，用户明确要求多 Agent 编程与电脑操作工作台的架构及 UI/UX/UE 设计，见 [规格](agent-workbench.md)、[ADR 0029](../architecture/adr/0029-local-agent-workbench.md) 和 [交互稿](../design/agent-workbench.md)。这是新增长期需求和本轮设计授权；下述阅读闭环仍有效，但不再代表完整长期产品。工作台建议先验证两个后端会话与恢复，再委派/成果整合，终端与电脑操作另验；首版排期和默认权限尚未确认。
 

@@ -1,0 +1,2 @@
+There has been no change in the accessibility tree for Window: "QUSOR 原生设计".
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

@@ -1,0 +1,120 @@
+{
+  "date": "2026-11-09",
+  "status": "browser-prototype-only",
+  "artifact": "qusor-refined-workspace.html",
+  "runtime": {
+    "passed": [
+      "dirty indicator",
+      "dirty close dialog",
+      "cancel preserves editor",
+      "close removes tab",
+      "reopen preserves draft",
+      "diff has additions and removals",
+      "pin removes close button",
+      "unpin restores close button",
+      "object search filters",
+      "reading typography",
+      "quote and source in note",
+      "source returns to reading",
+      "explicit object context",
+      "task draft without execution",
+      "dark appearance"
+    ],
+    "carouselButtons": [
+      {
+        "text": "",
+        "aria": "上一个方案"
+      },
+      {
+        "text": "开发 · 横向标签",
+        "aria": null
+      },
+      {
+        "text": "研究 · 纵向标签",
+        "aria": null
+      },
+      {
+        "text": "",
+        "aria": "下一个方案"
+      }
+    ]
+  },
+  "mobile390": {
+    "width": 390,
+    "overflow": false,
+    "ui": "16px",
+    "nav": "flex",
+    "sidebar": "none",
+    "readingSize": "18px",
+    "agentHasOwnView": true,
+    "returnsToArticle": true,
+    "objectSwitcher": true,
+    "switchesToNote": true
+  },
+  "mobile320": {
+    "code320": {
+      "width": 320,
+      "overflow": false,
+      "mainVisible": true,
+      "codeSize": "14px",
+      "popoverFits": true
+    },
+    "reading320": {
+      "overflow": false,
+      "font": "18px",
+      "dark": true,
+      "height": 1074,
+      "documentHeight": 1134,
+      "frameHeight": 798
+    },
+    "fontFaces": [
+      {
+        "family": "Inter",
+        "weight": "400"
+      },
+      {
+        "family": "Inter",
+        "weight": "500"
+      },
+      {
+        "family": "Inter",
+        "weight": "600"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400"
+      }
+    ]
+  },
+  "visualInspection": [
+    "Desktop code, light appearance: navigation, three object tabs, code, Agent and checks inspected.",
+    "Desktop research: vertical tabs, 680px article width, 18px reading body and source actions inspected.",
+    "390px reading and 320px layout: no document horizontal overflow; Agent switches to a separate main view."
+  ],
+  "limits": [
+    "No NSH or production UI integration.",
+    "No real project file writes, Agent execution, terminal, native IME, screen reader or device validation.",
+    "The local renderer keeps a fixed-height iframe; mobile content was checked through its document height and layout, not claimed as a full device screenshot.",
+    "Only specified token contrast pairs are computed; not an application accessibility certification."
+  ],
+  "contrast": {
+    "light": {
+      "pairs": 22,
+      "minimumRatio": 4.559,
+      "allAtLeast4_5": true
+    },
+    "dark": {
+      "pairs": 22,
+      "minimumRatio": 6.049,
+      "allAtLeast4_5": true
+    }
+  },
+  "finalGeometry": {
+    "desktopHeight": 780,
+    "researchHeight": 780,
+    "equalStageHeight": true,
+    "horizontalOverflow": false,
+    "codeBackground": "transparent",
+    "researchDarkAppearance": "visually-inspected"
+  }
+}

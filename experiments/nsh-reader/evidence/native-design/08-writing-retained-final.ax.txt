@@ -1,0 +1,9 @@
+The following is a diff from the previous accessibility tree for Window: "QUSOR 原生设计" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~		34 tab (selected) 工作台
+~		35 tab 任务过程
+~	36 text 文稿 · 设计样例 把想法整理成文章 主内容可以直接成为写作空间。资料、想法与 Agent 建议都围绕这篇文稿出现。 我的草稿
++	37 container 写作草稿
++		38 scroll area
++			39 text entry area (settable) 原生写作验证：这份草稿属于写作任务，切换标签后继续保留。
++	40 text 本任务的草稿只保留在当前窗口，切换标签不会清空输入。 Agent 尚未连接 当前任务的材料与草稿，在需要时交给 Agent。
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

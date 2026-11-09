@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/workspace/qusor/experiments/nsh-reader/target/native-design/QUSOR 原生设计.app/Contents/MacOS/qusor-native-host",
+    "--bundle",
+    "/workspace/qusor/experiments/nsh-reader/target/native-design/bundle/bundle.nshc",
+    "--app-id",
+    "org.qusor.designpreview",
+    "--data-dir",
+    "/workspace/qusor/experiments/nsh-reader/target/native-design/data",
+    "--name",
+    "QUSOR 原生设计",
+    "--window-size",
+    "390x844"
+  ],
+  "launcher": "/workspace/qusor/experiments/nsh-reader/target/native-design/QUSOR 原生设计.app/Contents/MacOS/qusor-native-design",
+  "bundle_tree_sha256": "0edf84dda7f2e6f1256647313914019570fba5672b13474295024279e76a53a4",
+  "host_sha256": "42b60abbdf6a332757af0ce94dec578ce11b1388978ab0d19cbd068f40d3edc9",
+  "fixture": "Self-authored samples; user-selected UTF-8 text may be opened in memory. UI state is not persisted.",
+  "pid": 89340
+}

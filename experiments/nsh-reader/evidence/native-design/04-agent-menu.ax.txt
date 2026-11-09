@@ -1,0 +1,10 @@
+The following is a diff from the previous accessibility tree for Window: "QUSOR 原生设计" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 39
+~	37 text 草稿只保留在当前窗口 Agent 尚未连接 当前任务的材料与草稿，在需要时交给 Agent。
++	38 menu
++		39 text 接入方式 · 设计样例
++		40 结构化 Agent 接入
++		41 本机命令行接入
++		42 远程 Agent 接入
++		43 text 当前窗口只演示界面，不连接服务。
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

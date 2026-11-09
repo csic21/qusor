@@ -1,0 +1,34 @@
+Window: "QUSOR 原生设计", App: QUSOR 原生设计.
+0 standard window QUSOR 原生设计, Secondary Actions: Raise
+	1 button 返回书架
+	2 text 阅读
+	3 button 阅读工具
+	4 text 求索：阅读与思考 · QUSOR · 自拟示例文集 第一章　从一本书开始
+	5 container 可选择的阅读正文
+		6 text 阅读从选择一本书开始。找到书架，打开内容，选中一段文字，再回到资料列表，这些动作应该连贯而自然。
+
+一本书不只是封面与标题。真正的阅读空间，需要让正文拥有足够的宽度，让文字的大小和行距适合长时间观看。目录与翻章控制应当容易找到，其他工具则在需要的时候出现。
+
+你可以在这段文字上按住并拖动，选择其中的一部分。底部会显示选文，并提供复制入口。选中的文字来自当前正文，没有预先编好的固定选段。
+
+如果要阅读自己的文本，可以返回书架，选择“打开文本文件”，或使用“输入文本”。本次打开的内容只保留在当前窗口，不会上传，也不会显示成已经收录的知识。
+
+读到这里，可以打开目录，或者使用下方的下一章按钮。返回书架再打开这本示例，会继续显示本窗口中选择的章节。
+	7 text 在正文上按住并拖动即可选中文字。选文可复制；正式摘录与笔记保存尚未接入本样例。 文字阅读 · 当前窗口
+	8 button (disabled) 上一章或上一段
+	9 text 1 / 3
+	10 button 下一章或下一段
+	11 menu
+		12 打开目录
+		13 增大字号
+		14 减小字号
+		15 返回书架
+	16 close button
+	17 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	18 minimize button
+19 menu bar
+	20 QUSOR 原生设计
+	21 Edit
+	22 Window
+
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

@@ -1,0 +1,29 @@
+The following is a diff from the previous accessibility tree for Window: "QUSOR 工作台研究" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 1-8
++	16 button 隐藏侧栏
++	17 text QUSOR 个人空间
++	18 button 搜索工作区…
++	19 button 最近内容
++	20 button 功能
++	21 text 工作区
++	22 button 产品设计
++	23 text 固定内容
++	24 button 工作区设计备忘
++	25 button 从想法到成果
++	26 text 原生界面研究
++	27 button 切换深色
++	28 button 返回工作区
++	29 text 个人空间 / 产品设计
++	30 button 搜索内容…
++	31 button 新建内容…
++	32 button 显示信息
++	33 button 更多工作区操作…
++	34 tab group
++		35 tab 工作区概览
++		36 tab 工作区设计备忘
++		37 tab (selected) 从想法到成果
++	38 button 关闭当前标签
++	39 text 从想法到成果 流程草案 · 只读样例 一次研究的三个阶段
++	40 container 从想法到成果：收集线索与材料，整理并建立联系，形成文稿与行动
++	41 text 让线索长成自己的结构 资料、想法和下一步行动可以放在同一处。图上的节点只表达关系，不代表已经运行的任务。
+The focused UI element is 0 standard window QUSOR 工作台研究, Secondary Actions: Raise

@@ -1,0 +1,22 @@
+Window: "QUSOR 原生设计", App: QUSOR 原生设计.
+0 standard window QUSOR 原生设计, Secondary Actions: Raise
+	1 button 展开侧栏
+	2 text 研究任务
+	3 button 任务信息
+	4 button 打开扩展样例
+	5 tab group
+		6 tab (selected) 工作台
+		7 tab 任务过程
+	8 text 任务信息
+	9 button 关闭任务信息
+	10 text 当前任务 原生软件体验研究 设计样例 · 当前窗口 使用的界面 研究工作台 切换任务时，主内容随场景变化。 Agent 尚未连接 没有运行中的任务或外部操作。 内容状态 未保存的会话草稿 正式保存与恢复尚未接入本样例。 Agent 尚未连接 当前任务的材料与草稿，在需要时交给 Agent。
+	11 button 选择 Agent 接入方式
+	12 close button
+	13 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	14 minimize button
+15 menu bar
+	16 QUSOR 原生设计
+	17 Edit
+	18 Window
+
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

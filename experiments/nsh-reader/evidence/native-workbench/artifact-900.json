@@ -1,0 +1,23 @@
+{
+  "app": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app",
+  "command": [
+    "/workspace/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app/Contents/MacOS/qusor-native-host",
+    "--bundle",
+    "/workspace/qusor/experiments/nsh-reader/target/native-workbench/bundle/bundle.nshc",
+    "--app-id",
+    "org.qusor.workbenchstudy",
+    "--data-dir",
+    "/workspace/qusor/experiments/nsh-reader/target/native-workbench/data",
+    "--name",
+    "QUSOR 工作台研究",
+    "--window-size",
+    "900x680"
+  ],
+  "size": [
+    900,
+    680
+  ],
+  "bundle_tree_sha256": "63ab0d4f062eff237b72b251a642042b1b46df0bf1c52a42881dcd4babdf55d4",
+  "host_sha256": "42b60abbdf6a332757af0ce94dec578ce11b1388978ab0d19cbd068f40d3edc9",
+  "fixture": "Self-authored, window-local. No Core, external agents, network or real plugin packages."
+}

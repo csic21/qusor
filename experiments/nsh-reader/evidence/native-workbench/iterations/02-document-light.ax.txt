@@ -1,0 +1,41 @@
+Window: "QUSOR 工作台研究", App: QUSOR 工作台研究.
+0 standard window QUSOR 工作台研究, Secondary Actions: Raise
+	1 button 隐藏侧栏
+	2 text QUSOR 个人空间
+	3 button 搜索工作区…
+	4 button 最近内容
+	5 button 功能
+	6 text 工作区
+	7 button 产品设计
+	8 text 固定内容
+	9 button 工作区设计备忘
+	10 button 从想法到成果
+	11 text 原生界面研究
+	12 button 切换深色
+	13 button 返回工作区
+	14 text 个人空间 / 产品设计
+	15 button 搜索内容…
+	16 button 新建内容…
+	17 button 显示信息
+	18 button 更多工作区操作…
+	19 tab group
+		20 tab 工作区概览
+		21 tab (selected) 工作区设计备忘
+		22 tab 从想法到成果
+	23 button 关闭当前标签
+	24 text 产品设计 / 文稿 工作区设计备忘 2026 年 11 月 9 日 · 窗口内草稿 一天的工作常常从一个想法开始：找到几份资料，试着写下来，再把零散的线索连在一起。好的工作区，应该让这些动作自然地发生。 先把内容放在手边 我想要一个可以长期停留的地方。文稿、图表和讨论各自有合适的形状，切换时仍能认出自己在哪里。 共同的是工作区，变化的是看待内容的方式。 随手记
+	25 container 工作区设计随手记
+		26 scroll area
+			27 text entry area (settable) 让工作区围绕正在处理的内容展开。工具可以随时加入，也可以安静地退到一旁。
+切换视图后，这条记录仍然留在这里。
+	28 text 此处输入保留到当前窗口关闭
+	29 close button
+	30 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	31 minimize button
+32 menu bar
+	33 QUSOR 工作台研究
+	34 Edit
+	35 Window
+
+The focused UI element is 27 text entry area (settable) 让工作区围绕正在处理的内容展开。工具可以随时加入，也可以安静地退到一旁。
+切换视图后，这条记录仍然留在这里。

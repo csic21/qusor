@@ -1,0 +1,26 @@
+Window: "QUSOR 原生设计", App: QUSOR 原生设计.
+0 standard window QUSOR 原生设计, Secondary Actions: Raise
+	1 button
+	2 button 收起侧栏
+	3 text QUSOR 个人空间
+	4 button 打开书架与文本
+	5 container 查找设计样例
+		6 text field (settable) 查找任务
+	7 text 工作中的任务 样例
+	8 button 原生软件体验研究
+	9 button 把想法整理成文章
+	10 button 安排一次工作流程
+	11 button 制作一个小工具
+	12 text 固定空间 个人工作室
+	13 button 打开扩展样例
+	14 text 原生交互预览
+	15 button 切换明暗外观
+	16 close button
+	17 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	18 minimize button
+19 menu bar
+	20 QUSOR 原生设计
+	21 Edit
+	22 Window
+
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

@@ -1,0 +1,34 @@
+Window: "QUSOR 原生设计", App: QUSOR 原生设计.
+0 standard window QUSOR 原生设计, Secondary Actions: Raise
+	1 button 收起侧栏
+	2 text QUSOR 个人空间
+	3 button 打开书架与文本
+	4 container 查找设计样例
+		5 text field (settable) 查找任务
+	6 text 工作中的任务 样例
+	7 button 原生软件体验研究
+	8 button 把想法整理成文章
+	9 button 安排一次工作流程
+	10 button 制作一个小工具
+	11 text 固定空间 个人工作室
+	12 button 打开扩展样例
+	13 text 原生交互预览
+	14 button 切换明暗外观
+	15 button 返回书架
+	16 text 输入文本 把一段文本放进阅读空间 可以粘贴文章或直接输入，只保留在这个窗口。
+	17 container 文本标题
+		18 text field (settable) Value: 选文复制验证, Placeholder: 标题（可选）
+	19 container 输入要阅读的文本
+		20 scroll area
+			21 text entry area (settable) 阅读从选择一本书开始。找到书架，打开内容，选中
+	22 button 开始阅读输入的文本
+	23 button 返回书架，保留输入
+	24 close button
+	25 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	26 minimize button
+27 menu bar
+	28 QUSOR 原生设计
+	29 Edit
+	30 Window
+
+The focused UI element is 21 text entry area (settable) 阅读从选择一本书开始。找到书架，打开内容，选中

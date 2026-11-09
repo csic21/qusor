@@ -1,0 +1,14 @@
+The following is a diff from the previous accessibility tree for Window: "QUSOR 工作台研究" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 10-18, 20, 28, 30-35
+~	19 button (disabled) 返回工作区
+~	21 text 产品设计
+~		27 tab (selected) 工作区概览
++	43 text 产品设计 4 个内容 · 个人空间 工作区 固定
++	44 button 打开固定的工作区设计备忘
++	45 button 打开固定的从想法到成果
++	46 text 工作区内容 4 项
++	47 button 打开工作区设计备忘
++	48 button 打开从想法到成果
++	49 button 打开下一步的讨论
++	50 button 打开留一点空间给思考
+The focused UI element is 0 standard window QUSOR 工作台研究, Secondary Actions: Raise

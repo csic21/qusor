@@ -1,0 +1,99 @@
+{
+  "date": "2026-11-09",
+  "kind": "interactive-design-prototype",
+  "artifact": "qusor-agent-foundation.html",
+  "desktop": {
+    "passed": [
+      "neutral home without code",
+      "research uses sources and document",
+      "source detail opens",
+      "disabled renderer gets fallback",
+      "re-enable keeps document draft",
+      "process uses form and steps",
+      "CLI selection remains unconnected",
+      "CLI limitations in conversation",
+      "task form retained across views",
+      "code is a scene only",
+      "writing draft retained across scenes",
+      "free task has no project prerequisite",
+      "followup retained on reopen",
+      "tasks retain draft status"
+    ],
+    "desktopWidth": 1009,
+    "horizontalOverflow": false,
+    "widgetBytes": 623
+  },
+  "mobile390": {
+    "width": 390,
+    "uiFont": "16px",
+    "resumeEntry": true,
+    "resumesFreeTask": true,
+    "scenes": [
+      {
+        "scene": "research",
+        "horizontalOverflow": false
+      },
+      {
+        "scene": "write",
+        "horizontalOverflow": false
+      },
+      {
+        "scene": "process",
+        "horizontalOverflow": false
+      },
+      {
+        "scene": "dev",
+        "horizontalOverflow": false
+      }
+    ],
+    "panelFits": true,
+    "dark": true
+  },
+  "mobile320": {
+    "width": 320,
+    "scenes": [
+      {
+        "scene": "research",
+        "overflow": false
+      },
+      {
+        "scene": "write",
+        "overflow": false
+      },
+      {
+        "scene": "process",
+        "overflow": false
+      },
+      {
+        "scene": "dev",
+        "overflow": false
+      }
+    ],
+    "homeOverflow": false,
+    "panelFits": true,
+    "rootFont": "16px"
+  },
+  "visuallyInspected": [
+    "Desktop home: neutral task entry, scene examples, Agent/capability choices.",
+    "Desktop research: source references and a document work surface.",
+    "390px dark process scene: steps and input form reflow into one column."
+  ],
+  "coverage": "Only visible composition and local interaction for AF-01/02; no real independent task persistence, SDK combination or Agent connection.",
+  "notVerified": [
+    "Native NSH UI and platform input/accessibility.",
+    "Real Agent sessions, tools, permissions, execution or recovery.",
+    "Actual plugin installation, provider replacement or third-party interoperability."
+  ],
+  "referenceCheck": {
+    "nshStable": "v0.4.0",
+    "nshNightly": "36b91689c1e7c38379179a56381de7ddab16c6a5",
+    "nshMain": "87c7e8da85d2f15a56107baa6f0fabb419b508b3",
+    "impact": "No runtime upgrade or new dependency."
+  },
+  "longContent320": {
+    "taskTitleCharacters": 240,
+    "taskHorizontalOverflow": false,
+    "resumeHorizontalOverflow": false,
+    "resumeEntry": true
+  }
+}

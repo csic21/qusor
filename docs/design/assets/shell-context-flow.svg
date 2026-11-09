@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1030" viewBox="0 0 1440 1030" role="img">
+<title>切换工作，保留对象、输入和返回路径</title><desc>交互研究 v0.3 · 先定义状态转移，再做视觉表现 · 所有流程均待原生验证</desc>
+<g font-family="-apple-system, BlinkMacSystemFont, PingFang SC, Noto Sans CJK SC, sans-serif">
+<rect x="0" y="0" width="1440" height="1030" rx="0" fill="#f2f3f5"/>
+<text x="48" y="52" font-size="28" fill="#20262e" font-weight="600">切换工作，保留对象、输入和返回路径</text>
+<text x="48" y="84" font-size="15" fill="#586472" font-weight="400">交互研究 v0.3 · 先定义状态转移，再做视觉表现 · 所有流程均待原生验证</text>
+<text x="48" y="130" font-size="22" fill="#20262e" font-weight="600">写给 A 的输入，不能因为切到 B 就改了目标</text>
+<text x="48" y="162" font-size="15" fill="#20262e" font-weight="500">1. 打开 A</text>
+<rect x="48" y="181" width="309" height="213" rx="6" fill="#ffffff" stroke="#d6dce2"/>
+<rect x="49" y="182" width="307" height="35" rx="5" fill="#f7f8f9"/>
+<text x="61" y="206" font-size="14" fill="#20262e" font-weight="400">主视图 A</text>
+<rect x="63" y="238" width="279" height="41" rx="5" fill="#e7edf4"/>
+<text x="75" y="265" font-size="14" fill="#315c85" font-weight="500">工具：跟随 A</text>
+<text x="63" y="316" font-size="13" fill="#586472" font-weight="400">还没有未提交输入</text>
+<path d="M63 339L342 339" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="63" y="366" font-size="12" fill="#586472" font-weight="400">同一视图 / 草稿身份保持</text>
+<path d="M363 282L387 282" fill="none" stroke="#586472" stroke-width="1.5"/>
+<path d="M381 277L387 282" fill="none" stroke="#586472" stroke-width="1.5"/>
+<path d="M381 287L387 282" fill="none" stroke="#586472" stroke-width="1.5"/>
+<text x="393" y="162" font-size="15" fill="#20262e" font-weight="500">2. 开始输入</text>
+<rect x="393" y="181" width="309" height="213" rx="6" fill="#ffffff" stroke="#d6dce2"/>
+<rect x="394" y="182" width="307" height="35" rx="5" fill="#f7f8f9"/>
+<text x="406" y="206" font-size="14" fill="#20262e" font-weight="400">主视图 A</text>
+<rect x="408" y="238" width="279" height="41" rx="5" fill="#e7edf4"/>
+<text x="420" y="265" font-size="14" fill="#315c85" font-weight="500">工具：固定到 A</text>
+<text x="408" y="316" font-size="13" fill="#586472" font-weight="400">草稿绑定 A 与其版本</text>
+<path d="M408 339L687 339" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="408" y="366" font-size="12" fill="#586472" font-weight="400">同一视图 / 草稿身份保持</text>
+<path d="M708 282L732 282" fill="none" stroke="#586472" stroke-width="1.5"/>
+<path d="M726 277L732 282" fill="none" stroke="#586472" stroke-width="1.5"/>
+<path d="M726 287L732 282" fill="none" stroke="#586472" stroke-width="1.5"/>
+<text x="738" y="162" font-size="15" fill="#20262e" font-weight="500">3. 激活 B</text>
+<rect x="738" y="181" width="309" height="213" rx="6" fill="#ffffff" stroke="#d6dce2"/>
+<rect x="739" y="182" width="307" height="35" rx="5" fill="#f7f8f9"/>
+<text x="751" y="206" font-size="14" fill="#20262e" font-weight="400">主视图 B</text>
+<rect x="753" y="238" width="279" height="41" rx="5" fill="#faf2e6"/>
+<text x="765" y="265" font-size="14" fill="#805222" font-weight="500">草稿仍属于 A</text>
+<text x="753" y="316" font-size="13" fill="#586472" font-weight="400">不自动把文字发给 B</text>
+<path d="M753 339L1032 339" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="753" y="366" font-size="12" fill="#586472" font-weight="400">同一视图 / 草稿身份保持</text>
+<path d="M1053 282L1077 282" fill="none" stroke="#586472" stroke-width="1.5"/>
+<path d="M1071 277L1077 282" fill="none" stroke="#586472" stroke-width="1.5"/>
+<path d="M1071 287L1077 282" fill="none" stroke="#586472" stroke-width="1.5"/>
+<text x="1083" y="162" font-size="15" fill="#20262e" font-weight="500">4. 明确处理</text>
+<rect x="1083" y="181" width="309" height="213" rx="6" fill="#ffffff" stroke="#d6dce2"/>
+<rect x="1084" y="182" width="307" height="35" rx="5" fill="#f7f8f9"/>
+<text x="1096" y="206" font-size="14" fill="#20262e" font-weight="400">返回 A / 保存后切换</text>
+<rect x="1098" y="238" width="279" height="41" rx="5" fill="#faf2e6"/>
+<text x="1110" y="265" font-size="14" fill="#805222" font-weight="500">保留或提交原草稿</text>
+<text x="1098" y="316" font-size="13" fill="#586472" font-weight="400">只有用户动作能改变目标</text>
+<path d="M1098 339L1377 339" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="1098" y="366" font-size="12" fill="#586472" font-weight="400">同一视图 / 草稿身份保持</text>
+<text x="48" y="449" font-size="22" fill="#20262e" font-weight="600">空间不足时改变安放，不重建业务、不重发执行</text>
+<rect x="48" y="478" width="770" height="295" rx="7" fill="#ffffff" stroke="#d6dce2"/>
+<rect x="49" y="479" width="768" height="38" rx="6" fill="#f7f8f9"/>
+<text x="64" y="504" font-size="15" fill="#20262e" font-weight="500">宽窗：当前对象 A + 支持工具</text>
+<rect x="49" y="517" width="78" height="255" rx="0" fill="#f7f8f9"/>
+<text x="62" y="555" font-size="13" fill="#586472" font-weight="400">导航</text>
+<path d="M127 517L127 773" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="154" y="557" font-size="20" fill="#20262e" font-weight="500">对象 A</text>
+<path d="M154 589L521 589" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M154 612L521 612" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M154 635L521 635" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M154 658L521 658" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M154 681L521 681" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M154 704L521 704" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M548 517L548 773" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="568" y="557" font-size="15" fill="#20262e" font-weight="500">工具：A 的想法</text>
+<rect x="568" y="577" width="226" height="110" rx="4" fill="#eef3f8" stroke="#d6dce2"/>
+<text x="581" y="606" font-size="14" fill="#20262e" font-weight="400">正在写的草稿…</text>
+<text x="568" y="723" font-size="13" fill="#586472" font-weight="400">继续当前输入</text>
+<path d="M835 619L859 619" fill="none" stroke="#586472" stroke-width="1.5"/>
+<path d="M853 614L859 619" fill="none" stroke="#586472" stroke-width="1.5"/>
+<path d="M853 624L859 619" fill="none" stroke="#586472" stroke-width="1.5"/>
+<rect x="880" y="478" width="244" height="345" rx="15" fill="#ffffff" stroke="#d6dce2"/>
+<rect x="881" y="479" width="242" height="47" rx="14" fill="#f7f8f9"/>
+<text x="894" y="509" font-size="15" fill="#20262e" font-weight="400">‹ 对象 A</text>
+<path d="M880 526L1124 526" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="897" y="564" font-size="19" fill="#20262e" font-weight="500">A 的想法</text>
+<rect x="897" y="583" width="210" height="30" rx="5" fill="#f7f8f9"/>
+<text x="907" y="604" font-size="13" fill="#586472" font-weight="500">目标：A · 未保存</text>
+<rect x="897" y="629" width="210" height="104" rx="4" fill="#eef3f8" stroke="#d6dce2"/>
+<text x="908" y="660" font-size="14" fill="#20262e" font-weight="400">同一份草稿…</text>
+<text x="897" y="768" font-size="13" fill="#586472" font-weight="400">键盘与输入焦点继续</text>
+<text x="897" y="804" font-size="12" fill="#586472" font-weight="400">返回恢复 A 的原位置</text>
+<rect x="1148" y="478" width="244" height="345" rx="15" fill="#ffffff" stroke="#d6dce2"/>
+<rect x="1149" y="479" width="242" height="47" rx="14" fill="#f7f8f9"/>
+<text x="1162" y="509" font-size="15" fill="#20262e" font-weight="400">‹ 工作区</text>
+<path d="M1148 526L1392 526" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="1165" y="564" font-size="19" fill="#20262e" font-weight="500">对象 A</text>
+<path d="M1165 596L1375 596" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M1165 617L1375 617" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M1165 638L1375 638" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M1165 659L1375 659" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M1165 680L1375 680" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M1165 701L1375 701" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<path d="M1165 722L1375 722" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="1165" y="804" font-size="12" fill="#586472" font-weight="400">工具可从同一入口再打开</text>
+<text x="880" y="855" font-size="14" fill="#20262e" font-weight="400">紧凑：工具页  →  系统返回  →  原对象</text>
+<text x="48" y="824" font-size="15" fill="#586472" font-weight="400">导航、主内容与工具均须满足最小可用空间。</text>
+<text x="48" y="854" font-size="15" fill="#586472" font-weight="400">字号增大或窗口缩小时，保留正在输入的区域与其目标。</text>
+<path d="M48 893L1392 893" fill="none" stroke="#d6dce2" stroke-width="1"/>
+<text x="48" y="931" font-size="17" fill="#20262e" font-weight="500">返回</text>
+<text x="48" y="962" font-size="13" fill="#586472" font-weight="400">回到当前视图的上一位置</text>
+<text x="393" y="931" font-size="17" fill="#20262e" font-weight="500">关闭视图</text>
+<text x="393" y="962" font-size="13" fill="#586472" font-weight="400">保留对象；处理未保存输入</text>
+<text x="738" y="931" font-size="17" fill="#20262e" font-weight="500">隐藏工具</text>
+<text x="738" y="962" font-size="13" fill="#586472" font-weight="400">不等于停止活动</text>
+<text x="1083" y="931" font-size="17" fill="#20262e" font-weight="500">停止活动</text>
+<text x="1083" y="962" font-size="13" fill="#586472" font-weight="400">等待真实停止结果</text>
+<text x="48" y="1001" font-size="13" fill="#586472" font-weight="400">静态流程说明 · 不代表草稿落盘、后台寿命、手机返回或输入法已经验收</text>
+</g></svg>

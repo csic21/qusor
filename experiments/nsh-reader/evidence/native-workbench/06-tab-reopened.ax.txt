@@ -1,0 +1,29 @@
+The following is a diff from the previous accessibility tree for Window: "QUSOR 工作台研究" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~	43 text 产品设计
+~	44 button 收起内容列表
+~	45 text 固定 2
+~	46 button 浏览工作区设计备忘
+~	47 button 浏览从想法到成果
+~	48 text 其他内容 2
+~	49 button 浏览下一步的讨论
+~	50 button 浏览留一点空间给思考
++	51 text 4 个内容 · 当前工作区
++	19 button 返回工作区
++	52 button 隐藏内容列表
++	21 text 工作区设计备忘
++	22 button 搜索内容…
++	23 button 新建内容…
++	24 button 显示信息
++	25 button 更多工作区操作…
++	26 tab group
++		27 tab 工作区概览
++		29 tab 从想法到成果
++		53 tab (selected) 工作区设计备忘
++	54 button 关闭当前标签
++	55 text 产品设计 / 文稿 工作区设计备忘 2026 年 11 月 9 日 · 窗口内草稿 一天的工作常常从一个想法开始：找到几份资料，试着写下来，再把零散的线索连在一起。好的工作区，应该让这些动作自然地发生。 先把内容放在手边 我想要一个可以长期停留的地方。文稿、图表和讨论各自有合适的形状，切换时仍能认出自己在哪里。 共同的是工作区，变化的是看待内容的方式。 随手记
++	56 container 工作区设计随手记
++		57 scroll area
++			58 text entry area (settable) 让工作区围绕正在处理的内容展开。工具可以随时加入，也可以安静地退到一旁。
+先把最常用的操作放到手边，再处理低频工具。
++	59 text 此处输入保留到当前窗口关闭
+The focused UI element is 0 standard window QUSOR 工作台研究, Secondary Actions: Raise

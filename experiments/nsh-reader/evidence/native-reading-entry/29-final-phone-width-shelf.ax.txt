@@ -1,0 +1,25 @@
+Window: "QUSOR 原生设计", App: QUSOR 原生设计.
+0 standard window QUSOR 原生设计, Secondary Actions: Raise
+	1 button 展开全局导航
+	2 text 书架
+	3 button 添加阅读内容
+	4 text 选择接下来要读的内容 示例书籍可以直接打开。自己的文本可从本机选择，或在这里输入。
+	5 tab group
+		6 tab (selected) 全部
+		7 tab 示例书籍
+		8 tab 本次打开
+	9 container 查找书籍或文本
+		10 text field (settable) 查找书籍或文本
+	11 text 书籍与文本 2 项
+	12 button 阅读：求索：阅读与思考
+	13 button 阅读：一份普通的文本
+	14 text 本窗口可打开 UTF-8 TXT、Markdown（按纯文本显示）；PDF、EPUB 暂未接入。 “本次打开”只保留在当前窗口，不代表正式导入书库；退出后需要重新选择。
+	15 close button
+	16 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	17 minimize button
+18 menu bar
+	19 QUSOR 原生设计
+	20 Edit
+	21 Window
+
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

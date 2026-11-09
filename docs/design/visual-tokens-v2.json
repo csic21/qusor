@@ -1,0 +1,53 @@
+{
+  "version": "0.2-candidate",
+  "status": "design-only-not-runtime",
+  "updated": "2026-11-09",
+  "units": "logical-design-units-require-platform-mapping",
+  "typography": {
+    "ui": { "size": 14, "lineHeight": 22, "weight": 400 },
+    "panelTitle": { "size": 15, "lineHeight": 22, "weight": 600 },
+    "caption": { "size": 12, "lineHeight": 18, "weight": 400 },
+    "title": { "size": 24, "lineHeight": 34, "weight": 600 },
+    "code": { "size": 14, "lineHeight": 24, "weight": 400 },
+    "reading": { "size": 18, "lineHeight": 32, "weight": 400 },
+    "mobileUi": { "size": 16, "lineHeight": 24, "weight": 400 }
+  },
+  "spacing": [4, 8, 12, 16, 24, 32],
+  "geometry": { "navigationRow": 38, "tabRow": 40, "button": 34, "touchTarget": 44, "controlRadius": 7, "overlayRadius": 12 },
+  "themes": {
+    "light": {
+      "surface.app": "#F5F5F7",
+      "surface.navigation": "#F7F7F9",
+      "surface.content": "#FFFFFF",
+      "surface.reading": "#FBFAF7",
+      "text.primary": "#292B33",
+      "text.secondary": "#656975",
+      "border.subtle": "#E5E6EC",
+      "action.background": "#6354BD",
+      "action.foreground": "#FFFFFF",
+      "selection.background": "#EEEAF9",
+      "selection.foreground": "#524398",
+      "syntax.comment": "#697080",
+      "syntax.keyword": "#7652A8",
+      "syntax.string": "#377450",
+      "status.danger": "#AD383F"
+    },
+    "dark": {
+      "surface.app": "#17181D",
+      "surface.navigation": "#1D1E24",
+      "surface.content": "#22232B",
+      "surface.reading": "#25252A",
+      "text.primary": "#E8E9F0",
+      "text.secondary": "#A3A7B7",
+      "border.subtle": "#373943",
+      "action.background": "#B8A8F5",
+      "action.foreground": "#252031",
+      "selection.background": "#363049",
+      "selection.foreground": "#D2C6FF",
+      "syntax.comment": "#9CA3B6",
+      "syntax.keyword": "#C0A4E8",
+      "syntax.string": "#9BC9A5",
+      "status.danger": "#FF9AA3"
+    }
+  }
+}

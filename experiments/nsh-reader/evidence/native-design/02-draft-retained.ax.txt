@@ -1,0 +1,7 @@
+The following is a diff from the previous accessibility tree for Window: "QUSOR 原生设计" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~	14 text 原生软件体验研究
+~	33 text 研究札记 2026.11.09 原生软件的秩序与手感 QUSOR 设计研究 · 自拟材料 好的工具让人专注于眼前的内容。窗口、文字与操作保持稳定，复杂能力在需要的时候出现。 参考作品 Things  ·  Reeder  ·  Kino 01　让内容建立层级 用字阶、行距和对齐组织一张清晰的工作台。文稿像文稿，画布像画布；工具不需要用一排卡片争夺注意力。 02　让扩展自然进入工作 进入研究、写作或开发任务时，更换的是主内容与适用工具。侧栏保留任务的位置，检查器按需展开，Agent 从当前任务接手。 随手记
+~	34 container 研究札记草稿
+~			36 text entry area (settable) 原生输入检查：切换标签与任务后，仍保留本任务的草稿。
+~	37 text 草稿只保留在当前窗口 Agent 尚未连接 当前任务的材料与草稿，在需要时交给 Agent。
+The focused UI element is 0 standard window QUSOR 原生设计, Secondary Actions: Raise

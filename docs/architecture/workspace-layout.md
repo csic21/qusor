@@ -140,3 +140,5 @@ F-EXT-01/03/04/05/06 是全部插件的 SDK、Host、包管理和贡献接口要
 ## Agent 工作台新增职责（设计，未创建模块）
 
 C-13 / F-AGENT-01–05 的完整边界见 [ADR 0029](adr/0029-local-agent-workbench.md)。`plugins/agent-workbench/` 提供任务工作流，`plugins/agent-backends/<backend>/` 提供公开后端贡献，`plugins/agent-orchestrator/` 提供可替换调度策略。任务/会话/事件/委派的通用协议与 Host 策略留 crates；操作存储、协议传输、PTY 与电脑服务留 adapters；apps 只装配。具体拆分按真实切片确定，本轮不创建空 crate、不新增依赖。后端不能直写知识库，外部源码修改与 Core 知识提交是不同边界；现有同程序 Wasm worker 不直接等同外部 Agent 进程监督。
+
+2026-11-09日常开发细化：规划 `plugins/development-workspace/` 组合项目/文件/搜索和开发流程；代码编辑、Git/运行/检查、终端与预览作为独立普通提供者接入，具体包粒度在真实切片中决定。项目文件版本/监视、仓库/工作树、LSP/DAP连接、进程/PTY和预览引擎是受控适配服务，纯契约和冲突/输入状态机留crates，源码仍在用户文件系统中。详见 [开发工作区](../design/development-workspace.md)；本轮不创建模块、不新增根Workspace成员或依赖。

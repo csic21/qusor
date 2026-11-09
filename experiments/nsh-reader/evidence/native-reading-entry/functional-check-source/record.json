@@ -1,0 +1,16 @@
+{
+  "scope": "08-23: functional checks before final touch hit areas and modal drawer refinement",
+  "sha256": {
+    "App.tsx": "355a7734930d699802789705729a75f3ebe283c49b790b59c4c3e67d9759e165",
+    "run.py": "20235c11ba54bbce4dc79188613a7bed5391eece9b271186b045be930d8caaae",
+    "theme.json": "84bcc701faf98d7669822de5c6187f3b77af5b952175f2472a4fc8e9cc0ccfca",
+    "reading-state.ts": "6f9cae94410f5dcb86d8c34c9a3aa67af294dbbdc32c5390837dedab9b078257",
+    "ReadingWorkspace.tsx": "fb1b272c1f6729ec0e4db9077d81d6a5c5b9471df1ba6b811699767d513f3bf8",
+    "nsh.json": "ff69cd8b19e1090bc33c0f9cbb3e56e75e01a0af0fabc51a73ae1d2d466fc615",
+    "ui.tsx": "a805a3c93217ddf678858911a4fde7dbc217f770d5ecd903a62082974f89d0a9",
+    "bundle/bundle.js.map": "cb459689f2cf1ec45977fb99ea9c08bd29aeb855ec6ac26e50100ba8e7d7a016",
+    "bundle/app.json": "59047fb19c4cbac3942075a2800689fc14d005e67e80cc2eb74326f48be7e330",
+    "bundle/bundle.js": "51f2ed144ddea6fc5553333495b533608e51d2bd627131ecacd1e8ed12eb8912",
+    "bundle/bundle.nshc": "cd77f1137f84ef8cc64f3c4eb0cf191c94f04197ec30abafcd870961f42d89b0"
+  }
+}
