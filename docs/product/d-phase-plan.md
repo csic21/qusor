@@ -71,6 +71,16 @@ Core 读取证据见 [想法列表实窗记录](../../experiments/nsh-reader/evi
 2. 在真实窗口完成“当前资料新保存一条想法→关闭辅助区→列表刷新→打开所在页”，再补精确高亮与缺失来源状态。
 3. 之后才创建正式 library/reader/notes 包 manifest 与构建入口；不提前用未验证 TS 草案冒充 SDK。
 
+### 公开读取能力的协议约束（2026-11-10 核对）
+
+现有公开 wire 的单次请求/响应预算为 4 KiB，manifest 能力上限 5 个且已被 `SelectionRead`、`DocumentMetadataRead`、`CapturePropose`、`ReaderSurface`、`NoteDraftEdit` 占满。想法列表（最多 200 条、每条 512 bytes 预览）与正文块都远超 4 KiB，切片 2 不能直接复用 0.2/0.3 wire。进入实现前先确定：
+
+- 新增 `notes.read` 能力并提升协议版本（旧 0.1–0.3 保持原义），还是把有界想法数据注入 0.3 component context；
+- 列表 wire 的页大小与预览长度（例如每页 ≤8 条、每条预览 ≤128 bytes）及正文块预算；
+- vault/document 范围由 Host 绑定、guest 不自报；Host 只做策略与预算，Core 查询由可信后端实现。
+
+该决定影响公开插件契约与兼容性，先留设计记录再实现；应用层分页与正文契约已由 [ADR 0034](../architecture/adr/0034-note-read-model.md) 固定。
+
 ## 非目标与约束
 
 - 不把内存文档列表、假 Provider 或实验 TSX import 当作正式包。

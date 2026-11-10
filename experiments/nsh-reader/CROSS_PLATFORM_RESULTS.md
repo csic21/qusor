@@ -48,3 +48,5 @@ Intel Mac 另有固定归档/库摘要，但尚无 Intel 构建或运行证据�
 - Mac 的真实进程控制使用精确启动身份、父进程观察及拥有的 `Child` 回收。恢复后的 PID 不构成发信号的权限；未知清理继续隔离。移动/Web 不能借这个桌面分支声称已经有合格运行 profile。
 
 上游核对：2026-11-09，固定运行基线为 [913fd76](https://github.com/longbridge/nsh/commit/913fd76e1f8434ec6cdf248f4476c1ebe08af19f)，当天另检查[发布记录](https://github.com/longbridge/nsh/releases)、主分支 `8830798b1f17421e02f458eb9e2abadb66d02875`、nightly `36b91689c1e7c38379179a56381de7ddab16c6a5` 与 macOS 文档。未自动升级固定基线。
+
+上游核对：2026-11-10，[stable v0.4.0](https://github.com/longbridge/nsh/releases/tag/v0.4.0)（2026-11-04）与 nightly `c5214aaf4bbdf33bc1d59e9595e009b6aa54d702`（2026-11-10 构建）均已检查；固定运行基线继续为 913fd76，不自动升级。与当前缺口相关的近期提交包括 macOS 输入法组合期间保留按键（`826654b`）、输入框聚焦时复制（`933b2d0`）、原生模块在主线程执行（`7a3f780`）、UI 测试按 id 查找控件（`fb341c8`）、列表增量追加不重建偏移（`64ab8a1`）、macOS 打包按 `--arch` 选择处理器（`3bc4157`）、Windows 原生文本框（`ad481fa`）与移动端触摸选择手柄（`5e2b113`）。这些改动未进入固定基线；采用前须在隔离实验中重新验证输入、选择与资源回收。
