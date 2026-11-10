@@ -1,0 +1,81 @@
+{
+  "date_local": "2026-11-10",
+  "platform": {
+    "name": "macOS",
+    "ui": "AppKit"
+  },
+  "nsh_commit": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "scope": "In-process NSWindow render capture of the workbench notes workspace reading real SQLite Core through the ordinary notes package and the public notes.read wire, plus a restart comparison.",
+  "status": {
+    "live_window_capture": "passed (in-process NSView cacheDisplay render; no screen-recording grant)",
+    "real_core_data": "passed",
+    "body_chunks": "passed",
+    "restart_recovery": "passed (byte-identical renders)",
+    "live_selection_context_menu_keyboard": "covered by headless tests, not captured in the live window"
+  },
+  "capture": {
+    "method": "NotesHost.capture -> NSView bitmapImageRepForCachingDisplayInRect + cacheDisplayInRect + PNG",
+    "trigger": "prepare.py --evidence sets QUSOR_WORKBENCH_EVIDENCE and QUSOR_WORKBENCH_CAPTURE_DIR",
+    "app": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app",
+    "host_sha256": "4548d774183bffb7bbf03c6b4111848cdb666c6042674fc640da08ef17c80c6a",
+    "bundle_tree_sha256": "75e6f3dbe14659918a29b0cf9e2115a26950fa737ebaa156cef7d85ed11d9719",
+    "notes_package_sha256": "fbe9e17b514a9d8b9f03a559ed6d112fb86c65e0a2d44dcfd54a66cb35fc9f96",
+    "notes_publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+    "seed": {
+      "capture_ids": [
+        1,
+        2,
+        3
+      ],
+      "document_id": 1,
+      "notes": 3,
+      "vault": "workbench-vault"
+    }
+  },
+  "runs": {
+    "run1": {
+      "screenshots": {
+        "list": "8831ccdf5a68fd0d2ad8f60e28dc2312cf62b45c1e6c67846423c426d0f93687",
+        "detail": "308ae8471133d243e33dcbc48a5bb0bf82bd43c07fa13948c7dd7727fe46e11a",
+        "truncated": "d5158828f936f96545ac016b1e43a99d93edd4f2443b13a28383ad92a5383918",
+        "full-body": "80d8b31122cfd139a442279815b6b3f9bfd37e876ba173f6212b63fdd29d083c"
+      }
+    },
+    "run2": {
+      "screenshots": {
+        "list": "8831ccdf5a68fd0d2ad8f60e28dc2312cf62b45c1e6c67846423c426d0f93687",
+        "detail": "308ae8471133d243e33dcbc48a5bb0bf82bd43c07fa13948c7dd7727fe46e11a",
+        "truncated": "d5158828f936f96545ac016b1e43a99d93edd4f2443b13a28383ad92a5383918",
+        "full-body": "80d8b31122cfd139a442279815b6b3f9bfd37e876ba173f6212b63fdd29d083c"
+      },
+      "comparison": "identical to run1 for all four images"
+    }
+  },
+  "tests": {
+    "native_module": {
+      "count": 1,
+      "name": "the_workbench_module_serves_a_real_core_page_and_body",
+      "log": "experiments/nsh-reader/evidence/notes-workbench-bridge/tests.log"
+    },
+    "fixture_headless": {
+      "count": 6,
+      "log": "experiments/nsh-reader/evidence/notes-workspace-ui/tests.log"
+    }
+  },
+  "source_sha256": {
+    "experiments/nsh-reader/native-host/notes_native.rs": "f99c44d2679329dddd0315b484f8df8e752b914ae3bb5006c49a771ca6675a4f",
+    "experiments/nsh-reader/native-host/workbench_main.rs": "20a386ca308c2c7edb36e030a3d7841a8875c48b6e15a185b3bcfb8deb596a2e",
+    "experiments/nsh-reader/native-workbench/contributions.tsx": "e920a28a2716c51372f48e2d0f95d855d602d9ef855db8c6a6c09d39b2c2084a",
+    "experiments/nsh-reader/native-workbench/App.tsx": "591df41b3eff3898a3e4ae928736fdb059a000cd03bcbc1b29152d62d65e9a70",
+    "experiments/nsh-reader/native-workbench/prepare.py": "4752ffe111f02af2922d70ad0cd7703c68ec96f66a11d53277fdb310fa994e49",
+    "experiments/nsh-reader/native-workbench/nsh.json": "d54227389faaaed0a313d43625ccbb87031f061e6b61bf0b1829e09c627e9ad3",
+    "experiments/capture-core/src/bin/seed_workbench_notes.rs": "721308137ac545cc038b6e780624923ee0b129fa0738b5474af8db46d96f281d",
+    "experiments/nsh-reader/evidence/notes-workbench-bridge/app-receipt.json": "571ffa7a2933a5f94e1e0ae79e0869e3a4a64861dea1fd70ea3230e99a20d6f3"
+  },
+  "not_verified": [
+    "live-window text selection toolbar, native context menu and keyboard path per state",
+    "real source return and precise highlight (reading window not wired)",
+    "editing/deleting/organizing notes",
+    "IME, assistive technology, narrow live layout, other platforms and resource release"
+  ]
+}

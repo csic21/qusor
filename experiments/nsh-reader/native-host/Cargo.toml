@@ -70,6 +70,10 @@ nsh-platform-linux = { path = "../target/nsh/crates/nsh-platform-linux", default
 [target.'cfg(target_os = "macos")'.dependencies]
 nsh-macos-host = { path = "../target/nsh/crates/nsh-macos-host" }
 nsh-platform-macos = { path = "../target/nsh/crates/nsh-platform-macos" }
+dispatch2 = "=0.3.1"
+objc2 = "=0.6.5"
+objc2-app-kit = { version = "=0.3.2", default-features = false, features = ["std", "NSApplication", "NSWindow", "NSView", "NSBitmapImageRep", "NSImageRep", "NSGraphics", "NSGraphicsContext", "NSImage", "NSMenu"] }
+objc2-foundation = { version = "=0.3.2", default-features = false, features = ["std", "NSArray", "NSData", "NSDictionary", "NSGeometry", "NSString"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 nsh-windows-host = { path = "../target/nsh/crates/nsh-windows-host" }

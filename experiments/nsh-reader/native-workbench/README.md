@@ -40,16 +40,16 @@ cd experiments/nsh-reader/native-workbench
 ../target/nsh/target/debug/nsh test tests/notes-workspace-visual.test.tsx --target macos
 ```
 
-## 真实 Core 模式（headless 已通过，实窗截图未取得）
+## 真实 Core 模式（headless 与实窗均已通过）
 
 `prepare.py` 现在会：构建 `qusor-nsh-workbench-host`、用 `plugins/notes/build.py` 生成普通签名包、用 `seed_workbench_notes` 播种真实 SQLite Core，并通过 `QUSOR_NOTES_*` 环境把数据目录、包、公钥与当前 document 交给宿主。宿主注册 `qusor/pdf-surface` 中的 `NotesHost`，工作台想法 UI 优先读取 `NotesHost.page()` 并用 `NotesHost.body` 分块读正文；失败时回退窗口内样例，列表头明确标注“样例数据”或“本机 Core”。
 
 ```sh
-python3 experiments/nsh-reader/native-workbench/prepare.py --size 1280x820
+python3 experiments/nsh-reader/native-workbench/prepare.py --size 1280x820 --evidence
 cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offline --test notes_native
 ```
 
-headless 模块测试已证明普通包 + 公开 wire + 真实 Core 的分页/正文；**工作台窗口内的 live 数据截图尚未取得**（本机屏幕捕获权限/当前 Space 限制），当前实窗截图仍是标注为“样例数据”的 fixture 渲染。详见 [原生桥记录](../evidence/notes-workbench-bridge/README.md)。
+headless 模块测试证明普通包 + 公开 wire + 真实 Core 的分页/正文；`prepare.py --evidence` 会在应用进程内把真实 `NSWindow` 渲染成 PNG（不依赖屏幕录制授权），自动进入想法工作区并截取列表/详情/截断/完整正文。同一 Core 重启后截图逐字节相同，构成实窗与恢复证据；详见[实窗记录](../evidence/notes-workspace-live/README.md) 与 [原生桥记录](../evidence/notes-workbench-bridge/README.md)。
 
 按钮与文本动作统一走 `ui.tsx` 的 `control()` 刻度（28/30/34），搜索框 32，菜单项 30；引文强调线用独立 3pt View，避免固定 NSH 的 macOS 开发宿主把 `borderLeftWidth` 画成横线。
 

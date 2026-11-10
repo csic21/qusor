@@ -18,6 +18,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--size", default="1280x820")
     parser.add_argument("--build-only", action="store_true")
+    parser.add_argument("--evidence", action="store_true",
+                        help="auto-navigate to notes and capture in-process window renders")
     args = parser.parse_args()
     try:
         width, height = map(int, args.size.split("x"))
@@ -81,6 +83,12 @@ def main() -> None:
         "QUSOR_NOTES_KEY": str(cache / "notes-key.txt"),
         "QUSOR_NOTES_DOCUMENT": str(seed_receipt["document_id"]),
     }
+    captures = cache / "captures"
+    if args.evidence:
+        shutil.rmtree(captures, ignore_errors=True)
+        captures.mkdir(parents=True)
+        exports["QUSOR_WORKBENCH_EVIDENCE"] = "1"
+        exports["QUSOR_WORKBENCH_CAPTURE_DIR"] = str(captures)
     launcher.write_text("#!/bin/sh\n" + "\n".join(f"export {key}={shlex.quote(value)}" for key, value in exports.items())
                         + "\nexec " + shlex.join(command) + ' "$@" >>' + shlex.quote(str(log)) + " 2>&1\n")
     launcher.chmod(0o755)
@@ -101,6 +109,8 @@ def main() -> None:
                "notes_publisher_key": proof["publisher_key"],
                "seed": seed_receipt,
                "notes_core": str(core),
+               "evidence": bool(args.evidence),
+               "captures": str(captures) if args.evidence else None,
                "fixture": "Real Core notes in a sealed local data directory; ordinary signed notes package; no network."}
     (cache / "artifact.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps(receipt, ensure_ascii=False, indent=2))

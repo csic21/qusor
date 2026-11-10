@@ -1,6 +1,7 @@
 import { Canvas, Clipboard, keymap, Path2D, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
 import { Button, Input, Menu, MenuItem, MenuSeparator, TextView } from "nsh/base";
 import { Menu as DesktopMenu, type MenuItem as DesktopMenuItem } from "nsh/desktop";
+import { NotesHost } from "qusor/pdf-surface";
 import {
     Badge,
     Copy,
@@ -535,6 +536,38 @@ async function loadLiveNotes() {
 
 void loadLiveNotes();
 
+/// Evidence-only, driven by App when the host was started with
+/// QUSOR_WORKBENCH_EVIDENCE. Captures the rendered window through NotesHost so
+/// no screen-recording grant or frontmost window is needed.
+export async function captureNotesEvidence() {
+    let dir = "";
+    try {
+        const result = JSON.parse(await NotesHost.evidence());
+        if (!result.ok || !result.value?.active) return;
+        dir = result.value.dir;
+    } catch (_) {
+        return;
+    }
+    if (!dir) return;
+    for (let attempt = 0; attempt < 30 && !notesLive(); attempt += 1)
+        await new Promise((resolve) => setTimeout(resolve, 100));
+    await NotesHost.capture(`${dir}/list.png`);
+    const first = visibleNotes()[0];
+    if (!first) return;
+    selectNote(first);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    await NotesHost.capture(`${dir}/detail.png`);
+    const truncated = visibleNotes().find((note) => noteTruncated(note));
+    if (!truncated) return;
+    selectNote(truncated);
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await NotesHost.capture(`${dir}/truncated.png`);
+    loadNoteBody(truncated);
+    for (let attempt = 0; attempt < 30 && !notesBody()[truncated.id]; attempt += 1)
+        await new Promise((resolve) => setTimeout(resolve, 100));
+    await NotesHost.capture(`${dir}/full-body.png`);
+}
+
 function ReadingSidebar(props: { compact: boolean }) {
     return (
         <View
@@ -559,7 +592,9 @@ function ReadingSidebar(props: { compact: boolean }) {
                 <View style={{ flex: 1, minWidth: 0 }}>
                     <Copy strong>阅读</Copy>
                     <Copy size={11} muted>
-                        工作区样例
+                        {notesSource() === "本机 Core"
+                            ? "本机 Core"
+                            : "工作区样例"}
                     </Copy>
                 </View>
                 <If when={props.compact}>
@@ -1191,7 +1226,9 @@ function NotesSidebar(props: { compact: boolean }) {
                 <View style={{ flex: 1, minWidth: 0 }}>
                     <Copy strong>想法</Copy>
                     <Copy size={11} muted>
-                        工作区样例
+                        {notesSource() === "本机 Core"
+                            ? "本机 Core"
+                            : "工作区样例"}
                     </Copy>
                 </View>
                 <If when={props.compact}>
@@ -1284,7 +1321,7 @@ function NotesSidebar(props: { compact: boolean }) {
             <Rule />
             <View style={{ padding: 13 }}>
                 <Copy size={11} muted lines={2}>
-                    引用与个人观点分开 · 窗口内样例
+                    引用与个人观点分开 · {notesSource()}
                 </Copy>
             </View>
         </View>

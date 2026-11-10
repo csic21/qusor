@@ -111,6 +111,60 @@ fn wire_error(error: ApiError) -> String {
     format!("{:?}: {}", error.code, error.message)
 }
 
+/// One in-process render capture of the app window. This is the same kind of
+/// evidence the NSH test harness takes: it needs no screen-recording grant and
+/// does not depend on which Space or window is frontmost.
+#[cfg(target_os = "macos")]
+fn capture_window(path: &Path) -> Result<(), String> {
+    use objc2::MainThreadMarker;
+    if MainThreadMarker::new().is_none() {
+        let path = path.to_path_buf();
+        let (sender, receiver) = std::sync::mpsc::channel();
+        dispatch2::DispatchQueue::main().exec_async(move || {
+            let _ = sender.send(capture_on_main(&path));
+        });
+        return receiver
+            .recv()
+            .map_err(|_| "main thread capture did not answer".to_string())?;
+    }
+    capture_on_main(path)
+}
+
+#[cfg(target_os = "macos")]
+fn capture_on_main(path: &Path) -> Result<(), String> {
+    use objc2::MainThreadMarker;
+    use objc2::runtime::AnyObject;
+    use objc2_app_kit::{NSApplication, NSBitmapImageFileType};
+    use objc2_foundation::{NSDictionary, NSString};
+    let marker = MainThreadMarker::new().ok_or("capture must run on the main thread")?;
+    let application = NSApplication::sharedApplication(marker);
+    let window = application
+        .keyWindow()
+        .or_else(|| application.windows().iter().next())
+        .ok_or("no app window is open")?;
+    let view = window.contentView().ok_or("no content view")?;
+    let bounds = view.bounds();
+    let bitmap = view
+        .bitmapImageRepForCachingDisplayInRect(bounds)
+        .ok_or("cannot allocate a window bitmap")?;
+    view.cacheDisplayInRect_toBitmapImageRep(bounds, &bitmap);
+    let properties: objc2::rc::Retained<NSDictionary<_, AnyObject>> = NSDictionary::new();
+    let data = unsafe {
+        bitmap.representationUsingType_properties(NSBitmapImageFileType::PNG, &properties)
+    }
+    .ok_or("cannot encode the window bitmap")?;
+    let target = NSString::from_str(path.to_str().ok_or("capture path must be UTF-8")?);
+    if !data.writeToFile_atomically(&target, true) {
+        return Err("cannot write the window capture".into());
+    }
+    Ok(())
+}
+
+#[cfg(not(target_os = "macos"))]
+fn capture_window(_path: &Path) -> Result<(), String> {
+    Err("window capture is only wired for macOS".into())
+}
+
 #[module]
 pub struct NotesHost;
 
@@ -148,6 +202,21 @@ impl NotesHost {
                 NotesResult::Error { error } => Err(wire_error(error)),
             }
         })
+    }
+
+    /// Evidence-only: report whether the host was started for capture.
+    pub fn evidence() -> String {
+        let active = std::env::var_os("QUSOR_WORKBENCH_EVIDENCE").is_some();
+        let dir = std::env::var("QUSOR_WORKBENCH_CAPTURE_DIR").unwrap_or_default();
+        json!({"ok": true, "value": {"active": active, "dir": dir}}).to_string()
+    }
+
+    /// Evidence-only: capture the current app window into a PNG.
+    pub fn capture(path: String) -> String {
+        match capture_window(Path::new(&path)) {
+            Ok(()) => json!({"ok": true, "value": {"path": path}}).to_string(),
+            Err(error) => json!({"ok": false, "error": error}).to_string(),
+        }
     }
 
     /// One bounded UTF-8 chunk of the saved quote or note.

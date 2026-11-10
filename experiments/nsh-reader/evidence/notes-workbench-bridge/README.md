@@ -16,6 +16,7 @@
 | 工作台 fixture 交互 | 6 项 headless 测试通过；真实 macOS 开发宿主重截四张图，列表新增“样例数据 / 本机 Core”数据来源标识 |
 | 包与安装 | 仍是上一轮的普通签名包与安装/停用/卸载证据；本轮未重复运行 |
 | 构建 | `prepare.py --size 1280x820` 构建宿主、播种 Core、生成 `notes.package` 并封装 app；工件接收见 [app-receipt.json](app-receipt.json) |
+| 实窗与重启恢复 | `prepare.py --evidence` 后在应用内捕获真实 NSWindow：列表/详情/截断/完整正文；同一 Core 重启后四张图逐字节相同，见[实窗记录](../notes-workspace-live/README.md) |
 
 复现：
 
@@ -26,8 +27,8 @@ cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offli
 
 ## 未覆盖
 
-- **真实窗口里的 live 数据截图未取得**：本机屏幕捕获权限/当前 Space 让外部截图返回黑图，`screencapture -l` 也不可用；`nsh test --target macos` 的测试宿主未注入原生模块绑定（`NotesHost is not defined`，已回退到样例）。因此“工作台窗口显示真实 Core 想法”仍只有 headless 模块证据，没有实窗图。
-- 工作台 Windows 数据映射（标题取想法首行、日期用提交号）还需产品确认；真实回源、精确高亮、编辑未接。
+- 实窗里的文本选取工具条、右键原生菜单与键盘路径由同一 UI 的 headless 测试覆盖，未逐项做 live 截图。
+- 工作台数据映射（标题取想法首行、日期用提交号）还需产品确认；真实回源、精确高亮、编辑未接。
 - 未验证窄窗 live、IME/辅助技术、其他平台与资源释放。
 
 机器记录见 [record.json](record.json)，测试日志见 [tests.log](tests.log)。

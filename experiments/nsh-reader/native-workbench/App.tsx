@@ -1,7 +1,9 @@
 import { mount, Scroll, setColorScheme, signal, Text, View } from "nsh";
+import { NotesHost } from "qusor/pdf-surface";
 import { Button, Command, Dialog, Menu, MenuItem, Tab, Tabs } from "nsh/base";
 import { titleBar } from "nsh/desktop";
 import {
+    captureNotesEvidence,
     entries,
     pluginWorkspaces,
     Diagram,
@@ -1281,3 +1283,19 @@ function App() {
 }
 setColorScheme("light");
 mount(App);
+
+void (async () => {
+    try {
+        const result = JSON.parse(await NotesHost.evidence());
+        if (!result.ok || !result.value?.active) return;
+        setTimeout(() => {
+            openPluginWorkspace("fixture.notes");
+            void (async () => {
+                await new Promise((resolve) => setTimeout(resolve, 700));
+                await captureNotesEvidence();
+            })();
+        }, 500);
+    } catch (_) {
+        // No native host (headless tests) or no evidence mode.
+    }
+})();

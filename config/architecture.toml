@@ -373,7 +373,7 @@ allowed_transitive_dependencies = [
 manifest = "experiments/nsh-reader/native-host/Cargo.toml"
 # Shared edit/projection brokers are reused only by this isolated native experiment.
 # This does not make an experiment crate a production Core or plugin dependency.
-allowed_dependencies = ["getrandom", "nsh-macos-host", "nsh-platform-macos", "nsh-windows-host", "nsh-platform-windows", "qusor-capture-probe", "runtime-process", "libc", "png", "nsh-linux-host", "nsh-core", "nsh-base", "nsh-platform-linux", "rust-exports-native", "qusor-pdf-provider-probe", "serde_json", "extension-api", "extension-host", "extension-package", "runtime-wasm", "core-api", "learning-application", "storage-sqlite", "extension-store", "wat"]
+allowed_dependencies = ["getrandom", "nsh-macos-host", "nsh-platform-macos", "nsh-windows-host", "nsh-platform-windows", "qusor-capture-probe", "runtime-process", "libc", "png", "nsh-linux-host", "nsh-core", "nsh-base", "nsh-platform-linux", "rust-exports-native", "qusor-pdf-provider-probe", "serde_json", "extension-api", "extension-host", "extension-package", "runtime-wasm", "core-api", "learning-application", "storage-sqlite", "extension-store", "wat", "dispatch2", "objc2", "objc2-app-kit", "objc2-foundation"]
 
 
 # ADR 0019: real knowledge application / atomic persistence boundary.

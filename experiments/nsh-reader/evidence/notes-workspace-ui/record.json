@@ -6,24 +6,24 @@
   "artifacts": {
     "bundle": {
       "path": "experiments/nsh-reader/target/native-workbench/bundle/bundle.nshc",
-      "sha256": "a60f701c7e98e0a9fe58539830618a7792642a18f7aca975aa238573524bda95"
+      "sha256": "de9e74d230c682e9daa81c3da93f76a09e492722ad01a63a9840fbb825129524"
     },
     "screenshots": {
       "list": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/list.png",
-        "sha256": "be8c2028fba864179bf782e8795b3e888d4a005a4a2eb5ce479b640171c587b0"
+        "sha256": "35be6a470faae19b0f75e8608c5f4bfeaee937936d010d3138681c28a4ffa10b"
       },
       "detail": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/detail.png",
-        "sha256": "36dbfcc0287d4af754767b62453815c4159a7a51b68a1cbfbb0ae00097a13545"
+        "sha256": "9992943bb97eed7c60237031230b4311022c59fca4ee54a2ad66b6bfab5a349d"
       },
       "truncated": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/truncated.png",
-        "sha256": "efc9e1d8ee18b57e56133dfa05bf7da1c117296bbdcf84045f7ebba209b775c4"
+        "sha256": "294a3225c58d8dc35a6668bca23f827bf7f8af24ed73d7849955a637244314b1"
       },
       "full_body": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/full-body.png",
-        "sha256": "e31e9ef78ca7afbed3217aa3e95df11a29c9a5957e356702e73b7c960296f9bc"
+        "sha256": "1f7a09b5c21993a161c4b8d5c90034a547282a24612137ebd9a0f36c43ddba00"
       }
     }
   },
@@ -51,8 +51,8 @@
   },
   "source_sha256": {
     "experiments/nsh-reader/native-workbench/ui.tsx": "05b707f5ae489039721d7346d974385fe3904e07d6784121989cece906e2cbbf",
-    "experiments/nsh-reader/native-workbench/contributions.tsx": "8856cb16d35d8524d578f79e40b6078d873bb8a3b9367b5238df98b3a1dcd551",
-    "experiments/nsh-reader/native-workbench/App.tsx": "c205ec398ce82312da226b5f3c7827766fdb2730ad8f3802b4a9f895471cec02",
+    "experiments/nsh-reader/native-workbench/contributions.tsx": "e920a28a2716c51372f48e2d0f95d855d602d9ef855db8c6a6c09d39b2c2084a",
+    "experiments/nsh-reader/native-workbench/App.tsx": "591df41b3eff3898a3e4ae928736fdb059a000cd03bcbc1b29152d62d65e9a70",
     "experiments/nsh-reader/native-workbench/tests/notes-workspace.test.tsx": "9d2d03a4ac23191d8d14c13a322c1c8b319f5c1bd883e2b6d7636dd79a22ec73",
     "experiments/nsh-reader/native-workbench/tests/notes-workspace-visual.test.tsx": "35bfd677c09b4742a02fd1b4ff87ed41c28bc51ec6b2cd427aa8b743e8996c3d",
     "docs/design/notes-workspace.md": "24dd79fbc2d7e8fa4e1ce37f4b6e69140f512a9c0f1d61ee54d7137b0e4950e2"

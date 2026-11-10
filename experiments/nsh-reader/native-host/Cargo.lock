@@ -3813,6 +3813,7 @@ name = "qusor-nsh-native-host-probe"
 version = "0.1.0"
 dependencies = [
  "core-api",
+ "dispatch2",
  "extension-api",
  "extension-host",
  "extension-package",
@@ -3828,6 +3829,9 @@ dependencies = [
  "nsh-platform-macos",
  "nsh-platform-windows",
  "nsh-windows-host",
+ "objc2",
+ "objc2-app-kit",
+ "objc2-foundation",
  "png 0.18.1",
  "qusor-capture-probe",
  "qusor-pdf-provider-probe",

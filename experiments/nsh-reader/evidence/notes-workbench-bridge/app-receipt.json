@@ -17,8 +17,8 @@
     1280,
     820
   ],
-  "bundle_tree_sha256": "90ca6796a59763980f943ac51ce33dfcad44b0f0d980bef1056e9acc75ae521d",
-  "host_sha256": "4048c2c17af5942072a33436c6eb525844cb1c9a57b59c442abf107f21002c5e",
+  "bundle_tree_sha256": "75e6f3dbe14659918a29b0cf9e2115a26950fa737ebaa156cef7d85ed11d9719",
+  "host_sha256": "4548d774183bffb7bbf03c6b4111848cdb666c6042674fc640da08ef17c80c6a",
   "notes_package_sha256": "fbe9e17b514a9d8b9f03a559ed6d112fb86c65e0a2d44dcfd54a66cb35fc9f96",
   "notes_publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
   "seed": {
@@ -32,5 +32,7 @@
     "vault": "workbench-vault"
   },
   "notes_core": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/core",
+  "evidence": true,
+  "captures": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/captures",
   "fixture": "Real Core notes in a sealed local data directory; ordinary signed notes package; no network."
 }

@@ -10,8 +10,9 @@
     "native_module_headless": "passed",
     "workbench_fixture_headless": "6 passed",
     "fixture_real_render": "passed",
-    "live_window_screenshot": "not_captured",
-    "live_ui_in_window": "not_verified"
+    "live_window_screenshot": "passed (in-process NSView render capture)",
+    "live_ui_in_window": "list/detail/truncated/full-body captured; selection/menu/keyboard via headless tests",
+    "restart_recovery": "passed; byte-identical live renders"
   },
   "package": {
     "sha256": "fbe9e17b514a9d8b9f03a559ed6d112fb86c65e0a2d44dcfd54a66cb35fc9f96",
@@ -49,35 +50,40 @@
   "artifacts": {
     "host": {
       "path": "experiments/nsh-reader/target/nsh/target/debug/qusor-nsh-workbench-host",
-      "sha256": "4048c2c17af5942072a33436c6eb525844cb1c9a57b59c442abf107f21002c5e"
+      "sha256": "4548d774183bffb7bbf03c6b4111848cdb666c6042674fc640da08ef17c80c6a"
     },
-    "bundle_tree_sha256": "90ca6796a59763980f943ac51ce33dfcad44b0f0d980bef1056e9acc75ae521d",
+    "bundle_tree_sha256": "75e6f3dbe14659918a29b0cf9e2115a26950fa737ebaa156cef7d85ed11d9719",
     "app_receipt": {
       "path": "experiments/nsh-reader/evidence/notes-workbench-bridge/app-receipt.json",
-      "sha256": "a157aeb8f4e924a574f60ec55be94afc945502a2ae5b358641f6665152e7bfa5"
+      "sha256": "571ffa7a2933a5f94e1e0ae79e0869e3a4a64861dea1fd70ea3230e99a20d6f3"
     },
     "fixture_screenshots": {
       "list": "be8c2028fba864179bf782e8795b3e888d4a005a4a2eb5ce479b640171c587b0",
       "detail": "36dbfcc0287d4af754767b62453815c4159a7a51b68a1cbfbb0ae00097a13545",
       "truncated": "efc9e1d8ee18b57e56133dfa05bf7da1c117296bbdcf84045f7ebba209b775c4",
       "full_body": "e31e9ef78ca7afbed3217aa3e95df11a29c9a5957e356702e73b7c960296f9bc"
+    },
+    "live_evidence": {
+      "path": "experiments/nsh-reader/evidence/notes-workspace-live/record.json",
+      "sha256": "38e61d91220179c7780f3ec73f179d6e3d5fa7b690d1b22b6a4d21fc05dff84c"
     }
   },
   "source_sha256": {
-    "experiments/nsh-reader/native-host/notes_native.rs": "0e4172d2875b98ceec2aeb7dede4027a4a91d72fb1f8d5189f75aeb41702a9d0",
+    "experiments/nsh-reader/native-host/notes_native.rs": "f99c44d2679329dddd0315b484f8df8e752b914ae3bb5006c49a771ca6675a4f",
     "experiments/nsh-reader/native-host/workbench_main.rs": "20a386ca308c2c7edb36e030a3d7841a8875c48b6e15a185b3bcfb8deb596a2e",
     "experiments/nsh-reader/native-host/pdf_module.rs": "10262ae683d7ccb92bf6ff5d474245dc1bc0d40a8781285a56005faeb3c698e9",
     "experiments/nsh-reader/native-host/tests/notes_native.rs": "614bf3b8e776b823675a8fbfd5790f56d546e34092a5ef38f36f07c8f45afb28",
-    "experiments/nsh-reader/native-workbench/contributions.tsx": "8856cb16d35d8524d578f79e40b6078d873bb8a3b9367b5238df98b3a1dcd551",
+    "experiments/nsh-reader/native-workbench/contributions.tsx": "e920a28a2716c51372f48e2d0f95d855d602d9ef855db8c6a6c09d39b2c2084a",
+    "experiments/nsh-reader/native-workbench/App.tsx": "591df41b3eff3898a3e4ae928736fdb059a000cd03bcbc1b29152d62d65e9a70",
     "experiments/nsh-reader/native-workbench/nsh.json": "d54227389faaaed0a313d43625ccbb87031f061e6b61bf0b1829e09c627e9ad3",
-    "experiments/nsh-reader/native-workbench/prepare.py": "1ce4961f02464c978e05087764e5ff624f74461f2d5892df1721b409b4dc5fa2",
+    "experiments/nsh-reader/native-workbench/prepare.py": "4752ffe111f02af2922d70ad0cd7703c68ec96f66a11d53277fdb310fa994e49",
     "experiments/capture-core/src/bin/seed_workbench_notes.rs": "721308137ac545cc038b6e780624923ee0b129fa0738b5474af8db46d96f281d",
-    "config/architecture.toml": "20410531b294c63c5188b17fbfe4e8bbb1eb19e6a5dde638b6062ab2f9463597"
+    "config/architecture.toml": "b885c681f7c83e4578249a1037279df1147d19d6a0b9fd37f8a893fa898baa06"
   },
   "not_verified": [
-    "real window screenshot of live Core notes in the workbench",
-    "live UI mapping (title/date/citation) in a real window",
+    "live-window text selection toolbar, native context menu and keyboard path per state",
     "real source return and precise highlight",
+    "editing/deleting/organizing notes",
     "narrow live layout, IME, assistive technology, other platforms and resource release"
   ]
 }
