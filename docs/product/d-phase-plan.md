@@ -19,6 +19,7 @@
 
 | 增量 | 实际结果 | 未覆盖 |
 |---|---|---|
+| 想法工作区 UI v1 | 原生工作台按[交互规格](../design/notes-workspace.md)实现列表/详情/范围/搜索/选取/右键原生菜单/复制/完整正文状态/窄窗；6 项 headless 交互测试、类型检查与 bundle 构建通过，实窗四张截图见[UI v1 记录](../../experiments/nsh-reader/evidence/notes-workspace-ui/README.md) | 仍是窗口内 fixture；正式包、公开 `notes.read` 能力、真实 Core 与编辑/删除未接 |
 | 分页游标与正文分块 | 列表改为 keyset 分页（单页最多 200 条，游标绑定 vault/document 精确范围，分页期间新增想法不重排/不跳项）；正文按 Quote/Note 分块读取（4–16 KiB，UTF-8 边界安全，1 MiB 笔记可逐块还原）；应用层与真实 SQLite 重开通过，见 [ADR 0034](../architecture/adr/0034-note-read-model.md) | 公开 SDK wire、插件授权、分页 UI、精确高亮；每次查询仍读整库快照 |
 | 有界想法读取模型 | `learning-application` 可按 vault/document 倒序查询 PDF 想法；引文和想法各返回最多 512 UTF-8 bytes 预览，完整内容保持不可变 | 公开 SDK 能力、撤权/版本错误分类 |
 | SQLite 重开 | 真实 SQLite 保存长中文想法后关闭重开，列表恢复 capture、标题、页码与预览，完整 note 未截断 | 多平台耐久、超大资料库性能 |
@@ -67,7 +68,7 @@ Core 读取证据见 [想法列表实窗记录](../../experiments/nsh-reader/evi
 
 ## 紧接的下一片
 
-1. 将 `native-workbench` 的想法 fixture 与动态探针的真实 Core 查询合并到公开 contribution/查询契约，再由普通 notes 包消费；分页/正文读取在此一并进入公开 wire 与 Host 预算。
+1. 将 `native-workbench` 的想法 fixture 换成真实 Core 查询：先落公开 `notes.read` 能力与 Host 预算（协议 0.4），再由普通 notes 包消费；UI v1 已按规格就绪，只差数据与包身份。
 2. 在真实窗口完成“当前资料新保存一条想法→关闭辅助区→列表刷新→打开所在页”，再补精确高亮与缺失来源状态。
 3. 之后才创建正式 library/reader/notes 包 manifest 与构建入口；不提前用未验证 TS 草案冒充 SDK。
 

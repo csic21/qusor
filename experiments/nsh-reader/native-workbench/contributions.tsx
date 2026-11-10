@@ -1,5 +1,6 @@
-import { Canvas, Path2D, Scroll, signal, Text, View, type JSX } from "nsh";
-import { Button, Input } from "nsh/base";
+import { Canvas, Clipboard, keymap, Path2D, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
+import { Button, Input, Menu, MenuItem, MenuSeparator, TextView } from "nsh/base";
+import { Menu as DesktopMenu, type MenuItem as DesktopMenuItem } from "nsh/desktop";
 import { Badge, Copy, focus, Glyph, ink, Rule, Tool } from "./ui";
 
 // Contribution fixtures, not an installed SDK or a security boundary.
@@ -375,7 +376,12 @@ const readingQuery = signal(""),
 const notesQuery = signal(""),
     notesScope = signal("全部想法"),
     notesSelected = signal(""),
-    notesNavigation = signal(false);
+    notesNavigation = signal(false),
+    notesSelection = signal(""),
+    notesCopyStatus = signal(""),
+    notesBody = signal<Record<string, string>>({}),
+    notesBodyLoading = signal("");
+let notesSearchRef: InputRef | null = null;
 const readingBooks = [
     {
         title: "准原生应用的秩序",
@@ -410,9 +416,11 @@ const notes = [
         page: 3,
         quote: "插件拥有自己的工作方式，用户始终拥有回到上层工作区的路径。",
         note: "宿主返回和插件内部返回要写成两个不同的目的地。进入插件后，身份与来源不能一起消失。",
+        full: "宿主返回和插件内部返回要写成两个不同的目的地。进入插件后，身份与来源不能一起消失。",
         date: "今天 10:42",
         scope: "当前资料",
         starred: true,
+        missingOriginal: false,
     },
     {
         id: "quiet-tools",
@@ -421,9 +429,11 @@ const notes = [
         page: 8,
         quote: "阅读是一种进入内容的方式。写作、讨论和绘图也一样。",
         note: "阅读时不让表单常驻。只有选文后，才把保存和想法动作放到正文附近。",
+        full: "阅读时不让表单常驻。只有选文后，才把保存和想法动作放到正文附近。工具应该像书架一样，需要时出现，不需要时退到一旁；但退到一旁不等于消失，用户仍要能从工作区身份和返回路径知道自己在哪。列表用于浏览，详情用于阅读与复制，两者不要同时抢注意力。复制出来的引用必须带上资料标题与页码，否则离开应用之后就无法再核对来源。",
         date: "昨天 21:16",
         scope: "当前资料",
         starred: false,
+        missingOriginal: false,
     },
     {
         id: "plugin-boundary",
@@ -432,9 +442,24 @@ const notes = [
         page: 5,
         quote: "共同的是工作区，变化的是看待内容的方式。",
         note: "停用插件后，摘录、笔记和来源仍要留在 Core。插件可以被替换，知识身份不能跟着换。",
+        full: "停用插件后，摘录、笔记和来源仍要留在 Core。插件可以被替换，知识身份不能跟着换。",
         date: "11 月 7 日",
         scope: "其他资料",
         starred: false,
+        missingOriginal: false,
+    },
+    {
+        id: "missing-source",
+        title: "原件缺失时的诚实反馈",
+        document: "已移走的资料",
+        page: 2,
+        quote: "来源不可用时就明说，不要把相似文本当成同一条引用。",
+        note: "缺少原件、版本不符或权限撤销都应该有可观察的状态。",
+        full: "缺少原件、版本不符或权限撤销都应该有可观察的状态。界面不能把“找不到”伪装成“已定位”。",
+        date: "11 月 6 日",
+        scope: "其他资料",
+        starred: false,
+        missingOriginal: true,
     },
 ];
 function ReadingSidebar(props: { compact: boolean }) {
@@ -907,24 +932,123 @@ function ReadingWorkspace(props: { compact: boolean }) {
     );
 }
 
+function noteInScope(note: (typeof notes)[number], scope: string) {
+    return scope === "全部想法" || note.scope === "当前资料";
+}
+
+function noteCount(scope: string) {
+    return notes.filter((note) => noteInScope(note, scope)).length;
+}
+
 function visibleNotes() {
     return notes.filter((note) => {
         const query = notesQuery().trim().toLowerCase();
-        const scope =
-            notesScope() === "全部想法" ||
-            (notesScope() === "当前资料" && note.scope === "当前资料") ||
-            (notesScope() === "已收藏" && note.starred);
         const matches =
             !query ||
-            `${note.title} ${note.document} ${note.quote} ${note.note}`
+            `${note.title} ${note.document} ${note.quote} ${note.full}`
                 .toLowerCase()
                 .includes(query);
-        return scope && matches;
+        return noteInScope(note, notesScope()) && matches;
     });
 }
 
 function selectedNote() {
     return notes.find((note) => note.id === notesSelected());
+}
+
+function noteTruncated(note: (typeof notes)[number]) {
+    return note.full !== note.note;
+}
+
+function noteBodyText(note: (typeof notes)[number]) {
+    return notesBody()[note.id] ?? note.note;
+}
+
+function noteCitation(note: (typeof notes)[number]) {
+    return `> ${note.quote}\n\n— 《${note.document}》第 ${note.page} 页`;
+}
+
+function noteMenuItems(note: (typeof notes)[number]): DesktopMenuItem[] {
+    return [
+        {
+            label: "打开所在页",
+            disabled: note.missingOriginal,
+            onSelect: () => openNoteSource(note),
+        },
+        { label: "复制引文", onSelect: () => noteCopy(note.quote, "引文") },
+        {
+            label: "复制想法",
+            onSelect: () => noteCopy(noteBodyText(note), "想法"),
+        },
+        {
+            label: "复制引用",
+            onSelect: () => noteCopy(noteCitation(note), "引用"),
+        },
+        { type: "separator" },
+        {
+            label: noteTruncated(note) ? "读取完整内容" : "内容已完整",
+            disabled: !noteTruncated(note),
+            onSelect: () => loadNoteBody(note),
+        },
+        { label: "编辑想法（下一增量）", disabled: true },
+        { label: "删除想法（需要历史与撤销）", disabled: true },
+    ];
+}
+
+function noteCopy(text: string, label: string) {
+    void Clipboard.writeText(text)
+        .then(() => notesCopyStatus.set(`已复制${label}。`))
+        .catch(() =>
+            notesCopyStatus.set("复制未完成，可选中文本手动复制。"),
+        );
+}
+
+function openNoteSource(note: (typeof notes)[number]) {
+    if (note.missingOriginal) {
+        notesCopyStatus.set("原件缺失，无法定位到这一页。");
+        return;
+    }
+    if (note.scope !== "当前资料") {
+        notesCopyStatus.set(`先打开《${note.document}》后可定位到这一页。`);
+        return;
+    }
+    notesCopyStatus.set(
+        `已请求打开《${note.document}》第 ${note.page} 页；真实回源由阅读插件承接。`,
+    );
+}
+
+function loadNoteBody(note: (typeof notes)[number]) {
+    if (notesBody()[note.id] || notesBodyLoading()) return;
+    notesBodyLoading.set(note.id);
+    setTimeout(() => {
+        notesBody.set({ ...notesBody(), [note.id]: note.full });
+        notesBodyLoading.set("");
+    }, 450);
+}
+
+function selectNote(note: (typeof notes)[number]) {
+    notesSelected.set(note.id);
+    notesSelection.set("");
+    notesCopyStatus.set("");
+    notesNavigation.set(false);
+}
+
+function moveNoteSelection(delta: number) {
+    const list = visibleNotes();
+    if (list.length === 0) return;
+    const current = list.findIndex((note) => note.id === notesSelected());
+    const base = current < 0 ? (delta > 0 ? -1 : 0) : current;
+    const next = Math.max(0, Math.min(list.length - 1, base + delta));
+    selectNote(list[next]);
+}
+
+function copyCurrentNote() {
+    if (notesSelection()) {
+        noteCopy(notesSelection(), "选中内容");
+        return;
+    }
+    const note = selectedNote();
+    if (note) noteCopy(noteBodyText(note), "想法");
 }
 
 function NotesSidebar(props: { compact: boolean }) {
@@ -968,13 +1092,15 @@ function NotesSidebar(props: { compact: boolean }) {
             <Scroll style={{ flex: 1 }}>
                 <View style={{ padding: 10, gap: 15 }}>
                     <View style={{ gap: 3 }}>
-                        <Each of={["全部想法", "当前资料", "已收藏"]}>
+                        <Each of={["全部想法", "当前资料"]}>
                             {(scope) => (
                                 <Button
                                     accessibilityLabel={`显示${scope()}想法`}
                                     onPress={() => {
                                         notesScope.set(scope());
                                         notesSelected.set("");
+                                        notesSelection.set("");
+                                        notesCopyStatus.set("");
                                         notesNavigation.set(false);
                                     }}
                                     style={{
@@ -997,11 +1123,9 @@ function NotesSidebar(props: { compact: boolean }) {
                                 >
                                     <Glyph
                                         name={
-                                            scope() === "已收藏"
-                                                ? "book"
-                                                : scope() === "当前资料"
-                                                  ? "document"
-                                                  : "grid"
+                                            scope() === "当前资料"
+                                                ? "document"
+                                                : "grid"
                                         }
                                         size={16}
                                         color={ink(
@@ -1013,17 +1137,7 @@ function NotesSidebar(props: { compact: boolean }) {
                                     <Copy>{scope()}</Copy>
                                     <View style={{ flex: 1 }} />
                                     <Copy size={11} muted>
-                                        {
-                                            notes.filter(
-                                                (note) =>
-                                                    scope() === "全部想法" ||
-                                                    (scope() === "当前资料" &&
-                                                        note.scope ===
-                                                            "当前资料") ||
-                                                    (scope() === "已收藏" &&
-                                                        note.starred),
-                                            ).length
-                                        }
+                                        {noteCount(scope())}
                                     </Copy>
                                 </Button>
                             )}
@@ -1063,6 +1177,7 @@ function NotesSidebar(props: { compact: boolean }) {
 }
 
 function NotesList(props: { compact: boolean }) {
+    const list = () => visibleNotes();
     return (
         <View style={{ flex: 1, minWidth: 0 }}>
             <View
@@ -1086,16 +1201,19 @@ function NotesList(props: { compact: boolean }) {
                 <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
                     <Copy strong>{notesScope()}</Copy>
                     <Copy size={11} muted>
-                        {visibleNotes().length} 条想法
+                        {list().length} 条想法
                     </Copy>
                 </View>
                 <If when={!props.compact}>
-                    <View style={{ width: 220 }}>
+                    <View style={{ width: 240 }}>
                         <Input
-                            accessibilityLabel="搜索想法"
+                            ref={(node) => {
+                                notesSearchRef = node;
+                            }}
+                            accessibilityLabel="搜索想法、引文或资料"
                             value={notesQuery()}
                             onChange={({ value }) => notesQuery.set(value)}
-                            placeholder="搜索想法"
+                            placeholder="搜索想法、引文或资料"
                             style={{
                                 height: 31,
                                 paddingHorizontal: 10,
@@ -1113,90 +1231,163 @@ function NotesList(props: { compact: boolean }) {
             </View>
             <Rule />
             <Scroll style={{ flex: 1 }}>
-                <View style={{ padding: 22, gap: 12 }}>
-                    <Each of={visibleNotes()}>
-                        {(note) => (
-                            <Button
-                                accessibilityLabel={`打开想法：${note().title}`}
-                                onPress={() => {
-                                    notesSelected.set(note().id);
-                                    notesNavigation.set(false);
-                                }}
-                                style={{
-                                    padding: 16,
-                                    gap: 11,
-                                    borderWidth: 1,
-                                    borderColor: ink("border-subtle"),
-                                    borderRadius: 9,
-                                    borderCurve: "continuous",
-                                    backgroundColor: ink("surface-preview"),
-                                    alignItems: "stretch",
-                                }}
-                                hoverStyle={{
-                                    borderColor: ink("border-control"),
-                                    backgroundColor: ink("surface-hover"),
-                                }}
-                                focusStyle={focus()}
-                            >
-                                <View
-                                    style={{
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        gap: 9,
-                                    }}
-                                >
-                                    <Badge icon="pen" size={30} />
-                                    <View
-                                        style={{ flex: 1, minWidth: 0, gap: 2 }}
-                                    >
-                                        <Copy strong>{note().title}</Copy>
-                                        <Copy size={11} muted>
-                                            {note().document} · 第{" "}
-                                            {note().page} 页
-                                        </Copy>
-                                    </View>
-                                    <Glyph name="arrow" size={14} />
-                                </View>
-                                <View
-                                    style={{
-                                        borderLeftWidth: 3,
-                                        borderColor: ink("text-accent"),
-                                        paddingLeft: 12,
-                                        paddingVertical: 2,
-                                    }}
-                                >
-                                    <Copy lines={2}>{note().quote}</Copy>
-                                </View>
-                                <Copy size={12} muted lines={2}>
-                                    {note().note}
-                                </Copy>
-                                <View
-                                    style={{
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                    }}
-                                >
-                                    <Copy size={11} muted>
-                                        {note().date}
-                                    </Copy>
-                                    <View style={{ flex: 1 }} />
-                                    <If when={note().starred}>
-                                        <Glyph
-                                            name="book"
-                                            size={13}
-                                            color={ink("text-accent")}
-                                        />
-                                    </If>
-                                </View>
-                            </Button>
-                        )}
+                <View style={{ padding: 18, gap: 10 }}>
+                    <Each of={list()} key={(note) => note.id}>
+                        {(note) => {
+                            const selected = () => notesSelected() === note().id;
+                            return (
+
+                                        <View
+                                            accessibilityLabel={`《${note().document}》第 ${note().page} 页：${note().title}`}
+                                            onContextMenu={(event) => {
+                                                selectNote(note());
+                                                void DesktopMenu.popup(
+                                                    noteMenuItems(note()),
+                                                    event.pagePosition,
+                                                );
+                                            }}
+                                            onPress={(event) => {
+                                                if (event.clickCount === 2) {
+                                                    openNoteSource(note());
+                                                } else {
+                                                    selectNote(note());
+                                                }
+                                            }}
+                                            style={{
+                                                padding: 15,
+                                                gap: 10,
+                                                borderWidth: 1,
+                                                borderColor: ink(
+                                                    selected()
+                                                        ? "text-accent"
+                                                        : "border-subtle",
+                                                ),
+                                                borderLeftWidth: selected() ? 3 : 1,
+                                                borderRadius: 9,
+                                                borderCurve: "continuous",
+                                                backgroundColor: ink(
+                                                    selected()
+                                                        ? "surface-selected"
+                                                        : "surface-preview",
+                                                ),
+                                                alignItems: "stretch",
+                                            }}
+                                            hoverStyle={{
+                                                borderColor: ink("border-control"),
+                                                backgroundColor: ink("surface-hover"),
+                                            }}
+                                            focusStyle={focus()}
+                                        >
+                                            <View
+                                                style={{
+                                                    flexDirection: "row",
+                                                    alignItems: "center",
+                                                    gap: 9,
+                                                }}
+                                            >
+                                                <Badge icon="pen" size={28} />
+                                                <View
+                                                    style={{
+                                                        flex: 1,
+                                                        minWidth: 0,
+                                                        gap: 2,
+                                                    }}
+                                                >
+                                                    <Copy strong>
+                                                        {note().title}
+                                                    </Copy>
+                                                    <Copy size={11} muted>
+                                                        {note().document} · 第{" "}
+                                                        {note().page} 页
+                                                    </Copy>
+                                                </View>
+                                                <If
+                                                    when={noteTruncated(note())}
+                                                >
+                                                    <Copy size={10} muted>
+                                                        完整内容
+                                                    </Copy>
+                                                </If>
+                                                <If
+                                                    when={
+                                                        note().missingOriginal
+                                                    }
+                                                >
+                                                    <Copy size={10} muted>
+                                                        原件缺失
+                                                    </Copy>
+                                                </If>
+                                            </View>
+                                            <View
+                                                style={{
+                                                    borderLeftWidth: 3,
+                                                    borderColor: ink(
+                                                        "text-accent",
+                                                    ),
+                                                    paddingLeft: 12,
+                                                    paddingVertical: 2,
+                                                }}
+                                            >
+                                                <Copy lines={2}>
+                                                    {note().quote}
+                                                </Copy>
+                                            </View>
+                                            <Copy size={12} muted lines={2}>
+                                                {note().note}
+                                            </Copy>
+                                            <View
+                                                style={{
+                                                    flexDirection: "row",
+                                                    alignItems: "center",
+                                                }}
+                                            >
+                                                <Copy size={11} muted>
+                                                    {note().date}
+                                                </Copy>
+                                                <View style={{ flex: 1 }} />
+                                                <If when={note().starred}>
+                                                    <Glyph
+                                                        name="book"
+                                                        size={13}
+                                                        color={ink(
+                                                            "text-accent",
+                                                        )}
+                                                    />
+                                                </If>
+                                            </View>
+                                        </View>                            );
+                        }}
                     </Each>
-                    <If when={visibleNotes().length === 0}>
+                    <If when={list().length === 0}>
                         <View style={{ padding: 28, gap: 8 }}>
-                            <Copy strong>没有匹配的想法</Copy>
-                            <Copy size={12} muted>
-                                清除搜索或切换分类后再试。
+                            <Copy strong>
+                                {notesQuery().trim()
+                                    ? "没有匹配的想法"
+                                    : notesScope() === "当前资料"
+                                      ? "当前资料还没有想法"
+                                      : "还没有保存的想法"}
                             </Copy>
+                            <Copy size={12} muted>
+                                {notesQuery().trim()
+                                    ? "清除搜索或切换分类后再试。"
+                                    : "在正文中选文并写下想法，保存后会出现在这里。"}
+                            </Copy>
+                            <If when={!!notesQuery().trim()}>
+                                <Button
+                                    accessibilityLabel="清除搜索"
+                                    onPress={() => notesQuery.set("")}
+                                    style={{
+                                        alignSelf: "flex-start",
+                                        height: 30,
+                                        paddingHorizontal: 10,
+                                        borderRadius: 6,
+                                        backgroundColor: ink("surface-inset"),
+                                    }}
+                                    focusStyle={focus()}
+                                >
+                                    <Copy>清除搜索</Copy>
+                                </Button>
+                            </If>
                         </View>
                     </If>
                 </View>
@@ -1206,6 +1397,9 @@ function NotesList(props: { compact: boolean }) {
 }
 
 function NoteDetail() {
+    const note = () => selectedNote();
+    const canOpen = () =>
+        !!note() && !note()!.missingOriginal && note()!.scope === "当前资料";
     return (
         <View style={{ flex: 1, minWidth: 0 }}>
             <View
@@ -1221,44 +1415,160 @@ function NoteDetail() {
                     label="返回想法列表"
                     icon="back"
                     text="想法列表"
-                    onPress={() => notesSelected.set("")}
+                    onPress={() => {
+                        notesSelected.set("");
+                        notesSelection.set("");
+                        notesCopyStatus.set("");
+                    }}
                 />
                 <View style={{ flex: 1, minWidth: 0 }}>
-                    <Copy strong>{selectedNote()?.document}</Copy>
+                    <Copy strong>{note()?.document}</Copy>
                     <Copy size={11} muted>
-                        第 {selectedNote()?.page} 页 · 引用与个人观点分开
+                        第 {note()?.page} 页 · 引用与个人观点分开
                     </Copy>
                 </View>
                 <Tool
-                    label="收藏想法（样例未接入）"
+                    label={
+                        canOpen()
+                            ? "打开所在页"
+                            : note()?.missingOriginal
+                              ? "原件缺失，无法定位"
+                              : "先打开来源资料后可定位"
+                    }
+                    text="打开所在页"
                     icon="book"
-                    selected={!!selectedNote()?.starred}
-                    disabled
+                    disabled={!canOpen()}
+                    onPress={() => {
+                        if (note()) openNoteSource(note()!);
+                    }}
                 />
-                <Tool
-                    label="更多想法操作（样例未接入）"
-                    icon="more"
-                    disabled
-                />
+                <Menu
+                    trigger={
+                        <Tool
+                            label="更多想法操作"
+                            icon="more"
+                            text="更多"
+                        />
+                    }
+                    popupStyle={{
+                        padding: 5,
+                        minWidth: 200,
+                        borderRadius: 10,
+                        backgroundColor: ink("surface-floating"),
+                        borderWidth: 1,
+                        borderColor: ink("border-subtle"),
+                        boxShadow: "0 8px 28px rgba(0,0,0,0.16)",
+                    }}
+                >
+                    <MenuItem
+                        onSelect={() => note() && noteCopy(note()!.quote, "引文")}
+                    >
+                        <Copy>复制引文</Copy>
+                    </MenuItem>
+                    <MenuItem
+                        onSelect={() =>
+                            note() && noteCopy(noteBodyText(note()!), "想法")
+                        }
+                    >
+                        <Copy>复制想法</Copy>
+                    </MenuItem>
+                    <MenuItem
+                        onSelect={() =>
+                            note() && noteCopy(noteCitation(note()!), "引用")
+                        }
+                    >
+                        <Copy>复制引用</Copy>
+                    </MenuItem>
+                    <MenuSeparator />
+                    <MenuItem
+                        disabled={!note() || !noteTruncated(note()!)}
+                        onSelect={() => note() && loadNoteBody(note()!)}
+                    >
+                        <Copy>读取完整内容</Copy>
+                    </MenuItem>
+                </Menu>
             </View>
             <Rule />
+            <If when={!!notesSelection()}>
+                <View
+                    style={{
+                        paddingHorizontal: 18,
+                        paddingVertical: 8,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 8,
+                        backgroundColor: ink("surface-toolbar"),
+                        borderBottomWidth: 1,
+                        borderColor: ink("border-subtle"),
+                    }}
+                >
+                    <Copy size={11} muted>
+                        已选取 {notesSelection().length} 个字符
+                    </Copy>
+                    <View style={{ flex: 1 }} />
+                    <Button
+                        accessibilityLabel="复制选中文本"
+                        onPress={() => noteCopy(notesSelection(), "选中内容")}
+                        style={{
+                            height: 28,
+                            paddingHorizontal: 10,
+                            borderRadius: 6,
+                            backgroundColor: ink("surface-inset"),
+                        }}
+                        focusStyle={focus()}
+                    >
+                        <Copy>复制选中</Copy>
+                    </Button>
+                    <Button
+                        accessibilityLabel="把选中文本复制为引用"
+                        onPress={() =>
+                            note() &&
+                            noteCopy(
+                                `> ${notesSelection()}\n\n— 《${note()!.document}》第 ${note()!.page} 页`,
+                                "引用",
+                            )
+                        }
+                        style={{
+                            height: 28,
+                            paddingHorizontal: 10,
+                            borderRadius: 6,
+                            backgroundColor: ink("surface-inset"),
+                        }}
+                        focusStyle={focus()}
+                    >
+                        <Copy>复制为引用</Copy>
+                    </Button>
+                    <Button
+                        accessibilityLabel="取消文本选取"
+                        onPress={() => notesSelection.set("")}
+                        style={{
+                            height: 28,
+                            paddingHorizontal: 10,
+                            borderRadius: 6,
+                        }}
+                        focusStyle={focus()}
+                    >
+                        <Copy>取消选择</Copy>
+                    </Button>
+                </View>
+            </If>
             <Scroll style={{ flex: 1 }}>
                 <View
                     style={{
                         width: "100%",
-                        maxWidth: 710,
+                        maxWidth: 720,
                         alignSelf: "center",
                         paddingHorizontal: 34,
-                        paddingTop: 38,
+                        paddingTop: 34,
                         paddingBottom: 70,
-                        gap: 22,
+                        gap: 18,
                     }}
                 >
                     <Copy size={12} muted>
-                        {selectedNote()?.date}
+                        {note()?.date}
                     </Copy>
                     <Copy size={27} strong>
-                        {selectedNote()?.title}
+                        {note()?.title}
                     </Copy>
                     <View
                         style={{
@@ -1268,17 +1578,71 @@ function NoteDetail() {
                             paddingVertical: 4,
                         }}
                     >
-                        <Copy size={17} lines={4}>
-                            {selectedNote()?.quote}
-                        </Copy>
+                        <TextView
+                            markdown={note()?.quote}
+                            selectable
+                            onSelectionChange={({ text }) =>
+                                notesSelection.set(text)
+                            }
+                        />
                     </View>
                     <Rule />
                     <Copy size={11} strong muted>
                         我的想法
                     </Copy>
-                    <Copy size={16} lines={6}>
-                        {selectedNote()?.note}
-                    </Copy>
+                    <TextView
+                        markdown={noteBodyText(note()!)}
+                        selectable
+                        onSelectionChange={({ text }) =>
+                            notesSelection.set(text)
+                        }
+                    />
+                    <If
+                        when={
+                            !!note() &&
+                            noteTruncated(note()!) &&
+                            !notesBody()[note()!.id]
+                        }
+                    >
+                        <View
+                            style={{
+                                padding: 12,
+                                gap: 8,
+                                borderWidth: 1,
+                                borderColor: ink("border-subtle"),
+                                borderRadius: 8,
+                                backgroundColor: ink("surface-inset"),
+                            }}
+                        >
+                            <Copy size={11} muted>
+                                列表只显示开头，完整内容仍保存在本机。
+                            </Copy>
+                            <Button
+                                accessibilityLabel="读取完整想法内容"
+                                disabled={notesBodyLoading() === note()!.id}
+                                onPress={() => loadNoteBody(note()!)}
+                                style={{
+                                    alignSelf: "flex-start",
+                                    height: 30,
+                                    paddingHorizontal: 11,
+                                    borderRadius: 6,
+                                    backgroundColor: ink("surface-selected"),
+                                }}
+                                focusStyle={focus()}
+                            >
+                                <Copy>
+                                    {notesBodyLoading() === note()!.id
+                                        ? "正在读取…"
+                                        : "读取完整内容"}
+                                </Copy>
+                            </Button>
+                        </View>
+                    </If>
+                    <If when={!!notesCopyStatus()}>
+                        <Copy size={11} muted>
+                            {notesCopyStatus()}
+                        </Copy>
+                    </If>
                     <View
                         style={{
                             marginTop: 8,
@@ -1290,16 +1654,35 @@ function NoteDetail() {
                             gap: 10,
                         }}
                     >
-                        <Tool
-                            label="回到原文（样例未接入）"
-                            text="回到原文"
-                            icon="book"
-                            raised
-                            disabled
-                        />
-                        <Copy size={11} muted>
-                            真实回源仍由 Core 和阅读插件承接
-                        </Copy>
+                        <If when={note()?.missingOriginal}>
+                            <Copy size={11} muted>
+                                原件缺失，无法定位到这一页；引文与想法仍可复制。
+                            </Copy>
+                        </If>
+                        <If
+                            when={
+                                !note()?.missingOriginal &&
+                                note()?.scope !== "当前资料"
+                            }
+                        >
+                            <Copy size={11} muted>
+                                先打开《{note()?.document}》后可定位到这一页。
+                            </Copy>
+                        </If>
+                        <If when={canOpen()}>
+                            <Tool
+                                label="打开所在页"
+                                text="打开所在页"
+                                icon="book"
+                                raised
+                                onPress={() => {
+                                    if (note()) openNoteSource(note()!);
+                                }}
+                            />
+                            <Copy size={11} muted>
+                                真实回源由 Core 与阅读插件承接。
+                            </Copy>
+                        </If>
                     </View>
                 </View>
             </Scroll>
@@ -1308,6 +1691,43 @@ function NoteDetail() {
 }
 
 function NotesWorkspace(props: { compact: boolean }) {
+    keymap.bind({
+        up: () => moveNoteSelection(-1),
+        down: () => moveNoteSelection(1),
+        home: () => {
+            const list = visibleNotes();
+            if (list.length > 0) selectNote(list[0]);
+        },
+        end: () => {
+            const list = visibleNotes();
+            if (list.length > 0) selectNote(list[list.length - 1]);
+        },
+        enter: () => {
+            const note = selectedNote();
+            if (note) openNoteSource(note);
+        },
+        "mod+c": () => copyCurrentNote(),
+        "mod+shift+c": () => {
+            const note = selectedNote();
+            if (note) noteCopy(noteCitation(note), "引用");
+        },
+        "mod+f": () => notesSearchRef?.focus(),
+        "shift+f10": () => {
+            const note = selectedNote();
+            if (note) {
+                selectNote(note);
+                void DesktopMenu.popup(noteMenuItems(note));
+            }
+        },
+        escape: () => {
+            if (notesSelection()) {
+                notesSelection.set("");
+                return;
+            }
+            notesCopyStatus.set("");
+            if (notesSelected()) notesSelected.set("");
+        },
+    });
     return (
         <View
             accessibilityLabel="想法插件工作区"

@@ -26,6 +26,18 @@
 
 实窗范围和限制见 [工作区组合记录](../evidence/native-workspace-composition/README.md)。
 
+## 想法工作区 UI v1（2026-11-10）
+
+想法工作区按[正式交互规格](../../../docs/design/notes-workspace.md)实现到可评审状态：范围导航（全部/当前资料）、搜索、列表与详情、文本选取工具条、右键原生菜单（`Menu.popup`，先选中行）、复制引文/想法/引用、缺原件与其他资料状态、完整正文读取状态、窄窗列表/详情切换与键盘操作。数据仍是窗口内 fixture；不是安装包，也不连 Core。
+
+验证：`nsh check App.tsx` 类型检查、`prepare.py --build-only` 构建、`nsh test tests/notes-workspace.test.tsx` 6/6 通过；实窗截图与机器记录见 [UI v1 记录](../evidence/notes-workspace-ui/README.md)。
+
+```sh
+python3 experiments/nsh-reader/native-workbench/prepare.py --size 1280x820 --build-only
+cd experiments/nsh-reader/native-workbench
+../target/nsh/target/debug/nsh test tests/notes-workspace.test.tsx
+```
+
 ## 复现
 
 沿用 `../target/nsh` 的固定 CLI 和 native-host，不引入依赖，不升级 NSH：

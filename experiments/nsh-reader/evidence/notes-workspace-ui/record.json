@@ -1,0 +1,68 @@
+{
+  "date_local": "2026-11-10",
+  "status": "native-ui-slice-implemented-and-headless-tested",
+  "scope": "Notes workspace UI v1 in the native workbench: list, filters, search, detail, text selection, native context menus, copy actions, source states, full-body read state and narrow layout. Fixture data only; not an installed plugin and not connected to Core.",
+  "nsh_commit": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "artifacts": {
+    "bundle": {
+      "path": "experiments/nsh-reader/target/native-workbench/bundle/bundle.nshc",
+      "sha256": "c5de99ab3aecc1ca9785623b35d598cbae49f8da63554d5ff51f5165c8c0fab3"
+    },
+    "screenshots": {
+      "list": {
+        "path": "experiments/nsh-reader/evidence/notes-workspace-ui/list.png",
+        "sha256": "f9706fdedd9fc774443106a969f0be3ab9690e4c88a872a0f975a6e6f3b98ced"
+      },
+      "detail": {
+        "path": "experiments/nsh-reader/evidence/notes-workspace-ui/detail.png",
+        "sha256": "fdb2109c75b3501cb2d08830d3606eed0ba7567cfab014d7f1350571a03d1455"
+      },
+      "truncated": {
+        "path": "experiments/nsh-reader/evidence/notes-workspace-ui/truncated.png",
+        "sha256": "6bbfed01e7162b0e79e276675c4c280916def0cac85570ad3808e2bd5c75590d"
+      },
+      "full_body": {
+        "path": "experiments/nsh-reader/evidence/notes-workspace-ui/full-body.png",
+        "sha256": "5d974b51a9d870b386940d4c1083957f39b8ec0e128dc68796219bbbf5c8f5ed"
+      }
+    }
+  },
+  "tests": {
+    "headless_interaction": 6,
+    "headless_passed": 6,
+    "headless_failed": 0,
+    "log": "experiments/nsh-reader/evidence/notes-workspace-ui/tests.log",
+    "command": "nsh test tests/notes-workspace.test.tsx",
+    "typecheck": "nsh check App.tsx passed with pinned types",
+    "names": [
+      "a row opens its detail, and Escape returns to the list",
+      "the row context menu offers read actions and copies a citation",
+      "the missing source row says so and cannot open a page",
+      "a truncated note reads its complete body on request",
+      "keyboard moves the selection and copies the focused note",
+      "the narrow layout returns to the list and keeps the filter"
+    ]
+  },
+  "source_sha256": {
+    "experiments/nsh-reader/native-workbench/contributions.tsx": "5a11e7161f4f001d0fc5970791c25b9c445281aba6670613e41575dab7414aa9",
+    "experiments/nsh-reader/native-workbench/App.tsx": "637720e16dc9082029ab1f7a51a3c06055362bb15e66507a31f02ca2ba65098b",
+    "experiments/nsh-reader/native-workbench/tests/notes-workspace.test.tsx": "9d2d03a4ac23191d8d14c13a322c1c8b319f5c1bd883e2b6d7636dd79a22ec73",
+    "docs/design/notes-workspace.md": "84f67ae91d3d73de801d3fe454b1d87370e248004eac6176ab69e7945172b29c",
+    "docs/product/notes-plugin.md": "b7edbf5e39ed5b7df160309fd680c410051660a18cb081027986f3d00df7d509"
+  },
+  "interactions": {
+    "context_menu": "native Menu.popup on right click; row selected first; disabled edit/delete with reasons",
+    "selection": "TextView selectable with selection toolbar (copy selection, copy as citation, clear)",
+    "keyboard": "up/down, enter, mod+c, mod+shift+c, mod+f, shift+f10, escape",
+    "copy_formats": "quote, note, markdown citation with document title and page",
+    "narrow": "list/detail switch under 1120pt with filter and selection preserved"
+  },
+  "not_verified": [
+    "formal plugins/notes package: manifest, signature, install/authorize/disable/uninstall",
+    "real Core data through the public notes.read capability",
+    "public capability wire, Host budgets and pagination cursors",
+    "real-window right click, drag selection and Shift+F10 (headless covers behavior)",
+    "editing, deleting, tags, starred persistence",
+    "IME, assistive technology, other platforms, performance and native resource release"
+  ]
+}

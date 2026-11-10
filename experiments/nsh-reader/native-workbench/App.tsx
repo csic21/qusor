@@ -485,7 +485,6 @@ function NavigationPane() {
             style={{ width: 248, flexShrink: 0 }}
         >
             <Tabs
-                accessibilityLabel="导航范围"
                 style={{
                     marginHorizontal: 12,
                     marginTop: 5,
@@ -890,7 +889,6 @@ function Inspector() {
 function Search() {
     return (
         <Dialog
-            accessibilityLabel="搜索当前工作区"
             open={searchOpen()}
             closeOnEscape={false}
             onOpenChange={({ open }) => searchOpen.set(open)}

@@ -20,6 +20,7 @@ QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Cor
 | 推进下一阶段与验收 | [本地阅读闭环计划](docs/product/next-phase.md) |
 | 查看 D 阶段正式插件门槛 | [D 阶段计划](docs/product/d-phase-plan.md) |
 | 查看已保存想法列表实窗增量 | [想法列表证据](experiments/nsh-reader/evidence/notes-workspace/README.md) |
+| 查看想法工作区 UI v1 与交互测试 | [想法工作区 UI 记录](experiments/nsh-reader/evidence/notes-workspace-ui/README.md) |
 | 复现 NSH 环境与构建检查 | [阅读宿主实验](experiments/nsh-reader/README.md) |
 | 设计持久安装、授权恢复和升级回滚 | [包生命周期](docs/architecture/plugin-lifecycle.md) |
 | 查看持久安装内核与统一 Host 恢复的生产落位 | [C7结果](experiments/extension-package/INSTALLATION_PRODUCTION_RESULTS.md) |
