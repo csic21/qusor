@@ -1,0 +1,76 @@
+{
+  "date_local": "2026-11-10",
+  "platform": {
+    "name": "macOS",
+    "version": "27.0",
+    "ui": "AppKit"
+  },
+  "nsh_commit": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "status": {
+    "bounded_note_index": "implemented_and_tested",
+    "sqlite_reopen": "passed",
+    "nsh_typecheck_and_build": "passed",
+    "macos_note_list_window": "passed",
+    "current_document_note_navigation": "not_executed",
+    "formal_notes_plugin": "not_delivered",
+    "full_note_source_return": "not_delivered"
+  },
+  "artifacts": {
+    "native_binary": {
+      "path": "experiments/nsh-reader/target/nsh/target/debug/qusor-nsh-dynamic-pdf-probe",
+      "sha256": "87fea58ff49cf7297e139cff3580867f9f10dd3d156249cfb9f7a93f3afcaf69"
+    },
+    "bundle": {
+      "path": "experiments/nsh-reader/target/dynamic-pdf-bundle/bundle.nshc",
+      "sha256": "004a08d77c11cc98bc4d012603870188f372fb3784ebc92240f5efc66d113a6d"
+    },
+    "screenshot": {
+      "path": "experiments/nsh-reader/evidence/notes-workspace/notes-list.png",
+      "bytes": 73892,
+      "sha256": "e660d7628086d58e8d8e332520bc0c97b28a158a6eec36bb8aa0657fcdd39271"
+    }
+  },
+  "tests": [
+    "cargo test -p learning-application --test pdf_notes --locked --offline",
+    "cargo test -p learning-application --lib pdf_notes --locked --offline",
+    "cargo test -p storage-sqlite --test transactions note_index_survives_sqlite_reopen_with_bounded_preview --locked --offline",
+    "nsh build experiments/nsh-reader/dynamic-pdf",
+    "python3 experiments/nsh-reader/dynamic-pdf/check_ui.py"
+  ],
+  "actual_core_notes": [
+    {
+      "capture_id": 2,
+      "document_id": 3,
+      "commit_rev": 5,
+      "page_index": 2,
+      "note": "macOS 重开后再次保存：普通签名插件、中文与 🧭 保留到 Core。"
+    },
+    {
+      "capture_id": 1,
+      "document_id": 1,
+      "commit_rev": 2,
+      "page_index": 2,
+      "note": "macOS 原生阅读：第三页摘录与想法已连接 Core。🧭"
+    }
+  ],
+  "current_document_id": 9,
+  "observed_behavior": {
+    "vault_isolation": true,
+    "newest_first": true,
+    "other_document_not_claimed_current": true,
+    "full_note_body_in_list": false,
+    "list_refresh_after_save": "lazy_on_open_or_manual_refresh"
+  },
+  "known_iteration_failures": [
+    "static ternary content remained on reader while toolbar title changed",
+    "reader page/zoom controls remained visible in notes view"
+  ],
+  "not_verified": [
+    "formal notes package install/enable/disable/uninstall",
+    "complete full-note read and edit",
+    "current-document navigation from a newly saved note",
+    "exact on-page highlight reconstruction",
+    "missing-original, revoked, upgraded, crashed and late-result races",
+    "IME, other platforms, accessibility scaling, long book, EPUB and native release ACK"
+  ]
+}

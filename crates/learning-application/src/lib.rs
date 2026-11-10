@@ -2,6 +2,7 @@
 pub mod annotation_draft;
 pub mod annotation_source;
 pub mod draft_text;
+pub mod pdf_notes;
 pub mod provider_events;
 pub mod provider_projections;
 use core_api::{

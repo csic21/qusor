@@ -45,6 +45,7 @@ export interface PdfSurfaceModule {
 export declare const PdfSurface: PdfSurfaceModule;
 
 export interface ReaderSurfaceModule {
+  notes(): string;
   open(reportDigest: string): string;
   configure(handle: string, generation: number, page: number, zoom: number): string;
   ready(handle: string, generation: number, frameId: string, reportDigest: string): string;

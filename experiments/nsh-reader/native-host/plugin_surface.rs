@@ -780,6 +780,36 @@ impl Service {
         )
     }
 
+    fn notes(&self) -> Result<Value> {
+        let g = mutex(&self.gate)?;
+        let notes = g
+            .core
+            .pdf_notes(
+                &g.document.vault,
+                None,
+                learning_application::pdf_notes::MAX_NOTE_QUERY,
+            )
+            .map_err(text)?;
+        Ok(json!({
+            "current_document_id": g.document.receipt.document_id,
+            "notes": notes.into_iter().map(|note| json!({
+                "capture_id": note.capture_id,
+                "commit_rev": note.commit_rev,
+                "operation_id": note.operation_id,
+                "document_id": note.document_id,
+                "document_title": note.document_title,
+                "page_index": note.page_index,
+                "quote_preview": note.quote_preview,
+                "quote_bytes": note.quote_bytes,
+                "quote_truncated": note.quote_truncated,
+                "note_preview": note.note_preview,
+                "note_bytes": note.note_bytes,
+                "note_truncated": note.note_truncated,
+                "compound": note.compound,
+            })).collect::<Vec<_>>()
+        }))
+    }
+
     fn draft(&self, g: &Gate, selection: &DragSelection) -> Result<Draft> {
         if selection.binding.original_sha256 != g.report.original_sha256
             || selection.binding.frame_report_sha256 != g.report.extraction_sha256
@@ -883,6 +913,9 @@ fn answer(f: impl FnOnce(Arc<Service>) -> Result<Value>) -> String {
 }
 #[module]
 impl ReaderSurface {
+    pub fn notes() -> String {
+        answer(|s| s.notes())
+    }
     pub fn open(report_digest: String) -> String {
         answer(|s| {
             let (resource, expected) = {

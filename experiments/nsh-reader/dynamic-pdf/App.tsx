@@ -4,6 +4,7 @@ import { DynamicReader, ReaderSurface, NativeEditor } from "qusor/pdf-surface";
 import { WorkspaceShell } from "./WorkspaceShell";
 import { ReaderViewport } from "./ReaderViewport";
 import { CapturePanel } from "./CapturePanel";
+import { NotesView, type NoteSummary } from "./NotesView";
 import { ActionButton, Body, InlineStatus, color } from "./ui";
 import { editNote, frameKey, pinned, selectedDraft, settle, submit, submitEditor, editorEventMatches, canDiscardDraft, canDiscardPreparation, activeInputEvent, deferInputFocus, chunkEnd, sourceUnavailable, type Draft } from "./reader-state";
 import { editorInput, localInput, composition, deliver, deliveryReply, retryDelivery, inputCanSave, type EditorInput, type Delivery } from "./editor-input-state";
@@ -12,6 +13,7 @@ function App(){
  const config=signal<any>(null),display=signal<any>(null),ready=signal("");
  const width=signal(1000),height=signal(1000),boxes=signal<number[][]>([]);
  const draft=signal<Draft|null>(null),lastSaved=signal<Draft|null>(null),auxiliary=signal(false);
+ const notes=signal<NoteSummary[]>([]),notesOpen=signal(false),notesStatus=signal("");
  const importing=signal(false),importedOnly=signal(false),frameFailed=signal(false),resized=signal(false);
  const editor=signal<EditorInput|null>(null),beginning=signal(false),editorMessage=signal(""),bodyLoaded=signal(false),closingEditor=signal(false),nativeClosing=signal<{binding:string;pendingRelease:boolean}|null>(null),beginAttempt=signal(false);
  let activeApply:Promise<void>|null=null;
@@ -28,6 +30,26 @@ function App(){
  const resetSelection=()=>{draft.set(null);boxes.set([]);copyStatus.set("");};
  const clearImage=()=>{const old=display();display.set(null);if(old?.url)URL.revokeObjectURL(old.url);};
  const detach=()=>draft.set(sourceUnavailable(draft()));
+ const loadNotes=async()=>{
+  notesStatus.set("正在读取本机想法…");
+  try{const result=parse(await ReaderSurface.notes());
+   if(!result.ok||!Array.isArray(result.value?.notes))throw Error();
+   notes.set(result.value.notes);
+   notesStatus.set(result.value.notes.length?"":"还没有保存的想法。");
+  }catch(_){notesStatus.set("想法暂时读取不到；已保存内容没有被删除。");}
+ };
+ const showNotes=async()=>{
+  if(!config())return;
+  if(draft()&&pinned(draft())){notice.set("先保存或放弃当前想法，再查看已保存想法。");return;}
+  notesOpen.set(true);auxiliary.set(false);await loadNotes();
+ };
+ const openNote=(note:NoteSummary)=>{
+  const current=config();
+  if(!current||note.document_id!==current.document_id){notesStatus.set("这条想法属于另一份资料。先打开该资料后再定位。");return;}
+  notesOpen.set(false);
+  configure(note.page_index,current.zoom);
+  status.set(`已定位到第 ${note.page_index+1} 页；引文与想法保存在本机。`);
+ };
  const clearNative=async()=>{
   const e=editor();if(!e){if(beginAttempt()){notice.set("编辑准备结果尚未确认，请重试准备后再关闭；当前内容可复制。");return false;}return !beginning();}
   closingEditor.set(true);
@@ -74,6 +96,7 @@ function App(){
  };
  const open=async()=>{
   if(importing()||saving()||discardDialog())return;
+  notesOpen.set(false);
   if(beginning()||(beginAttempt()&&!editor())){auxiliary.set(true);return;}
   const old=draft();if(old?.phase==="uncertain"){auxiliary.set(true);return;}
   if(old&&pinned(old)){
@@ -141,6 +164,7 @@ function App(){
   const pending=e?submitEditor(old,e.binding,e.revision):submit(old);if(!pending)return;notice.set("");draft.set(pending);const frozen=pending.submission!;
   try{const result=parse(await (frozen.editor?NativeEditor.save(frozen.editor.binding,frozen.editor.revision):DynamicReader.save(frozen.candidate,frozen.note)));const receipt=result.ok&&(frozen.editor?result.value?.binding===frozen.editor.binding:result.value?.saved)?result.value.receipt:undefined;
    const next=settle(draft(),old.id,frozen.binding,receipt);draft.set(next);if(next?.phase==="saved")lastSaved.set(next);
+   if(next?.phase==="saved"&&notesOpen())void loadNotes();
   }catch(_){draft.set(settle(draft(),old.id,frozen.binding));}
  };
  const selection=(frame:any,raw:string)=>{
@@ -161,13 +185,13 @@ function App(){
   <If when={draft()?.phase==="saved"}><InlineStatus success>已保存到本机</InlineStatus><View style={{flexDirection:"row",gap:8}}><ActionButton label="继续阅读" primary onPress={returnToText}/><ActionButton label="查看这次保存" onPress={write}/></View></If>
  </View></If>;
  const toolbar=<View style={{gap:8}}>
-  <View style={{flexDirection:"row",alignItems:"center",gap:12}}><View style={{flex:1,minWidth:0}}><Body title>{config()?.title||"本地阅读"}</Body></View><ActionButton label={config()?"打开另一份…":"打开 PDF…"} compact disabled={importing()||saving()} onPress={open}/><If when={!!draft()&&draft()?.phase!=="selected"}><ActionButton label={draft()?.phase==="detached"?"原资料草稿":draft()?.phase==="saved"?"这次保存":"想法草稿"} compact onPress={write}/></If><If when={!draft()&&!!lastSaved()}><ActionButton label="这次保存" compact onPress={()=>{draft.set(lastSaved());auxiliary.set(true);}}/></If></View>
-  <If when={!!config()}><View style={{flexDirection:"row",flexWrap:"wrap",alignItems:"center",gap:8}}>
+  <View style={{flexDirection:"row",alignItems:"center",gap:12}}><View style={{flex:1,minWidth:0}}><Body title>{notesOpen()?"想法":config()?.title||"本地阅读"}</Body></View><ActionButton label={config()?"打开另一份…":"打开 PDF…"} compact disabled={importing()||saving()} onPress={open}/><If when={!!config()&&!notesOpen()}><ActionButton label="想法" compact disabled={importing()||saving()||locked()} onPress={()=>void showNotes()}/></If><If when={!!draft()&&draft()?.phase!=="selected"}><ActionButton label={draft()?.phase==="detached"?"原资料草稿":draft()?.phase==="saved"?"这次保存":"想法草稿"} compact onPress={write}/></If><If when={!draft()&&!!lastSaved()}><ActionButton label="这次保存" compact onPress={()=>{draft.set(lastSaved());auxiliary.set(true);}}/></If></View>
+  <If when={!!config()&&!notesOpen()}><View style={{flexDirection:"row",flexWrap:"wrap",alignItems:"center",gap:8}}>
    <ActionButton label="上一页" compact onPress={()=>configure(config().page-1,config().zoom)} disabled={!controlsEnabled()||config().page===0}/><Body muted>{`${config().page+1} / ${config().pages}`}</Body><ActionButton label="下一页" compact onPress={()=>configure(config().page+1,config().zoom)} disabled={!controlsEnabled()||config().page+1>=config().pages}/>
    <View style={{width:8}}/><ActionButton label="缩小" compact disabled={!controlsEnabled()} onPress={()=>configure(config().page,Math.max(.25,config().zoom-.1))}/><Body muted>{`${Math.round(config().zoom*100)}%`}</Body><ActionButton label="放大" compact disabled={!controlsEnabled()} onPress={()=>configure(config().page,Math.min(1.25,config().zoom+.1))}/><ActionButton label="适合宽度" compact disabled={!controlsEnabled()} onPress={()=>configure(config().page,fit("width"))}/><ActionButton label="整页" compact disabled={!controlsEnabled()} onPress={()=>configure(config().page,fit("page"))}/>
   </View></If>
  </View>;
- const content=<View style={{flex:1,gap:12}}>
+ const readerContent=<View style={{flex:1,gap:12}}>
   <If when={importing()}><View style={{flexDirection:"row",alignItems:"center",gap:12}}><View style={{flex:1}}><InlineStatus>正在打开资料，当前内容保留…</InlineStatus></View><ActionButton label="取消导入" compact onPress={cancelImport}/></View></If>
   <If when={!display()}><View style={{flex:1,justifyContent:"center",alignItems:"flex-start",padding:24,gap:20}}><Body title>{importedOnly()?"资料已导入，阅读尚未就绪":config()?"页面暂未就绪":"让阅读留在正文里"}</Body><Body>{status()}</Body><Body muted>支持 16 MiB、16 页以内的 PDF。原文件不上传。</Body><If when={importedOnly()}><ActionButton label="重新打开已导入资料" primary disabled={importing()} onPress={reopen}/></If><If when={!importedOnly()}><ActionButton label={config()?"重试当前页":"打开本地 PDF…"} primary disabled={importing()||locked()} onPress={()=>config()?configure(config().page,config().zoom):open()}/></If></View></If>
   <Each of={display()?[display()]:[]} key={(entry:any)=>`${frameKey(entry.frame)}:${entry.url}`}>{(entry)=>{const item=entry(),frame=item.frame;const matches=()=>frameKey(config())===frameKey(frame)&&display()?.url===item.url;return <ReaderViewport entry={item} covered={!wide()&&auxiliary()} interactive={()=>matches()&&!importing()&&!saving()&&(wide()||!auxiliary())} canSelect={()=>!locked()} ready={()=>ready()===frameKey(frame)} boxes={boxes} context={context(frame)}
@@ -178,6 +202,7 @@ function App(){
    failed={()=>{if(!matches())return;ReaderSurface.failed(frame.handle,frame.generation,frame.frame_id);ready.set("");boxes.set([]);detach();frameFailed.set(true);status.set("页面加载失败，原资料与想法仍保留。");}}/>;}}</Each>
   <If when={frameFailed()&&!!display()}><InlineStatus danger>{status()}</InlineStatus><ActionButton label="重试当前页" disabled={!controlsEnabled()} onPress={()=>configure(config().page,config().zoom)}/></If>
  </View>;
+ const content=<If when={notesOpen()} else={readerContent}><NotesView notes={notes} status={notesStatus} currentDocumentId={()=>config()?.document_id??null} onOpen={openNote} onRefresh={()=>void loadNotes()} onClose={()=>notesOpen.set(false)}/></If>;
  return <WorkspaceShell toolbar={toolbar} content={content} auxiliaryOpen={auxiliary()} wide={wide()}
   auxiliary={<CapturePanel draft={draft} close={returnToText} discard={discard} save={save} copy={copyDraft} copyStatus={copyStatus()} leaveUncertain={leaveUncertain} editingEnabled={!importing()&&!closingEditor()&&!beginning()&&bodyLoaded()&&!!editor()} saveEnabled={!discardDialog()&&!closingEditor()&&!importing()&&!beginning()&&bodyLoaded()&&!!editor()&&inputCanSave(editor()!)} deliveryStatus={editorMessage()} canPause={!!editor()?.inflight&&!editor()?.uncertain&&!closingEditor()} canRetry={!!editor()?.uncertain&&!!editor()?.inflight&&!editor()?.composing&&!importing()&&!closingEditor()} preparing={beginning()} canDiscard={canDiscardDraft(draft(),editor()?.binding??"",beginning(),closingEditor(),discardDialog(),importing())} canDiscardPreparation={canDiscardPreparation(editor()?.binding??"",bodyLoaded(),beginning())&&canDiscardDraft(draft(),editor()?.binding??"",beginning(),closingEditor(),discardDialog(),importing())} needsPreparation={!bodyLoaded()} retryInput={()=>{if(!bodyLoaded())void write();else retryInput();}} pauseInput={pauseInput} nativeBinding={editor()?.binding??""} composition={(id,binding,nativeBinding,token,value)=>{const e=editor();if(!importing()&&!closingEditor()&&bodyLoaded()&&activeInputEvent(activeInputToken,token,auxiliary())&&editorEventMatches(draft(),e?.binding,id,binding,nativeBinding)&&e){editor.set(composition(e,nativeBinding,value));if(!value)pump();}}} retryEnabled={!importing()&&(!!draft()?.submission?.editor||(!draft()?.sourceUnavailable&&draft()?.binding===frameKey(config())&&ready()===draft()?.binding))} inputRef={(node,editable,token)=>{
    if(!node)return;activeInputToken=token;if(!editable)return;
@@ -186,7 +211,7 @@ function App(){
    console.log("EDITOR_FOCUS_SCHEDULED");
    deferInputFocus((work,delay)=>setTimeout(work,delay),()=>focusEditor&&focusEpoch===epoch&&!importing()&&!beginning()&&!closingEditor()&&bodyLoaded()&&activeInputEvent(activeInputToken,token,auxiliary())&&editorEventMatches(draft(),editor()?.binding,id,binding,nativeBinding),()=>{node.focus();console.log("EDITOR_FOCUS_REQUESTED");focusEditor=false;});
   }} change={(id,binding,nativeBinding,token,value)=>{const e=editor();if(!importing()&&!beginning()&&!closingEditor()&&bodyLoaded()&&activeInputEvent(activeInputToken,token,auxiliary())&&editorEventMatches(draft(),e?.binding,id,binding,nativeBinding)&&e){draft.set(editNote(draft(),id,binding,value));editor.set(localInput(e,nativeBinding,value));pump();}}}/>}
-  status={<InlineStatus>{notice()||(!draft()?(resized()&&config()?"窗口已调整，当前页保持原倍率；可按需选择适合宽度。":display()?status():""):"")}</InlineStatus>}
+  status={<InlineStatus>{notesOpen()?notesStatus():notice()||(!draft()?(resized()&&config()?"窗口已调整，当前页保持原倍率；可按需选择适合宽度。":display()?status():""):"")}</InlineStatus>}
   onLayout={({bounds}:any)=>{if(bounds.size.width<=0||bounds.size.height<=0)return;if(width()!==bounds.size.width||height()!==bounds.size.height){width.set(bounds.size.width);height.set(bounds.size.height);if(config())resized.set(true);}}}/>;
 }
 mount(App);

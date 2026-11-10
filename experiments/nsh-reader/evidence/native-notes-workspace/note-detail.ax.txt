@@ -1,0 +1,30 @@
+Window: "QUSOR 工作台研究", App: QUSOR 工作台研究.
+0 standard window QUSOR 工作台研究, Secondary Actions: Raise
+	1 text QUSOR
+	2 button 返回产品设计 · 概览
+	3 container 想法插件提供的界面
+		4 text 想法 插件
+	5 button 更多工作区操作…
+	6 container 想法插件工作区
+		7 container 想法插件导航
+			8 text 想法 工作区样例
+			9 button 显示全部想法想法
+			10 button 显示当前资料想法
+			11 button 显示已收藏想法
+			12 text 资料 准原生应用的秩序 插件与宿主之间 引用与个人观点分开 · 窗口内样例
+		13 button 返回想法列表
+		14 text 准原生应用的秩序 第 3 页 · 引用与个人观点分开
+		15 button (disabled) 收藏想法（样例未接入）
+		16 button (disabled) 更多想法操作（样例未接入）
+		17 text 今天 10:42 原生界面里的层级 插件拥有自己的工作方式，用户始终拥有回到上层工作区的路径。 我的想法 宿主返回和插件内部返回要写成两个不同的目的地。进入插件后，身份与来源不能一起消失。
+		18 button (disabled) 回到原文（样例未接入）
+		19 text 真实回源仍由 Core 和阅读插件承接
+	20 close button
+	21 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	22 minimize button
+23 menu bar
+	24 QUSOR 工作台研究
+	25 Edit
+	26 Window
+
+The focused UI element is 0 standard window QUSOR 工作台研究, Secondary Actions: Raise

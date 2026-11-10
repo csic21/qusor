@@ -1,0 +1,63 @@
+{
+  "date_local": "2026-11-10",
+  "platform": {
+    "name": "macOS",
+    "version": "27.0",
+    "ui": "AppKit"
+  },
+  "nsh_commit": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "scope": "plugin workspace composition fixture",
+  "status": {
+    "integrated_into_native_workbench": true,
+    "host_outer_return": "passed",
+    "plugin_internal_return": "passed",
+    "list_to_detail": "passed",
+    "window_internal_state_preserved_on_reenter": true,
+    "core_query_wired": false,
+    "formal_plugin_package": false,
+    "compact_window": "not_verified_in_this_run"
+  },
+  "artifacts": {
+    "bundle": {
+      "path": "experiments/nsh-reader/target/native-workbench/bundle/bundle.nshc",
+      "sha256": "1d3adc823e3b80315d3bf95f960106a58f5db1f8f94360dfb350e9b0d5f2e0bc"
+    },
+    "host": {
+      "path": "experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app/Contents/MacOS/qusor-native-host",
+      "sha256": "42b60abbdf6a332757af0ce94dec578ce11b1388978ab0d19cbd068f40d3edc9"
+    },
+    "bundle_tree_sha256": "e7f315d6717d4aa29b0ac5eb91317b2e8b2c4b86a8b50c0d8ebcd3cd52b41fd2",
+    "list_screenshot": {
+      "path": "experiments/nsh-reader/evidence/native-notes-workspace/notes-plugin-list.png",
+      "sha256": "b3edf5660a3298ae7ae69638cb1b5e0cf9be023575241402423a74b2643870e1"
+    },
+    "detail_screenshot": {
+      "path": "experiments/nsh-reader/evidence/native-notes-workspace/note-detail.png",
+      "sha256": "9238215099b1363d12e5ec644155197a140db14b428b9a47e64fd5101a4585f5"
+    }
+  },
+  "observed": {
+    "host_toolbar": [
+      "QUSOR",
+      "返回产品设计",
+      "想法〔插件〕"
+    ],
+    "plugin_navigation_counts": {
+      "全部想法": 3,
+      "当前资料": 2,
+      "已收藏": 1
+    },
+    "detail_actions": [
+      "回到原文为禁用样例",
+      "收藏为禁用样例",
+      "更多操作为禁用样例"
+    ]
+  },
+  "not_verified": [
+    "real notes package install/enable/disable/uninstall",
+    "Core-backed list and source resolution in this workbench",
+    "compact 900x680 notes navigation",
+    "IME, accessibility and keyboard-only journey",
+    "other themes and platforms"
+  ]
+}

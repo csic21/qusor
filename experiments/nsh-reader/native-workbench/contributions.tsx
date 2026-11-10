@@ -372,6 +372,10 @@ const readingQuery = signal(""),
     readingBook = signal("准原生应用的秩序"),
     readingNavigation = signal(false),
     readingBookmarked = signal(false);
+const notesQuery = signal(""),
+    notesScope = signal("全部想法"),
+    notesSelected = signal(""),
+    notesNavigation = signal(false);
 const readingBooks = [
     {
         title: "准原生应用的秩序",
@@ -396,6 +400,41 @@ const readingBooks = [
         author: "界面研究",
         kind: "文本",
         progress: "已读 24%",
+    },
+];
+const notes = [
+    {
+        id: "native-hierarchy",
+        title: "原生界面里的层级",
+        document: "准原生应用的秩序",
+        page: 3,
+        quote: "插件拥有自己的工作方式，用户始终拥有回到上层工作区的路径。",
+        note: "宿主返回和插件内部返回要写成两个不同的目的地。进入插件后，身份与来源不能一起消失。",
+        date: "今天 10:42",
+        scope: "当前资料",
+        starred: true,
+    },
+    {
+        id: "quiet-tools",
+        title: "工具应该退到一旁",
+        document: "工具退到一旁",
+        page: 8,
+        quote: "阅读是一种进入内容的方式。写作、讨论和绘图也一样。",
+        note: "阅读时不让表单常驻。只有选文后，才把保存和想法动作放到正文附近。",
+        date: "昨天 21:16",
+        scope: "当前资料",
+        starred: false,
+    },
+    {
+        id: "plugin-boundary",
+        title: "知识不属于界面提供者",
+        document: "插件与宿主之间",
+        page: 5,
+        quote: "共同的是工作区，变化的是看待内容的方式。",
+        note: "停用插件后，摘录、笔记和来源仍要留在 Core。插件可以被替换，知识身份不能跟着换。",
+        date: "11 月 7 日",
+        scope: "其他资料",
+        starred: false,
     },
 ];
 function ReadingSidebar(props: { compact: boolean }) {
@@ -867,6 +906,439 @@ function ReadingWorkspace(props: { compact: boolean }) {
         </View>
     );
 }
+
+function visibleNotes() {
+    return notes.filter((note) => {
+        const query = notesQuery().trim().toLowerCase();
+        const scope =
+            notesScope() === "全部想法" ||
+            (notesScope() === "当前资料" && note.scope === "当前资料") ||
+            (notesScope() === "已收藏" && note.starred);
+        const matches =
+            !query ||
+            `${note.title} ${note.document} ${note.quote} ${note.note}`
+                .toLowerCase()
+                .includes(query);
+        return scope && matches;
+    });
+}
+
+function selectedNote() {
+    return notes.find((note) => note.id === notesSelected());
+}
+
+function NotesSidebar(props: { compact: boolean }) {
+    return (
+        <View
+            accessibilityLabel="想法插件导航"
+            style={{
+                width: props.compact ? "100%" : 214,
+                flexShrink: 0,
+                borderRightWidth: props.compact ? 0 : 1,
+                borderColor: ink("border-subtle"),
+                backgroundColor: ink("surface-toolbar"),
+            }}
+        >
+            <View
+                style={{
+                    height: 48,
+                    paddingHorizontal: 14,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 9,
+                }}
+            >
+                <Badge icon="pen" size={28} tone="surface-accent" />
+                <View style={{ flex: 1, minWidth: 0 }}>
+                    <Copy strong>想法</Copy>
+                    <Copy size={11} muted>
+                        工作区样例
+                    </Copy>
+                </View>
+                <If when={props.compact}>
+                    <Tool
+                        label="返回想法列表"
+                        icon="back"
+                        text="想法"
+                        onPress={() => notesNavigation.set(false)}
+                    />
+                </If>
+            </View>
+            <Rule />
+            <Scroll style={{ flex: 1 }}>
+                <View style={{ padding: 10, gap: 15 }}>
+                    <View style={{ gap: 3 }}>
+                        <Each of={["全部想法", "当前资料", "已收藏"]}>
+                            {(scope) => (
+                                <Button
+                                    accessibilityLabel={`显示${scope()}想法`}
+                                    onPress={() => {
+                                        notesScope.set(scope());
+                                        notesSelected.set("");
+                                        notesNavigation.set(false);
+                                    }}
+                                    style={{
+                                        height: 34,
+                                        paddingHorizontal: 10,
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        gap: 9,
+                                        borderRadius: 7,
+                                        backgroundColor: ink(
+                                            notesScope() === scope()
+                                                ? "surface-selected"
+                                                : "transparent",
+                                        ),
+                                    }}
+                                    hoverStyle={{
+                                        backgroundColor: ink("surface-hover"),
+                                    }}
+                                    focusStyle={focus()}
+                                >
+                                    <Glyph
+                                        name={
+                                            scope() === "已收藏"
+                                                ? "book"
+                                                : scope() === "当前资料"
+                                                  ? "document"
+                                                  : "grid"
+                                        }
+                                        size={16}
+                                        color={ink(
+                                            notesScope() === scope()
+                                                ? "text-accent"
+                                                : "text-secondary",
+                                        )}
+                                    />
+                                    <Copy>{scope()}</Copy>
+                                    <View style={{ flex: 1 }} />
+                                    <Copy size={11} muted>
+                                        {
+                                            notes.filter(
+                                                (note) =>
+                                                    scope() === "全部想法" ||
+                                                    (scope() === "当前资料" &&
+                                                        note.scope ===
+                                                            "当前资料") ||
+                                                    (scope() === "已收藏" &&
+                                                        note.starred),
+                                            ).length
+                                        }
+                                    </Copy>
+                                </Button>
+                            )}
+                        </Each>
+                    </View>
+                    <View style={{ gap: 4 }}>
+                        <View style={{ paddingHorizontal: 10 }}>
+                            <Copy size={11} strong muted>
+                                资料
+                            </Copy>
+                        </View>
+                        <View
+                            style={{
+                                paddingHorizontal: 10,
+                                paddingVertical: 5,
+                                gap: 9,
+                            }}
+                        >
+                            <Copy size={11} muted lines={2}>
+                                准原生应用的秩序
+                            </Copy>
+                            <Copy size={11} muted lines={2}>
+                                插件与宿主之间
+                            </Copy>
+                        </View>
+                    </View>
+                </View>
+            </Scroll>
+            <Rule />
+            <View style={{ padding: 13 }}>
+                <Copy size={11} muted lines={2}>
+                    引用与个人观点分开 · 窗口内样例
+                </Copy>
+            </View>
+        </View>
+    );
+}
+
+function NotesList(props: { compact: boolean }) {
+    return (
+        <View style={{ flex: 1, minWidth: 0 }}>
+            <View
+                style={{
+                    height: 55,
+                    paddingHorizontal: 18,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 9,
+                    backgroundColor: ink("surface-base"),
+                }}
+            >
+                <If when={props.compact}>
+                    <Tool
+                        label="显示想法导航"
+                        icon="list"
+                        text="导航"
+                        onPress={() => notesNavigation.set(true)}
+                    />
+                </If>
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                    <Copy strong>{notesScope()}</Copy>
+                    <Copy size={11} muted>
+                        {visibleNotes().length} 条想法
+                    </Copy>
+                </View>
+                <If when={!props.compact}>
+                    <View style={{ width: 220 }}>
+                        <Input
+                            accessibilityLabel="搜索想法"
+                            value={notesQuery()}
+                            onChange={({ value }) => notesQuery.set(value)}
+                            placeholder="搜索想法"
+                            style={{
+                                height: 31,
+                                paddingHorizontal: 10,
+                                fontSize: 13,
+                                color: ink("text-primary"),
+                                backgroundColor: ink("surface-inset"),
+                                borderWidth: 1,
+                                borderColor: ink("border-subtle"),
+                                borderRadius: 7,
+                            }}
+                            focusStyle={focus()}
+                        />
+                    </View>
+                </If>
+            </View>
+            <Rule />
+            <Scroll style={{ flex: 1 }}>
+                <View style={{ padding: 22, gap: 12 }}>
+                    <Each of={visibleNotes()}>
+                        {(note) => (
+                            <Button
+                                accessibilityLabel={`打开想法：${note().title}`}
+                                onPress={() => {
+                                    notesSelected.set(note().id);
+                                    notesNavigation.set(false);
+                                }}
+                                style={{
+                                    padding: 16,
+                                    gap: 11,
+                                    borderWidth: 1,
+                                    borderColor: ink("border-subtle"),
+                                    borderRadius: 9,
+                                    borderCurve: "continuous",
+                                    backgroundColor: ink("surface-preview"),
+                                    alignItems: "stretch",
+                                }}
+                                hoverStyle={{
+                                    borderColor: ink("border-control"),
+                                    backgroundColor: ink("surface-hover"),
+                                }}
+                                focusStyle={focus()}
+                            >
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        gap: 9,
+                                    }}
+                                >
+                                    <Badge icon="pen" size={30} />
+                                    <View
+                                        style={{ flex: 1, minWidth: 0, gap: 2 }}
+                                    >
+                                        <Copy strong>{note().title}</Copy>
+                                        <Copy size={11} muted>
+                                            {note().document} · 第{" "}
+                                            {note().page} 页
+                                        </Copy>
+                                    </View>
+                                    <Glyph name="arrow" size={14} />
+                                </View>
+                                <View
+                                    style={{
+                                        borderLeftWidth: 3,
+                                        borderColor: ink("text-accent"),
+                                        paddingLeft: 12,
+                                        paddingVertical: 2,
+                                    }}
+                                >
+                                    <Copy lines={2}>{note().quote}</Copy>
+                                </View>
+                                <Copy size={12} muted lines={2}>
+                                    {note().note}
+                                </Copy>
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                    }}
+                                >
+                                    <Copy size={11} muted>
+                                        {note().date}
+                                    </Copy>
+                                    <View style={{ flex: 1 }} />
+                                    <If when={note().starred}>
+                                        <Glyph
+                                            name="book"
+                                            size={13}
+                                            color={ink("text-accent")}
+                                        />
+                                    </If>
+                                </View>
+                            </Button>
+                        )}
+                    </Each>
+                    <If when={visibleNotes().length === 0}>
+                        <View style={{ padding: 28, gap: 8 }}>
+                            <Copy strong>没有匹配的想法</Copy>
+                            <Copy size={12} muted>
+                                清除搜索或切换分类后再试。
+                            </Copy>
+                        </View>
+                    </If>
+                </View>
+            </Scroll>
+        </View>
+    );
+}
+
+function NoteDetail() {
+    return (
+        <View style={{ flex: 1, minWidth: 0 }}>
+            <View
+                style={{
+                    height: 55,
+                    paddingHorizontal: 16,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 9,
+                }}
+            >
+                <Tool
+                    label="返回想法列表"
+                    icon="back"
+                    text="想法列表"
+                    onPress={() => notesSelected.set("")}
+                />
+                <View style={{ flex: 1, minWidth: 0 }}>
+                    <Copy strong>{selectedNote()?.document}</Copy>
+                    <Copy size={11} muted>
+                        第 {selectedNote()?.page} 页 · 引用与个人观点分开
+                    </Copy>
+                </View>
+                <Tool
+                    label="收藏想法（样例未接入）"
+                    icon="book"
+                    selected={!!selectedNote()?.starred}
+                    disabled
+                />
+                <Tool
+                    label="更多想法操作（样例未接入）"
+                    icon="more"
+                    disabled
+                />
+            </View>
+            <Rule />
+            <Scroll style={{ flex: 1 }}>
+                <View
+                    style={{
+                        width: "100%",
+                        maxWidth: 710,
+                        alignSelf: "center",
+                        paddingHorizontal: 34,
+                        paddingTop: 38,
+                        paddingBottom: 70,
+                        gap: 22,
+                    }}
+                >
+                    <Copy size={12} muted>
+                        {selectedNote()?.date}
+                    </Copy>
+                    <Copy size={27} strong>
+                        {selectedNote()?.title}
+                    </Copy>
+                    <View
+                        style={{
+                            borderLeftWidth: 3,
+                            borderColor: ink("text-accent"),
+                            paddingLeft: 17,
+                            paddingVertical: 4,
+                        }}
+                    >
+                        <Copy size={17} lines={4}>
+                            {selectedNote()?.quote}
+                        </Copy>
+                    </View>
+                    <Rule />
+                    <Copy size={11} strong muted>
+                        我的想法
+                    </Copy>
+                    <Copy size={16} lines={6}>
+                        {selectedNote()?.note}
+                    </Copy>
+                    <View
+                        style={{
+                            marginTop: 8,
+                            paddingTop: 16,
+                            borderTopWidth: 1,
+                            borderColor: ink("border-subtle"),
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 10,
+                        }}
+                    >
+                        <Tool
+                            label="回到原文（样例未接入）"
+                            text="回到原文"
+                            icon="book"
+                            raised
+                            disabled
+                        />
+                        <Copy size={11} muted>
+                            真实回源仍由 Core 和阅读插件承接
+                        </Copy>
+                    </View>
+                </View>
+            </Scroll>
+        </View>
+    );
+}
+
+function NotesWorkspace(props: { compact: boolean }) {
+    return (
+        <View
+            accessibilityLabel="想法插件工作区"
+            style={{
+                flex: 1,
+                minWidth: 0,
+                flexDirection: "row",
+                backgroundColor: ink("surface-base"),
+            }}
+        >
+            <If when={!props.compact}>
+                <NotesSidebar compact={false} />
+                <If when={!!selectedNote()}>
+                    <NoteDetail />
+                </If>
+                <If when={!selectedNote()}>
+                    <NotesList compact={false} />
+                </If>
+            </If>
+            <If when={props.compact && notesNavigation()}>
+                <NotesSidebar compact={true} />
+            </If>
+            <If when={props.compact && !notesNavigation() && !selectedNote()}>
+                <NotesList compact={true} />
+            </If>
+            <If when={props.compact && !notesNavigation() && !!selectedNote()}>
+                <NoteDetail />
+            </If>
+        </View>
+    );
+}
 export const entries: Entry[] = [
     {
         id: "note",
@@ -906,6 +1378,14 @@ export const entries: Entry[] = [
     },
 ];
 export const pluginWorkspaces: PluginWorkspace[] = [
+    {
+        id: "fixture.notes",
+        title: "想法",
+        kind: "插件工作区样例",
+        icon: "pen",
+        description: "引用、个人观点和按资料浏览",
+        render: (props) => <NotesWorkspace compact={props.compact} />,
+    },
     {
         id: "fixture.reading",
         title: "阅读",

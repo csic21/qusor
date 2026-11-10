@@ -1,5 +1,7 @@
 # 下一阶段：插件支撑的最小本地阅读闭环
 
+2026-11-10 想法读取与布局集成增量：`learning-application` 新增按 vault/document 隔离、倒序、带 UTF-8 有界预览的 PDF 想法查询；SQLite 关闭重开后恢复同一列表，动态 PDF 实验工作区已真实显示 Core 中两条旧中文想法。随后在统一 `native-workbench` 的 `PluginWorkspace` 下钻机制中加入“想法”插件工作区样例，走通宿主入口→插件自有导航/列表/详情→插件内返回→宿主外层返回；该工作台仍为窗口内 fixture，真实 Core 查询尚未通过公开插件契约接入。该列表是 D 阶段读取基础，不是正式 notes 插件，也未完成完整正文编辑或精确高亮回源。证据见[Core 想法列表记录](../../experiments/nsh-reader/evidence/notes-workspace/README.md)与[插件工作区集成记录](../../experiments/nsh-reader/evidence/native-notes-workspace/README.md)，正式包门槛与后续顺序见[D 阶段计划](d-phase-plan.md)。
+
 2026-11-09导航层级修正：按用户截图暴露的问题，原生样例将双导航收敛为一个可切换范围的导航区，顶部持续显示所属工作区与插件身份，局部返回/离开插件分别标明目的地；外层返回恢复来源对象、导航偏好和信息面板。规则见[顶层导航规格](../design/navigation-hierarchy.md)，本轮工件与实窗范围见[记录](../../experiments/nsh-reader/evidence/native-navigation-hierarchy/README.md)。旧组合报告只覆盖各自冻结版本；后续真实普通插件装配须包含相同导航验收及未保存输入、位置、焦点与资源退役，不以窗口内fixture代替正式恢复。
 
 2026-11-09 工作区组合增量：原生工作台样例已加入阅读工作区贡献。宿主以通用 `PluginWorkspace` 角色承载贡献；进入后退出通用侧栏、内容列表与标签栏，保留可信返回，阅读贡献自行提供书库导航、搜索、格式筛选、网格/列表和正文。1280×820 与 900×680 实窗通过，且从非阅读画布进入后返回仍回到原画布。这推进了“插件自有工作区与宿主返回”的界面切片；仍是普通 TSX fixture，下一步要把同一组合边界接入真实普通包、Core 与 resource retirement，不能计作正式阅读插件。证据见[工作区组合记录](../../experiments/nsh-reader/evidence/native-workspace-composition/README.md)。

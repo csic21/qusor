@@ -366,6 +366,41 @@ fn mixed_operations_share_identity_and_retries_keep_original_receipts() {
     );
     assert_eq!(app.export_all().unwrap().commits.len(), 4);
 }
+
+#[test]
+fn note_index_survives_sqlite_reopen_with_bounded_preview() {
+    let scratch = Scratch::new();
+    let (original, snapshot, selection) = pdf_fixture();
+    let long_note = "想法😀".repeat(200);
+    let receipt = {
+        let mut app = KnowledgeApplication::new(scratch.store());
+        let imported = app
+            .import_document("import-note-index", "vault", "PDF", &original, &snapshot)
+            .unwrap();
+        app.capture_pdf(
+            "note-index",
+            imported.document_id,
+            &selection,
+            &origin(),
+            &long_note,
+        )
+        .unwrap()
+    };
+
+    let reopened = KnowledgeApplication::new(scratch.store());
+    let notes = reopened.pdf_notes("vault", None, 10).unwrap();
+    assert_eq!(notes.len(), 1);
+    assert_eq!(notes[0].capture_id, receipt.capture_id);
+    assert_eq!(notes[0].document_title, "PDF");
+    assert_eq!(notes[0].quote_preview, "hello");
+    assert_eq!(notes[0].note_bytes, long_note.len());
+    assert!(notes[0].note_truncated);
+    assert!(notes[0].note_preview.len() <= 512);
+    assert_eq!(
+        reopened.query_pdf(receipt.capture_id).unwrap().user_note,
+        long_note
+    );
+}
 #[test]
 fn oversized_restore_is_a_budget_failure_before_json_parsing() {
     let scratch = Scratch::new();
