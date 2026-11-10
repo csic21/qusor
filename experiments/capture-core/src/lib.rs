@@ -5,6 +5,7 @@ pub mod component_projection;
 pub mod contract;
 pub mod core;
 pub mod host;
+pub mod notes_bridge;
 pub mod pdf_compound;
 pub mod pdf_contract;
 pub mod pdf_host;

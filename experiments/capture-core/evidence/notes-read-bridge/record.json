@@ -1,0 +1,44 @@
+{
+  "date_local": "2026-11-10",
+  "status": "trusted-core-adapter-tests-passed",
+  "adr": "docs/architecture/adr/0035-notes-read-capability.md",
+  "scope": "Trusted adapter from notes-query-v1 to learning-application reads on a real SQLite Core. No ordinary package, install/authorize UI, workbench wiring or real window.",
+  "tests": {
+    "notes_read": 4,
+    "passed": 4,
+    "failed": 0,
+    "command": "cargo test --manifest-path experiments/capture-core/Cargo.toml --offline --test notes_read",
+    "clippy": "cargo clippy --manifest-path experiments/capture-core/Cargo.toml --all-targets --offline -- -D warnings passed",
+    "names": [
+      "pages_and_body_chunks_read_real_core_notes",
+      "control_characters_shrink_the_body_chunk_to_fit",
+      "read_errors_are_explicit_wire_codes",
+      "a_bridge_bound_to_another_vault_returns_not_found"
+    ],
+    "full_experiment_suite": "not run to completion in this round; only the notes_read target and clippy"
+  },
+  "behaviour": {
+    "previews": "96-byte titles/previews, controls other than newline replaced, truncation recomputed",
+    "body": "wire max first, halved until the encoded response fits 4 KiB, explicit BudgetExceeded otherwise",
+    "errors": "NotFound/InvalidRequest/BudgetExceeded/UnsupportedVersion/InvalidState without internal messages",
+    "scope": "Host-bound vault passed to learning-application; another vault yields NotFound"
+  },
+  "source_sha256": {
+    "experiments/capture-core/src/notes_bridge.rs": "4d202f67b0c3fb0b0b1535cd6fc070894e1331d8050fb7deaa04dbe178b55b81",
+    "experiments/capture-core/tests/notes_read.rs": "438c142376d4469f35fb7adcabbee536457fe554580742955b26675211440158",
+    "experiments/capture-core/src/lib.rs": "fef7df10ae5272a26bd6f8af963e06a513c88bae4e863a4d6914626a040408b9",
+    "experiments/capture-core/Cargo.toml": "51252a11ec7bc51734a9fad4fffb371ec7836c75f324897f81c62346ec17b149",
+    "config/architecture.toml": "e2200ec0329f68a2925894370d734b206a88016babb3edceb2f9086fa7498e34",
+    "docs/architecture/adr/0035-notes-read-capability.md": "c8e7bd0cbc6ea6ba1b5a49f17f45f8d8c5fdf86dcb759a060a19dde497ffeaea",
+    "docs/product/d-phase-plan.md": "12dadfdb1c46db816e693f253b98e8e49f392734e306892a693f83e8b15550ba",
+    "docs/product/next-phase.md": "25874fd1b2d6e1edca2c8428027b670f8d3cb45a0a5d58f1dc41b358c8293799"
+  },
+  "not_verified": [
+    "plugins/notes ordinary signed package and outside-repo SDK build",
+    "install/authorize/disable/uninstall path with the notes package",
+    "workbench notes workspace reading real Core through the adapter",
+    "real window pagination, body chunks and context menus",
+    "editing/deleting notes, IME, assistive technology, other platforms and resource release",
+    "combined reader.surface + notes.read vocabulary"
+  ]
+}

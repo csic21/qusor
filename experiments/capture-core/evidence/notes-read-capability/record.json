@@ -53,10 +53,10 @@
     "crates/extension-host/tests/notes.rs": "16666f84ef35a501d90bc6c64b0a75901385988c9db8204b19d063137e6b16ed",
     "crates/extension-api/README.md": "3983799fecb23dcd8ebc4a4afaf868fdc94e8cb4a805ef0a8e9b951e0e9e352e",
     "crates/extension-host/README.md": "84410c5c47cf2b0d6327b66967586630e0d3d9234cea8b694befe9235320e523",
-    "docs/architecture/adr/0035-notes-read-capability.md": "72cde787ea1fb97afb0d0ff2944051151f8c263442aa8010eb7cbc0ca84865c7",
+    "docs/architecture/adr/0035-notes-read-capability.md": "c8e7bd0cbc6ea6ba1b5a49f17f45f8d8c5fdf86dcb759a060a19dde497ffeaea",
     "docs/architecture/README.md": "c5718b95599a37ed09ac93ab3e19d4fb9313e243ecbe6b9ae1a66ad880971f9c",
-    "docs/product/d-phase-plan.md": "d5905b3386bbd10a70f4957d554342c927832faf2efcb3e276700e6e1fba2f8e",
-    "docs/product/next-phase.md": "5de0274622dc964836987585067c2b450b7231bbd49d1bc32d39127753cc5956"
+    "docs/product/d-phase-plan.md": "12dadfdb1c46db816e693f253b98e8e49f392734e306892a693f83e8b15550ba",
+    "docs/product/next-phase.md": "25874fd1b2d6e1edca2c8428027b670f8d3cb45a0a5d58f1dc41b358c8293799"
   },
   "not_verified": [
     "trusted Core backend adapter using AuthorizedContext.vault_id",

@@ -568,6 +568,7 @@ dependencies = [
  "extension-runtime-api",
  "extension-store",
  "learning-application",
+ "learning-ports",
  "libc",
  "qusor-package-probe",
  "qusor-wasm-probe",

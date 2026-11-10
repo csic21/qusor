@@ -243,7 +243,7 @@ allowed_transitive_dependencies = ["base64", "base64ct", "bitflags", "block-buff
 
 [experiments.capture-core.packages.qusor-capture-probe]
 manifest = "experiments/capture-core/Cargo.toml"
-allowed_dependencies = ["runtime-process", "extension-store", "extension-package", "extension-runtime-api", "runtime-wasm", "core-api", "learning-application", "storage-sqlite", "extension-api", "extension-host", "qusor-package-probe", "qusor-wasm-probe", "serde_json", "libc", "rusqlite", "wat"]
+allowed_dependencies = ["runtime-process", "extension-store", "extension-package", "extension-runtime-api", "runtime-wasm", "core-api", "learning-application", "learning-ports", "storage-sqlite", "extension-api", "extension-host", "qusor-package-probe", "qusor-wasm-probe", "serde_json", "libc", "rusqlite", "wat"]
 allowed_transitive_dependencies = ["aho-corasick", "bindgen", "cexpr", "cfg-if", "clang-sys", "either", "glob", "itertools", "libloading", "libproc", "minimal-lexical", "nom", "regex", "regex-automata", "regex-syntax", "rustc-hash", "shlex", "extension-store", "runtime-process",
   "extension-runtime-api", "runtime-wasm",
   "extension-package",

@@ -19,7 +19,7 @@
 
 | 增量 | 实际结果 | 未覆盖 |
 |---|---|---|
-| 公开想法读取能力 | 协议0.4、`notes.read` 与 `notes_workspace`、`notes-query-v1`（≤6条/页、标题/预览≤96 bytes、正文4–2048 bytes、整响应≤4 KiB）、Host vault 绑定与许可失效；wire与Host回归通过，见[ADR 0035](../architecture/adr/0035-notes-read-capability.md) | 可信Core后端适配器、`plugins/notes` 普通包、安装/授权链路与实窗未接 |
+| 公开想法读取能力 | 协议0.4、`notes.read` 与 `notes_workspace`、`notes-query-v1`（≤6条/页、标题/预览≤96 bytes、正文4–2048 bytes、整响应≤4 KiB）、Host vault 绑定与许可失效；wire与Host回归通过，真实 SQLite Core 适配器（分页/正文/控制字符收缩/错误映射）通过，见[ADR 0035](../architecture/adr/0035-notes-read-capability.md) | `plugins/notes` 普通包、安装/授权链路、工作台真实 Core 与实窗未接 |
 | 想法工作区 UI v1 | 原生工作台按[交互规格](../design/notes-workspace.md)实现列表/详情/范围/搜索/选取/右键原生菜单/复制/完整正文状态/窄窗；6 项 headless 交互测试、类型检查与 bundle 构建通过，实窗四张截图见[UI v1 记录](../../experiments/nsh-reader/evidence/notes-workspace-ui/README.md) | 仍是窗口内 fixture；正式包、公开 `notes.read` 能力、真实 Core 与编辑/删除未接 |
 | 分页游标与正文分块 | 列表改为 keyset 分页（单页最多 200 条，游标绑定 vault/document 精确范围，分页期间新增想法不重排/不跳项）；正文按 Quote/Note 分块读取（4–16 KiB，UTF-8 边界安全，1 MiB 笔记可逐块还原）；应用层与真实 SQLite 重开通过，见 [ADR 0034](../architecture/adr/0034-note-read-model.md) | 公开 SDK wire、插件授权、分页 UI、精确高亮；每次查询仍读整库快照 |
 | 有界想法读取模型 | `learning-application` 可按 vault/document 倒序查询 PDF 想法；引文和想法各返回最多 512 UTF-8 bytes 预览，完整内容保持不可变 | 公开 SDK 能力、撤权/版本错误分类 |
