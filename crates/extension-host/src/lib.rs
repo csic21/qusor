@@ -22,6 +22,7 @@ use extension_api::{
 pub mod component;
 pub mod durable;
 mod durable_surface;
+pub mod notes;
 pub mod platform;
 pub mod surface;
 
@@ -217,6 +218,11 @@ impl Host {
         installed.status = Status::Disabled;
         self.drop_sessions(id);
         Ok(())
+    }
+
+    /// The vault this policy authority is bound to; never supplied by a guest.
+    pub fn vault_id(&self) -> &str {
+        &self.vault_id
     }
 
     pub fn manifest(&self, id: InstallationId) -> Result<&Manifest, ApiError> {

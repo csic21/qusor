@@ -30,8 +30,11 @@ cargo test -p extension-host --locked --offline
 | reader.surface（0.2） | 精确 Document | 同一安装/会话/epoch的受控原生阅读呈现；不隐含selection.read或知识写入 |
 | document.metadata.read | Document 或 Vault | 库级元数据授权覆盖同库 Document，单资料授权不能扩大为全库 |
 | capture.propose | Vault | 只匹配目标库；不表示已接收或提交任何候选内容 |
+| notes.read（0.4） | Vault | 有界想法分页/正文块；Host绑定vault，后端按ADR0034校验游标范围 |
 
 声明与授权分开；不支持的必需能力拒绝注册，未授予的必需能力拒绝启用。可选能力不可用或未授权时，其依赖贡献不进入可用列表。贡献身份使用返回的 (InstallationId, contribution.id) 组合，不能只用字符串 ID 作为全局索引。
+
+`authorize_notes(session, request)` 校验 `notes-query-v1` 后以 `notes.read` + Vault 走同一 authorize；0.3及更早会话不能请求该能力。信任适配器用 dispatch 回调中的 `vault_id` 调应用层读取并编码≤4 KiB响应，本库仍不依赖 Core。见 [ADR 0035](../../docs/architecture/adr/0035-notes-read-capability.md)。
 
 更改任意授权集合（包括同值替换）、停用、升级或注销都会使旧会话及许可失效。关闭单个会话只影响该会话。成功升级必须同包同发布者、更高版本且不同摘要，随后清空权限并禁用；失败验证保留旧状态。授权世代耗尽则禁用并关闭会话，需要注销重建安装实例。
 

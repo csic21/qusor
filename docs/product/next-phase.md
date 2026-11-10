@@ -1,5 +1,7 @@
 # 下一阶段：插件支撑的最小本地阅读闭环
 
+2026-11-10 公开想法读取能力：新增 Host API 0.4、`notes.read` 能力与 `notes_workspace` 贡献类型，以及 `notes-query-v1` 有界 wire（分页≤6条、标题/预览≤96 bytes、正文块4–2048 bytes、整响应≤4 KiB）；Host 绑定 vault 并复用既有授权/许可失效，0.1–0.3 保持原义。wire 与 Host 回归通过，见 [ADR 0035](../architecture/adr/0035-notes-read-capability.md) 与[能力记录](../../experiments/capture-core/evidence/notes-read-capability/record.json)。可信 Core 后端适配器、`plugins/notes` 普通签名包、安装/授权链路与真实窗口仍未完成，见 [D 阶段计划](d-phase-plan.md)。
+
 2026-11-10 想法工作区 UI v1：`native-workbench` 按正式[交互规格](../design/notes-workspace.md)实现想法工作区——范围导航、搜索、列表/详情、文本选取工具条、右键原生菜单、复制引文/想法/引用、缺原件与其他资料状态、完整正文读取状态与窄窗切换；`nsh check` 类型检查、bundle 构建与 6 项 headless 交互测试（`nsh test`）通过，另有四张 macOS 实窗截图。数据仍是窗口内 fixture，未接 Core、未成为安装包；[UI v1 记录](../../experiments/nsh-reader/evidence/notes-workspace-ui/README.md)。下一步是把 UI 接到真实 Core：公开 `notes.read` 能力 + `plugins/notes` 普通签名包 + 分页/正文预算，见[D 阶段计划](d-phase-plan.md)。
 
 2026-11-10 想法读取契约增量：`learning-application` 的想法查询改为 keyset 分页（单页最多 200 条，游标绑定 vault/document 精确范围，分页期间新增想法不重排/不跳项），并新增 Quote/Note 正文分块读取（4–16 KiB、UTF-8 边界安全、1 MiB 笔记可逐块还原，缺失/越界/预算错误明确分类）；真实 SQLite 关闭重开后恢复同一分页与完整正文。决策见 [ADR 0034](../architecture/adr/0034-note-read-model.md)，本机记录见[想法读取契约记录](../../experiments/capture-core/evidence/note-query-contract/record.json)。该增量是应用层只读契约，不是正式 notes 包；公开 SDK wire、插件授权、分页 UI、精确高亮回源与原生窗口接线仍待 D0 余项与 D1，见 [D 阶段计划](d-phase-plan.md)。

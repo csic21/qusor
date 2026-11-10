@@ -1,0 +1,68 @@
+{
+  "date_local": "2026-11-10",
+  "status": "notes-read-wire-and-host-policy-tests-passed",
+  "adr": "docs/architecture/adr/0035-notes-read-capability.md",
+  "scope": "Public note read capability: Host API 0.4, notes.read capability, notes_workspace contribution kind, bounded notes-query-v1 wire, Host vault binding and permit invalidation. No Core backend adapter, plugin package or real window.",
+  "wire": {
+    "protocol": "notes-query-v1",
+    "host_api": "0.4",
+    "capability": "notes.read",
+    "contribution_kind": "notes_workspace",
+    "page_limit": 6,
+    "preview_bytes": 96,
+    "title_bytes": 96,
+    "body_chunk_bytes": "4..=2048",
+    "offset_limit": "16 MiB",
+    "response_budget": "4096 bytes encoded",
+    "cursor": "opaque bounded printable ASCII; canonical format and scope belong to the backend"
+  },
+  "tests": {
+    "extension_api_notes": 6,
+    "extension_host_notes": 5,
+    "workspace_total": 244,
+    "architecture_guards": 42,
+    "commands": [
+      "cargo test -p extension-api --locked --offline",
+      "cargo test -p extension-host --locked --offline",
+      "cargo test --workspace --locked --offline",
+      "cargo clippy -p extension-api -p extension-host --all-targets --locked --offline -- -D warnings",
+      "python3 scripts/check_architecture.py",
+      "python3 scripts/check_docs.py"
+    ],
+    "names": [
+      "requests_round_trip_with_canonical_bounds",
+      "requests_reject_wrong_protocol_version_and_budgets",
+      "unknown_request_and_response_fields_are_rejected",
+      "responses_validate_previews_cursors_and_chunks",
+      "a_full_page_stays_inside_the_public_wire_budget",
+      "notes_vocabulary_is_api_0_4_only",
+      "notes_read_requires_its_grant_and_dispatches_the_bound_vault",
+      "old_sessions_and_wire_versions_are_rejected",
+      "notes_authority_is_exact_to_notes_read_and_the_vault",
+      "revoking_grants_or_disabling_invalidates_notes_permits",
+      "a_host_without_notes_read_support_rejects_the_package"
+    ]
+  },
+  "source_sha256": {
+    "crates/extension-api/src/lib.rs": "193618aa1bef600c03ee685be2fc35e023fabe3f3fe0424e6fb7b11ee86c8ffb",
+    "crates/extension-api/src/notes.rs": "1c96c6adb94f5c6d4ec87f7facc35f4c5d31a382fd9e369e029974d4bdfe0bd6",
+    "crates/extension-api/schema/policy-v0.4.schema.json": "b1e5c8b9faf3b793b21ad78ba563f103b449b6a2c534d6f9859ed3f97bb8f9fc",
+    "crates/extension-api/tests/notes.rs": "2232fe058b4e3393d12579456d58782b73c477c544bf5db02752bf93a194ddc6",
+    "crates/extension-host/src/lib.rs": "c2d95c53fc4b7e97d250e2f2be1723b73391de598f39ea1830c7a52ba5664b39",
+    "crates/extension-host/src/notes.rs": "31a43cf1c88f9fe766420910f0d66956fcd279df31e65833bd02c2cd0b713a23",
+    "crates/extension-host/tests/notes.rs": "16666f84ef35a501d90bc6c64b0a75901385988c9db8204b19d063137e6b16ed",
+    "crates/extension-api/README.md": "3983799fecb23dcd8ebc4a4afaf868fdc94e8cb4a805ef0a8e9b951e0e9e352e",
+    "crates/extension-host/README.md": "84410c5c47cf2b0d6327b66967586630e0d3d9234cea8b694befe9235320e523",
+    "docs/architecture/adr/0035-notes-read-capability.md": "72cde787ea1fb97afb0d0ff2944051151f8c263442aa8010eb7cbc0ca84865c7",
+    "docs/architecture/README.md": "c5718b95599a37ed09ac93ab3e19d4fb9313e243ecbe6b9ae1a66ad880971f9c",
+    "docs/product/d-phase-plan.md": "d5905b3386bbd10a70f4957d554342c927832faf2efcb3e276700e6e1fba2f8e",
+    "docs/product/next-phase.md": "5de0274622dc964836987585067c2b450b7231bbd49d1bc32d39127753cc5956"
+  },
+  "not_verified": [
+    "trusted Core backend adapter using AuthorizedContext.vault_id",
+    "plugins/notes ordinary signed package, outside-repo SDK build and install/authorize/disable/uninstall",
+    "real window with pagination, body chunks and context menus on Core data",
+    "editing/deleting notes, IME, assistive technology, other platforms and resource release",
+    "combined reader.surface + notes.read vocabulary in one session version"
+  ]
+}

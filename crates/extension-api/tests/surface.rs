@@ -71,7 +71,7 @@ fn explicit_support_set_and_manifest_vocabulary_prevent_silent_legacy_upgrade() 
     for bad in [
         vec![],
         vec![HOST_API, HOST_API],
-        vec![ApiVersion { major: 0, minor: 4 }],
+        vec![ApiVersion { major: 0, minor: 5 }],
     ] {
         assert_eq!(
             validate_supported_apis(&bad).unwrap_err().code,

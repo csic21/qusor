@@ -79,6 +79,10 @@ Draft请求至多64KiB、每文本块512bytes、完整响应4KiB、单想法文�
 
 这是尚未发布SDK的接线切片，Context事件缓冲与多VM原子续传、普通Wasm提供者和native替换仍待实现。当前验证见 [本轮结果](../../experiments/capture-core/COMPONENT_CONTRACT_RESULTS.md)。
 
+## 显式0.4想法读取（实施切片）
+
+新增 [0.4策略schema](schema/policy-v0.4.schema.json)、`notes.read` 能力与 `notes_workspace` 贡献类型；0.4是独立词表，旧0.1–0.3不变，能力上限由5提到6。`notes` 模块提供 `notes-query-v1`：有界分页（≤6条/页、标题与预览≤96 bytes）与正文分块（4–2048 bytes），整响应≤4 KiB；请求不自报 vault，由Host绑定精确授权。见 [ADR 0035](../../docs/architecture/adr/0035-notes-read-capability.md)。wire通过不等于可信后端、普通包或真实窗口已接通。
+
 ## 只读段落投影（实施切片）
 
 `projection`与`paragraph-projection-v1.schema.json`提供独立API0.3/protocol1的own context、query、CAS/checkpoint及最多8行的span窗口。没有文本effect；`window`必须显式给出对象或null。窗口ready由context推导，UTF-8边界/前态推进/fresh权限由应用与协调器继续校验；结构不证明段落语义或EOF诚实。Host/应用局部检查不等于普通guest或原生界面已接通，详见[ADR0030](../../docs/architecture/adr/0030-readonly-paragraph-projection.md)。

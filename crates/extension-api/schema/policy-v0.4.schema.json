@@ -1,0 +1,323 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QUSOR extension policy protocol0.4",
+  "description": "API0.4 notes-only vocabulary; legacy schemas unchanged. Manifest wire version stays1. Numeric ranges never grant capabilities.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/manifest"
+    },
+    {
+      "$ref": "#/$defs/capabilityRequest"
+    },
+    {
+      "$ref": "#/$defs/apiError"
+    }
+  ],
+  "$defs": {
+    "namespace": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$(?![\\s\\S])"
+    },
+    "opaqueId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$(?![\\s\\S])"
+    },
+    "apiVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "major",
+        "minor"
+      ],
+      "properties": {
+        "major": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "minor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        }
+      }
+    },
+    "requestApiVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "major",
+        "minor"
+      ],
+      "properties": {
+        "major": {
+          "const": 0
+        },
+        "minor": {
+          "const": 4
+        }
+      }
+    },
+    "apiRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "major",
+        "min_minor",
+        "max_minor"
+      ],
+      "properties": {
+        "major": {
+          "const": 0
+        },
+        "min_minor": {
+          "const": 4
+        },
+        "max_minor": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 65535
+        }
+      }
+    },
+    "packageVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "major",
+        "minor",
+        "patch"
+      ],
+      "properties": {
+        "major": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "minor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "patch": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        }
+      }
+    },
+    "capability": {
+      "const": "notes.read"
+    },
+    "capabilities": {
+      "type": "array",
+      "maxItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/capability"
+      }
+    },
+    "contribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "kind",
+        "required_capabilities"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 192,
+          "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$(?![\\s\\S])",
+          "description": "Must begin with manifest.package_id followed by a dot; unique within the manifest."
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "allOf": [
+            {
+              "pattern": "\\S"
+            },
+            {
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$(?![\\s\\S])"
+            }
+          ],
+          "description": "At most 256 UTF-8 bytes, nonblank, without Unicode control characters. maxLength is a code-point upper bound; Rust enforces bytes."
+        },
+        "kind": {
+          "const": "notes_workspace"
+        },
+        "required_capabilities": {
+          "type": "array",
+          "items": {
+            "const": "notes.read"
+          },
+          "minItems": 1,
+          "maxItems": 1
+        }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "At most 65536 bytes of encoded JSON. Required and optional capabilities must be disjoint; all contribution requirements must be declared by one of those lists. publisher_id is an unverified claim.",
+      "required": [
+        "manifest_version",
+        "package_id",
+        "publisher_id",
+        "package_version",
+        "host_api",
+        "required_capabilities",
+        "optional_capabilities",
+        "contributions"
+      ],
+      "properties": {
+        "manifest_version": {
+          "const": 1
+        },
+        "package_id": {
+          "$ref": "#/$defs/namespace"
+        },
+        "publisher_id": {
+          "$ref": "#/$defs/namespace"
+        },
+        "package_version": {
+          "$ref": "#/$defs/packageVersion"
+        },
+        "host_api": {
+          "$ref": "#/$defs/apiRange"
+        },
+        "required_capabilities": {
+          "$ref": "#/$defs/capabilities"
+        },
+        "optional_capabilities": {
+          "$ref": "#/$defs/capabilities"
+        },
+        "contributions": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/contribution"
+          }
+        }
+      },
+      "anyOf": [
+        {
+          "properties": {
+            "required_capabilities": {
+              "contains": {
+                "const": "notes.read"
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "optional_capabilities": {
+              "contains": {
+                "const": "notes.read"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "vault_id",
+        "draft_id"
+      ],
+      "properties": {
+        "kind": {
+          "const": "draft"
+        },
+        "vault_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "draft_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$",
+          "minLength": 32,
+          "maxLength": 32
+        }
+      }
+    },
+    "capabilityRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "api_version",
+        "request_id",
+        "capability",
+        "resource"
+      ],
+      "properties": {
+        "api_version": {
+          "$ref": "#/$defs/requestApiVersion"
+        },
+        "request_id": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "capability": {
+          "$ref": "#/$defs/capability"
+        },
+        "resource": {
+          "$ref": "#/$defs/resource"
+        }
+      }
+    },
+    "apiError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message"
+      ],
+      "description": "At most 4096 encoded JSON bytes. Diagnostics must not disclose credentials, unknown input fields or payloads.",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "invalid_manifest",
+            "invalid_request",
+            "unsupported_version",
+            "capability_unavailable",
+            "permission_denied",
+            "stale_context",
+            "not_found",
+            "already_installed",
+            "disabled",
+            "invalid_state",
+            "budget_exceeded"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "allOf": [
+            {
+              "pattern": "\\S"
+            },
+            {
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$(?![\\s\\S])"
+            }
+          ],
+          "description": "Nonblank, no Unicode control characters, at most 512 UTF-8 bytes; Rust enforces the byte limit."
+        }
+      }
+    }
+  }
+}

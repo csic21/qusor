@@ -1,4 +1,4 @@
-//! UI-independent extension policy wire: legacy 0.1 and explicitly negotiated 0.2/0.3.
+//! UI-independent extension policy wire: legacy 0.1 and explicitly negotiated 0.2/0.3/0.4.
 //!
 //! These DTOs describe requested capabilities, contribution registration, and an
 //! authorization query. They do not execute plugin code or read/write knowledge.
@@ -19,14 +19,18 @@ pub const HOST_API: ApiVersion = ApiVersion { major: 0, minor: 1 };
 pub const HOST_API_V0_2: ApiVersion = ApiVersion { major: 0, minor: 2 };
 /// Versions implemented by this wire crate, not an authorization grant.
 pub const HOST_API_V0_3: ApiVersion = ApiVersion { major: 0, minor: 3 };
+/// Explicit opt-in protocol for bounded note reads.
+pub const HOST_API_V0_4: ApiVersion = ApiVersion { major: 0, minor: 4 };
 /// Implemented versions; support alone grants no authority.
-pub const SUPPORTED_HOST_APIS: [ApiVersion; 3] = [HOST_API, HOST_API_V0_2, HOST_API_V0_3];
+pub const SUPPORTED_HOST_APIS: [ApiVersion; 4] =
+    [HOST_API, HOST_API_V0_2, HOST_API_V0_3, HOST_API_V0_4];
 
 pub mod component_invocation;
 pub mod composition;
 pub mod continuation;
 pub mod draft;
 pub mod invocation;
+pub mod notes;
 pub mod platform;
 pub mod projection;
 pub mod surface;
@@ -64,7 +68,7 @@ pub const MAX_TITLE_BYTES: usize = 256;
 /// Maximum number of contributions in one manifest.
 pub const MAX_CONTRIBUTIONS: usize = 64;
 /// Maximum distinct capability declarations across implemented protocol versions.
-pub const MAX_CAPABILITIES: usize = 5;
+pub const MAX_CAPABILITIES: usize = 6;
 /// Maximum UTF-8 bytes in a public error message.
 pub const MAX_ERROR_MESSAGE_BYTES: usize = 512;
 /// Maximum encoded error response size in bytes.
@@ -118,6 +122,8 @@ pub enum Capability {
     ReaderSurface,
     #[serde(rename = "note.draft.edit")]
     NoteDraftEdit,
+    #[serde(rename = "notes.read")]
+    NotesRead,
 }
 
 /// Declarative entry types currently understood by the policy registry.
@@ -128,12 +134,14 @@ pub enum ContributionKind {
     SelectionAction,
     ReaderWorkspace,
     ComponentProvider,
+    NotesWorkspace,
 }
 
 /// Version availability is checked even when a capability is declared optional.
 pub fn capability_available_in(capability: Capability, version: ApiVersion) -> bool {
     match capability {
         Capability::NoteDraftEdit => version == HOST_API_V0_3,
+        Capability::NotesRead => version == HOST_API_V0_4,
         Capability::ReaderSurface => version == HOST_API_V0_2,
         Capability::SelectionRead
         | Capability::DocumentMetadataRead
@@ -162,6 +170,7 @@ pub fn capability_resource_valid(
         Capability::CapturePropose => matches!(resource, Resource::Vault { .. }),
         Capability::ReaderSurface => matches!(resource, Resource::Document { .. }),
         Capability::NoteDraftEdit => matches!(resource, Resource::Draft { .. }),
+        Capability::NotesRead => matches!(resource, Resource::Vault { .. }),
     }
 }
 
@@ -237,6 +246,17 @@ impl Manifest {
                 "component vocabulary requires minimum Host API0.3",
             ));
         }
+        let notes_vocabulary = declared.contains(&Capability::NotesRead)
+            || self
+                .contributions
+                .iter()
+                .any(|c| c.kind == ContributionKind::NotesWorkspace);
+        if notes_vocabulary && (self.host_api.major != 0 || self.host_api.min_minor < 4) {
+            return Err(ApiError::new(
+                code,
+                "notes vocabulary requires minimum Host API0.4",
+            ));
+        }
         if self.host_api.major == 0
             && self.host_api.min_minor == 3
             && !declared.contains(&Capability::NoteDraftEdit)
@@ -293,6 +313,13 @@ impl Manifest {
                     "component provider requires note.draft.edit",
                 ));
             }
+            if contribution.kind == ContributionKind::NotesWorkspace
+                && !contribution
+                    .required_capabilities
+                    .contains(&Capability::NotesRead)
+            {
+                return Err(ApiError::new(code, "notes workspace requires notes.read"));
+            }
             for capability in validate_capabilities(&contribution.required_capabilities, code)? {
                 if !declared.contains(&capability) {
                     return Err(ApiError::new(
@@ -321,6 +348,7 @@ impl Manifest {
                 .all(|contribution| match contribution.kind {
                     ContributionKind::ReaderWorkspace => version == HOST_API_V0_2,
                     ContributionKind::ComponentProvider => version == HOST_API_V0_3,
+                    ContributionKind::NotesWorkspace => version == HOST_API_V0_4,
                     ContributionKind::Command | ContributionKind::SelectionAction => {
                         version != HOST_API_V0_3
                     }
