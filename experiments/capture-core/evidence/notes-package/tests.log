@@ -1,12 +1,20 @@
    Compiling qusor-capture-probe v0.1.0 (/workspace/qusor/experiments/capture-core)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.56s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.30s
+     Running tests/notes_install.rs (target/debug/deps/notes_install-346743e72e2faa25)
+
+running 2 tests
+test uninstall_tombstones_the_package_without_touching_core_notes ... ok
+test an_installed_notes_package_survives_reopen_and_stops_after_disable ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
      Running tests/notes_package.rs (target/debug/deps/notes_package-ca3c7110c2a66013)
 
 running 2 tests
 test another_key_or_tampered_package_bytes_are_rejected ... ok
 test an_ordinary_signed_notes_package_reads_real_core_through_the_host ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
 
      Running tests/notes_read.rs (target/debug/deps/notes_read-9ddfafff492d6f57)
 
@@ -16,5 +24,5 @@ test a_bridge_bound_to_another_vault_returns_not_found ... ok
 test control_characters_shrink_the_body_chunk_to_fit ... ok
 test pages_and_body_chunks_read_real_core_notes ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
 

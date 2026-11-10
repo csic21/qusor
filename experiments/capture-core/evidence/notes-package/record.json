@@ -41,36 +41,47 @@
   },
   "tests": {
     "notes_package": 2,
-    "passed": 2,
+    "notes_install": 2,
+    "passed": 4,
     "failed": 0,
-    "command": "cargo test --manifest-path experiments/capture-core/Cargo.toml --offline --test notes_package",
+    "command": "cargo test --manifest-path experiments/capture-core/Cargo.toml --offline --test notes_read --test notes_package --test notes_install",
     "log": "experiments/capture-core/evidence/notes-package/tests.log",
     "names": [
       "an_ordinary_signed_notes_package_reads_real_core_through_the_host",
-      "another_key_or_tampered_package_bytes_are_rejected"
+      "another_key_or_tampered_package_bytes_are_rejected",
+      "an_installed_notes_package_survives_reopen_and_stops_after_disable",
+      "uninstall_tombstones_the_package_without_touching_core_notes"
     ]
   },
   "behaviour": {
     "guest": "one bounded notes-query-v1 page request over the qusor.call import; vault remains Host-bound",
     "host": "verify_for_host, register, exact Vault grant, enable, contributions, 0.4 session, authorize_notes, dispatch",
     "backend": "NotesReadBridge maps the Host-bound vault onto learning-application reads of a real SQLite Core",
-    "wire": "response encoded inside the 4 KiB budget and parsed by the guest"
+    "wire": "response encoded inside the 4 KiB budget and parsed by the guest",
+    "install_lifecycle": {
+      "install": "extension-store persists the verified package in a disabled state; enabling remains a separate Host action",
+      "reopen": "the frozen package bytes and digest survive a store reopen and are executed through the same guest path",
+      "disable": "Host disable invalidates the old session and refuses a new 0.4 session",
+      "uninstall": "tombstone makes the frozen package unavailable while Core notes stay readable through the trusted bridge"
+    }
   },
   "source_sha256": {
     "plugins/notes/manifest.json": "aee6480bf0469bbf8a3a9d98fe85fccd8a83e964cea622cd5b3c706d40f99c18",
     "plugins/notes/guest.wat": "6ee1b92d2ae5d94dfac463b26f1bd15cb1305d5b1b52aeccd4b5dbcc9837f299",
     "plugins/notes/build.py": "c52283de855b2ca3af458d31d63b46ae096ed62e7e6ded9d89a8baf1b178537c",
-    "plugins/notes/README.md": "ba2b769e7132bf201d1cd452df39d34006da075fdfeaa3e657d2927062b9d633",
+    "plugins/notes/README.md": "392dd5e3daea274ed4f1df6f0ab9753f57fef6eccaa29ac7e1b30cf8c1f034a7",
     "experiments/capture-core/tests/notes_package.rs": "bfbde90f25f2ede028420e843e2e8ffc433840b9192546eabb499e124de2784b",
     "experiments/capture-core/src/notes_bridge.rs": "4d202f67b0c3fb0b0b1535cd6fc070894e1331d8050fb7deaa04dbe178b55b81",
     "experiments/capture-core/evidence/notes-package/author-proof.json": "941ab9e5f4dacf18c525ebc252e8efe7423c7bc381ffadf7df6fec6165e6dd39",
     "experiments/capture-core/evidence/notes-package/build.log": "208395ecc1232cb920e21606c02d58e877086e1652eb6aa304454d47db7dd1ba",
-    "experiments/capture-core/evidence/notes-package/tests.log": "08cfc6eb78322bcbac0b2f50728219b4ca1a8b55b2c77e49ab0f3d8b0e56ce15"
+    "experiments/capture-core/evidence/notes-package/tests.log": "cb6ce2bd7b330713438b04069333533ab734811f5681f39c0258041ed42615b0",
+    "experiments/capture-core/tests/notes_install.rs": "4b2981e72839b9b6bcb95e9a075b8b93f30f6d052862e861115e7f818ce330a8",
+    "experiments/capture-core/evidence/notes-package/README.md": "1545e242460cdae4c59fcaf0eaa1101784f26e9d629763fd0fbd0b891261a51f"
   },
   "not_verified": [
     "workspace UI and real window, plus window-level recovery",
-    "persistent package store installation/uninstall and production publisher key",
-    "guest body chunks and denied/revoked grant feedback",
+    "production install/permission UI and publisher key management",
+    "guest body chunks and denied/revoked grant feedback in the window",
     "editing/deleting/organizing notes, IME, assistive technology, other platforms and resource release",
     "full capture-core experiment suite"
   ]

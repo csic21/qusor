@@ -1,6 +1,6 @@
 # ADR 0035：想法读取的公开能力（协议 0.4）
 
-日期：2026-11-10。状态：wire、能力、Host 策略、真实 Core 适配器与 `plugins/notes` 普通签名包已通过；工作区 UI、实窗与持久安装仍未完成。关联 C-08/C-09/C-12、F-NOTE-01、F-SRC-01、F-EXT-01/03/04/05/06。承接 [ADR 0034](0034-note-read-model.md) 与 [D 阶段计划](../../product/d-phase-plan.md)，不扩大 AI、云或平台范围。
+日期：2026-11-10。状态：wire、能力、Host 策略、真实 Core 适配器、`plugins/notes` 普通签名包与服务层安装/停用/卸载已通过；工作区 UI、实窗与生产安装界面仍未完成。关联 C-08/C-09/C-12、F-NOTE-01、F-SRC-01、F-EXT-01/03/04/05/06。承接 [ADR 0034](0034-note-read-model.md) 与 [D 阶段计划](../../product/d-phase-plan.md)，不扩大 AI、云或平台范围。
 
 ## 问题
 
@@ -61,6 +61,6 @@
 - `capture-core` 适配器：真实 SQLite Core 上的分页/正文、控制字符收缩、跨库 NotFound 与错误映射（4 项）。
 - `extension-host`：精确 `notes.read` + Vault 授权、vault 绑定 dispatch、旧会话/旧 wire 拒绝、Document 资源拒绝、撤权/停用后 permit 失效、Host 不支持该能力时拒绝注册。
 - 旧回归：`cargo test --workspace` 244 项、Clippy、格式、架构守卫与文档链接通过。
-- 未覆盖：工作区 UI 与真实窗口、持久安装/卸载与发布密钥、分页 UI、编辑/删除与资源释放。
+- 未覆盖：工作区 UI 与真实窗口、生产安装/权限界面与发布密钥、分页 UI、编辑/删除与资源释放。
 
 本机记录见 [想法读取能力记录](../../../experiments/capture-core/evidence/notes-read-capability/record.json) 与 [可信适配器记录](../../../experiments/capture-core/evidence/notes-read-bridge/record.json)。

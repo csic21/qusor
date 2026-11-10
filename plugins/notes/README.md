@@ -9,7 +9,7 @@
 - `manifest.json`：Host API 0.4，required 仅 `notes.read`，贡献点 `notes_workspace`（`org.qusor.notes.workspace`）。
 - `guest.wat`：普通 Wasm guest，通过 `qusor.call` 发送一条 `notes-query-v1` 分页请求（limit 6），返回 Host 的响应；guest 不自报 vault，不读取 Core/Host 私有状态。
 - `build.py`：把公开 SDK 导出到仓库外临时目录，用 SDK 自带的 `extension-api` 与 `extension-package` 编译签名工具并签名；作者 lock 中没有 Host/Core/storage/NSH/runtime 私有 crate。
-- 验证：`experiments/capture-core/tests/notes_package.rs` 在真实 SQLite Core 上完成 包验证 → Host 安装 → `notes.read` 授权 → 0.4 session → Wasm 执行 → guest 分页请求 → Host 授权/派发 → 真实想法页返回；错误密钥与篡改包被拒绝。
+- 验证：`experiments/capture-core/tests/notes_package.rs` 在真实 SQLite Core 上完成 包验证 → Host 安装 → `notes.read` 授权 → 0.4 session → Wasm 执行 → guest 分页请求 → Host 授权/派发 → 真实想法页返回；错误密钥与篡改包被拒绝。`tests/notes_install.rs` 另验证 `extension-store` 持久安装、重开、停用与卸载 tombstone；卸载后 Core 想法仍可读。
 
 ## 构建
 
@@ -24,6 +24,6 @@ python3 plugins/notes/build.py
 - 只消费公开 SDK、贡献点、Core 查询与授权；不依赖 Host/Core/SQLite/NSH/runtime 私有实现。
 - 原文、用户想法、AI 推断保持分离；本包当前只读，不写入知识。
 - guest 只看见 Host 返回的有界页；vault 由 Host 绑定，缺失/撤销授权时请求失败。
-- 编辑、正文分块读取、工作区 UI 与实窗、持久安装器、恢复、发布密钥管理仍未完成。
+- 编辑、正文分块读取、工作区 UI 与实窗、生产安装/权限界面、发布密钥管理仍未完成。
 
 相关设计见 [ADR 0035](../../docs/architecture/adr/0035-notes-read-capability.md)、[功能规格](../../docs/product/notes-plugin.md) 与 [UI 设计](../../docs/design/notes-workspace.md)；本轮证据见 [包读取记录](../../experiments/capture-core/evidence/notes-package/README.md)。
