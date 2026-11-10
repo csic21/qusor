@@ -1,0 +1,83 @@
+{
+  "date_local": "2026-11-10",
+  "platform": {
+    "name": "macOS",
+    "ui": "AppKit"
+  },
+  "nsh_commit": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
+  "scope": "Workbench native bridge: ordinary notes package, public notes.read wire and a seeded real Core exposed to the workbench UI through qusor/pdf-surface::NotesHost. Headless module proof; live window screenshot not obtained.",
+  "status": {
+    "native_module_headless": "passed",
+    "workbench_fixture_headless": "6 passed",
+    "fixture_real_render": "passed",
+    "live_window_screenshot": "not_captured",
+    "live_ui_in_window": "not_verified"
+  },
+  "package": {
+    "sha256": "fbe9e17b514a9d8b9f03a559ed6d112fb86c65e0a2d44dcfd54a66cb35fc9f96",
+    "publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+    "seed": {
+      "capture_ids": [
+        1,
+        2,
+        3
+      ],
+      "document_id": 1,
+      "notes": 3,
+      "vault": "workbench-vault"
+    }
+  },
+  "tests": {
+    "native_module": {
+      "count": 1,
+      "passed": 1,
+      "failed": 0,
+      "name": "the_workbench_module_serves_a_real_core_page_and_body",
+      "log": "experiments/nsh-reader/evidence/notes-workbench-bridge/tests.log"
+    },
+    "workbench_headless": {
+      "count": 6,
+      "passed": 6,
+      "log": "experiments/nsh-reader/evidence/notes-workspace-ui/tests.log"
+    },
+    "fixture_visual": {
+      "count": 1,
+      "passed": 1,
+      "log": "experiments/nsh-reader/evidence/notes-workspace-ui/visual.log"
+    }
+  },
+  "artifacts": {
+    "host": {
+      "path": "experiments/nsh-reader/target/nsh/target/debug/qusor-nsh-workbench-host",
+      "sha256": "4048c2c17af5942072a33436c6eb525844cb1c9a57b59c442abf107f21002c5e"
+    },
+    "bundle_tree_sha256": "90ca6796a59763980f943ac51ce33dfcad44b0f0d980bef1056e9acc75ae521d",
+    "app_receipt": {
+      "path": "experiments/nsh-reader/evidence/notes-workbench-bridge/app-receipt.json",
+      "sha256": "a157aeb8f4e924a574f60ec55be94afc945502a2ae5b358641f6665152e7bfa5"
+    },
+    "fixture_screenshots": {
+      "list": "be8c2028fba864179bf782e8795b3e888d4a005a4a2eb5ce479b640171c587b0",
+      "detail": "36dbfcc0287d4af754767b62453815c4159a7a51b68a1cbfbb0ae00097a13545",
+      "truncated": "efc9e1d8ee18b57e56133dfa05bf7da1c117296bbdcf84045f7ebba209b775c4",
+      "full_body": "e31e9ef78ca7afbed3217aa3e95df11a29c9a5957e356702e73b7c960296f9bc"
+    }
+  },
+  "source_sha256": {
+    "experiments/nsh-reader/native-host/notes_native.rs": "0e4172d2875b98ceec2aeb7dede4027a4a91d72fb1f8d5189f75aeb41702a9d0",
+    "experiments/nsh-reader/native-host/workbench_main.rs": "20a386ca308c2c7edb36e030a3d7841a8875c48b6e15a185b3bcfb8deb596a2e",
+    "experiments/nsh-reader/native-host/pdf_module.rs": "10262ae683d7ccb92bf6ff5d474245dc1bc0d40a8781285a56005faeb3c698e9",
+    "experiments/nsh-reader/native-host/tests/notes_native.rs": "614bf3b8e776b823675a8fbfd5790f56d546e34092a5ef38f36f07c8f45afb28",
+    "experiments/nsh-reader/native-workbench/contributions.tsx": "8856cb16d35d8524d578f79e40b6078d873bb8a3b9367b5238df98b3a1dcd551",
+    "experiments/nsh-reader/native-workbench/nsh.json": "d54227389faaaed0a313d43625ccbb87031f061e6b61bf0b1829e09c627e9ad3",
+    "experiments/nsh-reader/native-workbench/prepare.py": "1ce4961f02464c978e05087764e5ff624f74461f2d5892df1721b409b4dc5fa2",
+    "experiments/capture-core/src/bin/seed_workbench_notes.rs": "721308137ac545cc038b6e780624923ee0b129fa0738b5474af8db46d96f281d",
+    "config/architecture.toml": "20410531b294c63c5188b17fbfe4e8bbb1eb19e6a5dde638b6062ab2f9463597"
+  },
+  "not_verified": [
+    "real window screenshot of live Core notes in the workbench",
+    "live UI mapping (title/date/citation) in a real window",
+    "real source return and precise highlight",
+    "narrow live layout, IME, assistive technology, other platforms and resource release"
+  ]
+}

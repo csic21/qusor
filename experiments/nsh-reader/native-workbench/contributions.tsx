@@ -419,7 +419,22 @@ const readingBooks = [
         progress: "已读 24%",
     },
 ];
-const notes = [
+type Note = {
+    id: string;
+    title: string;
+    document: string;
+    page: number;
+    quote: string;
+    note: string;
+    full?: string;
+    date: string;
+    scope: string;
+    starred: boolean;
+    missingOriginal: boolean;
+    captureId?: number;
+    sourceUnavailable?: "reader";
+};
+const notesFixture: Note[] = [
     {
         id: "native-hierarchy",
         title: "原生界面里的层级",
@@ -473,6 +488,53 @@ const notes = [
         missingOriginal: true,
     },
 ];
+const notesData = signal<Note[]>(notesFixture);
+const notesLive = signal(false);
+const notesSource = signal("样例数据");
+const notesSourceDetail = signal("窗口内样例");
+
+function firstLine(value: string) {
+    return value.split("\n")[0].trim().slice(0, 60);
+}
+
+async function loadLiveNotes() {
+    try {
+        const raw = await NotesHost.page();
+        const result = JSON.parse(raw);
+        if (!result.ok || !Array.isArray(result.value?.notes)) return;
+        const page = result.value;
+        const mapped = page.notes.map((wire: any): Note => ({
+            id: `live-${wire.capture_id}-${wire.commit_rev}`,
+            title: firstLine(wire.note_preview) || wire.document_title,
+            document: wire.document_title,
+            page: wire.page_index + 1,
+            quote: wire.quote_preview,
+            note: wire.note_preview,
+            full: wire.note_truncated ? undefined : wire.note_preview,
+            date: `提交 ${wire.commit_rev}`,
+            scope:
+                wire.document_id === page.current_document_id
+                    ? "当前资料"
+                    : "其他资料",
+            starred: false,
+            missingOriginal: false,
+            captureId: wire.capture_id,
+            sourceUnavailable: "reader",
+        }));
+        notesData.set(mapped);
+        notesLive.set(true);
+        notesSource.set("本机 Core");
+        notesSourceDetail.set("由 notes 插件读取");
+    } catch (_) {
+        // Headless tests and the plain development host keep the fixture, but
+        // the window states which source is actually shown.
+        notesSource.set("样例数据");
+        notesSourceDetail.set("窗口内样例");
+    }
+}
+
+void loadLiveNotes();
+
 function ReadingSidebar(props: { compact: boolean }) {
     return (
         <View
@@ -943,20 +1005,20 @@ function ReadingWorkspace(props: { compact: boolean }) {
     );
 }
 
-function noteInScope(note: (typeof notes)[number], scope: string) {
+function noteInScope(note: Note, scope: string) {
     return scope === "全部想法" || note.scope === "当前资料";
 }
 
 function noteCount(scope: string) {
-    return notes.filter((note) => noteInScope(note, scope)).length;
+    return notesData().filter((note) => noteInScope(note, scope)).length;
 }
 
 function visibleNotes() {
-    return notes.filter((note) => {
+    return notesData().filter((note) => {
         const query = notesQuery().trim().toLowerCase();
         const matches =
             !query ||
-            `${note.title} ${note.document} ${note.quote} ${note.full}`
+            `${note.title} ${note.document} ${note.quote} ${note.full ?? ""}`
                 .toLowerCase()
                 .includes(query);
         return noteInScope(note, notesScope()) && matches;
@@ -964,26 +1026,30 @@ function visibleNotes() {
 }
 
 function selectedNote() {
-    return notes.find((note) => note.id === notesSelected());
+    return notesData().find((note) => note.id === notesSelected());
 }
 
-function noteTruncated(note: (typeof notes)[number]) {
+function noteTruncated(note: Note) {
     return note.full !== note.note;
 }
 
-function noteBodyText(note: (typeof notes)[number]) {
+function noteBodyText(note: Note) {
     return notesBody()[note.id] ?? note.note;
 }
 
-function noteCitation(note: (typeof notes)[number]) {
+function noteCitation(note: Note) {
     return `> ${note.quote}\n\n— 《${note.document}》第 ${note.page} 页`;
 }
 
-function noteMenuItems(note: (typeof notes)[number]): DesktopMenuItem[] {
+function noteMenuItems(note: Note): DesktopMenuItem[] {
     return [
         {
-            label: "打开所在页",
-            disabled: note.missingOriginal,
+            label:
+                note.sourceUnavailable === "reader"
+                    ? "打开所在页（阅读窗口未接入）"
+                    : "打开所在页",
+            disabled:
+                note.missingOriginal || note.sourceUnavailable === "reader",
             onSelect: () => openNoteSource(note),
         },
         { label: "复制引文", onSelect: () => noteCopy(note.quote, "引文") },
@@ -1014,7 +1080,11 @@ function noteCopy(text: string, label: string) {
         );
 }
 
-function openNoteSource(note: (typeof notes)[number]) {
+function openNoteSource(note: Note) {
+    if (note.sourceUnavailable === "reader") {
+        notesCopyStatus.set("阅读窗口尚未接入，无法回源；引文与想法仍可复制。");
+        return;
+    }
     if (note.missingOriginal) {
         notesCopyStatus.set("原件缺失，无法定位到这一页。");
         return;
@@ -1028,16 +1098,50 @@ function openNoteSource(note: (typeof notes)[number]) {
     );
 }
 
-function loadNoteBody(note: (typeof notes)[number]) {
+function loadNoteBody(note: Note) {
     if (notesBody()[note.id] || notesBodyLoading()) return;
     notesBodyLoading.set(note.id);
+    if (notesLive() && note.captureId !== undefined) {
+        const captureId = note.captureId;
+        void (async () => {
+            try {
+                let offset = 0;
+                let text = "";
+                for (;;) {
+                    const raw = await NotesHost.body(
+                        captureId,
+                        "note",
+                        offset,
+                        2048,
+                    );
+                    const result = JSON.parse(raw);
+                    if (!result.ok) throw Error();
+                    text += result.value.text;
+                    if (
+                        result.value.next_offset === null ||
+                        result.value.next_offset === undefined
+                    )
+                        break;
+                    offset = result.value.next_offset;
+                }
+                notesBody.set({ ...notesBody(), [note.id]: text });
+            } catch (_) {
+                notesCopyStatus.set(
+                    "完整内容暂时读取不到；列表预览仍保留，可重试。",
+                );
+            } finally {
+                notesBodyLoading.set("");
+            }
+        })();
+        return;
+    }
     setTimeout(() => {
         notesBody.set({ ...notesBody(), [note.id]: note.full });
         notesBodyLoading.set("");
     }, 450);
 }
 
-function selectNote(note: (typeof notes)[number]) {
+function selectNote(note: Note) {
     notesSelected.set(note.id);
     notesSelection.set("");
     notesCopyStatus.set("");
@@ -1214,6 +1318,9 @@ function NotesList(props: { compact: boolean }) {
                     <Copy size={11} muted>
                         {list().length} 条想法
                     </Copy>
+                    <Copy size={10} muted>
+                        {notesSource()} · {notesSourceDetail()}
+                    </Copy>
                 </View>
                 <If when={!props.compact}>
                     <View style={{ width: 240 }}>
@@ -1328,6 +1435,17 @@ function NotesList(props: { compact: boolean }) {
                                                         原件缺失
                                                     </Copy>
                                                 </If>
+                                                <If
+                                                    when={
+                                                        note()
+                                                            .sourceUnavailable ===
+                                                        "reader"
+                                                    }
+                                                >
+                                                    <Copy size={11} muted>
+                                                        阅读未接入
+                                                    </Copy>
+                                                </If>
                                             </View>
                                             <View
                                                 style={{
@@ -1417,7 +1535,10 @@ function NotesList(props: { compact: boolean }) {
 function NoteDetail() {
     const note = () => selectedNote();
     const canOpen = () =>
-        !!note() && !note()!.missingOriginal && note()!.scope === "当前资料";
+        !!note() &&
+        !note()!.missingOriginal &&
+        !note()!.sourceUnavailable &&
+        note()!.scope === "当前资料";
     return (
         <View style={{ flex: 1, minWidth: 0 }}>
             <View
@@ -1449,9 +1570,11 @@ function NoteDetail() {
                     label={
                         canOpen()
                             ? "打开所在页"
-                            : note()?.missingOriginal
-                              ? "原件缺失，无法定位"
-                              : "先打开来源资料后可定位"
+                            : note()?.sourceUnavailable === "reader"
+                              ? "阅读窗口未接入，无法回源"
+                              : note()?.missingOriginal
+                                ? "原件缺失，无法定位"
+                                : "先打开来源资料后可定位"
                     }
                     text="打开所在页"
                     icon="book"
@@ -1658,9 +1781,15 @@ function NoteDetail() {
                                 原件缺失，无法定位到这一页；引文与想法仍可复制。
                             </Copy>
                         </If>
+                        <If when={note()?.sourceUnavailable === "reader"}>
+                            <Copy size={11} muted>
+                                阅读窗口尚未接入，无法回源；引文与想法仍可复制。
+                            </Copy>
+                        </If>
                         <If
                             when={
                                 !note()?.missingOriginal &&
+                                !note()?.sourceUnavailable &&
                                 note()?.scope !== "当前资料"
                             }
                         >

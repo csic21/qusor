@@ -1,0 +1,36 @@
+{
+  "app": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app",
+  "command": [
+    "/workspace/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app/Contents/MacOS/qusor-native-host",
+    "--bundle",
+    "/workspace/qusor/experiments/nsh-reader/target/native-workbench/bundle/bundle.nshc",
+    "--app-id",
+    "org.qusor.workbenchstudy",
+    "--data-dir",
+    "/workspace/qusor/experiments/nsh-reader/target/native-workbench/data",
+    "--name",
+    "QUSOR 工作台研究",
+    "--window-size",
+    "1280x820"
+  ],
+  "size": [
+    1280,
+    820
+  ],
+  "bundle_tree_sha256": "90ca6796a59763980f943ac51ce33dfcad44b0f0d980bef1056e9acc75ae521d",
+  "host_sha256": "4048c2c17af5942072a33436c6eb525844cb1c9a57b59c442abf107f21002c5e",
+  "notes_package_sha256": "fbe9e17b514a9d8b9f03a559ed6d112fb86c65e0a2d44dcfd54a66cb35fc9f96",
+  "notes_publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+  "seed": {
+    "capture_ids": [
+      1,
+      2,
+      3
+    ],
+    "document_id": 1,
+    "notes": 3,
+    "vault": "workbench-vault"
+  },
+  "notes_core": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/core",
+  "fixture": "Real Core notes in a sealed local data directory; ordinary signed notes package; no network."
+}

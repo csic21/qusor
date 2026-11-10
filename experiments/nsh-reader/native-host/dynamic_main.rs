@@ -87,6 +87,6 @@ mod platform {
 }
 #[cfg(target_os = "windows")]
 mod platform {
-    pub use nsh_windows_host::main;
     pub use nsh_platform_windows::set_ui_sets;
+    pub use nsh_windows_host::main;
 }

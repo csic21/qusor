@@ -11,6 +11,7 @@ import plistlib
 import shlex
 import shutil
 import subprocess
+import sys
 
 
 def main() -> None:
@@ -25,31 +26,48 @@ def main() -> None:
     except ValueError:
         raise SystemExit("--size 最小为 900x680") from None
     here = Path(__file__).resolve().parent
+    root = here.parents[2]
     cache = here.parent / "target/native-workbench"
-    native = here.parent / "target/nsh/target/debug/qusor-nsh-native-host-probe"
-    cli = native.with_name("nsh")
-    if not native.is_file() or not cli.is_file():
+    host_binary = here.parent / "target/nsh/target/debug/qusor-nsh-workbench-host"
+    cli = here.parent / "target/nsh/target/debug/nsh"
+    if not cli.is_file():
         raise SystemExit("先按 ../README.md 准备固定 NSH CLI 与 native-host")
     cache.mkdir(parents=True, exist_ok=True)
+    env = dict(os.environ, RUSTUP_TOOLCHAIN="1.97.1", CARGO_NET_OFFLINE="true",
+               CARGO_TARGET_DIR=str(here.parent / "target/nsh/target"))
+    subprocess.run(["cargo", "build", "--manifest-path", str(here.parent / "native-host/Cargo.toml"),
+                    "--offline", "--bin", "qusor-nsh-workbench-host"], env=env, check=True)
     bundle_dir = cache / "bundle"
-    subprocess.run([str(cli), "build", "App.tsx", "-o", str(bundle_dir)], cwd=here, check=True)
+    subprocess.run([str(cli), "build", "App.tsx", "-o", str(bundle_dir)], cwd=here, env=env, check=True)
     meta_path = bundle_dir / "app.json"
     meta = json.loads(meta_path.read_text())
     meta["window"]["defaultSize"] = {"width": width, "height": height}
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, separators=(",", ":")) + "\n")
     if args.build_only:
         return
+    # Ordinary signed notes package, built outside the repository from the SDK.
+    subprocess.run([sys.executable, str(root / "plugins/notes/build.py")], check=True)
+    proof = json.loads((root / "plugins/notes/target/author-proof.json").read_text())
+    shutil.copyfile(root / "plugins/notes/target/notes.qpk", cache / "notes.package")
+    (cache / "notes-key.txt").write_text(proof["publisher_key"] + "\n")
+    # Seed a real Core database with Chinese saved notes for the window.
+    seed = root / "experiments/capture-core/target/debug/seed_workbench_notes"
+    if not seed.is_file():
+        subprocess.run(["cargo", "build", "--manifest-path",
+                        str(root / "experiments/capture-core/Cargo.toml"),
+                        "--offline", "--bin", "seed_workbench_notes"], check=True)
+    core = cache / "core"
+    shutil.rmtree(core, ignore_errors=True)
+    subprocess.run([str(seed), str(core), str(cache / "seed.json")], check=True)
+    seed_receipt = json.loads((cache / "seed.json").read_text())
     app = cache / "QUSOR 工作台研究.app"
     macos = app / "Contents/MacOS"
     macos.mkdir(parents=True, exist_ok=True)
     linked_host = macos / "qusor-native-host"
-    # A distinct executable inode keeps this review app separate from the
-    # older preview in macOS app/window discovery. Bytes stay pinned.
-    host_digest = hashlib.sha256(native.read_bytes()).hexdigest()
-    if linked_host.exists() and os.path.samefile(linked_host, native):
+    host_digest = hashlib.sha256(host_binary.read_bytes()).hexdigest()
+    if linked_host.exists():
         linked_host.unlink()
-    if not linked_host.exists() or hashlib.sha256(linked_host.read_bytes()).hexdigest() != host_digest:
-        shutil.copy2(native, linked_host)
+    shutil.copy2(host_binary, linked_host)
     launcher = macos / "qusor-workbench-study"
     if launcher.exists():
         launcher.unlink()
@@ -57,7 +75,14 @@ def main() -> None:
                "--app-id", "org.qusor.workbenchstudy", "--data-dir", str(cache / "data"),
                "--name", "QUSOR 工作台研究", "--window-size", args.size]
     log = cache / "native.log"
-    launcher.write_text("#!/bin/sh\nexec " + shlex.join(command) + ' "$@" >>' + shlex.quote(str(log)) + " 2>&1\n")
+    exports = {
+        "QUSOR_NOTES_DATA": str(core),
+        "QUSOR_NOTES_PACKAGE": str(cache / "notes.package"),
+        "QUSOR_NOTES_KEY": str(cache / "notes-key.txt"),
+        "QUSOR_NOTES_DOCUMENT": str(seed_receipt["document_id"]),
+    }
+    launcher.write_text("#!/bin/sh\n" + "\n".join(f"export {key}={shlex.quote(value)}" for key, value in exports.items())
+                        + "\nexec " + shlex.join(command) + ' "$@" >>' + shlex.quote(str(log)) + " 2>&1\n")
     launcher.chmod(0o755)
     (app / "Contents/Info.plist").write_bytes(plistlib.dumps({
         "CFBundleExecutable": launcher.name, "CFBundleIdentifier": "org.qusor.workbenchstudy",
@@ -72,7 +97,11 @@ def main() -> None:
     receipt = {"app": str(app), "command": command, "size": [width, height],
                "bundle_tree_sha256": digest.hexdigest(),
                "host_sha256": host_digest,
-               "fixture": "Self-authored, window-local. No Core, external agents, network or real plugin packages."}
+               "notes_package_sha256": hashlib.sha256((cache / "notes.package").read_bytes()).hexdigest(),
+               "notes_publisher_key": proof["publisher_key"],
+               "seed": seed_receipt,
+               "notes_core": str(core),
+               "fixture": "Real Core notes in a sealed local data directory; ordinary signed notes package; no network."}
     (cache / "artifact.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps(receipt, ensure_ascii=False, indent=2))
 

@@ -20,6 +20,9 @@ path = "tests/native_editor_retirement.rs"
 harness = false
 required-features = ["native-qualification"]
 
+[dev-dependencies]
+wat = "=1.228.0"
+
 [dependencies]
 nsh-core = { path = "../target/nsh/crates/nsh-core" }
 nsh-base = { path = "../target/nsh/crates/nsh-base", features = ["highlight"] }
@@ -43,6 +46,10 @@ app_rust_exports_native = { package = "rust-exports-native", path = "../target/n
 [[bin]]
 name = "qusor-nsh-native-host-probe"
 path = "main.rs"
+
+[[bin]]
+name = "qusor-nsh-workbench-host"
+path = "workbench_main.rs"
 
 [[bin]]
 name = "qusor-nsh-pdf-surface-probe"

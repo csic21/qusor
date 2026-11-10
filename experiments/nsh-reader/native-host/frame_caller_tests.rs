@@ -87,15 +87,9 @@ fn more_than64_deliver_close_reclaim_with_an_old_encoded_guard_still_alive() {
         b.wait_until(Instant::now() + Duration::from_secs(1))
             .unwrap()
     );
-    assert_eq!(
-        old_owner.snapshot().unwrap().encoded_containers,
-        1
-    );
+    assert_eq!(old_owner.snapshot().unwrap().encoded_containers, 1);
     drop(old);
-    assert_eq!(
-        old_owner.snapshot().unwrap().encoded_containers,
-        0
-    );
+    assert_eq!(old_owner.snapshot().unwrap().encoded_containers, 0);
     assert_eq!(Arc::strong_count(&bytes), 1); // modeled independent cache Arc remains
 }
 // Use the actual pinned NSH sharing type; Blob/slice remain an explicit model.
@@ -158,21 +152,12 @@ fn shared_full_slice_retainer_and_decoded_copy_have_distinct_lifetimes() {
     drop(url);
     drop(full_source);
     drop(slice);
-    assert_eq!(
-        owner.snapshot().unwrap().encoded_containers,
-        1
-    );
+    assert_eq!(owner.snapshot().unwrap().encoded_containers, 1);
     assert_eq!(sliced_source.bytes(), [6, 7]);
     drop(sliced_source);
-    assert_eq!(
-        owner.snapshot().unwrap().encoded_containers,
-        1
-    ); // generic shared retainer; do NOT label it mount pin or actual L3
+    assert_eq!(owner.snapshot().unwrap().encoded_containers, 1); // generic shared retainer; do NOT label it mount pin or actual L3
     drop(shared_retainer);
-    assert_eq!(
-        owner.snapshot().unwrap().encoded_containers,
-        0
-    );
+    assert_eq!(owner.snapshot().unwrap().encoded_containers, 0);
     assert_eq!(decoded_copy, [5, 6, 7, 8]);
     assert_eq!(Arc::strong_count(&png_cache), 1);
     drop(owner);

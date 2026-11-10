@@ -26,7 +26,10 @@ const LIBRARY_SHA: &str = "a45c44645523968525c710462691dd974f4efb1013ce1c249919a
 const LIBRARY_SHA: &str = "a9f428a16f46bab89646c8724b348e01c3fe707e3126d9356026cd876a74aecb";
 #[cfg(not(any(
     all(target_os = "linux", target_arch = "x86_64"),
-    all(target_os = "macos", any(target_arch = "aarch64", target_arch = "x86_64"))
+    all(
+        target_os = "macos",
+        any(target_arch = "aarch64", target_arch = "x86_64")
+    )
 )))]
 const LIBRARY_SHA: &str = "unqualified-pdfium-target";
 static SERIAL_WORKER: Mutex<()> = Mutex::new(());

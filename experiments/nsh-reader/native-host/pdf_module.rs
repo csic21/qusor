@@ -1,4 +1,5 @@
 //! Native PDF Surface experiment: frozen report and authoritative gesture lifecycle.
+pub mod notes_native;
 use nsh_core::prelude::*;
 use qusor_pdf_provider_probe::{
     DocumentReport,
@@ -264,6 +265,7 @@ fn native(registry: &mut Registry) {
     registry.module::<plugin_surface::ReaderSurface>();
     registry.module::<dynamic_module::DynamicReader>();
     registry.module::<plugin_surface::native_editor::NativeEditor>();
+    registry.module::<notes_native::NotesHost>();
 }
 
 #[cfg(test)]
@@ -294,16 +296,36 @@ mod tests {
     fn fixture() -> (Scratch, String, DocumentReport) {
         let tmp = Scratch::new();
         let provider = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../pdf-provider");
-        let adjacent = std::env::current_exe().unwrap().parent().unwrap().parent().unwrap()
+        let adjacent = std::env::current_exe()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .parent()
+            .unwrap()
             .join("qusor-pdf-provider-probe");
-        let binary = std::env::var_os("QUSOR_PDF_PROVIDER_PROBE").map(PathBuf::from)
-            .unwrap_or_else(|| if adjacent.is_file() { adjacent } else { provider.join("target/debug/qusor-pdf-provider-probe") });
-        let library = std::env::var_os("QUSOR_PDF_LIBRARY").map(PathBuf::from).unwrap_or_else(|| {
-            if cfg!(target_os = "macos") {
-                let arch = if cfg!(target_arch = "aarch64") { "aarch64" } else { "x86_64" };
-                provider.join(format!("target/pdfium-macos-{arch}/lib/libpdfium.dylib"))
-            } else { provider.join("target/pdfium/lib/libpdfium.so") }
-        });
+        let binary = std::env::var_os("QUSOR_PDF_PROVIDER_PROBE")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| {
+                if adjacent.is_file() {
+                    adjacent
+                } else {
+                    provider.join("target/debug/qusor-pdf-provider-probe")
+                }
+            });
+        let library = std::env::var_os("QUSOR_PDF_LIBRARY")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| {
+                if cfg!(target_os = "macos") {
+                    let arch = if cfg!(target_arch = "aarch64") {
+                        "aarch64"
+                    } else {
+                        "x86_64"
+                    };
+                    provider.join(format!("target/pdfium-macos-{arch}/lib/libpdfium.dylib"))
+                } else {
+                    provider.join("target/pdfium/lib/libpdfium.so")
+                }
+            });
         let output = Command::new(binary)
             .arg("inspect")
             .arg(library)

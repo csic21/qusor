@@ -1539,32 +1539,66 @@ mod reader_guest_tests {
         let _test = SERVICE_TEST.lock().unwrap();
         let resources =
             Path::new(env!("CARGO_MANIFEST_DIR")).join("../target/plugin-surface-resources");
-        let data = std::env::temp_dir().join(format!("qusor-reader-cold-open-{}", std::process::id()));
+        let data =
+            std::env::temp_dir().join(format!("qusor-reader-cold-open-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&data);
         std::fs::create_dir_all(&data).unwrap();
         initialize(&resources, &data).unwrap();
-        let first = service().unwrap().gate.lock().unwrap().document.receipt.document_id;
-        let saved = service().unwrap().gate.lock().unwrap().host.saved_authorization_for_test().unwrap();
+        let first = service()
+            .unwrap()
+            .gate
+            .lock()
+            .unwrap()
+            .document
+            .receipt
+            .document_id;
+        let saved = service()
+            .unwrap()
+            .gate
+            .lock()
+            .unwrap()
+            .host
+            .saved_authorization_for_test()
+            .unwrap();
         shutdown().unwrap();
 
         let mut next = fixture_prepared_for_cold_open(&resources);
         next.operation = "cold-open-second-import".into();
-        assert!(initialize_document(&resources, &data, next).is_err(),
-            "passive recovery must not change the document permission scope");
+        assert!(
+            initialize_document(&resources, &data, next).is_err(),
+            "passive recovery must not change the document permission scope"
+        );
         assert!(service().is_err());
         let mut next = fixture_prepared_for_cold_open(&resources);
         next.operation = "cold-open-second-import".into();
-        assert!(matches!(initialize_document_checked(&resources, &data, next).unwrap(),
-            DocumentInitialization::Ready));
+        assert!(matches!(
+            initialize_document_checked(&resources, &data, next).unwrap(),
+            DocumentInitialization::Ready
+        ));
         let active = service().unwrap();
         let gate = active.gate.lock().unwrap();
         assert_ne!(first, gate.document.receipt.document_id);
         let restored = gate.host.saved_authorization_for_test().unwrap();
         match (saved, restored) {
-            (extension_store::SavedAuthorization::V2(before), extension_store::SavedAuthorization::V2(after)) => {
+            (
+                extension_store::SavedAuthorization::V2(before),
+                extension_store::SavedAuthorization::V2(after),
+            ) => {
                 assert_eq!(before.scope.expires_at, after.scope.expires_at);
-                assert_eq!(before.scope.grants.iter().map(|g| g.capability).collect::<Vec<_>>(),
-                           after.scope.grants.iter().map(|g| g.capability).collect::<Vec<_>>());
+                assert_eq!(
+                    before
+                        .scope
+                        .grants
+                        .iter()
+                        .map(|g| g.capability)
+                        .collect::<Vec<_>>(),
+                    after
+                        .scope
+                        .grants
+                        .iter()
+                        .map(|g| g.capability)
+                        .collect::<Vec<_>>()
+                );
             }
             _ => panic!("expected ordinary versioned grants"),
         }
@@ -1579,7 +1613,10 @@ mod reader_guest_tests {
         PreparedDocument {
             report: serde_json::from_slice(&bytes).unwrap(),
             report_digest: qusor_pdf_provider_probe::sha256(&bytes),
-            snapshot: serde_json::from_slice(&std::fs::read(resources.join("snapshot.json")).unwrap()).unwrap(),
+            snapshot: serde_json::from_slice(
+                &std::fs::read(resources.join("snapshot.json")).unwrap(),
+            )
+            .unwrap(),
             original: std::fs::read(resources.join("original.pdf")).unwrap(),
             title: "text-two-pages.pdf".into(),
             operation: String::new(),

@@ -4,9 +4,19 @@
   "theme": "theme.json",
   "window": {
     "title": "QUSOR 工作台研究",
-    "defaultSize": { "width": 1280, "height": 820 },
-    "minSize": { "width": 900, "height": 680 },
-    "titleBar": { "style": "hidden", "height": 52 },
+    "defaultSize": {
+      "width": 1280,
+      "height": 820
+    },
+    "minSize": {
+      "width": 900,
+      "height": 680
+    },
+    "titleBar": {
+      "style": "hidden",
+      "height": 52
+    },
     "backdrop": "sidebar"
-  }
+  },
+  "rust": "../native-host"
 }

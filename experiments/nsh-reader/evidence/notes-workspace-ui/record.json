@@ -6,24 +6,24 @@
   "artifacts": {
     "bundle": {
       "path": "experiments/nsh-reader/target/native-workbench/bundle/bundle.nshc",
-      "sha256": "2bbb6225a571bef369e9ec5536b270b3c9d7a7dcf89dd392ebb3e0876609a17c"
+      "sha256": "a60f701c7e98e0a9fe58539830618a7792642a18f7aca975aa238573524bda95"
     },
     "screenshots": {
       "list": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/list.png",
-        "sha256": "97ddb70c4f8bce2172e7cc8a386ca59066dded098945702842053fb677bb6edf"
+        "sha256": "be8c2028fba864179bf782e8795b3e888d4a005a4a2eb5ce479b640171c587b0"
       },
       "detail": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/detail.png",
-        "sha256": "1d62827740ccd377eb52eedbdb04137e72c0854060104f26e2b2a41e5e039251"
+        "sha256": "36dbfcc0287d4af754767b62453815c4159a7a51b68a1cbfbb0ae00097a13545"
       },
       "truncated": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/truncated.png",
-        "sha256": "15357423c22b99dfbd68ec52ebe1255037a2dc24c2e653aed9ebbe18d045faf9"
+        "sha256": "efc9e1d8ee18b57e56133dfa05bf7da1c117296bbdcf84045f7ebba209b775c4"
       },
       "full_body": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/full-body.png",
-        "sha256": "1b978bd3e6f39981d5d1739d1bb44529a414c4b4a0419d7fe754af01cea57a66"
+        "sha256": "e31e9ef78ca7afbed3217aa3e95df11a29c9a5957e356702e73b7c960296f9bc"
       }
     }
   },
@@ -51,12 +51,11 @@
   },
   "source_sha256": {
     "experiments/nsh-reader/native-workbench/ui.tsx": "05b707f5ae489039721d7346d974385fe3904e07d6784121989cece906e2cbbf",
-    "experiments/nsh-reader/native-workbench/contributions.tsx": "630b5e6629f3734a05f59354584f69095263d0bf0e6a90ee8bb23c2452306a5c",
+    "experiments/nsh-reader/native-workbench/contributions.tsx": "8856cb16d35d8524d578f79e40b6078d873bb8a3b9367b5238df98b3a1dcd551",
     "experiments/nsh-reader/native-workbench/App.tsx": "c205ec398ce82312da226b5f3c7827766fdb2730ad8f3802b4a9f895471cec02",
     "experiments/nsh-reader/native-workbench/tests/notes-workspace.test.tsx": "9d2d03a4ac23191d8d14c13a322c1c8b319f5c1bd883e2b6d7636dd79a22ec73",
     "experiments/nsh-reader/native-workbench/tests/notes-workspace-visual.test.tsx": "35bfd677c09b4742a02fd1b4ff87ed41c28bc51ec6b2cd427aa8b743e8996c3d",
-    "docs/design/notes-workspace.md": "24dd79fbc2d7e8fa4e1ce37f4b6e69140f512a9c0f1d61ee54d7137b0e4950e2",
-    "docs/product/notes-plugin.md": "3b56d04626edd01a6896cf4e8ae4335ed010bbca04fc21fbb989f2485e772f55"
+    "docs/design/notes-workspace.md": "24dd79fbc2d7e8fa4e1ce37f4b6e69140f512a9c0f1d61ee54d7137b0e4950e2"
   },
   "interactions": {
     "context_menu": "native Menu.popup on right click; row selected first; disabled edit/delete with reasons",
@@ -79,6 +78,7 @@
     "quote_accent": "explicit 3pt View instead of borderLeftWidth; the pinned macOS dev host drew the single border as a horizontal line",
     "duplicate_action": "removed the repeated 打开所在页 footer button; one primary action in the header",
     "banner_action": "raised compact TextButton so the read-full action stays visible on the inset banner",
-    "shell_alignment": "sidebar rows 34/radius 8, search 32, menu rows 30"
+    "shell_alignment": "sidebar rows 34/radius 8, search 32, menu rows 30",
+    "data_source": "The list header states 样例数据 or 本机 Core; fixture remains the headless fallback, live mode is wired through NotesHost."
   }
 }
