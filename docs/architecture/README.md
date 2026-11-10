@@ -96,6 +96,8 @@ extension-host 策略本身不写知识；新增 application 经 ports 调用真
 
 - [ADR 0028](adr/0028-extensible-native-workspace.md)：原生工作区区域、组件角色与提供者分离，兼容替换和数据保留；[设计工作基线](../design/README.md) 给出布局、视觉与UX验收，通用组合协议尚未实现。
 
+- [ADR 0034](adr/0034-note-read-model.md)：想法读取的 keyset 分页、范围绑定游标与有界正文分块；应用层与 SQLite 重开已通过，公开 SDK wire、插件授权与窗口接线未完成。
+
 - [ADR 0027](adr/0027-supervised-raw-process-runtime.md)：独立控制线程/原始字节传输与ManagedRun生命周期已通过真实Core九场景和完整兼容回归；正式应用装配与其他平台待完成。
 
 - [ADR 0032](adr/0032-verified-package-material-cache.md)：完整材料相等时复用纯验包结果，fresh授权与私有检查保留。

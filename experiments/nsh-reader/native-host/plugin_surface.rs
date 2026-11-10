@@ -782,17 +782,19 @@ impl Service {
 
     fn notes(&self) -> Result<Value> {
         let g = mutex(&self.gate)?;
-        let notes = g
+        let page = g
             .core
-            .pdf_notes(
+            .pdf_notes_page(
                 &g.document.vault,
                 None,
-                learning_application::pdf_notes::MAX_NOTE_QUERY,
+                None,
+                learning_application::pdf_notes::MAX_NOTE_PAGE,
             )
             .map_err(text)?;
         Ok(json!({
             "current_document_id": g.document.receipt.document_id,
-            "notes": notes.into_iter().map(|note| json!({
+            "next_cursor": page.next_cursor,
+            "notes": page.notes.into_iter().map(|note| json!({
                 "capture_id": note.capture_id,
                 "commit_rev": note.commit_rev,
                 "operation_id": note.operation_id,

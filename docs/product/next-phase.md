@@ -1,5 +1,7 @@
 # 下一阶段：插件支撑的最小本地阅读闭环
 
+2026-11-10 想法读取契约增量：`learning-application` 的想法查询改为 keyset 分页（单页最多 200 条，游标绑定 vault/document 精确范围，分页期间新增想法不重排/不跳项），并新增 Quote/Note 正文分块读取（4–16 KiB、UTF-8 边界安全、1 MiB 笔记可逐块还原，缺失/越界/预算错误明确分类）；真实 SQLite 关闭重开后恢复同一分页与完整正文。决策见 [ADR 0034](../architecture/adr/0034-note-read-model.md)，本机记录见[想法读取契约记录](../../experiments/capture-core/evidence/note-query-contract/record.json)。该增量是应用层只读契约，不是正式 notes 包；公开 SDK wire、插件授权、分页 UI、精确高亮回源与原生窗口接线仍待 D0 余项与 D1，见 [D 阶段计划](d-phase-plan.md)。
+
 2026-11-10 想法读取与布局集成增量：`learning-application` 新增按 vault/document 隔离、倒序、带 UTF-8 有界预览的 PDF 想法查询；SQLite 关闭重开后恢复同一列表，动态 PDF 实验工作区已真实显示 Core 中两条旧中文想法。随后在统一 `native-workbench` 的 `PluginWorkspace` 下钻机制中加入“想法”插件工作区样例，走通宿主入口→插件自有导航/列表/详情→插件内返回→宿主外层返回；该工作台仍为窗口内 fixture，真实 Core 查询尚未通过公开插件契约接入。该列表是 D 阶段读取基础，不是正式 notes 插件，也未完成完整正文编辑或精确高亮回源。证据见[Core 想法列表记录](../../experiments/nsh-reader/evidence/notes-workspace/README.md)与[插件工作区集成记录](../../experiments/nsh-reader/evidence/native-notes-workspace/README.md)，正式包门槛与后续顺序见[D 阶段计划](d-phase-plan.md)。
 
 2026-11-09导航层级修正：按用户截图暴露的问题，原生样例将双导航收敛为一个可切换范围的导航区，顶部持续显示所属工作区与插件身份，局部返回/离开插件分别标明目的地；外层返回恢复来源对象、导航偏好和信息面板。规则见[顶层导航规格](../design/navigation-hierarchy.md)，本轮工件与实窗范围见[记录](../../experiments/nsh-reader/evidence/native-navigation-hierarchy/README.md)。旧组合报告只覆盖各自冻结版本；后续真实普通插件装配须包含相同导航验收及未保存输入、位置、焦点与资源退役，不以窗口内fixture代替正式恢复。

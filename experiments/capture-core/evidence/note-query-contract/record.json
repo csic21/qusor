@@ -1,0 +1,84 @@
+{
+  "date_local": "2026-11-10",
+  "status": "application-read-model-tests-passed",
+  "scope": "Core/application note read model only: keyset pagination, bounded previews and chunked full-body reads. No SDK wire, plugin authority, native window, precise highlight or cross-platform claim.",
+  "adr": "docs/architecture/adr/0034-note-read-model.md",
+  "plan": "docs/product/d-phase-plan.md",
+  "contract": {
+    "order": "commit_rev DESC, capture_id DESC",
+    "page_limit": 200,
+    "cursor": "n1:<document|*>:<commit_rev>:<capture_id>; opaque, canonical, bound to the exact vault/document scope",
+    "preview": "512 UTF-8 bytes per quote and note; boundary safe; persistent content unchanged",
+    "body_fields": [
+      "quote",
+      "note"
+    ],
+    "body_chunk_bytes": "4..=16384; offset must be a UTF-8 boundary; next_offset null means end",
+    "errors": [
+      "InvalidInput",
+      "BudgetExceeded",
+      "NotFound",
+      "Integrity"
+    ]
+  },
+  "tests": {
+    "learning_application_note_integration": 10,
+    "learning_application_lib": 7,
+    "root_rust_tests": 233,
+    "architecture_guards": 42,
+    "note_test_names": [
+      "lists_newest_first_and_isolates_vault_and_document",
+      "list_previews_are_bounded_without_changing_the_stored_note",
+      "query_limits_and_vault_are_validated",
+      "keyset_pages_stay_stable_while_new_notes_arrive",
+      "cursors_are_rejected_outside_their_exact_scope",
+      "body_chunks_rebuild_utf8_notes_without_rewriting",
+      "one_mib_body_is_read_in_bounded_chunks",
+      "body_offsets_and_budgets_are_explicit",
+      "body_isolates_vaults_and_reports_missing_captures",
+      "quote_body_returns_the_stored_source_text",
+      "previews_stop_at_a_utf8_boundary",
+      "short_content_is_not_rewritten",
+      "cursors_are_canonical_and_reject_forgeries",
+      "chunk_bounds_never_split_a_scalar_and_always_advance"
+    ],
+    "commands": [
+      "cargo test -p learning-application --locked --offline",
+      "cargo test -p storage-sqlite --test transactions note_index_survives_sqlite_reopen_with_bounded_preview --locked --offline",
+      "cargo test --workspace --locked --offline",
+      "cargo clippy --workspace --all-targets --locked --offline -- -D warnings",
+      "python3 scripts/check_architecture.py",
+      "python3 -m unittest discover -s scripts/tests",
+      "python3 scripts/check_docs.py",
+      "cargo check --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offline --lib"
+    ]
+  },
+  "checks": {
+    "format": "passed",
+    "clippy_workspace_all_targets": "passed",
+    "workspace_tests": "passed",
+    "architecture_guard": "passed",
+    "guard_unittests": 42,
+    "doc_links": "passed",
+    "sqlite_reopen": "passed",
+    "experiment_native_consumer_compiles": "passed"
+  },
+  "source_sha256": {
+    "crates/learning-application/src/pdf_notes.rs": "18334ddc8fd29a134f17a416f00e357d7c1d4c285ddefbff5ded054773a95ba4",
+    "crates/learning-application/tests/pdf_notes.rs": "ec31359d5f54873faf14ac4965158db07740d27061763cbb92711bf587e7bc01",
+    "adapters/storage-sqlite/tests/transactions.rs": "9814eeb0b4ed7ea97b26fbfb6b630e66d79107947844c48fcc49faffd3dbbd44",
+    "experiments/nsh-reader/native-host/plugin_surface.rs": "0e2bd242ec8e2bb6942fc038117f63c83ebd04f6980ebbff3387adf47031ec46",
+    "docs/architecture/adr/0034-note-read-model.md": "61113ebe6f0f19ff1cbd0a0f68fec24d96c31ae4ed54489fe841273b7fdf2914",
+    "docs/architecture/README.md": "f086bffad1024e53dbb6b6a88266bbd80141c89e68bbceb830f519033d171dd0",
+    "docs/product/d-phase-plan.md": "a90533cf6b5b6e16a39cdf3f113735dd1674df4d11dba93362409644dbf29502",
+    "docs/product/next-phase.md": "ebdeddd9eea3305255e13da274b230b7317dc27ad0313abca66f7dfb8faa68b2"
+  },
+  "not_verified": [
+    "public SDK wire mapping, version negotiation and plugin authority for note reads",
+    "Host/plugin budget enforcement and pagination UI",
+    "native window: save a new note, refresh the list, open the source page, precise highlight",
+    "missing original file, revoked authority, document version change and late-result races",
+    "deletion/update competition and long-library performance (each query still snapshots the whole archive)",
+    "IME, accessibility, other platforms and resource release ACK"
+  ]
+}

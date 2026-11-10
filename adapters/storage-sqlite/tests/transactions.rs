@@ -1,6 +1,7 @@
 #![cfg(unix)]
 use core_api::{contract::CaptureDraft, knowledge::*};
 use learning_application::KnowledgeApplication;
+use learning_application::pdf_notes::{MAX_NOTE_CHUNK_BYTES, NoteBodyField};
 use learning_ports::{CommitPlan, KnowledgeStore};
 use std::{
     fs,
@@ -388,14 +389,27 @@ fn note_index_survives_sqlite_reopen_with_bounded_preview() {
     };
 
     let reopened = KnowledgeApplication::new(scratch.store());
-    let notes = reopened.pdf_notes("vault", None, 10).unwrap();
-    assert_eq!(notes.len(), 1);
-    assert_eq!(notes[0].capture_id, receipt.capture_id);
-    assert_eq!(notes[0].document_title, "PDF");
-    assert_eq!(notes[0].quote_preview, "hello");
-    assert_eq!(notes[0].note_bytes, long_note.len());
-    assert!(notes[0].note_truncated);
-    assert!(notes[0].note_preview.len() <= 512);
+    let page = reopened.pdf_notes_page("vault", None, None, 10).unwrap();
+    assert_eq!(page.notes.len(), 1);
+    assert!(page.next_cursor.is_none());
+    assert_eq!(page.notes[0].capture_id, receipt.capture_id);
+    assert_eq!(page.notes[0].document_title, "PDF");
+    assert_eq!(page.notes[0].quote_preview, "hello");
+    assert_eq!(page.notes[0].note_bytes, long_note.len());
+    assert!(page.notes[0].note_truncated);
+    assert!(page.notes[0].note_preview.len() <= 512);
+    let chunk = reopened
+        .pdf_note_body(
+            "vault",
+            receipt.capture_id,
+            NoteBodyField::Note,
+            0,
+            MAX_NOTE_CHUNK_BYTES,
+        )
+        .unwrap();
+    assert_eq!(chunk.text, long_note);
+    assert_eq!(chunk.total_bytes, long_note.len());
+    assert_eq!(chunk.next_offset, None);
     assert_eq!(
         reopened.query_pdf(receipt.capture_id).unwrap().user_note,
         long_note

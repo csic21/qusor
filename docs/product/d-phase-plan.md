@@ -1,6 +1,6 @@
 # D 阶段实施计划：正式本地阅读闭环
 
-更新：2026-11-10。状态：D 阶段未完成；`plugins/library`、`plugins/reader`、`plugins/notes` 目前均为规划，没有可安装功能包。关联 F-LIB-01、F-READ-01/02/03、F-NOTE-01、F-SRC-01、F-DATA-01、F-EXT-01/03/04/05/06。
+更新：2026-11-10。状态：D 阶段未完成；D0 的应用层读取契约（分页游标、正文分块、SQLite 重开）已通过，公开 wire、窗口回源与正式包未交付；`plugins/library`、`plugins/reader`、`plugins/notes` 目前均为规划，没有可安装功能包。关联 F-LIB-01、F-READ-01/02/03、F-NOTE-01、F-SRC-01、F-DATA-01、F-EXT-01/03/04/05/06。
 
 ## 目标旅程
 
@@ -19,7 +19,8 @@
 
 | 增量 | 实际结果 | 未覆盖 |
 |---|---|---|
-| 有界想法读取模型 | `learning-application` 可按 vault/document 倒序查询 PDF 想法；引文和想法各返回最多 512 UTF-8 bytes 预览，完整内容保持不可变 | 公开 SDK 能力、分页游标、全文分块读取 |
+| 分页游标与正文分块 | 列表改为 keyset 分页（单页最多 200 条，游标绑定 vault/document 精确范围，分页期间新增想法不重排/不跳项）；正文按 Quote/Note 分块读取（4–16 KiB，UTF-8 边界安全，1 MiB 笔记可逐块还原）；应用层与真实 SQLite 重开通过，见 [ADR 0034](../architecture/adr/0034-note-read-model.md) | 公开 SDK wire、插件授权、分页 UI、精确高亮；每次查询仍读整库快照 |
+| 有界想法读取模型 | `learning-application` 可按 vault/document 倒序查询 PDF 想法；引文和想法各返回最多 512 UTF-8 bytes 预览，完整内容保持不可变 | 公开 SDK 能力、撤权/版本错误分类 |
 | SQLite 重开 | 真实 SQLite 保存长中文想法后关闭重开，列表恢复 capture、标题、页码与预览，完整 note 未截断 | 多平台耐久、超大资料库性能 |
 | 原生想法列表 | macOS AppKit 实验窗口真实列出 Core 中两条旧中文想法，并区分当前资料与其他资料 | 正式 notes 包、编辑旧想法、精确高亮、当前资料新建后的回源实窗 |
 | 统一工作台下钻 | 想法作为 `PluginWorkspace` 进入 `native-workbench`，宿主返回、插件自有导航、列表/详情和插件内返回已实窗通过 | 仍为窗口内 fixture；尚未接真实 Core/公开插件契约 |
@@ -30,7 +31,7 @@ Core 读取证据见 [想法列表实窗记录](../../experiments/nsh-reader/evi
 
 ### D0：读取模型和可替换交互
 
-- 稳定公开笔记查询契约：vault/document 过滤、稳定分页、完整正文按块读取、明确缺失/版本/权限错误。
+- 稳定公开笔记查询契约：vault/document 过滤、稳定分页、完整正文按块读取、明确缺失/版本/权限错误。当前应用层已具备过滤、keyset 分页、正文分块与缺失/范围错误；公开 wire 与权限/版本错误分类仍待 D1。
 - 想法列表只读取 Core，不持有完整知识副本；预览截断不改变持久内容。
 - 当前资料可打开所在页；其他资料明确提示需先打开，不假装回源。
 - 目标引用恢复为受控 Surface 定位和高亮；不能只落到页首冒充精确回源。
@@ -66,10 +67,9 @@ Core 读取证据见 [想法列表实窗记录](../../experiments/nsh-reader/evi
 
 ## 紧接的下一片
 
-1. 为想法读取补完整正文分块接口和稳定游标，避免列表预览或 200 条上限变成产品限制。
-2. 将 `native-workbench` 的想法 fixture 与动态探针的真实 Core 查询合并到公开 contribution/查询契约，再由普通 notes 包消费。
-3. 在真实窗口完成“当前资料新保存一条想法→关闭辅助区→列表刷新→打开所在页”，再补精确高亮与缺失来源状态。
-4. 之后才创建正式 library/reader/notes 包 manifest 与构建入口；不提前用未验证 TS 草案冒充 SDK。
+1. 将 `native-workbench` 的想法 fixture 与动态探针的真实 Core 查询合并到公开 contribution/查询契约，再由普通 notes 包消费；分页/正文读取在此一并进入公开 wire 与 Host 预算。
+2. 在真实窗口完成“当前资料新保存一条想法→关闭辅助区→列表刷新→打开所在页”，再补精确高亮与缺失来源状态。
+3. 之后才创建正式 library/reader/notes 包 manifest 与构建入口；不提前用未验证 TS 草案冒充 SDK。
 
 ## 非目标与约束
 
