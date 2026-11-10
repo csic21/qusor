@@ -1,6 +1,6 @@
 # ADR 0035：想法读取的公开能力（协议 0.4）
 
-日期：2026-11-10。状态：wire、能力、Host 策略与真实 Core 适配器已通过；`plugins/notes` 普通包与实窗仍未完成。关联 C-08/C-09/C-12、F-NOTE-01、F-SRC-01、F-EXT-01/03/04/05/06。承接 [ADR 0034](0034-note-read-model.md) 与 [D 阶段计划](../../product/d-phase-plan.md)，不扩大 AI、云或平台范围。
+日期：2026-11-10。状态：wire、能力、Host 策略、真实 Core 适配器与 `plugins/notes` 普通签名包已通过；工作区 UI、实窗与持久安装仍未完成。关联 C-08/C-09/C-12、F-NOTE-01、F-SRC-01、F-EXT-01/03/04/05/06。承接 [ADR 0034](0034-note-read-model.md) 与 [D 阶段计划](../../product/d-phase-plan.md)，不扩大 AI、云或平台范围。
 
 ## 问题
 
@@ -46,12 +46,21 @@
 - Core 错误映射为公开错误码（`NotFound`、`InvalidRequest`、`BudgetExceeded`、`UnsupportedVersion`、`InvalidState`），不回显内部消息。
 - 适配器只读，不解析锚点、不写知识；真实 SQLite Core 上验证分页、正文分块重组、控制字符收缩、跨库与错误映射。
 
+## 普通签名包路径（已通过）
+
+`plugins/notes` 不再只是规划目录：
+
+- `manifest.json` 声明 Host API 0.4、required `notes.read` 与 `notes_workspace` 贡献。
+- `guest.wat` 是普通 Wasm guest，经 `qusor.call` 发送一条 `notes-query-v1` 分页请求；vault 仍由 Host 绑定。
+- `build.py` 把公开 SDK 导出到仓库外临时目录，用 SDK 的 `extension-api`/`extension-package` 编译签名工具并生成包；作者 lock 不含 Host/Core/storage/NSH/runtime 私有 crate。
+- 验证链路：`verify_for_host` → Host `register`/精确 Vault 授权/`enable` → 0.4 session → `run_managed_raw` 执行 Wasm → guest 请求 → `authorize_notes` + dispatch → 真实 SQLite Core 分页 → guest 输出解析；错误密钥与篡改包拒绝。见[包读取记录](../../../experiments/capture-core/evidence/notes-package/record.json)。
+
 ## 验证
 
 - `extension-api`：wire 往返、未知字段、版本/预算、游标、摘要与正文一致性、整页 4 KiB 预算、0.4 词表与 manifest 规则。
 - `capture-core` 适配器：真实 SQLite Core 上的分页/正文、控制字符收缩、跨库 NotFound 与错误映射（4 项）。
 - `extension-host`：精确 `notes.read` + Vault 授权、vault 绑定 dispatch、旧会话/旧 wire 拒绝、Document 资源拒绝、撤权/停用后 permit 失效、Host 不支持该能力时拒绝注册。
 - 旧回归：`cargo test --workspace` 244 项、Clippy、格式、架构守卫与文档链接通过。
-- 未覆盖：`plugins/notes` 普通签名包、安装/授权/停用链路、真实窗口、分页 UI、编辑/删除与资源释放。
+- 未覆盖：工作区 UI 与真实窗口、持久安装/卸载与发布密钥、分页 UI、编辑/删除与资源释放。
 
 本机记录见 [想法读取能力记录](../../../experiments/capture-core/evidence/notes-read-capability/record.json) 与 [可信适配器记录](../../../experiments/capture-core/evidence/notes-read-bridge/record.json)。

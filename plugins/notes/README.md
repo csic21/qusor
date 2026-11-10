@@ -1,15 +1,29 @@
-# @qusor/notes 规划
+# @qusor/notes 插件
 
-状态：规划中，尚无实现、manifest 或可安装包。当前 `learning-application` 已有有界 PDF 想法查询，原生实验工作区也能列出已保存想法；这些都是后续 notes 包的读取/交互基础，不是正式插件交付。
+状态：读取包已按普通签名包构建并验证；编辑、完整工作区 UI、实窗与持久安装仍未完成。
 
 目标是 F-NOTE-01 与 F-SRC-01：Markdown 想法、不可编辑的原文引用、按资料组织、编辑保存、从引用回源，以及卸载插件后规范内容仍可读取和导出。
 
-实现边界：
+## 本轮已有
 
-- 只消费公开 SDK、贡献点、Core 查询与授权；
-- 原文、用户想法、AI 推断保持分离；
-- 引用保存版本化锚点，歧义、缺原件和版本不符明确失败；
-- 不复制 Core/Host/application/storage/NSH 私有实现；
-- 使用独立 Workspace/lockfile，仓库外只凭 SDK 工件构建。
+- `manifest.json`：Host API 0.4，required 仅 `notes.read`，贡献点 `notes_workspace`（`org.qusor.notes.workspace`）。
+- `guest.wat`：普通 Wasm guest，通过 `qusor.call` 发送一条 `notes-query-v1` 分页请求（limit 6），返回 Host 的响应；guest 不自报 vault，不读取 Core/Host 私有状态。
+- `build.py`：把公开 SDK 导出到仓库外临时目录，用 SDK 自带的 `extension-api` 与 `extension-package` 编译签名工具并签名；作者 lock 中没有 Host/Core/storage/NSH/runtime 私有 crate。
+- 验证：`experiments/capture-core/tests/notes_package.rs` 在真实 SQLite Core 上完成 包验证 → Host 安装 → `notes.read` 授权 → 0.4 session → Wasm 执行 → guest 分页请求 → Host 授权/派发 → 真实想法页返回；错误密钥与篡改包被拒绝。
 
-当前可复用的读取模型见 [pdf_notes.rs](../../crates/learning-application/src/pdf_notes.rs)，实窗增量与未覆盖范围见 [想法列表证据](../../experiments/nsh-reader/evidence/notes-workspace/README.md)。
+## 构建
+
+```sh
+python3 plugins/notes/build.py
+```
+
+产物在 `plugins/notes/target/`（已被 gitignore）：`notes.qpk`、`author-proof.json`。固定测试签名种子只用于资格验证，不是生产发布密钥。
+
+## 边界
+
+- 只消费公开 SDK、贡献点、Core 查询与授权；不依赖 Host/Core/SQLite/NSH/runtime 私有实现。
+- 原文、用户想法、AI 推断保持分离；本包当前只读，不写入知识。
+- guest 只看见 Host 返回的有界页；vault 由 Host 绑定，缺失/撤销授权时请求失败。
+- 编辑、正文分块读取、工作区 UI 与实窗、持久安装器、恢复、发布密钥管理仍未完成。
+
+相关设计见 [ADR 0035](../../docs/architecture/adr/0035-notes-read-capability.md)、[功能规格](../../docs/product/notes-plugin.md) 与 [UI 设计](../../docs/design/notes-workspace.md)；本轮证据见 [包读取记录](../../experiments/capture-core/evidence/notes-package/README.md)。

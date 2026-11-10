@@ -1,6 +1,6 @@
 # D 阶段实施计划：正式本地阅读闭环
 
-更新：2026-11-10。状态：D 阶段未完成；D0 的应用层读取契约（分页游标、正文分块、SQLite 重开）已通过，公开 wire、窗口回源与正式包未交付；`plugins/library`、`plugins/reader`、`plugins/notes` 目前均为规划，没有可安装功能包。关联 F-LIB-01、F-READ-01/02/03、F-NOTE-01、F-SRC-01、F-DATA-01、F-EXT-01/03/04/05/06。
+更新：2026-11-10。状态：D 阶段未完成；D0 的应用层读取契约（分页游标、正文分块、SQLite 重开）、公开 wire 与 `plugins/notes` 普通签名读取包已通过，工作区 UI/实窗/持久安装未接；`plugins/library`、`plugins/reader` 仍为规划。关联 F-LIB-01、F-READ-01/02/03、F-NOTE-01、F-SRC-01、F-DATA-01、F-EXT-01/03/04/05/06。
 
 ## 目标旅程
 
@@ -19,8 +19,8 @@
 
 | 增量 | 实际结果 | 未覆盖 |
 |---|---|---|
-| 公开想法读取能力 | 协议0.4、`notes.read` 与 `notes_workspace`、`notes-query-v1`（≤6条/页、标题/预览≤96 bytes、正文4–2048 bytes、整响应≤4 KiB）、Host vault 绑定与许可失效；wire与Host回归通过，真实 SQLite Core 适配器（分页/正文/控制字符收缩/错误映射）通过，见[ADR 0035](../architecture/adr/0035-notes-read-capability.md) | `plugins/notes` 普通包、安装/授权链路、工作台真实 Core 与实窗未接 |
-| 想法工作区 UI v1 | 原生工作台按[交互规格](../design/notes-workspace.md)实现列表/详情/范围/搜索/选取/右键原生菜单/复制/完整正文状态/窄窗；6 项 headless 交互测试、类型检查与 bundle 构建通过，实窗四张截图见[UI v1 记录](../../experiments/nsh-reader/evidence/notes-workspace-ui/README.md) | 仍是窗口内 fixture；正式包、公开 `notes.read` 能力、真实 Core 与编辑/删除未接 |
+| 公开想法读取能力与普通包 | 协议0.4、`notes.read` 与 `notes_workspace`、`notes-query-v1`（≤6条/页、标题/预览≤96 bytes、正文4–2048 bytes、整响应≤4 KiB）、Host vault 绑定与许可失效；wire与Host回归、真实 SQLite Core 适配器、`plugins/notes` 仓库外 SDK 构建的普通签名包（Host 安装/授权/启用 + Wasm 执行 + 真实 Core 分页）通过，见[ADR 0035](../architecture/adr/0035-notes-read-capability.md) 与[包记录](../../experiments/capture-core/evidence/notes-package/README.md) | 工作台真实 Core、实窗、持久安装/卸载与正文/编辑未接 |
+| 想法工作区 UI v1 | 原生工作台按[交互规格](../design/notes-workspace.md)实现列表/详情/范围/搜索/选取/右键原生菜单/复制/完整正文状态/窄窗；6 项 headless 交互测试、类型检查与 bundle 构建通过，实窗四张截图见[UI v1 记录](../../experiments/nsh-reader/evidence/notes-workspace-ui/README.md) | 仍是窗口内 fixture；尚未消费 `plugins/notes` 包与真实 Core，编辑/删除未接 |
 | 分页游标与正文分块 | 列表改为 keyset 分页（单页最多 200 条，游标绑定 vault/document 精确范围，分页期间新增想法不重排/不跳项）；正文按 Quote/Note 分块读取（4–16 KiB，UTF-8 边界安全，1 MiB 笔记可逐块还原）；应用层与真实 SQLite 重开通过，见 [ADR 0034](../architecture/adr/0034-note-read-model.md) | 公开 SDK wire、插件授权、分页 UI、精确高亮；每次查询仍读整库快照 |
 | 有界想法读取模型 | `learning-application` 可按 vault/document 倒序查询 PDF 想法；引文和想法各返回最多 512 UTF-8 bytes 预览，完整内容保持不可变 | 公开 SDK 能力、撤权/版本错误分类 |
 | SQLite 重开 | 真实 SQLite 保存长中文想法后关闭重开，列表恢复 capture、标题、页码与预览，完整 note 未截断 | 多平台耐久、超大资料库性能 |
@@ -69,17 +69,13 @@ Core 读取证据见 [想法列表实窗记录](../../experiments/nsh-reader/evi
 
 ## 紧接的下一片
 
-1. 建 `plugins/notes` 独立 Workspace 与 manifest（0.4/`notes.read`/`notes_workspace`），由仓库外 SDK 构建普通签名包；可信适配器用 Host dispatch 的 vault 调 `learning-application` 生成 `notes-query-v1` 响应，再把工作台 fixture 换成真实 Core 查询。
+1. 把 `plugins/notes` 包接进原生工作台：Host 用 0.4 session + `notes.read` 读真实 Core，替换工作台 fixture；随后在真实窗口完成分页、正文块、右键与返回旅程。
 2. 在真实窗口完成“当前资料新保存一条想法→关闭辅助区→列表刷新→打开所在页”，再补精确高亮与缺失来源状态。
-3. 之后才创建正式 library/reader/notes 包 manifest 与构建入口；不提前用未验证 TS 草案冒充 SDK。
+3. 之后才创建正式 library/reader 包 manifest 与构建入口；不提前用未验证 TS 草案冒充 SDK。
 
-### 公开读取能力的协议约束（2026-11-10 核对）
+### 公开读取能力的落地约束（2026-11-10 复核）
 
-现有公开 wire 的单次请求/响应预算为 4 KiB，manifest 能力上限 5 个且已被 `SelectionRead`、`DocumentMetadataRead`、`CapturePropose`、`ReaderSurface`、`NoteDraftEdit` 占满。想法列表（最多 200 条、每条 512 bytes 预览）与正文块都远超 4 KiB，切片 2 不能直接复用 0.2/0.3 wire。进入实现前先确定：
-
-- 新增 `notes.read` 能力并提升协议版本（旧 0.1–0.3 保持原义），还是把有界想法数据注入 0.3 component context；
-- 列表 wire 的页大小与预览长度（例如每页 ≤8 条、每条预览 ≤128 bytes）及正文块预算；
-- vault/document 范围由 Host 绑定、guest 不自报；Host 只做策略与预算，Core 查询由可信后端实现。
+0.4 已作为独立词表落地，0.1–0.3 保持原义：`notes.read` 加入后能力上限为 6；`notes-query-v1` 单次请求/响应仍为 4 KiB，页最多 6 条、标题/预览各 96 bytes、正文块 4–2048 bytes、offset 上限 16 MiB。范围由 Host 绑定 vault，guest 不自报；Host 只做策略与预算，Core 查询由可信后端适配器实现。工作台 UI 仍需把 fixture 换成这条真实链路，见下一片第 1 项。
 
 该决定影响公开插件契约与兼容性，先留设计记录再实现；应用层分页与正文契约已由 [ADR 0034](../architecture/adr/0034-note-read-model.md) 固定。
 

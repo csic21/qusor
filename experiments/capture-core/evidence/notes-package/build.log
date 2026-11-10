@@ -1,0 +1,6 @@
+{
+  "package": "plugins/notes/target/notes.qpk",
+  "sha256": "fbe9e17b514a9d8b9f03a559ed6d112fb86c65e0a2d44dcfd54a66cb35fc9f96",
+  "publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+  "proof": "plugins/notes/target/author-proof.json"
+}

@@ -1,0 +1,77 @@
+{
+  "date_local": "2026-11-10",
+  "status": "ordinary-signed-notes-package-real-core-passed",
+  "adr": "docs/architecture/adr/0035-notes-read-capability.md",
+  "scope": "Ordinary signed notes package built outside the repository from the exported SDK, verified, installed into the Host, granted notes.read, executed by the Wasm runtime, answered by real SQLite Core reads. No UI, real window, persistent store or editing.",
+  "package": {
+    "path": "plugins/notes/target/notes.qpk",
+    "sha256": "fbe9e17b514a9d8b9f03a559ed6d112fb86c65e0a2d44dcfd54a66cb35fc9f96",
+    "bytes": 1525,
+    "package_id": "org.qusor.notes",
+    "host_api": {
+      "major": 0,
+      "min_minor": 4,
+      "max_minor": 4
+    },
+    "required_capabilities": [
+      "notes.read"
+    ],
+    "contributions": [
+      {
+        "id": "org.qusor.notes.workspace",
+        "title": "想法",
+        "kind": "notes_workspace",
+        "required_capabilities": [
+          "notes.read"
+        ]
+      }
+    ],
+    "guest_wat_sha256": "6ee1b92d2ae5d94dfac463b26f1bd15cb1305d5b1b52aeccd4b5dbcc9837f299",
+    "publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+    "rebuild_deterministic": true
+  },
+  "author": {
+    "build_script": "plugins/notes/build.py",
+    "sdk_export": "experiments/capture-core/export_sdk.py",
+    "outside_repository": true,
+    "author_lock_packages": 54,
+    "sdk_fingerprints": 33,
+    "private_crates_in_lock": [],
+    "seed": "fixed public test seed, not a production key"
+  },
+  "tests": {
+    "notes_package": 2,
+    "passed": 2,
+    "failed": 0,
+    "command": "cargo test --manifest-path experiments/capture-core/Cargo.toml --offline --test notes_package",
+    "log": "experiments/capture-core/evidence/notes-package/tests.log",
+    "names": [
+      "an_ordinary_signed_notes_package_reads_real_core_through_the_host",
+      "another_key_or_tampered_package_bytes_are_rejected"
+    ]
+  },
+  "behaviour": {
+    "guest": "one bounded notes-query-v1 page request over the qusor.call import; vault remains Host-bound",
+    "host": "verify_for_host, register, exact Vault grant, enable, contributions, 0.4 session, authorize_notes, dispatch",
+    "backend": "NotesReadBridge maps the Host-bound vault onto learning-application reads of a real SQLite Core",
+    "wire": "response encoded inside the 4 KiB budget and parsed by the guest"
+  },
+  "source_sha256": {
+    "plugins/notes/manifest.json": "aee6480bf0469bbf8a3a9d98fe85fccd8a83e964cea622cd5b3c706d40f99c18",
+    "plugins/notes/guest.wat": "6ee1b92d2ae5d94dfac463b26f1bd15cb1305d5b1b52aeccd4b5dbcc9837f299",
+    "plugins/notes/build.py": "c52283de855b2ca3af458d31d63b46ae096ed62e7e6ded9d89a8baf1b178537c",
+    "plugins/notes/README.md": "ba2b769e7132bf201d1cd452df39d34006da075fdfeaa3e657d2927062b9d633",
+    "experiments/capture-core/tests/notes_package.rs": "bfbde90f25f2ede028420e843e2e8ffc433840b9192546eabb499e124de2784b",
+    "experiments/capture-core/src/notes_bridge.rs": "4d202f67b0c3fb0b0b1535cd6fc070894e1331d8050fb7deaa04dbe178b55b81",
+    "experiments/capture-core/evidence/notes-package/author-proof.json": "941ab9e5f4dacf18c525ebc252e8efe7423c7bc381ffadf7df6fec6165e6dd39",
+    "experiments/capture-core/evidence/notes-package/build.log": "208395ecc1232cb920e21606c02d58e877086e1652eb6aa304454d47db7dd1ba",
+    "experiments/capture-core/evidence/notes-package/tests.log": "08cfc6eb78322bcbac0b2f50728219b4ca1a8b55b2c77e49ab0f3d8b0e56ce15"
+  },
+  "not_verified": [
+    "workspace UI and real window, plus window-level recovery",
+    "persistent package store installation/uninstall and production publisher key",
+    "guest body chunks and denied/revoked grant feedback",
+    "editing/deleting/organizing notes, IME, assistive technology, other platforms and resource release",
+    "full capture-core experiment suite"
+  ]
+}

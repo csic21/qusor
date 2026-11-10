@@ -35,7 +35,7 @@
 
 | 边界 | 责任 |
 |---|---|
-| 插件 `plugins/notes` | 独立 Workspace/锁文件、普通签名包；提供 `notes_workspace` 贡献；只通过公开 SDK 读取想法；不持有 SQLite、NSH 对象或完整知识副本 |
+| 插件 `plugins/notes` | 独立包目录与仓库外 SDK 构建的普通签名包（当前 guest 为 WAT，作者构建锁文件在仓库外生成）；提供 `notes_workspace` 贡献；只通过公开 SDK 读取想法；不持有 SQLite、NSH 对象或完整知识副本 |
 | Host | 外壳、导航与返回、原生控件与焦点、右键菜单/选取/剪贴板、公开 notes 读取能力的策略与预算、可信后端调用 Core |
 | Core | 规范引文/想法/来源锚点、分页与正文读取（ADR 0034）、导出恢复；插件停用后仍可读 |
 
@@ -63,6 +63,7 @@
 ## 依赖与决策
 
 - [ADR 0034](../architecture/adr/0034-note-read-model.md)：分页游标与正文分块；应用层已通过测试。
-- 待补：公开 `notes.read` 能力与 Host 预算（ADR 0035）、`plugins/notes` 包与仓库外构建、真实 Core 装配、实窗与恢复证据。
+- 已补：公开 `notes.read` 能力与 Host 预算（ADR 0035）、`plugins/notes` 包与仓库外构建、Host 安装/授权/启用后的真实 Core 分页读取（[包记录](../../experiments/capture-core/evidence/notes-package/README.md)）。
+- 待补：工作台 UI 与真实 Core 装配、实窗/恢复、持久安装与发布密钥、编辑/删除。
 - 设计：[想法工作区设计](../design/notes-workspace.md)；导航规则见[导航层级](../design/navigation-hierarchy.md)，分区见[组合规格](../design/composition.md)。
 - 用户决定：2026-11-10 要求按正式标准推进并重视 UI/UX、选取与右键功能；不因此自动扩大 AI、云、编辑深度或平台范围。
