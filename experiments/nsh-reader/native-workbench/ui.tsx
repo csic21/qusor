@@ -83,6 +83,108 @@ export const focus = () => ({
     outlineOffset: 2,
     outlineColor: ink("focus-ring"),
 });
+
+export type ControlSize = "compact" | "regular" | "large";
+
+/// One size scale for every button and text action. Height, padding, radius,
+/// icon and label sizes move together so a row of controls reads as one system.
+export const control = (size: ControlSize = "regular") => {
+    switch (size) {
+        case "compact":
+            return {
+                height: 28,
+                padding: 9,
+                radius: 6,
+                gap: 6,
+                icon: 15,
+                text: 12,
+            };
+        case "large":
+            return {
+                height: 34,
+                padding: 14,
+                radius: 8,
+                gap: 8,
+                icon: 17,
+                text: 13,
+            };
+        default:
+            return {
+                height: 30,
+                padding: 10,
+                radius: 7,
+                gap: 7,
+                icon: 16,
+                text: 13,
+            };
+    }
+};
+
+/// A text-only action with the same height, padding, radius, hover, active and
+/// focus treatment as `Tool`. `filled` is the quieter inset surface used for
+/// inline actions; a plain button stays transparent.
+export function TextButton(props: {
+    label: string;
+    accessibilityLabel?: string;
+    onPress?: () => void;
+    disabled?: boolean;
+    filled?: boolean;
+    raised?: boolean;
+    size?: ControlSize;
+}) {
+    const size = control(props.size);
+    return (
+        <Button
+            accessibilityLabel={props.accessibilityLabel ?? props.label}
+            disabled={props.disabled}
+            onPress={props.onPress}
+            style={{
+                height: size.height,
+                paddingHorizontal: size.padding,
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: size.radius,
+                borderCurve: "continuous",
+                backgroundColor: ink(
+                    props.raised
+                        ? "surface-control"
+                        : props.filled
+                          ? "surface-inset"
+                          : "transparent",
+                ),
+                borderWidth: props.raised ? 1 : 0,
+                borderColor: ink("border-control"),
+                opacity: props.disabled ? 0.4 : 1,
+            }}
+            hoverStyle={{ backgroundColor: ink("surface-hover") }}
+            activeStyle={{ backgroundColor: ink("surface-pressed") }}
+            focusStyle={focus()}
+        >
+            <Copy size={size.text}>{props.label}</Copy>
+        </Button>
+    );
+}
+
+/// Shared menu geometry: items keep one height and padding, and the popup
+/// keeps one width floor and padding across every context menu.
+export const menuPopup = () => ({
+    padding: 5,
+    minWidth: 200,
+    borderRadius: 10,
+    backgroundColor: ink("surface-floating"),
+    borderWidth: 1,
+    borderColor: ink("border-subtle"),
+    boxShadow: "0 8px 28px rgba(0,0,0,0.16)",
+});
+
+export const menuItem = () => ({
+    height: 30,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    flexDirection: "row" as const,
+    alignItems: "center" as const,
+    gap: 8,
+});
 export function Tool(props: {
     label: string;
     icon?: string;
@@ -91,21 +193,23 @@ export function Tool(props: {
     raised?: boolean;
     onPress?: () => void;
     disabled?: boolean;
+    size?: ControlSize;
 }) {
+    const size = control(props.size);
     return (
         <Button
             accessibilityLabel={props.label}
             disabled={props.disabled}
             onPress={props.onPress}
             style={{
-                height: 30,
-                minWidth: 30,
-                paddingHorizontal: props.text ? 10 : 6,
+                height: size.height,
+                minWidth: size.height,
+                paddingHorizontal: props.text ? size.padding : 6,
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 6,
-                borderRadius: 7,
+                gap: size.gap,
+                borderRadius: size.radius,
                 borderCurve: "continuous",
                 backgroundColor: ink(
                     props.selected
@@ -125,14 +229,14 @@ export function Tool(props: {
             <If when={props.icon}>
                 <Glyph
                     name={props.icon!}
-                    size={17}
+                    size={size.icon}
                     color={ink(
                         props.selected ? "text-accent" : "text-secondary",
                     )}
                 />
             </If>
             <If when={props.text}>
-                <Copy>{props.text}</Copy>
+                <Copy size={size.text}>{props.text}</Copy>
             </If>
         </Button>
     );

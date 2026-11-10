@@ -1,29 +1,29 @@
 {
   "date_local": "2026-11-10",
-  "status": "native-ui-slice-implemented-and-headless-tested",
+  "status": "native-ui-slice-implemented-headless-and-real-render-tested",
   "scope": "Notes workspace UI v1 in the native workbench: list, filters, search, detail, text selection, native context menus, copy actions, source states, full-body read state and narrow layout. Fixture data only; not an installed plugin and not connected to Core.",
   "nsh_commit": "913fd76e1f8434ec6cdf248f4476c1ebe08af19f",
   "artifacts": {
     "bundle": {
       "path": "experiments/nsh-reader/target/native-workbench/bundle/bundle.nshc",
-      "sha256": "c5de99ab3aecc1ca9785623b35d598cbae49f8da63554d5ff51f5165c8c0fab3"
+      "sha256": "2bbb6225a571bef369e9ec5536b270b3c9d7a7dcf89dd392ebb3e0876609a17c"
     },
     "screenshots": {
       "list": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/list.png",
-        "sha256": "f9706fdedd9fc774443106a969f0be3ab9690e4c88a872a0f975a6e6f3b98ced"
+        "sha256": "97ddb70c4f8bce2172e7cc8a386ca59066dded098945702842053fb677bb6edf"
       },
       "detail": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/detail.png",
-        "sha256": "fdb2109c75b3501cb2d08830d3606eed0ba7567cfab014d7f1350571a03d1455"
+        "sha256": "1d62827740ccd377eb52eedbdb04137e72c0854060104f26e2b2a41e5e039251"
       },
       "truncated": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/truncated.png",
-        "sha256": "6bbfed01e7162b0e79e276675c4c280916def0cac85570ad3808e2bd5c75590d"
+        "sha256": "15357423c22b99dfbd68ec52ebe1255037a2dc24c2e653aed9ebbe18d045faf9"
       },
       "full_body": {
         "path": "experiments/nsh-reader/evidence/notes-workspace-ui/full-body.png",
-        "sha256": "5d974b51a9d870b386940d4c1083957f39b8ec0e128dc68796219bbbf5c8f5ed"
+        "sha256": "1b978bd3e6f39981d5d1739d1bb44529a414c4b4a0419d7fe754af01cea57a66"
       }
     }
   },
@@ -31,24 +31,32 @@
     "headless_interaction": 6,
     "headless_passed": 6,
     "headless_failed": 0,
-    "log": "experiments/nsh-reader/evidence/notes-workspace-ui/tests.log",
-    "command": "nsh test tests/notes-workspace.test.tsx",
+    "headless_log": "experiments/nsh-reader/evidence/notes-workspace-ui/tests.log",
+    "headless_command": "nsh test tests/notes-workspace.test.tsx",
+    "visual_render": 1,
+    "visual_passed": 1,
+    "visual_log": "experiments/nsh-reader/evidence/notes-workspace-ui/visual.log",
+    "visual_command": "nsh test tests/notes-workspace-visual.test.tsx --target macos",
     "typecheck": "nsh check App.tsx passed with pinned types",
+    "bundle": "prepare.py --build-only passed",
     "names": [
       "a row opens its detail, and Escape returns to the list",
       "the row context menu offers read actions and copies a citation",
       "the missing source row says so and cannot open a page",
       "a truncated note reads its complete body on request",
       "keyboard moves the selection and copies the focused note",
-      "the narrow layout returns to the list and keeps the filter"
+      "the narrow layout returns to the list and keeps the filter",
+      "capture notes workspace states"
     ]
   },
   "source_sha256": {
-    "experiments/nsh-reader/native-workbench/contributions.tsx": "5a11e7161f4f001d0fc5970791c25b9c445281aba6670613e41575dab7414aa9",
-    "experiments/nsh-reader/native-workbench/App.tsx": "637720e16dc9082029ab1f7a51a3c06055362bb15e66507a31f02ca2ba65098b",
+    "experiments/nsh-reader/native-workbench/ui.tsx": "05b707f5ae489039721d7346d974385fe3904e07d6784121989cece906e2cbbf",
+    "experiments/nsh-reader/native-workbench/contributions.tsx": "630b5e6629f3734a05f59354584f69095263d0bf0e6a90ee8bb23c2452306a5c",
+    "experiments/nsh-reader/native-workbench/App.tsx": "c205ec398ce82312da226b5f3c7827766fdb2730ad8f3802b4a9f895471cec02",
     "experiments/nsh-reader/native-workbench/tests/notes-workspace.test.tsx": "9d2d03a4ac23191d8d14c13a322c1c8b319f5c1bd883e2b6d7636dd79a22ec73",
-    "docs/design/notes-workspace.md": "84f67ae91d3d73de801d3fe454b1d87370e248004eac6176ab69e7945172b29c",
-    "docs/product/notes-plugin.md": "b7edbf5e39ed5b7df160309fd680c410051660a18cb081027986f3d00df7d509"
+    "experiments/nsh-reader/native-workbench/tests/notes-workspace-visual.test.tsx": "35bfd677c09b4742a02fd1b4ff87ed41c28bc51ec6b2cd427aa8b743e8996c3d",
+    "docs/design/notes-workspace.md": "24dd79fbc2d7e8fa4e1ce37f4b6e69140f512a9c0f1d61ee54d7137b0e4950e2",
+    "docs/product/notes-plugin.md": "3b56d04626edd01a6896cf4e8ae4335ed010bbca04fc21fbb989f2485e772f55"
   },
   "interactions": {
     "context_menu": "native Menu.popup on right click; row selected first; disabled edit/delete with reasons",
@@ -64,5 +72,13 @@
     "real-window right click, drag selection and Shift+F10 (headless covers behavior)",
     "editing, deleting, tags, starred persistence",
     "IME, assistive technology, other platforms, performance and native resource release"
-  ]
+  ],
+  "ui_details": {
+    "control_scale": "compact 28 / regular 30 / large 34 with icon 15/16/17 and text 12/13; input 32; menu item 30; menu popup padding 5, radius 10",
+    "shared_components": "ui.tsx control(), Tool size prop, TextButton (filled/raised), menuItem(), menuPopup()",
+    "quote_accent": "explicit 3pt View instead of borderLeftWidth; the pinned macOS dev host drew the single border as a horizontal line",
+    "duplicate_action": "removed the repeated 打开所在页 footer button; one primary action in the header",
+    "banner_action": "raised compact TextButton so the read-full action stays visible on the inset banner",
+    "shell_alignment": "sidebar rows 34/radius 8, search 32, menu rows 30"
+  }
 }

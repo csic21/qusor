@@ -36,7 +36,11 @@
 python3 experiments/nsh-reader/native-workbench/prepare.py --size 1280x820 --build-only
 cd experiments/nsh-reader/native-workbench
 ../target/nsh/target/debug/nsh test tests/notes-workspace.test.tsx
+# real macOS window renders for the evidence screenshots
+../target/nsh/target/debug/nsh test tests/notes-workspace-visual.test.tsx --target macos
 ```
+
+按钮与文本动作统一走 `ui.tsx` 的 `control()` 刻度（28/30/34），搜索框 32，菜单项 30；引文强调线用独立 3pt View，避免固定 NSH 的 macOS 开发宿主把 `borderLeftWidth` 画成横线。
 
 ## 复现
 

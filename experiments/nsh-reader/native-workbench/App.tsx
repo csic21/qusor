@@ -7,7 +7,18 @@ import {
     Diagram,
     type Entry,
 } from "./contributions";
-import { Badge, Copy, focus, Glyph, ink, ProviderIdentity, Rule, Tool } from "./ui";
+import {
+    Badge,
+    Copy,
+    focus,
+    Glyph,
+    ink,
+    menuItem,
+    menuPopup,
+    ProviderIdentity,
+    Rule,
+    Tool,
+} from "./ui";
 
 // The shell branches by generic contribution role; identities remain fixtures.
 const active = signal("overview"),
@@ -110,14 +121,7 @@ function MenuRow(props: { title: string; icon: string; onSelect: () => void }) {
     return (
         <MenuItem
             onSelect={props.onSelect}
-            style={{
-                paddingHorizontal: 10,
-                paddingVertical: 8,
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                borderRadius: 5,
-            }}
+            style={menuItem()}
             hoverStyle={{ backgroundColor: ink("surface-selected") }}
             focusStyle={{ backgroundColor: ink("surface-selected") }}
         >
@@ -126,22 +130,12 @@ function MenuRow(props: { title: string; icon: string; onSelect: () => void }) {
         </MenuItem>
     );
 }
-const popupStyle = () => ({
-    padding: 5,
-    minWidth: 208,
-    borderRadius: 9,
-    borderCurve: "continuous" as const,
-    backgroundColor: ink("surface-floating"),
-    borderWidth: 1,
-    borderColor: ink("border-control"),
-    boxShadow: "0 7px 24px rgba(0,0,0,0.16)",
-});
 function NewMenu() {
     return (
         <Menu
             offset={8}
             margin={10}
-            popupStyle={popupStyle()}
+            popupStyle={menuPopup()}
             trigger={<Tool label="新建内容…" icon="plus" />}
         >
             <View style={{ padding: 9 }}>
@@ -173,12 +167,12 @@ function SidebarRow(props: {
             accessibilityLabel={props.title}
             onPress={props.onPress}
             style={{
-                height: 33,
+                height: 34,
                 flexDirection: "row",
-                gap: 10,
+                gap: 8,
                 alignItems: "center",
                 paddingHorizontal: 10,
-                borderRadius: 7,
+                borderRadius: 8,
                 borderCurve: "continuous",
                 backgroundColor: ink(
                     props.selected ? "surface-selected" : "transparent",
@@ -235,10 +229,10 @@ function Sidebar() {
                     accessibilityLabel="搜索工作区…"
                     onPress={showSearch}
                     style={{
-                        height: 31,
+                        height: 32,
                         borderRadius: 7,
                         paddingHorizontal: 10,
-                        gap: 7,
+                        gap: 8,
                         flexDirection: "row",
                         alignItems: "center",
                         backgroundColor: ink("surface-search"),
@@ -247,7 +241,7 @@ function Sidebar() {
                     }}
                     focusStyle={focus()}
                 >
-                    <Glyph name="search" size={14} />
+                    <Glyph name="search" size={15} />
                     <View style={{ flex: 1 }}>
                         <Copy size={12} muted>
                             搜索
@@ -1092,7 +1086,7 @@ function HostToolbar() {
             <Menu
                 offset={8}
                 margin={10}
-                popupStyle={popupStyle()}
+                popupStyle={menuPopup()}
                 trigger={<Tool label="更多工作区操作…" icon="more" />}
             >
                 <MenuRow

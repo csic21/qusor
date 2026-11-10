@@ -1,7 +1,18 @@
 import { Canvas, Clipboard, keymap, Path2D, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
 import { Button, Input, Menu, MenuItem, MenuSeparator, TextView } from "nsh/base";
 import { Menu as DesktopMenu, type MenuItem as DesktopMenuItem } from "nsh/desktop";
-import { Badge, Copy, focus, Glyph, ink, Rule, Tool } from "./ui";
+import {
+    Badge,
+    Copy,
+    focus,
+    Glyph,
+    ink,
+    menuItem,
+    menuPopup,
+    Rule,
+    TextButton,
+    Tool,
+} from "./ui";
 
 // Contribution fixtures, not an installed SDK or a security boundary.
 // This module owns content, geometry and local draft state; the shell owns none of them.
@@ -652,7 +663,7 @@ function ReadingShelf(props: { compact: boolean }) {
                             onChange={({ value }) => readingQuery.set(value)}
                             placeholder="搜索资料"
                             style={{
-                                height: 31,
+                                height: 32,
                                 paddingHorizontal: 10,
                                 fontSize: 13,
                                 color: ink("text-primary"),
@@ -1215,7 +1226,7 @@ function NotesList(props: { compact: boolean }) {
                             onChange={({ value }) => notesQuery.set(value)}
                             placeholder="搜索想法、引文或资料"
                             style={{
-                                height: 31,
+                                height: 32,
                                 paddingHorizontal: 10,
                                 fontSize: 13,
                                 color: ink("text-primary"),
@@ -1304,7 +1315,7 @@ function NotesList(props: { compact: boolean }) {
                                                 <If
                                                     when={noteTruncated(note())}
                                                 >
-                                                    <Copy size={10} muted>
+                                                    <Copy size={11} muted>
                                                         完整内容
                                                     </Copy>
                                                 </If>
@@ -1313,24 +1324,37 @@ function NotesList(props: { compact: boolean }) {
                                                         note().missingOriginal
                                                     }
                                                 >
-                                                    <Copy size={10} muted>
+                                                    <Copy size={11} muted>
                                                         原件缺失
                                                     </Copy>
                                                 </If>
                                             </View>
                                             <View
                                                 style={{
-                                                    borderLeftWidth: 3,
-                                                    borderColor: ink(
-                                                        "text-accent",
-                                                    ),
-                                                    paddingLeft: 12,
-                                                    paddingVertical: 2,
+                                                    flexDirection: "row",
+                                                    gap: 12,
                                                 }}
                                             >
-                                                <Copy lines={2}>
-                                                    {note().quote}
-                                                </Copy>
+                                                <View
+                                                    style={{
+                                                        width: 3,
+                                                        borderRadius: 2,
+                                                        backgroundColor: ink(
+                                                            "text-accent",
+                                                        ),
+                                                    }}
+                                                />
+                                                <View
+                                                    style={{
+                                                        flex: 1,
+                                                        minWidth: 0,
+                                                        paddingVertical: 2,
+                                                    }}
+                                                >
+                                                    <Copy lines={2}>
+                                                        {note().quote}
+                                                    </Copy>
+                                                </View>
                                             </View>
                                             <Copy size={12} muted lines={2}>
                                                 {note().note}
@@ -1373,20 +1397,14 @@ function NotesList(props: { compact: boolean }) {
                                     : "在正文中选文并写下想法，保存后会出现在这里。"}
                             </Copy>
                             <If when={!!notesQuery().trim()}>
-                                <Button
-                                    accessibilityLabel="清除搜索"
-                                    onPress={() => notesQuery.set("")}
-                                    style={{
-                                        alignSelf: "flex-start",
-                                        height: 30,
-                                        paddingHorizontal: 10,
-                                        borderRadius: 6,
-                                        backgroundColor: ink("surface-inset"),
-                                    }}
-                                    focusStyle={focus()}
-                                >
-                                    <Copy>清除搜索</Copy>
-                                </Button>
+                                <View style={{ flexDirection: "row" }}>
+                                    <TextButton
+                                        label="清除搜索"
+                                        filled
+                                        size="compact"
+                                        onPress={() => notesQuery.set("")}
+                                    />
+                                </View>
                             </If>
                         </View>
                     </If>
@@ -1450,22 +1468,16 @@ function NoteDetail() {
                             text="更多"
                         />
                     }
-                    popupStyle={{
-                        padding: 5,
-                        minWidth: 200,
-                        borderRadius: 10,
-                        backgroundColor: ink("surface-floating"),
-                        borderWidth: 1,
-                        borderColor: ink("border-subtle"),
-                        boxShadow: "0 8px 28px rgba(0,0,0,0.16)",
-                    }}
+                    popupStyle={menuPopup()}
                 >
                     <MenuItem
+                        style={menuItem()}
                         onSelect={() => note() && noteCopy(note()!.quote, "引文")}
                     >
                         <Copy>复制引文</Copy>
                     </MenuItem>
                     <MenuItem
+                        style={menuItem()}
                         onSelect={() =>
                             note() && noteCopy(noteBodyText(note()!), "想法")
                         }
@@ -1473,6 +1485,7 @@ function NoteDetail() {
                         <Copy>复制想法</Copy>
                     </MenuItem>
                     <MenuItem
+                        style={menuItem()}
                         onSelect={() =>
                             note() && noteCopy(noteCitation(note()!), "引用")
                         }
@@ -1481,6 +1494,7 @@ function NoteDetail() {
                     </MenuItem>
                     <MenuSeparator />
                     <MenuItem
+                        style={menuItem()}
                         disabled={!note() || !noteTruncated(note()!)}
                         onSelect={() => note() && loadNoteBody(note()!)}
                     >
@@ -1506,21 +1520,18 @@ function NoteDetail() {
                         已选取 {notesSelection().length} 个字符
                     </Copy>
                     <View style={{ flex: 1 }} />
-                    <Button
+                    <TextButton
+                        label="复制选中"
                         accessibilityLabel="复制选中文本"
+                        filled
+                        size="compact"
                         onPress={() => noteCopy(notesSelection(), "选中内容")}
-                        style={{
-                            height: 28,
-                            paddingHorizontal: 10,
-                            borderRadius: 6,
-                            backgroundColor: ink("surface-inset"),
-                        }}
-                        focusStyle={focus()}
-                    >
-                        <Copy>复制选中</Copy>
-                    </Button>
-                    <Button
+                    />
+                    <TextButton
+                        label="复制为引用"
                         accessibilityLabel="把选中文本复制为引用"
+                        filled
+                        size="compact"
                         onPress={() =>
                             note() &&
                             noteCopy(
@@ -1528,28 +1539,13 @@ function NoteDetail() {
                                 "引用",
                             )
                         }
-                        style={{
-                            height: 28,
-                            paddingHorizontal: 10,
-                            borderRadius: 6,
-                            backgroundColor: ink("surface-inset"),
-                        }}
-                        focusStyle={focus()}
-                    >
-                        <Copy>复制为引用</Copy>
-                    </Button>
-                    <Button
+                    />
+                    <TextButton
+                        label="取消选择"
                         accessibilityLabel="取消文本选取"
+                        size="compact"
                         onPress={() => notesSelection.set("")}
-                        style={{
-                            height: 28,
-                            paddingHorizontal: 10,
-                            borderRadius: 6,
-                        }}
-                        focusStyle={focus()}
-                    >
-                        <Copy>取消选择</Copy>
-                    </Button>
+                    />
                 </View>
             </If>
             <Scroll style={{ flex: 1 }}>
@@ -1570,21 +1566,29 @@ function NoteDetail() {
                     <Copy size={27} strong>
                         {note()?.title}
                     </Copy>
-                    <View
-                        style={{
-                            borderLeftWidth: 3,
-                            borderColor: ink("text-accent"),
-                            paddingLeft: 17,
-                            paddingVertical: 4,
-                        }}
-                    >
-                        <TextView
-                            markdown={note()?.quote}
-                            selectable
-                            onSelectionChange={({ text }) =>
-                                notesSelection.set(text)
-                            }
+                    <View style={{ flexDirection: "row", gap: 14 }}>
+                        <View
+                            style={{
+                                width: 3,
+                                borderRadius: 2,
+                                backgroundColor: ink("text-accent"),
+                            }}
                         />
+                        <View
+                            style={{
+                                flex: 1,
+                                minWidth: 0,
+                                paddingVertical: 4,
+                            }}
+                        >
+                            <TextView
+                                markdown={note()?.quote}
+                                selectable
+                                onSelectionChange={({ text }) =>
+                                    notesSelection.set(text)
+                                }
+                            />
+                        </View>
                     </View>
                     <Rule />
                     <Copy size={11} strong muted>
@@ -1617,25 +1621,20 @@ function NoteDetail() {
                             <Copy size={11} muted>
                                 列表只显示开头，完整内容仍保存在本机。
                             </Copy>
-                            <Button
-                                accessibilityLabel="读取完整想法内容"
-                                disabled={notesBodyLoading() === note()!.id}
-                                onPress={() => loadNoteBody(note()!)}
-                                style={{
-                                    alignSelf: "flex-start",
-                                    height: 30,
-                                    paddingHorizontal: 11,
-                                    borderRadius: 6,
-                                    backgroundColor: ink("surface-selected"),
-                                }}
-                                focusStyle={focus()}
-                            >
-                                <Copy>
-                                    {notesBodyLoading() === note()!.id
-                                        ? "正在读取…"
-                                        : "读取完整内容"}
-                                </Copy>
-                            </Button>
+                            <View style={{ flexDirection: "row" }}>
+                                <TextButton
+                                    label={
+                                        notesBodyLoading() === note()!.id
+                                            ? "正在读取…"
+                                            : "读取完整内容"
+                                    }
+                                    accessibilityLabel="读取完整想法内容"
+                                    raised
+                                    size="compact"
+                                    disabled={notesBodyLoading() === note()!.id}
+                                    onPress={() => loadNoteBody(note()!)}
+                                />
+                            </View>
                         </View>
                     </If>
                     <If when={!!notesCopyStatus()}>
@@ -1670,17 +1669,8 @@ function NoteDetail() {
                             </Copy>
                         </If>
                         <If when={canOpen()}>
-                            <Tool
-                                label="打开所在页"
-                                text="打开所在页"
-                                icon="book"
-                                raised
-                                onPress={() => {
-                                    if (note()) openNoteSource(note()!);
-                                }}
-                            />
                             <Copy size={11} muted>
-                                真实回源由 Core 与阅读插件承接。
+                                真实回源由 Core 与阅读插件承接；上方“打开所在页”执行。
                             </Copy>
                         </If>
                     </View>
