@@ -117,8 +117,16 @@ jobs:
       - name: Write the update manifest
         run: |
           printf 'See the release notes for this version.\n' > "$RUNNER_TEMP/notes.md"
+          # Only the archives this run produced: an unmatched glob reaches the CLI
+          # as a literal path and names no platform.
+          shopt -s nullglob
+          archives=(dist/*.tar.gz dist/*.zip)
+          if [ ${#archives[@]} -eq 0 ]; then
+            echo "no archive to describe" >&2
+            exit 1
+          fi
           experiments/nsh-reader/target/nsh/target/debug/nsh update-manifest \
-            dist/*.tar.gz dist/*.zip \
+            "${archives[@]}" \
             --entry apps/qusor \
             --notes "$RUNNER_TEMP/notes.md" \
             --key "$RUNNER_TEMP/keys/update.secret" \
