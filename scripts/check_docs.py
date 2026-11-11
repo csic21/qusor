@@ -5,7 +5,7 @@ import sys
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-SKIP = {".git", "target", "__pycache__", "node_modules"}
+SKIP = {".git", "target", "__pycache__", "node_modules", ".local", ".nsh"}
 LINK = re.compile(r"(?<!!)\[[^\]]+\]\((<[^>]+>|[^)\n]+)\)")
 
 
