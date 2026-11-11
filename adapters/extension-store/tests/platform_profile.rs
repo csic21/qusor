@@ -29,7 +29,11 @@ fn an_unqualified_platform_refuses_to_open_a_store() {
     use extension_store::StoreErrorCode;
 
     let path = scratch();
-    let error = Store::open(&path.join("store")).unwrap_err();
+    // `Store` has no Debug: match instead of `unwrap_err`.
+    let error = match Store::open(&path.join("store")) {
+        Ok(_) => panic!("an unqualified platform opened a store"),
+        Err(error) => error,
+    };
     assert_eq!(error.code(), StoreErrorCode::Unsupported);
     assert!(
         error
