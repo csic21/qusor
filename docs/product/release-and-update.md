@@ -10,6 +10,8 @@
 2. **应用形态**：先把当前实验原生宿主改造成 `nsh package` 形态（`apps/` 生产入口），一次获得桌面打包、自动更新、OTA 包和 Android/iOS 打包；不再长期维护自建 `.app` 包装。
 3. **签名条件**：当前既无 Apple Developer Program 账号，也无 Android 发布 keystore。现阶段只能产出 ad hoc / 调试签名产物：macOS 会被 Gatekeeper 拦截，iOS 只能出模拟器包，Android 只能出调试签名 APK。正式分发资格待账号就绪后另行验收。
 
+2026-11-11 同日执行：公开前隐私检查通过后，仓库已由 private 转为 public（`https://github.com/csic21/qusor`），历史已按下列规则重写。此后 `releases/latest/download/` 可免认证读取，自动更新的更新源前提成立。
+
 ## 现状（2026-11-11 核对）
 
 | 能力 | 当前状态 | 证据 |
@@ -86,9 +88,26 @@
 
 结论：**当前沙箱无法判定**带自建 crate 的 app 能否直接打包；`rquickjs_macro` 失败与未缓存 crate 都可能只是本机依赖缓存/网络限制，不是 QUSOR 或 NSH 的缺陷。纯 TSX 应用的打包链路本机已实际走通。需要在具备 crate 下载能力的环境（或预热 cargo 缓存）复测工作台；复测前不把打包列为已解决，也不据此改应用 crate 依赖。
 
+## 公开前检查与脱敏（2026-11-11）
+
+| 检查项 | 结果 |
+|---|---|
+| 凭据/令牌（跟踪文件与全部历史） | 未发现私钥、GitHub token、云厂商 key、`password=`/`api_key=` 字面量 |
+| 私有地址 | 未发现内网 IP、`.internal`/`.local` 主机名、个人邮箱或手机号 |
+| 个人文档内容 | 证据中的 PDF 为脚本生成的合成文件；截图内容为自拟示例文集，无真实资料 |
+| 本地路径 | 352 个文本文件（日志、证据 JSON、生成的 `toml`/`py`）含本机用户名路径 |
+
+处置：用 `git filter-repo --replace-text` 把 `/Users/karl/workspace/ai/qusor`、`/home/xin/workspace/qusor` 统一替换为 `/workspace/qusor`，把 `/Users/karl`、`/Users/Xin`、`/home/xin` 替换为 `/Users/user`、`/home/user`；重写了全部 20 个提交（新 HEAD `2a40494`），随后 `git grep` 与 `git log -p --all` 均无残留。二进制证据（zip/gz/png/jpg）逐个校验前后 SHA-256 一致，未被改写；文件名清单不变。
+
+公开前备份与遗留：
+
+- 重写前历史打包在 `/tmp/qusor-prepublic.bundle`；工作树 WIP 有 `git diff` 与未跟踪文件 tar 备份。
+- GitHub 侧未删除旧对象：当前 token 无 `delete_repo` 权限，无法删除并重建仓库；旧的不可达提交仅能按 SHA 访问，不会被仓库页面或搜索列出。若要求彻底清除，需要删除仓库后重建，或联系 GitHub 支持清理不可达对象。
+- 提交作者仍为 `karl <…@users.noreply.github.com>`（GitHub noreply 地址），与用户名一致，不属于新增暴露。
+
 ## 未验证范围
 
-- 未创建 tag 或 Release，未运行打包流水线，未生成生产密钥，未改仓库可见性。
+- 未创建 tag 或 Release，未运行打包流水线，未生成生产密钥。仓库可见性已于 2026-11-11 转为 public，见上节。
 - 上述 CI 失败修复未在远端重跑，Windows 缺口未修。
 
 ## 实施顺序
