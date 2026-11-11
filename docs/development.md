@@ -79,6 +79,15 @@ cd apps/qusor && CARGO_PROFILE_RELEASE_STRIP=none \
 
 `CARGO_PROFILE_RELEASE_STRIP=none` 是必需项：默认 `strip=debuginfo` 在固定基线上会产出畸形的 proc-macro dylib。发行清单与 GitHub Actions 流程见 [发行与更新](product/release-and-update.md)；`apps/qusor` 是独立 workspace，不在根 `cargo test --workspace` 范围内，需单独跑 `cargo check --manifest-path apps/qusor/native/Cargo.toml`。
 
+应用内自动更新（检查→下载→替换→重启）的本机自测：
+
+```sh
+python3 apps/qusor/update-selftest.py               # 写入 /tmp，不覆盖仓库证据
+python3 apps/qusor/update-selftest.py --install-evidence   # 同时写入 evidence/app-update
+```
+
+该脚本在同一工作树打包 0.1.0/0.1.1、用 `.local/keys/update.secret` 签名清单、在回环 HTTP 上完整走一次更新，窗口截图只截应用窗口。它要写应用数据目录并替换应用自身，因此不是沙箱内任务；密钥内容不打印、不复制。范围与限制见[更新记录](../experiments/nsh-reader/evidence/app-update/README.md)。
+
 ## NSH 前置实验
 
 原生 NSH Cargo 构建与测试一律显式设置 `CARGO_BUILD_JOBS=1`，并传 `-j1`。即使指定单个 integration test，Cargo 也可能隐式构建已有多个 bin；2026-11-08 本机观察到四个并行链接任务争用内存并拖慢系统。需要中断时保留日志，确认自有 cargo/rustc/linker 全部退出后再串行重试；编译中断不等于已运行的 OS worker 被回收，不能混用清理证据。
