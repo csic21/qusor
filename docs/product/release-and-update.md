@@ -16,18 +16,20 @@
 
 | 能力 | 当前状态 | 证据 |
 |---|---|---|
-| 更新接线 | **无**。所有 `nsh.json` 没有 `version`/`build`/`updater`；应用没有更新 UI；产物没有 `app.json`/`nsh-updater.json` | `experiments/nsh-reader/*/nsh.json` |
-| 版本号 | **无**。`nsh.json` 无 `version`/`build`；仓库无 tag；GitHub 无 Release | `gh release list` 为空 |
+| 更新接线 | **已接线**：`apps/qusor/nsh.json` 有 `version`/`build`/`updater.github`；应用有更新面板（侧栏入口、检查/下载/安装、不能自替换时打开下载页）；本机回环自测走通检查→下载→替换→重启，见[更新记录](../../experiments/nsh-reader/evidence/app-update/README.md)。实验目录的 `nsh.json` 仍无这些字段 | `apps/qusor/nsh.json`、`apps/qusor/update.tsx`、`apps/qusor/native/src/app_info.rs` |
+| 版本号 | 应用有 `0.1.0`/`build 1`；仓库仍无 tag，GitHub 仍无 Release（发版流水线未运行过） | `gh release list` 为空 |
 | 更新签名密钥 | **无**。没有 `keys/`，未运行 `nsh keygen` | — |
 | 打包 | **自建**。`dynamic-pdf/run.py` 生成按 exe 摘要命名的 `QUSOR Preview.app`，`bundle.nshc` 由 `nsh build` 生成，不是 `nsh package` 产物 | `experiments/nsh-reader/dynamic-pdf/run.py` |
-| CI | 只有 `foundation.yml`（Core 测试 + 库交叉检查），**没有打包或发布任务**；修复断言后 ubuntu 已通过，windows 仍失败 | run 42965087520 |
+| CI | `foundation.yml`（Core 测试 + 库交叉检查）三个 OS 全部通过；仍**没有打包或发布任务**。Windows 的失败改为显式拒绝：真实 store 场景只在 Unix 运行，Windows 任务用一项测试固定“无合格文件系统 profile 时拒绝打开 store” | run 42987643346；[平台缺口](../../adapters/extension-store/tests/platform_profile.rs) |
 | 移动端 | 仅 5 个 target 的**库交叉编译**通过；无 iOS/Android 宿主、无设备运行、无分发 | 同 run 的 `portable-libraries` 全部通过 |
 
-### CI 失败根因（本次核对）
+### CI 失败根因与处理（2026-11-11）
 
 - **ubuntu**：`adapters/extension-store/src/verified_cache_tests.rs` 的断言停在“支持 3 个 Host API”，实际已是 4（未提交工作树为 5）。该文件带 `#![cfg(target_os = "linux")]`，macOS 本机不编译，所以长期没被发现。
 - **windows**：`adapters/extension-store/tests/component.rs` 三例在 `Store::open_for_host` 处失败，对应 [跨平台结果](../../experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md) 已记录的 Windows 私有存储/文件适配缺口。
-- 2026-11-11 已修 ubuntu 断言并推送（提交 `12519cd`）：改为预算断言（`<= 8`），并把“不支持版本”改用 `u16::MAX`，不再随 API 增加而失效。本机用临时放宽的 `cfg` 编译并实际跑过该测试；远端 run 42965087520 显示 ubuntu 通过、windows 仍失败。Windows 行为未改。
+- **ubuntu**：`adapters/extension-store/src/verified_cache_tests.rs` 的 Host API 数量断言已改为预算断言（`<= 8`），“不支持版本”改用 `u16::MAX`（提交 `12519cd`），不再随 API 增加失效。
+- **windows**：`adapters/extension-store/tests/component.rs` 的三例真实 store 场景只在 Unix 有合格文件系统 profile（0700 目录、no-follow 包读取、单一 writer lease）。Windows 的私有存储 ACL 与 SQLite/blob 适配器仍未实现，因此测试按平台跳过（`#![cfg(unix)]`），另加 `tests/platform_profile.rs`：Unix 断言能打开并持有 writer lease，Windows 断言 `StoreErrorCode::Unsupported` 且诊断含 `qualified native filesystem profile`。这样 Windows 任务仍然运行并固定“故意拒绝”，而不是把跳过当成能力覆盖（提交 `8851c10`、`78f0666`）。
+- 结果：2026-11-11 run 42987643346 三个 OS 的 `Core foundation` 与五个 `portable-libraries` 全部通过。Windows 仍不能运行 store/知识库；CI 绿不代表 Windows 产品资格。
 
 ## 固定 NSH 基线已有能力
 
@@ -124,16 +126,31 @@ cd apps/qusor && CARGO_PROFILE_RELEASE_STRIP=none \
 
 未验证：Windows/Linux 打包、真实窗口交互与更新 UI、`checkForUpdate`/`installAndRestart` 实际调用、Developer ID 签名与公证、Actions 流水线。
 
+## 应用内自动更新本机实测（2026-11-11）
+
+`apps/qusor` 增加软件更新面板（设计见[软件更新面板](../design/update-dialog.md)）与原生 `AppInfo` 模块：
+
+- 侧栏底部“软件更新”行尾显示应用自己的版本，点开 470pt 浮层：当前版本、状态文案、新版本说明、下载进度、检查/下载安装/打开下载页按钮；发布/安装失败保留当前应用并显示原因。
+- 版本来自应用包内 `nsh-updater.json` 资产（`nsh package` 写出），不读环境变量、不读仓库文件。
+- 证据模式（`QUSOR_UPDATE_EVIDENCE` 或它留下的一次性标记）只用于本机自测：自动走同一套检查/安装路径、每个状态写 JSON 收据、重启后的构建报告版本与 Core 可读性后退出；普通启动没有该开关。
+
+本机自测 `python3 apps/qusor/update-selftest.py --install-evidence`：从同一工作树打包 0.1.0 与 0.1.1（临时把更新源指向 `127.0.0.1`，`nsh.json` 结束后恢复），用 `.local/keys/update.secret` 生成签名清单，启动 0.1.0 走完整更新链。17 项断言全部通过、整轮 97.9 秒：签名清单被接受；下载的归档 SHA-256/大小与清单一致；0.1.0 退出后平台启动 0.1.1；安装后的应用资产为 `version=0.1.1`、`build=2`；重启构建报告同一数据目录、`VocabHost.decks` 与 `NotesHost.page` 读取同一 Core 成功；一次性标记被消费。三张窗口截图（发现更新/安装中/重启后 0.1.1）与机器记录见[更新记录](../../experiments/nsh-reader/evidence/app-update/README.md)。
+
+同时修正一处 TSX 反应式写法：NSH 组件只运行一次，信号必须在 JSX 绑定里读取（`when={updateState() === …}`），先放进局部变量会冻结；首轮截图暴露了“文案已更新、按钮/进度条没更新”的混合状态，修正后三个状态各自稳定。
+
+未验证：GitHub Releases 实际拉取、拒绝路径（签名错误、应用 id 不符、旧清单、篡改归档）、Developer ID/公证、Windows/Linux 替换、移动端商店/OTA 语义、下载中断恢复、只读安装位置的下载页跳转。
+
 ## 未验证范围
 
-- 未创建 tag 或 Release，未运行打包流水线，未生成生产密钥。仓库可见性已于 2026-11-11 转为 public，见上节。
+- 未创建 tag 或 Release，发版流水线仍未运行过；更新私钥已在 `.local/keys`（未提交），仓库 secret `NSH_UPDATE_KEY` 已配置。仓库可见性已于 2026-11-11 转为 public，见上节。
+- 应用内更新只在本机回环源上通过；GitHub Releases 源、拒绝路径与其它平台未验证（见上节）。
 - 上述 CI 失败修复未在远端重跑，Windows 缺口未修。
 
 ## 实施顺序
 
-1. 修 Windows store 测试（或显式标记平台跳过并记录缺口），让 CI 恢复绿。
-2. 新建 `apps/qusor` 入口，跑通 `nsh package --target macos` 实窗。
-3. 写 `version`/`build`/`updater`/图标，本地用 `nsh update-manifest` 与本地 HTTP 自测一次更新流程。
+1. ~~修 Windows store 测试（或显式标记平台跳过并记录缺口），让 CI 恢复绿。~~ 已完成：Windows 任务显式固定拒绝路径，run 42987643346 三 OS 通过；Windows 能力缺口保留。
+2. ~~新建 `apps/qusor` 入口，跑通 `nsh package --target macos` 实窗。~~ 已完成（ad hoc `.app`，见下方“生产应用首次打包”）。
+3. ~~写 `version`/`build`/`updater`/图标，本地用 `nsh update-manifest` 与本地 HTTP 自测一次更新流程。~~ 更新 UI 与本地回环自测已实现，实测结果见下方“应用内自动更新本机实测”。
 4. 加发版 workflow（先 `workflow_dispatch` 出 draft Release，人工核对后再由 tag 触发）。
 5. 仓库转 public 并做首次发布。**首个发布必须已内置 updater 配置**，否则后续版本收不到自动更新。
 6. 再推进 Android/iOS 打包与真机资格。

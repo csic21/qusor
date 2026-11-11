@@ -22,6 +22,12 @@ import {
     Rule,
     Tool,
 } from "./ui";
+import {
+    appVersion,
+    openUpdatePanel,
+    runUpdateEvidence,
+    UpdateDialog,
+} from "./update";
 
 // The shell branches by generic contribution role; identities remain fixtures.
 const active = signal("overview"),
@@ -301,6 +307,12 @@ function Sidebar() {
                 <View style={{ flex: 1 }} />
                 <View style={{ paddingBottom: 14, gap: 10 }}>
                     <Rule />
+                    <SidebarRow
+                        title="软件更新"
+                        icon="arrow"
+                        trailing={appVersion()}
+                        onPress={openUpdatePanel}
+                    />
                     <View
                         style={{
                             flexDirection: "row",
@@ -1279,6 +1291,7 @@ function App() {
 
             </View>
             <Search />
+            <UpdateDialog frameWidth={frameWidth()} />
         </View>
     );
 }
@@ -1290,6 +1303,7 @@ mount(App);
 // headless test (no native module) stays in the normal shell.
 void (async () => {
     try {
+        await runUpdateEvidence();
         let target = "";
         try {
             const vocab = JSON.parse(await VocabHost.evidence());

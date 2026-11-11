@@ -1,7 +1,7 @@
 # ADR 0037：生产应用装配与自动更新发布
 
 - 日期：2026-11-11
-- 状态：应用中；桌面 macOS 打包已实测，Windows/Linux 与移动端未验证
+- 状态：应用中；桌面 macOS 打包与自动更新已实测（回环源），Windows/Linux 与移动端未验证
 - 关联：C-17、C-15、F-PLAT-01/02、F-EXT-01/03、F-DATA-01
 - 承接：[发行与更新方案](../../product/release-and-update.md)、[ADR 0003](0003-plugin-first-delivery.md)、[ADR 0006](0006-plugin-workspace-layout.md)、[ADR 0033](0033-cross-platform-runtime.md)
 
@@ -22,6 +22,8 @@
 4. **随包插件资产由 `apps/qusor/prepare.py` 生成**：运行 `plugins/notes/build.py` 与 `plugins/vocab/build.py`，把 `.qpk` 与发布者公钥复制到 `apps/qusor/native/assets/`。应用只嵌入字节与公钥，安装/授权仍走 Host 的公开链路。
 5. **打包必须关闭 release strip**：固定基线 `913fd76` + 本机 rustc 1.97.1 组合下，`strip=debuginfo` 会产出畸形的 proc-macro dylib，导致 `rquickjs_macro` 无法加载；`CARGO_PROFILE_RELEASE_STRIP=none` 可通过（见发行方案的本机实测）。
 6. **更新源与发布**：`nsh.json` 配 `"updater": { "github": "csic21/qusor", "publicKey": … }`；发布流程为 tag → 三平台 `nsh package` → `nsh update-manifest` → GitHub Release。更新私钥只存本地/CI secret，公钥随应用内置。首个发布必须已含该配置，否则已装版本收不到更新。
+7. **应用内更新用 NSH `nsh/updater`，不自建更新协议**：面板的检查/下载/安装走 NSH 的签名清单校验、归档 SHA-256/大小校验与平台替换/重启（`checkForUpdate`/`downloadUpdate`/`installAndRestart`），应用只负责状态与文案；不能自替换的位置只打开下载页。
+8. **应用身份与证据面用原生 `AppInfo` 模块**：版本/id/build 从应用包内 `nsh-updater.json` 资产读取（不依赖环境变量或仓库文件）；本机更新自测的收据、一次重启标记与退出只在该证据开关下可用，普通启动无法写收据或退出。
 
 ## 后果
 
@@ -29,9 +31,11 @@
 - 生产目录出现与实验目录的**临时重复**（provider、三个桥接模块、两个 native 模块）。后续应把实验侧改为依赖生产 crate，或把实验冻结为归档；此前的实验证据路径保持不变，但重跑脚本仍指向实验副本。
 - 生产应用尚未接入 PDF 阅读/编辑 UI：`App.tsx` 当前是工作台外壳（想法/背单词真实 Core，其余为窗口内 fixture）。阅读器 UI 依赖的 `ReaderSurface`/`DynamicReader`/`NativeEditor` 原生模块仍在实验宿主，接入需要一个单独的界面积分切片。
 - 缺少应用 workspace 的依赖图校验、Windows/Linux 交叉打包实测、真机与商店签名资格。
+- 自动更新只在本机回环源上验证接受路径；GitHub Releases 实际拉取、拒绝路径、Developer ID/公证、其它平台替换与移动端商店/OTA 语义都未验证。发版流水线仍未在 GitHub Actions 运行。
 
 ## 未验证
 
 - macOS 打包命令链之外的任何平台；Windows 的 `pdfium-render` 与 Unix-only 文件操作路径未验证。
-- 发布 workflow 从未在 GitHub Actions 运行；更新清单签名没有独立校验器复算；`checkForUpdate`/`installAndRestart` 未由真实应用调用。
+- 发布 workflow 从未在 GitHub Actions 运行；更新清单签名没有独立校验器复算。
+- `checkForUpdate`/`installAndRestart` 已由真实打包应用在回环源上调用并通过（[更新记录](../../../experiments/nsh-reader/evidence/app-update/README.md)），但未对 GitHub Releases 调用。
 - 无 Apple Developer ID / Android keystore，产物是 ad hoc 签名。

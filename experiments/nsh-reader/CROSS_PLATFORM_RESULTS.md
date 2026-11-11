@@ -15,6 +15,8 @@
 
 交叉检查覆盖 `extension-api`、`extension-host`、`core-api`、`learning-application`、`runtime-wasm`、`extension-package` 的 **library 编译**。不覆盖平台适配器或可安装应用，也未在目标 OS 执行解释器。2026-11-11 核对 run 42813342829：`portable-libraries` 的五个 target 全部在远端通过；同一运行的 `Core foundation` ubuntu 与 windows 失败（ubuntu 为 Linux 专用测试的 Host API 数量断言过期，windows 为 `Store::open_for_host` 失败，见 [发行与更新](../../docs/product/release-and-update.md)）。
 
+2026-11-11 后续：ubuntu 断言与 windows 失败都已处理。Windows 的真实 store 场景改为按 Unix 平台跳过，并新增 `tests/platform_profile.rs`——Unix 断言能打开并持有 writer lease，Windows 断言 `StoreErrorCode::Unsupported` 与 `qualified native filesystem profile` 诊断，让远端 Windows 任务固定“故意拒绝”而不是把跳过当成覆盖。run 42987643346 三个 OS 的 `Core foundation` 与五个 `portable-libraries` 全部通过。**这不改变上表 Windows 的“尚缺”项**：私有存储 ACL、进程 profile、Unix 文件操作适配仍未实现，Windows 仍不能运行 store/知识库或打包应用。
+
 生产平台描述符和兼容解析器已实现：独立 `descriptor_version = 1`，显式 OS/架构/渠道/版本、执行 profile/API、必需能力和用户固定选择。`any` 架构不隐含支持其他 OS。旧签名 Manifest 不变；签名多实现包、安装/激活/恢复的路由接线仍待完成。详见 [平台契约](../../docs/architecture/plugin-platforms.md)。
 
 ## 本机 macOS 启动

@@ -1,0 +1,146 @@
+{
+  "tested_at": "2026-11-11T17:06:42+0800",
+  "platform": "macos-aarch64",
+  "app_id": "org.qusor.app",
+  "from_version": "0.1.0",
+  "to_version": "0.1.1",
+  "update_source": "loopback http://127.0.0.1",
+  "work_dir": "/tmp/qusor-update-selftest",
+  "data_dir": "/Users/karl/Library/Application Support/org.qusor.app",
+  "nsh": "/Users/karl/workspace/ai/qusor/experiments/nsh-reader/target/nsh/target/debug/nsh",
+  "nsh_json_sha256": "869b4d511a0ed2da76f394b51076d1b6f08d58025203298022b02d543716796f",
+  "captures": [
+    {
+      "file": "available.png",
+      "window_id": 3880,
+      "pid": 24713,
+      "bytes": 209880
+    },
+    {
+      "file": "installing.png",
+      "window_id": 3880,
+      "pid": 24713,
+      "bytes": 201536
+    },
+    {
+      "file": "restarted.png",
+      "window_id": 3890,
+      "pid": 24912,
+      "bytes": 121529
+    }
+  ],
+  "receipts": {
+    "started": {
+      "at_ms": 1794388027784,
+      "payload": {
+        "build": 1,
+        "data_dir": "/Users/karl/Library/Application Support/org.qusor.app",
+        "id": "org.qusor.app",
+        "version": "0.1.0"
+      },
+      "step": "started"
+    },
+    "checked": {
+      "at_ms": 1794388027815,
+      "payload": {
+        "found": {
+          "can_install": true,
+          "notes": "自测版本：只在等待更新状态行的措辞上不同。\n",
+          "url": "http://127.0.0.1:59188/QUSOR-0.1.1-macos-aarch64.tar.gz",
+          "version": "0.1.1"
+        },
+        "of_version": "0.1.0",
+        "state": "available"
+      },
+      "step": "checked"
+    },
+    "downloaded": {
+      "at_ms": 1794388032890,
+      "payload": {
+        "progress": 1,
+        "target": "0.1.1"
+      },
+      "step": "downloaded"
+    },
+    "restarted": {
+      "at_ms": 1794388039659,
+      "payload": {
+        "build": 2,
+        "data_dir": "/Users/karl/Library/Application Support/org.qusor.app",
+        "id": "org.qusor.app",
+        "notes_readable": true,
+        "restarted": true,
+        "version": "0.1.1",
+        "vocab_readable": true
+      },
+      "step": "restarted"
+    }
+  },
+  "checks": {
+    "manifest_signed": true,
+    "manifest_names_0.1.1": true,
+    "manifest_sha256_matches_archive": true,
+    "manifest_size_matches_archive": true,
+    "checked_found_0.1.1": true,
+    "checked_can_install": true,
+    "download_completed": true,
+    "first_process_exited": true,
+    "restarted_build_is_0.1.1": true,
+    "restarted_same_app_data": true,
+    "restarted_reads_vocab_core": true,
+    "restarted_reads_notes_core": true,
+    "installed_app_is_0.1.1": true,
+    "installed_build_is_2": true,
+    "data_dir_preserved": true,
+    "restart_marker_consumed": true,
+    "second_process_observed": true
+  },
+  "logs": {},
+  "archives": {
+    "0.1.0": {
+      "file": "QUSOR-0.1.0-macos-aarch64.tar.gz",
+      "sha256": "92e8788793316a6dad9a6cb2d02605842009bc21da75bf50b7443a129e7aded8"
+    },
+    "0.1.1": {
+      "file": "QUSOR-0.1.1-macos-aarch64.tar.gz",
+      "sha256": "45207227c82c57735885a6a56078a414a6f2ff4ca1dc8d9d2e3974d9a24475a2"
+    }
+  },
+  "manifest": {
+    "file": "latest.json",
+    "sha256": "bdbfd32c6cc48acd85f40966fda10f48264b2c671851ef1435b3eeed346b3803",
+    "signature": "tDIJrGgUGLIo/E6PtISkk0okBZk1/eWuQqZ4+LxUwYHBJImw4B/KlaYAe2jmcse2ZkzkmA1cSLdQ5kUjWMQDBQ==",
+    "id": "org.qusor.app",
+    "version": "0.1.1",
+    "asset": {
+      "url": "http://127.0.0.1:59188/QUSOR-0.1.1-macos-aarch64.tar.gz",
+      "sha256": "45207227c82c57735885a6a56078a414a6f2ff4ca1dc8d9d2e3974d9a24475a2",
+      "size": 21774163
+    }
+  },
+  "from_config": {
+    "id": "org.qusor.app",
+    "version": "0.1.0",
+    "url": "http://127.0.0.1:59188/latest.json",
+    "publicKey": "jNQjrdXXjWxkRfpWH5UKQRXPZc5suyJeyF+saPJsqb0=",
+    "build": 1
+  },
+  "first_run_pid": 24713,
+  "first_exit_code": 0,
+  "second_run_pid": 24912,
+  "data_dir_entries": [
+    "notes",
+    "updates",
+    "vocab"
+  ],
+  "after_config": {
+    "id": "org.qusor.app",
+    "version": "0.1.1",
+    "url": "http://127.0.0.1:59188/latest.json",
+    "publicKey": "jNQjrdXXjWxkRfpWH5UKQRXPZc5suyJeyF+saPJsqb0=",
+    "build": 2
+  },
+  "duration_seconds": 97.9,
+  "result": "passed",
+  "failed_checks": []
+}

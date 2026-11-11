@@ -1,3 +1,5 @@
+2026-11-11 应用内自动更新与 CI 恢复：`apps/qusor` 新增软件更新面板（侧栏入口、检查/下载/安装状态、不能自替换时打开下载页）与原生 `AppInfo` 模块（版本取应用包内 `nsh-updater.json`，证据开关只在本机自测生效）；本机回环源自测 0.1.0→0.1.1 走通签名清单、下载校验、原地替换、重启与同一 Core 读取，17 项断言通过、97.9 秒，见[更新记录](../../experiments/nsh-reader/evidence/app-update/README.md) 与[设计](../design/update-dialog.md)。同轮把 Windows 的真实 store 场景按平台跳过并新增拒绝路径测试，CI run 42987643346 三 OS 通过（Windows 能力缺口未变）。修正一处 TSX 反应式写法：信号必须在 JSX 绑定里读取。GitHub Releases 实际拉取、拒绝路径、公证/商店签名、其它平台与发版流水线运行仍未验证。
+
 2026-11-11 发行与自动更新方向：用户要求通过 GitHub Release 发版、GitHub Actions 构建，并确认主仓库转 public 作更新源、应用改造成 `nsh package` 形态、当前尚无签名账号。现状（无 updater 接线、无版本号、无 Release；最近 CI 的 ubuntu 与 windows 失败）与分阶段计划见 [发行与更新](release-and-update.md)。下一步先修 CI 与 Windows store 缺口，再建 `apps/qusor` 入口并跑通 `nsh package --target macos`。
 
 # 下一阶段：插件支撑的最小本地阅读闭环

@@ -4,6 +4,8 @@
 
 2026-11-09 用户要求一次推进全平台，C-15 覆盖 macOS、Windows、Linux、iOS、Android、Web。当前实际进度及原生 macOS 启动入口见 [跨平台结果](experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md)；共享库交叉编译不代表六端应用交付，移动/Web 执行 profile、Windows 私有存储/进程适配及各端发行资格仍须按门槛落实。
 
+2026-11-11 生产应用 `apps/qusor` 已按 `nsh package` 形态打包（ad hoc 签名），并在本机回环源上通过应用内自动更新自测（0.1.0→0.1.1、替换与重启、同一 Core 读取）；GitHub Releases 实际拉取、拒绝路径、公证/商店签名、其它平台替换与发版流水线运行仍未验证，见[发行与更新](docs/product/release-and-update.md)与[更新记录](experiments/nsh-reader/evidence/app-update/README.md)。
+
 当前已有 [无界面插件策略基座](docs/product/foundation.md) 与 [Wasm 本机实验](experiments/extension-wasm/RESULTS.md)。用户随后同意按最小本地阅读闭环推进，并明确阅读及其他核心用户功能全部插件化、目录/架构清晰。签名包、持久授权／迁移与监督恢复已有本机子项，生产安装界面、完整监督装配和发行门槛仍未完成。固定NSH借隔离本地依赖前缀已通过Linux原生构建、实窗选文／编辑／保存、正常关闭及Core重开／空库恢复；最新[默认界面资格](experiments/nsh-reader/evidence/native-editor-shutdown-gui-default/README.md)与[进程回收资格](experiments/nsh-reader/evidence/native-editor-shutdown/README.md)分别记录工件和范围。图像任务退休仍在整合，原生资源释放ACK、B原生替换、长书／EPUB、正式功能包及其他平台门槛尚未通过。当前落实 [目录边界](docs/architecture/workspace-layout.md)、[包生命周期](docs/architecture/plugin-lifecycle.md) 与 [NSH 前置实验](experiments/nsh-reader/README.md)，阶段顺序见 [下一阶段计划](docs/product/next-phase.md)。
 
 已授权的目录设计、前置实验及按相应技术门槛推进的本地闭环无需重复审批；2026-11-11 用户要求开发背单词插件；首个词汇学习切片（Host API 0.5、Core 学习数据与 FSRS-5、普通签名包、真实 SQLite 端到端测试）已落地，见 [词汇插件规格](docs/product/vocab-plugin.md)；工作台样例随后补音标、词性、系统语音读音与美/英切换（样例词书资源与实验宿主能力，不改 0.5 wire/Core），并加自动朗读/慢速两项读音偏好（存应用自身存储），见[实窗记录](experiments/nsh-reader/evidence/vocab-workspace-live/README.md)。正式产品工作区与生产安装界面仍未完成。当前尚无正式阅读／知识功能插件及完整产品装配；已验证的Core保存／恢复实现不等于正式用户旅程交付。首版 AI/画布/同步范围、云默认行为和首发平台仍待确定，不因功能归属规划而自动全部开工。后续明确指令优先，并更新范围记录。
