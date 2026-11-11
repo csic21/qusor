@@ -1,13 +1,13 @@
 {
-  "app": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app",
+  "app": "/Users/karl/workspace/ai/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app",
   "command": [
-    "/workspace/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app/Contents/MacOS/qusor-native-host",
+    "/Users/karl/workspace/ai/qusor/experiments/nsh-reader/target/native-workbench/QUSOR 工作台研究.app/Contents/MacOS/qusor-native-host",
     "--bundle",
-    "/workspace/qusor/experiments/nsh-reader/target/native-workbench/bundle/bundle.nshc",
+    "/Users/karl/workspace/ai/qusor/experiments/nsh-reader/target/native-workbench/bundle/bundle.nshc",
     "--app-id",
     "org.qusor.workbenchstudy",
     "--data-dir",
-    "/workspace/qusor/experiments/nsh-reader/target/native-workbench/data",
+    "/Users/karl/workspace/ai/qusor/experiments/nsh-reader/target/native-workbench/data",
     "--name",
     "QUSOR 工作台研究",
     "--window-size",
@@ -17,8 +17,8 @@
     1280,
     820
   ],
-  "bundle_tree_sha256": "5ed5620d110af6a2a314259e8ffeba77651863e1d5649c759a22fd45dcceef0f",
-  "host_sha256": "0e03fe62e9c0f406e7305923693842efe16fd46a78a8b1b880ca513ac8bb68a4",
+  "bundle_tree_sha256": "609c3b1991fa3e05cae96295448d04d54a67b1a49e9326a44696a220d18953b2",
+  "host_sha256": "48a332f0f9c343fd18b1259702ae0443dc33bb08792a8804f7f3c179ec437fb6",
   "notes_package_sha256": "fbe9e17b514a9d8b9f03a559ed6d112fb86c65e0a2d44dcfd54a66cb35fc9f96",
   "notes_publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
   "seed": {
@@ -31,7 +31,7 @@
     "notes": 3,
     "vault": "workbench-vault"
   },
-  "notes_core": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/core",
+  "notes_core": "/Users/karl/workspace/ai/qusor/experiments/nsh-reader/target/native-workbench/core",
   "vocab_package_sha256": "4ce99011b45ce6c01b158e236762ea3d4465a2dd050e590b77be8e0284dd0823",
   "vocab_publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
   "vocab_seed": {
@@ -65,10 +65,10 @@
       }
     ]
   },
-  "vocab_core": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/core-vocab",
+  "vocab_core": "/Users/karl/workspace/ai/qusor/experiments/nsh-reader/target/native-workbench/core-vocab",
   "vocab_day_start_ms": 1794326400000,
   "evidence": true,
   "evidence_target": "vocab",
-  "captures": "/workspace/qusor/experiments/nsh-reader/target/native-workbench/captures",
+  "captures": "/Users/karl/workspace/ai/qusor/experiments/nsh-reader/target/native-workbench/captures",
   "fixture": "Real Core notes and vocabulary in sealed local data directories; ordinary signed notes/vocab packages; no network."
 }

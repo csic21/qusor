@@ -1,6 +1,6 @@
 # 背单词工作区设计（v1 样例）
 
-更新：2026-11-11。状态：v1 样例已按本规格实现于原生工作台（headless 10 项 + macOS 实窗五张 + 同一 Core 重开恢复，见[实窗记录](../../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)）；窗口内 fixture 与真实 Core（0.5 能力）两种数据来源分别标注，不把样例或 wire 通过当成正式产品界面。关联 F-LEARN-01、F-UX-01/02、C-11/C-12/C-16；功能范围见[词汇插件规格](../product/vocab-plugin.md)，公开能力见 [ADR 0036](../architecture/adr/0036-vocabulary-study-capability.md)，分区见[组合规格](composition.md)，导航规则见[导航层级](navigation-hierarchy.md)。
+更新：2026-11-11。状态：v1 样例已按本规格实现于原生工作台（headless 14 项 + macOS 实窗七张 + 同一 Core 重开恢复，见[实窗记录](../../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)）；窗口内 fixture 与真实 Core（0.5 能力）两种数据来源分别标注。同日增量补音标、词性、系统语音读音与美/英切换（样例词书资源 + 实验宿主能力，不改 0.5 wire/Core），不把样例或 wire 通过当成正式产品界面。关联 F-LEARN-01、F-UX-01/02、C-11/C-12/C-16；功能范围见[词汇插件规格](../product/vocab-plugin.md)，公开能力见 [ADR 0036](../architecture/adr/0036-vocabulary-study-capability.md)，分区见[组合规格](composition.md)，导航规则见[导航层级](navigation-hierarchy.md)。
 
 ## 目标与原则
 
@@ -67,6 +67,16 @@
 | 评分失败 | 保留卡片与四档选择，显示可重试；不假装已安排 |
 | 窄窗 | 顶部词书选择 + 单卡；返回词书列表保留选中书 |
 
+## 音标与读音（2026-11-11 增量）
+
+- 词性与 IPA 在“显示答案”之前就与词条一起出现：音标不是答案，释义与例句仍然隐藏。
+- 音标来源是**样例词书资源**（`native-workbench/pronunciation.ts`），不是 Core 数据；未收录的 term 显示“音标未收录 · 由词书资源提供”，不临时猜一个。
+- 读音由实验宿主的 `VocabHost.pronounce` 调用 macOS 系统语音（`say`）离线朗读：优先美音（Samantha 一类）或英音（Daniel 一类）系统语音，未安装时退回同语言的其他语音，再退回系统默认。同一时刻只保留一路朗读，新的一次会停掉上一句。
+- 卡片的“美音 / 英音”切换同时改变所用音标与朗读口音；偏好属于窗口，不写入 Core。
+- 揭晓后例句下方出现“朗读例句”，与单词朗读走同一宿主能力。
+- 没有实验宿主、Core 运行时未就绪或平台没有系统语音时，状态行明说“当前宿主没有系统读音”，不伪装成已播放。
+- 边界：系统语音是**实验宿主**的能力，不是公开 wire、插件能力或 Core 数据；生产形态需要平台语音能力或词书随包音频，届时另立能力与验收。
+
 ## 键盘与可访问性
 
 - 空格/Enter：显示答案；数字 1–4 对应四档评分；`Esc` 清除当前展开或回到词书选择。
@@ -80,11 +90,16 @@
 - Given 同一评分重复提交或重试，Then 不重复安排；换评分复用同一 operation id 时报冲突并保留原安排。
 - Given 走完队列，Then 显示“今天完成”，不自动引入超过每日新词预算的卡片。
 - Given 宿主未提供真实数据或读取失败，Then 窗口显示样例并明确标注“样例数据”，不伪装成本机 Core。
+- Given 学习卡尚未揭晓，Then 词性与音标、朗读按钮和美/英切换可见，释义与例句仍隐藏。
+- Given 实验宿主在运行，When 按朗读按钮或 `R`，Then 系统语音朗读当前词，状态行显示“正在朗读「词」 · 美音/英音（语音名）”；切换口音后再次朗读使用该口音。
+- Given 系统没有对应的英文语音，Then 退回同语言其他语音或系统默认；完全没有系统语音或没有宿主时，状态行说明原因，不显示成功。
+- Given 例句已揭晓，When 点“朗读例句”，Then 系统语音朗读整句。
 - Given 900×680，When 选择词书、显示答案、评分与返回，Then 单列仍可完成同一闭环，焦点不丢失。
 - Given 同一 Core 重开，Then 到期时间、剩余数量与复习历史一致（由 storage-sqlite 与宿主模块测试覆盖）。
 
 ## 实现与证据
 
 - 原生样例：`experiments/nsh-reader/native-workbench` 的 `fixture.vocab` 工作区；真实模式经 `VocabHost`（普通签名包 + 0.5 wire + 真实 SQLite Core）。
-- 证据：headless 交互测试 + macOS 实窗渲染；记录见[词汇工作区实窗记录](../../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)。
+- 音标资源在同目录 `pronunciation.ts`；读音走 `VocabHost.pronounce`（实验宿主，macOS `say`），无宿主时状态行说明。
+- 证据：headless 交互测试 + macOS 实窗渲染（含朗读状态与口音切换截图）；记录见[词汇工作区实窗记录](../../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)。
 - 本设计不替代正式产品安装界面、词书导入、提醒或其他平台验收。

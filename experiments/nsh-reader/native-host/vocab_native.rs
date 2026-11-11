@@ -146,6 +146,158 @@ fn parse_rating(value: &str) -> Result<VocabRating, String> {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Sample pronunciation service.
+//
+// The 0.5 wire carries terms, not recordings: the plugin owns no audio and the
+// Core stores no pronunciation. Until a wordbook import brings its own audio,
+// this experimental host asks the platform's system voice to read the term (or
+// its example) the Core returned, so the study card can be heard offline. Only
+// the reading itself is platform work; nothing is written to Core and no
+// phonetic is invented here.
+// ---------------------------------------------------------------------------
+
+/// System voices the sample service prefers for the American reading.
+const SPEECH_US_VOICES: &[&str] = &["Samantha", "Ava", "Allison", "Alex", "Fred"];
+/// System voices it prefers for the British reading.
+const SPEECH_UK_VOICES: &[&str] = &["Daniel", "Kate", "Serena", "Oliver"];
+/// Longest text one pronunciation call may hand to the system voice.
+const MAX_SPEECH_BYTES: usize = 400;
+/// Speaking rate of the sample service, slightly slower than the default.
+const SPEECH_RATE: &str = "165";
+
+/// The locale a voice must have to read the selected accent.
+fn speech_language(accent: &str) -> &'static str {
+    if accent == "uk" { "en_GB" } else { "en_US" }
+}
+
+/// Reads the lines of `say -v '?'`: a padded voice name, its locale and an
+/// example after `#`. Names may contain spaces ("Bad News"), so the locale is
+/// the last whitespace-separated token before the comment.
+fn parse_voice_listing(listing: &str) -> Vec<(String, String)> {
+    let mut voices = Vec::new();
+    for line in listing.lines() {
+        let Some((left, _)) = line.split_once('#') else {
+            continue;
+        };
+        let left = left.trim();
+        let Some((name, locale)) = left.rsplit_once(|ch: char| ch.is_whitespace()) else {
+            continue;
+        };
+        let (name, locale) = (name.trim(), locale.trim());
+        if !name.is_empty() && !locale.is_empty() {
+            voices.push((name.to_string(), locale.to_string()));
+        }
+    }
+    voices
+}
+
+/// A listed voice matches a preferred name when it is that name or that name
+/// with the system's localized suffix ("Samantha (英语（美国）)").
+fn voice_named(voice: &str, name: &str) -> bool {
+    voice == name || voice.starts_with(name) && voice[name.len()..].trim_start().starts_with('(')
+}
+
+/// The installed voice for an accent: a preferred name when it is installed,
+/// else any voice of the locale, else `None` (the system's own default voice).
+fn speech_voice(accent: &str, installed: &[(String, String)]) -> Option<String> {
+    let preferred = if accent == "uk" {
+        SPEECH_UK_VOICES
+    } else {
+        SPEECH_US_VOICES
+    };
+    let language = speech_language(accent);
+    preferred
+        .iter()
+        .find(|candidate| {
+            installed
+                .iter()
+                .any(|(voice, locale)| voice_named(voice, candidate) && locale == language)
+        })
+        .map(|candidate| (*candidate).to_string())
+        .or_else(|| {
+            installed
+                .iter()
+                .find(|(_, locale)| locale == language)
+                .map(|(voice, _)| voice.clone())
+        })
+}
+
+/// Rejects speech the system voice must not be asked to read.
+fn validate_speech(text: &str, accent: &str) -> Result<(), String> {
+    if text.is_empty() || text.len() > MAX_SPEECH_BYTES {
+        return Err(format!("speech text must be 1 to {MAX_SPEECH_BYTES} bytes"));
+    }
+    if text.chars().any(|ch| ch.is_control() && ch != '\n') {
+        return Err("speech text contains control characters".into());
+    }
+    if accent != "us" && accent != "uk" {
+        return Err("unknown pronunciation accent".into());
+    }
+    Ok(())
+}
+
+/// The voices this machine installed, asked once per process.
+#[cfg(target_os = "macos")]
+fn installed_voices() -> &'static [(String, String)] {
+    use std::sync::OnceLock;
+    static VOICES: OnceLock<Vec<(String, String)>> = OnceLock::new();
+    VOICES.get_or_init(|| {
+        match std::process::Command::new("/usr/bin/say")
+            .args(["-v", "?"])
+            .output()
+        {
+            Ok(output) => parse_voice_listing(&String::from_utf8_lossy(&output.stdout)),
+            Err(_) => Vec::new(),
+        }
+    })
+}
+
+/// Reads the text with the system voice. The process keeps speaking after this
+/// call returns; a new call stops the previous reading instead of stacking.
+#[cfg(target_os = "macos")]
+fn speak_now(text: &str, accent: &str) -> Result<Option<String>, String> {
+    use std::{
+        io::Write,
+        process::{Child, Command, Stdio},
+        sync::Mutex,
+    };
+    static SPEAKER: Mutex<Option<Child>> = Mutex::new(None);
+    if let Ok(mut speaker) = SPEAKER.lock() {
+        if let Some(mut previous) = speaker.take() {
+            let _ = previous.kill();
+            let _ = previous.try_wait();
+        }
+    }
+    let voice = speech_voice(accent, installed_voices());
+    let mut command = Command::new("/usr/bin/say");
+    command.args(["-r", SPEECH_RATE]);
+    if let Some(voice) = &voice {
+        command.args(["-v", voice]);
+    }
+    command
+        .stdin(Stdio::piped())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null());
+    let mut child = command
+        .spawn()
+        .map_err(|error| format!("cannot start the system voice: {error}"))?;
+    let handed = match child.stdin.take() {
+        Some(mut stdin) => stdin.write_all(text.as_bytes()),
+        None => Ok(()),
+    };
+    handed.map_err(|error| format!("cannot hand the text to the system voice: {error}"))?;
+    if let Ok(mut speaker) = SPEAKER.lock() {
+        *speaker = Some(child);
+    }
+    Ok(voice)
+}
+
+#[cfg(not(target_os = "macos"))]
+fn speak_now(_text: &str, _accent: &str) -> Result<Option<String>, String> {
+    Err("this platform's host has no system voice".into())
+}
+
 /// One in-process render capture of the app window. This is the same kind of
 /// evidence the NSH test harness takes: it needs no screen-recording grant and
 /// does not depend on which Space or window is frontmost.
@@ -303,6 +455,21 @@ impl VocabHost {
         })
     }
 
+    /// Read one short text (a term or its example) with the system voice.
+    /// The sample host asks the platform's voice; no pronunciation data is
+    /// invented here and nothing is written to Core.
+    pub fn pronounce(text: String, accent: String) -> String {
+        if let Err(error) = validate_speech(&text, &accent) {
+            return json!({ "ok": false, "error": error }).to_string();
+        }
+        // The sample host serves a workspace that already runs on the real
+        // package/Core runtime: a window without it keeps the sample card and
+        // says it cannot read instead of starting the system voice anyway.
+        answer(|_| {
+            speak_now(&text, &accent).map(|voice| json!({ "accent": accent, "voice": voice }))
+        })
+    }
+
     /// Evidence-only: report whether the host was started for capture and which
     /// workspace the launcher asked for.
     pub fn evidence() -> String {
@@ -319,5 +486,50 @@ impl VocabHost {
             Ok(()) => json!({"ok": true, "value": {"path": path}}).to_string(),
             Err(error) => json!({"ok": false, "error": error}).to_string(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const LISTING: &str = "Fred                en_US    # Hello! My name is Fred.\n\
+                           Samantha (英语（美国）)   en_US    # Hello! My name is Samantha.\n\
+                           Daniel (英语（英国）)     en_GB    # Hello! My name is Daniel.\n\
+                           Eddy (英语（美国）)       en_US    # Hello! My name is Eddy.\n\
+                           Amélie              fr_CA    # Bonjour! Je m’appelle Amélie.\n";
+
+    #[test]
+    fn a_voice_listing_keeps_names_with_spaces() {
+        let voices = parse_voice_listing(LISTING);
+        assert!(voices.contains(&("Eddy (英语（美国）)".to_string(), "en_US".to_string())));
+        assert!(voices.contains(&("Daniel (英语（英国）)".to_string(), "en_GB".to_string())));
+        assert!(!voices.iter().any(|(voice, _)| voice == "Bonjour!"));
+        assert!(voice_named("Samantha (英语（美国）)", "Samantha"));
+        assert!(!voice_named("Samantha", "Sam"));
+    }
+
+    #[test]
+    fn an_accent_prefers_its_known_voice_then_any_voice_of_the_locale() {
+        let voices = parse_voice_listing(LISTING);
+        assert_eq!(speech_voice("us", &voices), Some("Samantha".to_string()));
+        assert_eq!(speech_voice("uk", &voices), Some("Daniel".to_string()));
+        assert_eq!(
+            speech_voice("us", &[("Fred".to_string(), "en_US".to_string())]),
+            Some("Fred".to_string())
+        );
+        let only_uk = vec![("Extra".to_string(), "en_GB".to_string())];
+        assert_eq!(speech_voice("uk", &only_uk), Some("Extra".to_string()));
+        assert_eq!(speech_voice("us", &only_uk), None);
+    }
+
+    #[test]
+    fn speech_validation_rejects_bad_text_and_accent() {
+        assert!(validate_speech("abandon", "us").is_ok());
+        assert!(validate_speech("They had to abandon the plan.", "uk").is_ok());
+        assert!(validate_speech("", "us").is_err());
+        assert!(validate_speech("abandon", "au").is_err());
+        assert!(validate_speech("a\u{7}b", "us").is_err());
+        assert!(validate_speech(&"a".repeat(MAX_SPEECH_BYTES + 1), "us").is_err());
     }
 }

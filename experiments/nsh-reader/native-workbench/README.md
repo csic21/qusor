@@ -59,7 +59,13 @@ headless 模块测试证明普通包 + 公开 wire + 真实 Core 的分页/正�
 
 数据有两种来源并始终标注：headless / 普通开发宿主使用窗口内 fixture（“样例数据”）；`prepare.py` 注入 `QUSOR_VOCAB_*` 后，宿主验证普通签名 `plugins/vocab` 包、建立 0.5 session，经 `VocabHost.decks/queue/review` 读取真实 SQLite Core（“本机 Core”）。评分操作编号由 UI 生成并在同一次点击重试时复用，失败两次才回退 fixture。
 
-验证：`nsh check App.tsx`、`nsh test tests/vocab-workspace.test.tsx`（10 项）、`nsh test tests/notes-workspace.test.tsx`（6 项回归）、`cargo test --manifest-path ../native-host/Cargo.toml --offline --test vocab_native`（1 项真实 Core 模块测试）；`prepare.py --size 1280x820 --evidence vocab` 生成五张应用内实窗渲染，并在同一 Core 重启后补两张恢复图。记录见[背单词工作区实窗](../evidence/vocab-workspace-live/README.md)。
+验证：`nsh check App.tsx`、`nsh test tests/vocab-workspace.test.tsx`（14 项）、`nsh test tests/notes-workspace.test.tsx`（6 项回归）、`cargo test --manifest-path ../native-host/Cargo.toml --offline --test vocab_native`（1 项真实 Core 模块测试）与 `--lib vocab_native`（3 项语音选择/校验单元测试）；`prepare.py --size 1280x820 --evidence vocab` 生成七张应用内实窗渲染（decks/study/spoken/accent/revealed/reviewed/done），并在同一 Core 重启后补两张恢复图。记录见[背单词工作区实窗](../evidence/vocab-workspace-live/README.md)。
+
+### 音标与读音（2026-11-11 增量）
+
+学习卡在揭晓前就显示词性与 IPA，并提供“朗读”按钮与美音/英音切换；`R` 键朗读当前词，揭晓后的例句另有“朗读例句”。音标来自同目录 `pronunciation.ts` 的**样例词书资源**（七个人工核对条目；不是 Core 字段，也不由 wire 传输），未收录的 term 明说“音标未收录 · 由词书资源提供”。读音由宿主 `VocabHost.pronounce(text, accent)` 交给 macOS 系统语音（`say`）离线朗读：优先 Samantha/Daniel 一类已安装语音，未安装则退回同语言其他语音再退回默认；新的一次朗读会停掉上一句。没有实验宿主或 Core 运行时未就绪时，状态行显示“当前宿主没有系统读音”，不伪装已播放。
+
+边界：这两项是工作台样例的界面与实验宿主增量，**不改变** 0.5 能力、`vocab-study-v1` wire、SQLite schema 或 `plugins/vocab` 包；生产读音需要平台语音能力或词书随包音频，另行设计。
 
 ```sh
 python3 experiments/nsh-reader/native-workbench/prepare.py --size 1280x820 --evidence vocab

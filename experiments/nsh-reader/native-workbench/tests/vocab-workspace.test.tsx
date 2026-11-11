@@ -5,6 +5,10 @@ const academic = "label:选择词书 学术写作 示例";
 const abandonMeaning = "放弃；抛弃";
 const abandonExample =
     "They had to abandon the plan when the funding was withdrawn.";
+const abandonIpa = "/əˈbændən/";
+const coherentUsIpa = "/koʊˈhɪrənt/";
+const coherentUkIpa = "/kəʊˈhɪərənt/";
+const missingVoice = "text:/当前宿主没有系统读音/";
 
 async function vocabApp(width = 1280, height = 820) {
     const app = await open("../App.tsx", {
@@ -45,6 +49,50 @@ test("a wordbook opens one term with the answer still hidden", async () => {
     expect(app.shows("label:很熟")).toBeFalsy();
     expect(app.texts()).toContain("待复习 0");
     expect(app.texts()).toContain("今日新词 3");
+});
+
+test("a card shows its part of speech and sample phonetic before the answer", async () => {
+    const app = await vocabApp();
+    await openCet4(app);
+    expect(app.texts()).toContain("v.");
+    expect(app.texts()).toContain(abandonIpa);
+    expect(app.shows("label:朗读 abandon")).toBeTruthy();
+    expect(app.shows("label:美音")).toBeTruthy();
+    expect(app.shows("label:英音")).toBeTruthy();
+    // The phonetic must not answer the card: the meaning still waits for reveal.
+    expect(app.texts()).not.toContain(abandonMeaning);
+});
+
+test("the accent switch changes the phonetic and still hides the answer", async () => {
+    const app = await vocabApp();
+    await app.press(academic);
+    await app.waitFor("text:coherent");
+    expect(app.texts()).toContain(coherentUsIpa);
+    await app.press("label:英音");
+    await app.waitFor(`text:${coherentUkIpa}`);
+    expect(app.texts()).not.toContain(coherentUsIpa);
+    expect(app.texts()).not.toContain("连贯的；一致的");
+});
+
+test("a window without a system voice says so instead of pretending", async () => {
+    const app = await vocabApp();
+    await openCet4(app);
+    await app.press("label:朗读 abandon");
+    await app.waitFor(missingVoice);
+    expect(app.texts()).toContain("abandon");
+    expect(app.shows("label:显示答案")).toBeTruthy();
+});
+
+test("R reads the current word and the revealed example offers its own reading", async () => {
+    const app = await vocabApp();
+    await openCet4(app);
+    await app.keyboard.press("r");
+    await app.waitFor(missingVoice);
+    await app.press("label:显示答案");
+    await app.waitFor(`text:${abandonMeaning}`);
+    expect(app.shows("label:朗读例句")).toBeTruthy();
+    await app.press("label:朗读例句");
+    await app.waitFor(missingVoice);
 });
 
 test("showing the answer reveals the meaning, the example and four grades", async () => {

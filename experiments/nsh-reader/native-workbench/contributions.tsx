@@ -14,6 +14,7 @@ import {
     TextButton,
     Tool,
 } from "./ui";
+import { phoneticOf, pronunciationOf } from "./pronunciation";
 
 // Contribution fixtures, not an installed SDK or a security boundary.
 // This module owns content, geometry and local draft state; the shell owns none of them.
@@ -2013,6 +2014,11 @@ const vocabSource = signal("样例数据");
 const vocabSourceDetail = signal("窗口内样例");
 const vocabOperation = signal<VocabOperation | null>(null);
 const vocabRevealed = signal(false);
+/// The accent the sample pronunciation service reads and shows: a window
+/// preference, not Core state.
+const vocabAccent = signal("us");
+/// The text the system voice is reading right now (drives the speaker state).
+const vocabSpeaking = signal("");
 
 function vocabDeckOf(id: number) {
     return vocabDecks().find((deck) => deck.id === id);
@@ -2026,6 +2032,60 @@ function vocabRatingLabel(rating: string) {
 }
 function vocabStageLabel(stage: string) {
     return vocabStageLabels[stage] ?? "复习";
+}
+function vocabAccentLabel(accent: string) {
+    return accent === "uk" ? "英音" : "美音";
+}
+/// Switching the reading never touches Core: it changes the IPA shown and the
+/// voice the speaker asks for.
+function chooseVocabAccent(accent: string) {
+    if (vocabAccent() === accent) return;
+    vocabAccent.set(accent);
+    vocabSpeaking.set("");
+    vocabNotice.set("");
+}
+function vocabNoticeForMissingVoice() {
+    vocabNotice.set("当前宿主没有系统读音；先照音标读一遍再揭晓。");
+}
+/// The sample host asks a system voice to read a term or an example. A window
+/// without that host says so instead of pretending it played something.
+async function speakVocabText(text: string, label: string) {
+    const spoken = text.trim();
+    if (!spoken) return;
+    vocabError.set("");
+    const host = VocabHost as {
+        pronounce?: (text: string, accent: string) => string;
+    };
+    if (typeof host.pronounce !== "function") {
+        vocabNoticeForMissingVoice();
+        return;
+    }
+    try {
+        const accent = vocabAccent();
+        const value = vocabAnswer(await host.pronounce(spoken, accent)) as {
+            voice?: string | null;
+        };
+        const voice = value.voice ? `（${value.voice}）` : "";
+        vocabSpeaking.set(spoken);
+        vocabNotice.set(`正在朗读${label} · ${vocabAccentLabel(accent)}${voice}`);
+        setTimeout(() => {
+            if (vocabSpeaking() === spoken) vocabSpeaking.set("");
+        }, 1600);
+    } catch (error) {
+        if (/runtime unavailable/i.test(vocabFailureText(error))) {
+            vocabNoticeForMissingVoice();
+            return;
+        }
+        vocabNotice.set(`朗读没有开始：${vocabFailureText(error)}`);
+    }
+}
+function speakVocabWord() {
+    const card = currentVocabCard();
+    if (card) void speakVocabText(card.term, `「${card.term}」`);
+}
+function speakVocabExample() {
+    const card = currentVocabCard();
+    if (card && vocabRevealed()) void speakVocabText(card.example, "例句");
 }
 function vocabFailureText(error: unknown) {
     if (error && typeof error === "object" && "message" in error)
@@ -2090,7 +2150,13 @@ function decrementVocabDeck(card: VocabCard) {
     );
 }
 function revealVocabAnswer() {
-    if (currentVocabCard()) vocabRevealed.set(true);
+    if (currentVocabCard()) setVocabRevealed(true);
+}
+/// Hiding the answer drops the speaker state too, so the next card never shows
+/// the previous term as "reading".
+function setVocabRevealed(revealed: boolean) {
+    vocabRevealed.set(revealed);
+    if (!revealed) vocabSpeaking.set("");
 }
 function loadVocabFixtureQueue(id: number) {
     // Picking a sample wordbook starts its sample queue again, so the deck
@@ -2098,7 +2164,7 @@ function loadVocabFixtureQueue(id: number) {
     const deck = vocabDecksFixture.find((item) => item.id === id);
     const cards = vocabCardsFixture[id] ?? [];
     vocabQueue.set(cards.map((card) => ({ ...card })));
-    vocabRevealed.set(false);
+    setVocabRevealed(false);
     vocabRemainingDue.set(cards.filter((card) => card.stage !== "new").length);
     vocabRemainingNew.set(cards.filter((card) => card.stage === "new").length);
     if (deck)
@@ -2120,7 +2186,7 @@ function useVocabFixture(reason: string) {
     vocabDecks.set(vocabDecksFixture);
     vocabDeck.set(sameDeck ? sameDeck.id : 0);
     vocabQueue.set([]);
-    vocabRevealed.set(false);
+    setVocabRevealed(false);
     vocabRemainingDue.set(0);
     vocabRemainingNew.set(0);
     vocabOperation.set(null);
@@ -2145,7 +2211,7 @@ async function loadVocabDecks(retrying = false) {
         vocabSourceDetail.set("由 vocab 插件读取");
         vocabDeck.set(0);
         vocabQueue.set([]);
-        vocabRevealed.set(false);
+        setVocabRevealed(false);
         vocabRemainingDue.set(0);
         vocabRemainingNew.set(0);
         vocabError.set("");
@@ -2158,7 +2224,7 @@ async function loadVocabDecks(retrying = false) {
         vocabSourceDetail.set("窗口内样例");
         vocabDeck.set(0);
         vocabQueue.set([]);
-        vocabRevealed.set(false);
+        setVocabRevealed(false);
         vocabRemainingDue.set(0);
         vocabRemainingNew.set(0);
         vocabError.set(
@@ -2180,7 +2246,7 @@ async function loadVocabQueue(id: number) {
             ? value.cards.map(mapVocabCard)
             : [];
         vocabQueue.set(cards);
-        vocabRevealed.set(false);
+        setVocabRevealed(false);
         vocabRemainingDue.set(Number(value.remaining_due ?? 0));
         vocabRemainingNew.set(Number(value.remaining_new ?? 0));
         vocabError.set("");
@@ -2193,7 +2259,7 @@ async function loadVocabQueue(id: number) {
 function selectVocabDeck(id: number) {
     vocabDeck.set(id);
     vocabQueue.set([]);
-    vocabRevealed.set(false);
+    setVocabRevealed(false);
     vocabNotice.set("");
     vocabError.set("");
     vocabOperation.set(null);
@@ -2226,7 +2292,7 @@ async function gradeVocabCard(rating: string) {
             vocabRemainingNew.set(Math.max(0, vocabRemainingNew() - 1));
         else vocabRemainingDue.set(Math.max(0, vocabRemainingDue() - 1));
         decrementVocabDeck(card);
-        vocabRevealed.set(false);
+        setVocabRevealed(false);
         vocabOperation.set(null);
         vocabError.set("");
         vocabNotice.set(
@@ -2261,7 +2327,7 @@ async function gradeVocabCard(rating: string) {
         vocabRemainingDue.set(Number(value.remaining_due ?? vocabRemainingDue()));
         vocabRemainingNew.set(Number(value.remaining_new ?? vocabRemainingNew()));
         vocabQueue.set(vocabQueue().filter((item) => item.cardId !== card.cardId));
-        vocabRevealed.set(false);
+        setVocabRevealed(false);
         vocabNotice.set(
             `已记录：${vocabRatingLabel(rating)} · 下次 ${vocabScheduledText(
                 Number(value.scheduled_minutes ?? 0),
@@ -2327,6 +2393,14 @@ export async function captureVocabEvidence() {
     await new Promise((resolve) => setTimeout(resolve, 300));
     await VocabHost.capture(`${dir}/study.png`);
     if (!currentVocabCard()) return;
+    speakVocabWord();
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await VocabHost.capture(`${dir}/spoken.png`);
+    chooseVocabAccent("uk");
+    speakVocabWord();
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await VocabHost.capture(`${dir}/accent.png`);
+    chooseVocabAccent("us");
     revealVocabAnswer();
     await new Promise((resolve) => setTimeout(resolve, 300));
     await VocabHost.capture(`${dir}/revealed.png`);
@@ -2456,9 +2530,12 @@ function VocabDeckList(props: { compact: boolean }) {
                     </View>
                 </Scroll>
                 <Rule />
-                <View style={{ padding: 13 }}>
+                <View style={{ padding: 13, gap: 4 }}>
                     <Copy size={11} muted lines={2}>
                         评分由 FSRS-5 安排下次复习 · 卸载插件后学习数据仍在 Core
+                    </Copy>
+                    <Copy size={11} muted lines={2}>
+                        音标来自样例词书资源 · 读音由系统语音朗读
                     </Copy>
                 </View>
             </If>
@@ -2514,6 +2591,66 @@ function VocabDoneState() {
     );
 }
 
+/// One accent of the sample reading. The chip only changes which IPA shows and
+/// which system voice the speaker asks for; Core keeps none of it.
+function VocabAccentChip(props: { accent: string; label: string }) {
+    const selected = () => vocabAccent() === props.accent;
+    return (
+        <Button
+            accessibilityLabel={props.label}
+            onPress={() => chooseVocabAccent(props.accent)}
+            style={{
+                height: 24,
+                paddingHorizontal: 8,
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 6,
+                borderCurve: "continuous",
+                backgroundColor: ink(
+                    selected() ? "surface-selected" : "transparent",
+                ),
+                borderWidth: 1,
+                borderColor: ink(
+                    selected() ? "border-control" : "border-subtle",
+                ),
+            }}
+            hoverStyle={{ backgroundColor: ink("surface-hover") }}
+            activeStyle={{ backgroundColor: ink("surface-pressed") }}
+            focusStyle={focus()}
+        >
+            <Copy size={11} muted={!selected()} strong={selected()}>
+                {props.label}
+            </Copy>
+        </Button>
+    );
+}
+
+/// The part of speech and the phonetic of the selected accent. A term the
+/// sample books do not cover says so instead of showing an invented phonetic.
+function VocabPhoneticRow(props: { compact: boolean }) {
+    const entry = () => pronunciationOf(currentVocabCard()?.term ?? "");
+    return (
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <If when={!!entry()}>
+                <Copy size={props.compact ? 12 : 13} muted>
+                    {entry()!.pos}
+                </Copy>
+                <Copy size={props.compact ? 13 : 14} muted>
+                    {phoneticOf(currentVocabCard()?.term ?? "", vocabAccent())}
+                </Copy>
+            </If>
+            <If when={!entry()}>
+                <Copy size={11} muted>
+                    音标未收录 · 由词书资源提供
+                </Copy>
+            </If>
+            <View style={{ flex: 1 }} />
+            <VocabAccentChip accent="us" label="美音" />
+            <VocabAccentChip accent="uk" label="英音" />
+        </View>
+    );
+}
+
 function VocabCardView(props: { compact: boolean }) {
     return (
         <View
@@ -2547,9 +2684,53 @@ function VocabCardView(props: { compact: boolean }) {
                     {`队列 ${vocabQueue().length} 张`}
                 </Copy>
             </View>
-            <Copy size={props.compact ? 32 : 40} strong>
-                {currentVocabCard()!.term}
-            </Copy>
+            <View
+                style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 10,
+                }}
+            >
+                <Copy size={props.compact ? 32 : 40} strong>
+                    {currentVocabCard()!.term}
+                </Copy>
+                <Button
+                    accessibilityLabel={`朗读 ${currentVocabCard()!.term}`}
+                    onPress={speakVocabWord}
+                    style={{
+                        width: 36,
+                        height: 36,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: 9,
+                        borderCurve: "continuous",
+                        backgroundColor: ink("surface-control"),
+                        borderWidth: 1,
+                        borderColor: ink(
+                            vocabSpeaking()
+                                ? "border-control"
+                                : "border-subtle",
+                        ),
+                    }}
+                    hoverStyle={{
+                        backgroundColor: ink("surface-hover"),
+                        borderColor: ink("border-control"),
+                    }}
+                    activeStyle={{ backgroundColor: ink("surface-pressed") }}
+                    focusStyle={focus()}
+                >
+                    <Glyph
+                        name="speaker"
+                        size={18}
+                        color={ink(
+                            vocabSpeaking()
+                                ? "text-accent"
+                                : "text-secondary",
+                        )}
+                    />
+                </Button>
+            </View>
+            <VocabPhoneticRow compact={props.compact} />
             <If when={!vocabRevealed()}>
                 <Copy size={13} muted>
                     先回想这个词的意思，再显示答案。
@@ -2568,10 +2749,18 @@ function VocabCardView(props: { compact: boolean }) {
                             backgroundColor: ink("border-control"),
                         }}
                     />
-                    <View style={{ flex: 1 }}>
+                    <View style={{ flex: 1, gap: 6 }}>
                         <Copy size={14} muted lines={3}>
                             {currentVocabCard()!.example}
                         </Copy>
+                        <View style={{ flexDirection: "row" }}>
+                            <TextButton
+                                label="朗读例句"
+                                size="compact"
+                                filled
+                                onPress={speakVocabExample}
+                            />
+                        </View>
                     </View>
                 </View>
             </If>
@@ -2614,7 +2803,7 @@ function VocabActionBar(props: { compact: boolean }) {
                         </Copy>
                     </Button>
                     <Copy size={11} muted>
-                        空格或回车显示答案；只看词条，先自己回想
+                        空格或回车显示答案 · R 朗读单词；只看词条，先自己回想
                     </Copy>
                 </View>
             </If>
@@ -2670,8 +2859,8 @@ function VocabActionBar(props: { compact: boolean }) {
                     </View>
                     <Copy size={11} muted>
                         {vocabLive()
-                            ? "评分写入本机 Core · 数字键 1–4"
-                            : "样例数据不写入 Core · 数字键 1–4"}
+                            ? "评分写入本机 Core · 数字键 1–4 · R 朗读"
+                            : "样例数据不写入 Core · 数字键 1–4 · R 朗读"}
                     </Copy>
                 </View>
             </If>
@@ -2830,6 +3019,7 @@ function VocabWorkspace(props: { compact: boolean }) {
     keymap.bind({
         space: () => revealVocabAnswer(),
         enter: () => revealVocabAnswer(),
+        r: () => speakVocabWord(),
         "1": () => void gradeVocabCard("again"),
         "2": () => void gradeVocabCard("hard"),
         "3": () => void gradeVocabCard("good"),

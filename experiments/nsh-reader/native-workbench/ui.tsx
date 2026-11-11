@@ -4,6 +4,7 @@ import { Button } from "nsh/base";
 export const ink = (role: string) => token(role as any);
 const paths: Record<string, string> = {
     search: "M10.5 3.5a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M16 16l4.5 4.5",
+    speaker: "M11 5L6 9H3v6h3l5 4z M15.5 8.5a5 5 0 0 1 0 7 M18.5 6a8.5 8.5 0 0 1 0 12",
     plus: "M12 5v14 M5 12h14",
     close: "M6 6l12 12 M18 6L6 18",
     chevron: "M7 10l5 5l5-5",

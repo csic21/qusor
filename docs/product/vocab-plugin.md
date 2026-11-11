@@ -1,6 +1,6 @@
 # 背单词插件规格（F-LEARN-01 首个切片）
 
-更新：2026-11-11。状态：用户当日明确要求开发背单词插件。首个切片已完成**公开能力 + Core 学习数据 + FSRS 调度 + 普通签名包读取/评分**：Host API 0.5（`vocab.read`/`vocab.review`）、`vocab-study-v1` 有界 wire、SQLite schema 4 词汇表、FSRS-5 调度内核与 `plugins/vocab` 普通包均已有测试和真实 SQLite 证明；原生工作台样例 UI 也已接入同一 0.5 wire 与真实 Core（先回想后揭晓、四档评分、计数同步、重开恢复），见 [ADR 0036](../architecture/adr/0036-vocabulary-study-capability.md) 与[实窗记录](../../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)。生产安装/权限界面、词书导入与“从阅读收词”仍不在本切片内。
+更新：2026-11-11。状态：用户当日明确要求开发背单词插件。首个切片已完成**公开能力 + Core 学习数据 + FSRS 调度 + 普通签名包读取/评分**：Host API 0.5（`vocab.read`/`vocab.review`）、`vocab-study-v1` 有界 wire、SQLite schema 4 词汇表、FSRS-5 调度内核与 `plugins/vocab` 普通包均已有测试和真实 SQLite 证明；原生工作台样例 UI 也已接入同一 0.5 wire 与真实 Core（先回想后揭晓、四档评分、计数同步、重开恢复），再见同目录增量：揭晓前显示音标/词性、朗读按钮与美/英切换，读音经实验宿主系统语音离线朗读（音标来自样例词书资源，读音不是 wire/Core 字段），见 [ADR 0036](../architecture/adr/0036-vocabulary-study-capability.md) 与[实窗记录](../../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)。生产安装/权限界面、词书导入与“从阅读收词”仍不在本切片内。
 
 ## 功能与范围
 
@@ -44,6 +44,7 @@
 - 数据归属：Core。词书、卡片、复习历史与当前 schedule 都是用户学习数据，插件私有状态不能成为唯一副本。
 - 词书内容：本切片由宿主/可信应用播种**合成示例**（3 个词，明确标注不是授权词表）；真实词库的随包数据、导入与授权在后续增量定义。
 - 复习历史追加写并记录算法标识 `qusor-fsrs-5-v1`；当前 schedule 由同一事务更新，重启后从历史与 schedule 恢复。
+- 音标与读音：工作台样例由 `native-workbench/pronunciation.ts` 提供音标/词性，读音由实验宿主的系统语音朗读；两者都不是 `vocab-study-v1` 字段或 Core 数据，生产形态随词书导入（随包音频）或平台语音能力另行定义与验收。
 - 无网络、无模型调用、无按账号数据出站；导出是用户主动动作。
 
 ## 验收
