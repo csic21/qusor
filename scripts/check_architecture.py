@@ -151,7 +151,7 @@ def registered_manifests(policy: dict) -> tuple[dict, list[str]]:
     registered = {}
     errors = []
     groups = [("production", policy.get("packages", {}))]
-    for section in ("experiments", "plugins", "sdk"):
+    for section in ("apps", "experiments", "plugins", "sdk"):
         for group in policy.get(section, {}).values():
             groups.append((section, group.get("packages", {})))
     for section, packages in groups:
@@ -225,7 +225,9 @@ def validate_inventory(root: Path, policy: dict) -> list[str]:
 
     for manifest, (name, section) in sorted(registered.items()):
         path = Path(manifest)
-        allowed_roots = production if section == "production" else {section}
+        # `apps` groups are production source: the app workspace lives under a
+        # production root, like `[packages]` entries of the root workspace.
+        allowed_roots = production if section in ("production", "apps") else {section}
         if (path.is_absolute() or ".." in path.parts or not path.parts
                 or path.parts[0] not in allowed_roots
                 or path.name != "Cargo.toml"

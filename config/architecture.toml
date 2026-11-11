@@ -17,7 +17,26 @@ workspace_manifests = [
   "experiments/capture-core/author/Cargo.toml",
   "experiments/pdf-provider/Cargo.toml",
   "experiments/nsh-reader/native-host/Cargo.toml",
+  "apps/qusor/provider/Cargo.toml",
+  "apps/qusor/bridges/Cargo.toml",
+  "apps/qusor/native/Cargo.toml",
 ]
+
+# C-17: the packaged app is assembled under apps/ as independent workspaces so the
+# Core foundation workspace and its five-target CI stay free of NSH/native UI.
+# Their dependency graphs need their own validate_graph runner (not implemented
+# yet); this registration proves production roots, names and manifests only.
+[apps.qusor.packages.qusor-pdf-provider]
+manifest = "apps/qusor/provider/Cargo.toml"
+allowed_dependencies = ["libc", "pdfium-render", "serde", "serde_json", "sha2", "unicode-segmentation"]
+
+[apps.qusor.packages.qusor-app-bridges]
+manifest = "apps/qusor/bridges/Cargo.toml"
+allowed_dependencies = ["core-api", "extension-api", "extension-host", "learning-application", "learning-ports"]
+
+[apps.qusor.packages.qusor-app-native]
+manifest = "apps/qusor/native/Cargo.toml"
+allowed_dependencies = ["core-api", "extension-api", "extension-host", "extension-package", "learning-application", "learning-ports", "nsh-core", "qusor-app-bridges", "serde_json", "storage-sqlite"]
 
 # See ADR 0004: the policy kernel does not execute plugins or write knowledge.
 [packages.learning-domain]

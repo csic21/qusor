@@ -106,6 +106,24 @@ nsh update-manifest dist/*.tar.gz --notes NOTES.md --key keys/update.secret -o d
 
 未验证：没有独立校验器复算签名；没有真实应用调用 `checkForUpdate`/`installAndRestart`；没有上传 GitHub Release；`--package`（OTA）路径未测。
 
+## 生产应用首次打包（2026-11-11）
+
+`apps/qusor/` 已按 [ADR 0037](../architecture/adr/0037-production-app-assembly.md) 建立：`provider`（PDFium 渲染库）、`bridges`（三个可信适配器）、`native`（NotesHost/VocabHost 原生模块）三个独立 workspace crate，依赖 NSH 固定 Git revision，随包 `.qpk` 由 `apps/qusor/prepare.py` 生成。
+
+本机实际命令链：
+
+```sh
+python3 apps/qusor/prepare.py
+cd apps/qusor && CARGO_PROFILE_RELEASE_STRIP=none \
+  nsh package --target macos --out /tmp/qusor-app-dist
+```
+
+结果：`QUSOR-0.1.0-macos-aarch64.tar.gz`（21.7 MB）、`QUSOR.app`（ad hoc 签名、`org.qusor.app`、arm64、`CFBundleShortVersionString=0.1.0`）、`.nsh-updater.json`（含 `id`/`version`/`build`/`github`/`publicKey`）。随后 `nsh update-manifest` 生成 `latest.json`（`macos-aarch64` 的 `url`/`sha256`/`size`）与 `latest.json.sig`。
+
+启动验证：`open QUSOR.app` 后进程存在，应用数据目录自动创建；发现 notes 与 vocab 曾共用同一路径导致第二个 Host 打不开 Core，已改为 `notes/`、`vocab/` 两个存储。两者仍应合并为同一知识库，属待办。
+
+未验证：Windows/Linux 打包、真实窗口交互与更新 UI、`checkForUpdate`/`installAndRestart` 实际调用、Developer ID 签名与公证、Actions 流水线。
+
 ## 未验证范围
 
 - 未创建 tag 或 Release，未运行打包流水线，未生成生产密钥。仓库可见性已于 2026-11-11 转为 public，见上节。

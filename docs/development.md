@@ -67,6 +67,18 @@ cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offli
 
 生产成员及 Cargo metadata 可见包的 path 声明不能指向插件、SDK、实验或未登记的本地实现，normal/dev/build/optional/target 声明均检查，已解析间接 helper 的本地路径也在范围内。独立 Workspace 的登记不代表其依赖图已通过，仍需自身验证入口调用 validate_graph。Rust include!/构建脚本任意读文件、未解析第三方可选分支、插件运行权限和 SDK 仓库外可用性不由该检查证明。
 
+## 生产应用（apps/qusor）
+
+应用入口按 [ADR 0037](architecture/adr/0037-production-app-assembly.md) 装配：`provider`、`bridges`、`native` 三个独立 workspace crate，NSH 依赖固定为 Git revision，随包 `.qpk` 由准备脚本生成。
+
+```sh
+python3 apps/qusor/prepare.py                     # 生成 notes/vocab 包与公钥到 native/assets
+cd apps/qusor && CARGO_PROFILE_RELEASE_STRIP=none \
+  ../experiments/nsh-reader/target/nsh/target/debug/nsh package --target macos --out /tmp/qusor-app-dist
+```
+
+`CARGO_PROFILE_RELEASE_STRIP=none` 是必需项：默认 `strip=debuginfo` 在固定基线上会产出畸形的 proc-macro dylib。发行清单与 GitHub Actions 流程见 [发行与更新](product/release-and-update.md)；`apps/qusor` 是独立 workspace，不在根 `cargo test --workspace` 范围内，需单独跑 `cargo check --manifest-path apps/qusor/native/Cargo.toml`。
+
 ## NSH 前置实验
 
 原生 NSH Cargo 构建与测试一律显式设置 `CARGO_BUILD_JOBS=1`，并传 `-j1`。即使指定单个 integration test，Cargo 也可能隐式构建已有多个 bin；2026-11-08 本机观察到四个并行链接任务争用内存并拖慢系统。需要中断时保留日志，确认自有 cargo/rustc/linker 全部退出后再串行重试；编译中断不等于已运行的 OS worker 被回收，不能混用清理证据。

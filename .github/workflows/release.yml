@@ -1,0 +1,128 @@
+# 发行流水线（C-17）。从未在 GitHub Actions 运行过；首次运行前必须确认：
+#   - 仓库 secret NSH_UPDATE_KEY（.local/keys/update.secret 的内容，勿提交）；
+#   - 固定 NSH 版本 NSH_VERSION / NSH_SHA 与本地一致；
+#   - macOS 只有 ad hoc 签名，Gatekeeper 未放行；Linux/Windows 打包未实测，
+#     因此默认只构建 macOS，其它平台在验证后逐项打开。
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      draft:
+        description: "Create a draft release (default true)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+env:
+  NSH_SHA: 913fd76e1f8434ec6cdf248f4476c1ebe08af19f
+  NSH_VERSION: "0.4.0"
+  # strip=debuginfo produces a malformed proc-macro dylib for this toolchain.
+  CARGO_PROFILE_RELEASE_STRIP: none
+
+jobs:
+  package:
+    name: Package (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # Add linux / windows entries only after their packaging is verified.
+        include:
+          - os: macos-latest
+            target: macos
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.97.1 --profile minimal
+      - name: Clone the fixed NSH baseline
+        run: |
+          git clone --filter=blob:none https://github.com/longbridge/nsh.git experiments/nsh-reader/target/nsh
+          git -C experiments/nsh-reader/target/nsh checkout "$NSH_SHA"
+      - name: Cache the NSH CLI build
+        uses: actions/cache@v4
+        with:
+          path: experiments/nsh-reader/target/nsh/target
+          key: nsh-cli-${{ runner.os }}-${{ env.NSH_SHA }}
+      - name: Build the NSH CLI
+        env:
+          CARGO_BUILD_JOBS: "1"
+        run: cargo build --locked -p nsh-cli --manifest-path experiments/nsh-reader/target/nsh/Cargo.toml
+      - name: Build the packages the app ships
+        run: python apps/qusor/prepare.py
+      - name: Package the app
+        run: |
+          experiments/nsh-reader/target/nsh/target/debug/nsh package \
+            --target ${{ matrix.target }} --out dist
+        working-directory: apps/qusor
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.target }}
+          path: |
+            apps/qusor/dist/*.tar.gz
+            apps/qusor/dist/*.zip
+            apps/qusor/dist/*.app
+            apps/qusor/dist/*.ipa
+            apps/qusor/dist/*.apk
+          if-no-files-found: error
+
+  publish:
+    name: Publish the release
+    needs: package
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Clone the fixed NSH baseline
+        run: |
+          git clone --filter=blob:none https://github.com/longbridge/nsh.git experiments/nsh-reader/target/nsh
+          git -C experiments/nsh-reader/target/nsh checkout "$NSH_SHA"
+      - name: Cache the NSH CLI build
+        uses: actions/cache@v4
+        with:
+          path: experiments/nsh-reader/target/nsh/target
+          key: nsh-cli-${{ runner.os }}-${{ env.NSH_SHA }}
+      - name: Build the NSH CLI
+        env:
+          CARGO_BUILD_JOBS: "1"
+        run: cargo build --locked -p nsh-cli --manifest-path experiments/nsh-reader/target/nsh/Cargo.toml
+      - name: Write the update key
+        env:
+          UPDATE_KEY: ${{ secrets.NSH_UPDATE_KEY }}
+        run: |
+          if [ -z "$UPDATE_KEY" ]; then
+            echo "NSH_UPDATE_KEY is missing; run apps/prepare without a signed manifest." >&2
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s\n' "$UPDATE_KEY" > "$RUNNER_TEMP/keys/update.secret"
+      - name: Write the update manifest
+        run: |
+          printf 'See the release notes for this version.\n' > "$RUNNER_TEMP/notes.md"
+          experiments/nsh-reader/target/nsh/target/debug/nsh update-manifest \
+            dist/*.tar.gz dist/*.zip \
+            --entry apps/qusor \
+            --notes "$RUNNER_TEMP/notes.md" \
+            --key "$RUNNER_TEMP/keys/update.secret" \
+            -o dist
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            dist/latest.json dist/latest.json.sig dist/*.tar.gz dist/*.zip \
+            --draft --generate-notes

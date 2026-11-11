@@ -1,0 +1,30 @@
+{
+  "name": "QUSOR",
+  "id": "org.qusor.app",
+  "version": "0.1.0",
+  "build": 1,
+  "icon": "icon.png",
+  "theme": "theme.json",
+  "appearance": "system",
+  "rust": "native",
+  "window": {
+    "title": "QUSOR",
+    "defaultSize": {
+      "width": 1280,
+      "height": 820
+    },
+    "minSize": {
+      "width": 900,
+      "height": 680
+    },
+    "titleBar": {
+      "style": "hidden",
+      "height": 52
+    },
+    "backdrop": "sidebar"
+  },
+  "updater": {
+    "github": "csic21/qusor",
+    "publicKey": "jNQjrdXXjWxkRfpWH5UKQRXPZc5suyJeyF+saPJsqb0="
+  }
+}

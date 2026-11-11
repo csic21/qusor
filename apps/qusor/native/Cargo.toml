@@ -1,0 +1,29 @@
+[workspace]
+resolver = "3"
+
+[package]
+name = "qusor-app-native"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97.1"
+license = "MIT"
+publish = false
+description = "QUSOR app native modules: notes and vocabulary hosts over a real Core."
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+nsh-core = { git = "https://github.com/longbridge/nsh", rev = "913fd76e1f8434ec6cdf248f4476c1ebe08af19f" }
+core-api = { path = "../../../crates/core-api" }
+extension-api = { path = "../../../crates/extension-api" }
+extension-host = { path = "../../../crates/extension-host" }
+extension-package = { path = "../../../crates/extension-package" }
+learning-application = { path = "../../../crates/learning-application" }
+learning-ports = { path = "../../../crates/learning-ports" }
+qusor-app-bridges = { path = "../bridges" }
+serde_json = "=1.0.149"
+storage-sqlite = { path = "../../../adapters/storage-sqlite" }
+
+[lints.rust]
+unsafe_code = "forbid"

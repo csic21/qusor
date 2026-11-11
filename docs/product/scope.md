@@ -1,5 +1,7 @@
 # QUSOR 功能基线与范围确认
 
+2026-11-11，用户确认首版发布要体现现有 PDF 阅读/编辑能力并一并完成（“可以体现 一起搞定吧”），新增生产应用装配：`apps/qusor/` 作为独立 workspace（provider/bridges/native 三个 crate），NSH 以 Git revision 固定，随包插件资产由 `prepare.py` 生成，`nsh.json` 内置 updater；本机已产出 ad hoc 签名 `QUSOR.app` 与 `latest.json(.sig)`。决策见 [ADR 0037](../architecture/adr/0037-production-app-assembly.md)，证据与流水线见 [发行与更新](release-and-update.md)。PDF 阅读/编辑 UI 尚未接入生产入口；Windows/Linux 打包、签名账号与 Actions 运行仍未验证。
+
 2026-11-11，用户询问自动更新与手机端进度，并建议“通过 GitHub Release 发版本、GitHub Actions 构建”。新增 C-17、F-PLAT-02（发行与自动更新），关联 C-15、F-PLAT-01、F-DATA-01：确认更新源使用主仓库 GitHub Releases（仓库转 public，`updater.github`，免认证的 `releases/latest/download/`）；应用先改造成 `nsh package` 形态（`apps/` 生产入口），一次取得桌面打包、自动更新、OTA 与 Android/iOS 打包；当前既无 Apple Developer Program 账号也无 Android 发布 keystore，只能产出 ad hoc／调试签名产物。现状核对与流水线设计见 [发行与更新](release-and-update.md)。本轮不创建 tag 或 Release、不改仓库可见性、不生成生产密钥；移动端仍只有库交叉编译，不构成支持。
 
 2026-11-09，用户明确要求“一口气支持全平台”。新增 C-15：本轮将 macOS、Windows、Linux、iOS、Android 以及 Web 纳入同一交付目标；各平台共用 Core、公开插件契约与阅读流程，按平台装配宿主、文件、PDF、持久化与执行隔离服务。此指令取代“首发平台待定”对本轮平台范围的限制；不自动扩展 AI/同步/云上传。实现、构建、启动、交互、恢复及渠道分发资格分别记录，未通过不能标为支持完成。关联 F-PLAT-01、F-EXT-07、F-READ-01/03、F-NOTE-01、F-DATA-01；决策见 [ADR 0033](../architecture/adr/0033-cross-platform-runtime.md)。
