@@ -1,3 +1,10 @@
+// The durable store admits only a qualified native filesystem profile: the 0700
+// directory, no-follow package reads and single-writer lease are implemented for
+// Unix. Windows private-storage ACLs and the SQLite/blob adapters are a recorded
+// gap (docs/product/release-and-update.md), so these real-store scenarios do not
+// run there yet. tests/platform_profile.rs pins the deliberate refusal instead.
+#![cfg(unix)]
+
 use extension_api::{HOST_API_V0_3, Manifest};
 use extension_host::durable::{AuthorityRead, ComponentAuthoritySource};
 use extension_package::package::{
