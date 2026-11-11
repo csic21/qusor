@@ -56,7 +56,7 @@
 
 - 触发：`push` tag `v*`；`workflow_dispatch` 手动。PR 仍只跑 Core 测试，不打包。
 - 矩阵：`macos-latest`（arm64）、`windows-latest`（x86_64）、`ubuntu-latest`（x86_64）。
-- 步骤：checkout → 按固定 SHA clone NSH 源码 → 按固定摘要准备 PDFium → `nsh package --target <os>` → 归档 → `nsh update-manifest --key` → 创建 draft Release（人工核对后发布）。
+- 步骤：checkout → 按固定 SHA clone NSH 源码 → 按固定摘要准备 PDFium → `CARGO_PROFILE_RELEASE_STRIP=none nsh package --target <os>` → 归档 → `nsh update-manifest --key` → 创建 draft Release（人工核对后发布）。
 - 密钥：`NSH_UPDATE_KEY` 存仓库 secret；`root`/`release` 密钥在启用 OTA 前生成，`root.secret` 离线保存。
 - 缓存：NSH 源码、Cargo target、PDFium 工件。私有仓库 Action 分钟数有限，公开后免费。
 - 移动端：Android 用 ubuntu runner + NDK + 调试 keystore 出 APK；iOS 用 macOS runner + Xcode 出模拟器 `.app`；设备 `.ipa` 需证书与描述文件。
@@ -84,9 +84,27 @@
 |---|---|
 | 固定源码自带纯 TSX 示例 `examples/gallery` | **通过**：release runner（debug 构建，25 s）与 `Gallery.app` |
 | 固定源码自带 Rust 示例 `examples/rust-exports` | **通过**：crate 1 m 13 s、release runner 4 m 42 s、`Rust Exports.app` |
-| 工作台（TSX + 自建 crate，`native-workbench`） | **失败**：构建 `quickjs-jit` 时报 `can't find crate for 'rquickjs_macro'` |
+| 工作台（TSX + 自建 crate，`native-workbench`） | 默认 profile 失败，`CARGO_PROFILE_RELEASE_STRIP=none` 后**通过** |
 
-失败原因已定位到产物层：`--extern` 指向的 `librquickjs_macro-*.dylib` 本身畸形，`dlopen` 报 `mis-aligned LINKEDIT string pool`；删除该产物、换干净 `CARGO_TARGET_DIR` 重建仍复现，而同一 macro crate 在独立小工程和上述示例构建里的 dylib 可以正常加载。因此这不是缺依赖或缺少宏定义，也不归因于 QUSOR crate 或 NSH 源码；尚未定位到触发条件（下一步按 crate 依赖/feature 二分，并用独立 target dir 复测）。**结论：打包链路本身可用（两个对照都出包），工作台尚不能打包。**
+工作台的失败条件：默认 release profile（`strip=debuginfo`）下，`--extern` 指向的 `librquickjs_macro-*.dylib` 本身畸形（`dlopen`：`mis-aligned LINKEDIT string pool`），导致 `quickjs-jit` 报 `can't find crate for 'rquickjs_macro'`；删除该产物、换 `CARGO_TARGET_DIR`、`CARGO_BUILD_JOBS=1`、干净生成 workspace 均复现。设 `CARGO_PROFILE_RELEASE_STRIP=none` 后 crate 3 m 6 s、release runner 7 m 18 s，产出 `QUSOR 工作台研究.app`：`Info.plist`、arm64 可执行文件、`Resources/nsh`，ad hoc 签名（`Identifier=org.qusor.workbenchstudy`）。
+
+同一 macro crate 在独立小工程和上述两个示例里用同样 strip 设置却能正常加载，所以尚未定位 strip 的确切成因（可能与具体依赖图/产物体积有关）。**结论：当前应用形态可以打包；本地与 CI 打包必须设 `CARGO_PROFILE_RELEASE_STRIP=none`，直到上游或工具链侧查清。**
+
+## 发行机制本机实测（2026-11-11）
+
+用固定源码自带的 TSX 示例（复制到 `/tmp`，未修改固定 checkout）走通完整命令链：
+
+```sh
+nsh keygen keys/update          # 生成 update.pub / update.secret（Ed25519）
+# nsh.json 增加 id、version、build 与 updater.github + publicKey
+nsh package --target macos      # 产出 .nsh-updater.json 与 Gallery-1.0.0-macos-aarch64.tar.gz
+nsh package --target macos      # 版本升到 1.0.1、build 2，产出新归档
+nsh update-manifest dist/*.tar.gz --notes NOTES.md --key keys/update.secret -o dist
+```
+
+结果：`latest.json` 含 `id`、`version`、`notes` 与 `platforms.macos-aarch64` 的 `url`/`sha256`/`size`，同时写出 89 字节的 `latest.json.sig`。混入旧版本归档会被告知期望的 `<name>-<version>-<os>-<arch>` 命名，说明清单与版本绑定。
+
+未验证：没有独立校验器复算签名；没有真实应用调用 `checkForUpdate`/`installAndRestart`；没有上传 GitHub Release；`--package`（OTA）路径未测。
 
 ## 未验证范围
 
