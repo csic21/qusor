@@ -1,5 +1,6 @@
 //! Native PDF Surface experiment: frozen report and authoritative gesture lifecycle.
 pub mod notes_native;
+pub mod vocab_native;
 use nsh_core::prelude::*;
 use qusor_pdf_provider_probe::{
     DocumentReport,
@@ -266,6 +267,7 @@ fn native(registry: &mut Registry) {
     registry.module::<dynamic_module::DynamicReader>();
     registry.module::<plugin_surface::native_editor::NativeEditor>();
     registry.module::<notes_native::NotesHost>();
+    registry.module::<vocab_native::VocabHost>();
 }
 
 #[cfg(test)]

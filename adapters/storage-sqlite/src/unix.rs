@@ -2,8 +2,14 @@
 use super::StorageStage;
 use blob_store::{BlobStage, BlobStore};
 use core_api::knowledge::*;
-use learning_ports::{CommitPlan, KnowledgeStore};
-use rusqlite::{Connection, params};
+use core_api::vocab::{
+    CardSchedule, ReviewEntry, ReviewGuard, STUDY_SCHEMA_VERSION, StudyArchive, StudyCard,
+    StudyRating, StudyStage, Wordbook, WordbookSeed, validate_archive as validate_study_archive,
+    validate_review as validate_study_review, validate_schedule as validate_study_schedule,
+    validate_seed as validate_study_seed,
+};
+use learning_ports::{CommitPlan, KnowledgeStore, StudyStore};
+use rusqlite::{Connection, OptionalExtension, params};
 use std::collections::BTreeSet;
 use std::os::unix::fs::PermissionsExt;
 use std::{
@@ -88,7 +94,7 @@ impl SqliteStore {
             }
             db.execute_batch("BEGIN; CREATE TABLE source(id INTEGER PRIMARY KEY, descriptor TEXT NOT NULL); CREATE TABLE document_version(id INTEGER PRIMARY KEY,source_id INTEGER NOT NULL REFERENCES source(id),snapshot_hash TEXT NOT NULL); CREATE TABLE capture(id INTEGER PRIMARY KEY,source_id INTEGER NOT NULL REFERENCES source(id),version_id INTEGER NOT NULL REFERENCES document_version(id),record TEXT NOT NULL,anchor TEXT NOT NULL); CREATE TABLE operation(id TEXT PRIMARY KEY,capture_id INTEGER UNIQUE NOT NULL REFERENCES capture(id),input_hash TEXT NOT NULL,payload TEXT NOT NULL); CREATE TABLE receipt(operation_id TEXT PRIMARY KEY REFERENCES operation(id),payload TEXT NOT NULL); CREATE TABLE outbox(operation_id TEXT PRIMARY KEY REFERENCES operation(id),payload TEXT NOT NULL); CREATE TABLE index_job(operation_id TEXT PRIMARY KEY REFERENCES operation(id),payload TEXT NOT NULL); PRAGMA user_version=1; COMMIT;")?;
             File::open(&root)?.sync_all()?;
-        } else if version != 1 && version != 2 && version != 3 {
+        } else if !(1..=4).contains(&version) {
             return fail("unknown Core schema");
         }
         if version < 2 {
@@ -96,8 +102,20 @@ impl SqliteStore {
         } else if version == 2 {
             migrate_compound(&db, observe.as_ref())?;
         }
+        if version < 4 {
+            migrate_study(&db, observe.as_ref())?;
+        }
+        let study_tables: i64 = db.query_row(
+            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('vocab_wordbook','vocab_card','vocab_schedule','vocab_review')",
+            [],
+            |r| r.get(0),
+        )?;
+        if study_tables != 4 {
+            return fail("missing study schema");
+        }
         let core = Self { db, blobs, observe };
         let _: ArchiveV2 = Self::read_snapshot(&core.db, &core.blobs)?;
+        let _: StudyArchive = read_study(&core.db)?;
         Ok(core)
     }
     fn export_text(db: &Connection, cas: &BlobStore) -> Internal<ExportBundle> {
@@ -673,5 +691,517 @@ impl SqliteStore {
         tx.commit()?;
         (self.observe)(StorageStage::AfterCommit);
         Ok(())
+    }
+}
+
+fn migrate_study(db: &Connection, observe: &dyn Fn(StorageStage)) -> Internal<()> {
+    db.execute_batch(
+        "BEGIN IMMEDIATE;
+        CREATE TABLE vocab_wordbook(
+            id INTEGER PRIMARY KEY,
+            vault TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            created_at_ms INTEGER NOT NULL,
+            UNIQUE(vault,title));
+        CREATE TABLE vocab_card(
+            id INTEGER PRIMARY KEY,
+            wordbook_id INTEGER NOT NULL REFERENCES vocab_wordbook(id),
+            position INTEGER NOT NULL,
+            term TEXT NOT NULL,
+            meaning TEXT NOT NULL,
+            example TEXT NOT NULL,
+            UNIQUE(wordbook_id,term),
+            UNIQUE(wordbook_id,position));
+        CREATE TABLE vocab_schedule(
+            card_id INTEGER PRIMARY KEY REFERENCES vocab_card(id),
+            due_at_ms INTEGER NOT NULL,
+            stage TEXT NOT NULL CHECK(stage IN('learning','review')),
+            stability REAL NOT NULL,
+            difficulty REAL NOT NULL,
+            reps INTEGER NOT NULL CHECK(reps > 0),
+            lapses INTEGER NOT NULL CHECK(lapses >= 0 AND lapses <= reps),
+            last_review_at_ms INTEGER NOT NULL,
+            last_rating INTEGER NOT NULL CHECK(last_rating BETWEEN 1 AND 4));
+        CREATE TABLE vocab_review(
+            id INTEGER PRIMARY KEY,
+            card_id INTEGER NOT NULL REFERENCES vocab_card(id),
+            operation_id TEXT NOT NULL UNIQUE,
+            rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 4),
+            reviewed_at_ms INTEGER NOT NULL,
+            stage_before TEXT NOT NULL,
+            stage_after TEXT NOT NULL CHECK(stage_after IN('learning','review')),
+            stability REAL NOT NULL,
+            difficulty REAL NOT NULL,
+            scheduled_minutes INTEGER NOT NULL CHECK(scheduled_minutes > 0),
+            due_at_ms INTEGER NOT NULL,
+            algorithm TEXT NOT NULL);
+        PRAGMA user_version=4;",
+    )?;
+    observe(StorageStage::BeforeMigrationCommit);
+    db.execute_batch("COMMIT;")?;
+    observe(StorageStage::AfterMigrationCommit);
+    Ok(())
+}
+
+fn stored_stage(value: &str) -> Internal<StudyStage> {
+    StudyStage::from_name(value).ok_or_else(|| "invalid stored study stage".into())
+}
+
+fn stored_rating(code: i64) -> Internal<StudyRating> {
+    let code = u8::try_from(code).map_err(|_| "invalid stored study rating")?;
+    StudyRating::from_code(code).ok_or_else(|| "invalid stored study rating".into())
+}
+
+fn read_study(db: &Connection) -> Internal<StudyArchive> {
+    let mut wordbooks = Vec::new();
+    {
+        let mut stmt = db.prepare(
+            "SELECT id,vault,title,description,created_at_ms FROM vocab_wordbook ORDER BY id",
+        )?;
+        let rows = stmt.query_map([], |r| {
+            Ok(Wordbook {
+                id: r.get(0)?,
+                vault: r.get(1)?,
+                title: r.get(2)?,
+                description: r.get(3)?,
+                created_at_ms: r.get(4)?,
+            })
+        })?;
+        for row in rows {
+            wordbooks.push(row?);
+        }
+    }
+    let mut cards = Vec::new();
+    {
+        let mut stmt = db.prepare(
+            "SELECT id,wordbook_id,position,term,meaning,example FROM vocab_card ORDER BY id",
+        )?;
+        let rows = stmt.query_map([], |r| {
+            Ok((
+                r.get::<_, i64>(0)?,
+                r.get::<_, i64>(1)?,
+                r.get::<_, i64>(2)?,
+                r.get::<_, String>(3)?,
+                r.get::<_, String>(4)?,
+                r.get::<_, String>(5)?,
+            ))
+        })?;
+        for row in rows {
+            let (id, wordbook_id, position, term, meaning, example) = row?;
+            cards.push(StudyCard {
+                id,
+                wordbook_id,
+                position: u32::try_from(position)?,
+                term,
+                meaning,
+                example,
+            });
+        }
+    }
+    let mut schedules = Vec::new();
+    {
+        let mut stmt = db.prepare(
+            "SELECT card_id,due_at_ms,stage,stability,difficulty,reps,lapses,last_review_at_ms,last_rating FROM vocab_schedule ORDER BY card_id",
+        )?;
+        let rows = stmt.query_map([], |r| {
+            Ok((
+                r.get::<_, i64>(0)?,
+                r.get::<_, i64>(1)?,
+                r.get::<_, String>(2)?,
+                r.get::<_, f64>(3)?,
+                r.get::<_, f64>(4)?,
+                r.get::<_, i64>(5)?,
+                r.get::<_, i64>(6)?,
+                r.get::<_, i64>(7)?,
+                r.get::<_, i64>(8)?,
+            ))
+        })?;
+        for row in rows {
+            let (card_id, due_at_ms, stage, stability, difficulty, reps, lapses, last, rating) =
+                row?;
+            schedules.push(CardSchedule {
+                card_id,
+                due_at_ms,
+                stage: stored_stage(&stage)?,
+                stability,
+                difficulty,
+                reps: u32::try_from(reps)?,
+                lapses: u32::try_from(lapses)?,
+                last_review_at_ms: last,
+                last_rating: stored_rating(rating)?,
+            });
+        }
+    }
+    let mut reviews = Vec::new();
+    {
+        let mut stmt = db.prepare(
+            "SELECT id,card_id,operation_id,rating,reviewed_at_ms,stage_before,stage_after,stability,difficulty,scheduled_minutes,due_at_ms,algorithm FROM vocab_review ORDER BY id",
+        )?;
+        let rows = stmt.query_map([], |r| {
+            Ok((
+                r.get::<_, i64>(0)?,
+                r.get::<_, i64>(1)?,
+                r.get::<_, String>(2)?,
+                r.get::<_, i64>(3)?,
+                r.get::<_, i64>(4)?,
+                r.get::<_, String>(5)?,
+                r.get::<_, String>(6)?,
+                r.get::<_, f64>(7)?,
+                r.get::<_, f64>(8)?,
+                r.get::<_, i64>(9)?,
+                r.get::<_, i64>(10)?,
+                r.get::<_, String>(11)?,
+            ))
+        })?;
+        for row in rows {
+            let (
+                id,
+                card_id,
+                operation_id,
+                rating,
+                reviewed_at_ms,
+                stage_before,
+                stage_after,
+                stability,
+                difficulty,
+                scheduled_minutes,
+                due_at_ms,
+                algorithm,
+            ) = row?;
+            reviews.push(ReviewEntry {
+                id,
+                card_id,
+                operation_id,
+                rating: stored_rating(rating)?,
+                reviewed_at_ms,
+                stage_before: stored_stage(&stage_before)?,
+                stage_after: stored_stage(&stage_after)?,
+                stability,
+                difficulty,
+                scheduled_minutes: u32::try_from(scheduled_minutes)?,
+                due_at_ms,
+                algorithm,
+            });
+        }
+    }
+    let archive = StudyArchive {
+        schema_version: STUDY_SCHEMA_VERSION,
+        wordbooks,
+        cards,
+        schedules,
+        reviews,
+    };
+    validate_study_archive(&archive)?;
+    Ok(archive)
+}
+
+fn select_review_by_operation(
+    db: &Connection,
+    operation_id: &str,
+) -> Internal<Option<ReviewEntry>> {
+    let mut stmt = db.prepare(
+        "SELECT id,card_id,operation_id,rating,reviewed_at_ms,stage_before,stage_after,stability,difficulty,scheduled_minutes,due_at_ms,algorithm FROM vocab_review WHERE operation_id=?1",
+    )?;
+    let mut rows = stmt.query_map([operation_id], |r| {
+        Ok((
+            r.get::<_, i64>(0)?,
+            r.get::<_, i64>(1)?,
+            r.get::<_, String>(2)?,
+            r.get::<_, i64>(3)?,
+            r.get::<_, i64>(4)?,
+            r.get::<_, String>(5)?,
+            r.get::<_, String>(6)?,
+            r.get::<_, f64>(7)?,
+            r.get::<_, f64>(8)?,
+            r.get::<_, i64>(9)?,
+            r.get::<_, i64>(10)?,
+            r.get::<_, String>(11)?,
+        ))
+    })?;
+    if let Some(row) = rows.next() {
+        let (
+            id,
+            card_id,
+            operation_id,
+            rating,
+            reviewed_at_ms,
+            stage_before,
+            stage_after,
+            stability,
+            difficulty,
+            scheduled_minutes,
+            due_at_ms,
+            algorithm,
+        ) = row?;
+        return Ok(Some(ReviewEntry {
+            id,
+            card_id,
+            operation_id,
+            rating: stored_rating(rating)?,
+            reviewed_at_ms,
+            stage_before: stored_stage(&stage_before)?,
+            stage_after: stored_stage(&stage_after)?,
+            stability,
+            difficulty,
+            scheduled_minutes: u32::try_from(scheduled_minutes)?,
+            due_at_ms,
+            algorithm,
+        }));
+    }
+    Ok(None)
+}
+
+impl SqliteStore {
+    fn ensure_wordbook_inner(
+        &mut self,
+        vault: &str,
+        seed: &WordbookSeed,
+        now_ms: i64,
+    ) -> Internal<Wordbook> {
+        let tx = self.db.transaction()?;
+        let existing: Option<(i64, String, String, i64)> = tx
+            .query_row(
+                "SELECT id,title,description,created_at_ms FROM vocab_wordbook WHERE vault=?1 AND title=?2",
+                params![vault, seed.title],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
+            )
+            .optional()?;
+        if let Some((id, title, description, created_at_ms)) = existing {
+            return Ok(Wordbook {
+                id,
+                vault: vault.to_owned(),
+                title,
+                description,
+                created_at_ms,
+            });
+        }
+        tx.execute(
+            "INSERT INTO vocab_wordbook(vault,title,description,created_at_ms) VALUES(?1,?2,?3,?4)",
+            params![vault, seed.title, seed.description, now_ms],
+        )?;
+        let id = tx.last_insert_rowid();
+        for (position, word) in seed.words.iter().enumerate() {
+            let position = i64::try_from(position)?;
+            tx.execute(
+                "INSERT INTO vocab_card(wordbook_id,position,term,meaning,example) VALUES(?1,?2,?3,?4,?5)",
+                params![id, position, word.term, word.meaning, word.example],
+            )?;
+        }
+        tx.commit()?;
+        Ok(Wordbook {
+            id,
+            vault: vault.to_owned(),
+            title: seed.title.clone(),
+            description: seed.description.clone(),
+            created_at_ms: now_ms,
+        })
+    }
+
+    fn commit_review_inner(
+        &mut self,
+        guard: &ReviewGuard,
+        schedule: &CardSchedule,
+        review: &ReviewEntry,
+    ) -> Internal<ReviewEntry> {
+        (self.observe)(StorageStage::BeforeTransaction);
+        let tx = self.db.transaction()?;
+        if let Some(existing) = select_review_by_operation(&tx, &review.operation_id)? {
+            if existing.card_id != review.card_id || existing.rating != review.rating {
+                return Err(
+                    conflict("review operation id is already bound to another grade").into(),
+                );
+            }
+            return Ok(existing);
+        }
+        if !tx
+            .prepare("SELECT 1 FROM vocab_card WHERE id=?1")?
+            .exists([review.card_id])?
+        {
+            return Err(
+                KnowledgeError::new(KnowledgeErrorCode::NotFound, "review card not found").into(),
+            );
+        }
+        let current: Option<(i64, i64)> = tx
+            .query_row(
+                "SELECT reps,last_review_at_ms FROM vocab_schedule WHERE card_id=?1",
+                [review.card_id],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .optional()?;
+        let guard_matches = match (current, guard.expected_reps) {
+            (None, 0) => guard.expected_last_review_at_ms.is_none(),
+            (Some((reps, last)), expected) => {
+                u32::try_from(reps).ok() == Some(expected)
+                    && guard.expected_last_review_at_ms == Some(last)
+            }
+            (None, _) => false,
+        };
+        if !guard_matches {
+            return Err(conflict("card schedule changed before this review").into());
+        }
+        tx.execute(
+            "INSERT INTO vocab_review(card_id,operation_id,rating,reviewed_at_ms,stage_before,stage_after,stability,difficulty,scheduled_minutes,due_at_ms,algorithm) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11)",
+            params![
+                review.card_id,
+                review.operation_id,
+                review.rating.code(),
+                review.reviewed_at_ms,
+                review.stage_before.as_str(),
+                review.stage_after.as_str(),
+                review.stability,
+                review.difficulty,
+                review.scheduled_minutes,
+                review.due_at_ms,
+                review.algorithm,
+            ],
+        )?;
+        let id = tx.last_insert_rowid();
+        tx.execute(
+            "INSERT INTO vocab_schedule(card_id,due_at_ms,stage,stability,difficulty,reps,lapses,last_review_at_ms,last_rating) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9) ON CONFLICT(card_id) DO UPDATE SET due_at_ms=excluded.due_at_ms,stage=excluded.stage,stability=excluded.stability,difficulty=excluded.difficulty,reps=excluded.reps,lapses=excluded.lapses,last_review_at_ms=excluded.last_review_at_ms,last_rating=excluded.last_rating",
+            params![
+                schedule.card_id,
+                schedule.due_at_ms,
+                schedule.stage.as_str(),
+                schedule.stability,
+                schedule.difficulty,
+                i64::from(schedule.reps),
+                i64::from(schedule.lapses),
+                schedule.last_review_at_ms,
+                schedule.last_rating.code(),
+            ],
+        )?;
+        (self.observe)(StorageStage::AfterEntities);
+        (self.observe)(StorageStage::BeforeCommit);
+        tx.commit()?;
+        (self.observe)(StorageStage::AfterCommit);
+        Ok(ReviewEntry {
+            id,
+            ..review.clone()
+        })
+    }
+
+    fn restore_study_inner(&mut self, archive: &StudyArchive) -> Internal<()> {
+        (self.observe)(StorageStage::BeforeTransaction);
+        let tx = self.db.transaction()?;
+        let count: i64 = tx.query_row(
+            "SELECT (SELECT count(*) FROM vocab_wordbook)+(SELECT count(*) FROM vocab_card)+(SELECT count(*) FROM vocab_schedule)+(SELECT count(*) FROM vocab_review)",
+            [],
+            |r| r.get(0),
+        )?;
+        if count != 0 {
+            return Err(conflict("restore requires empty study data").into());
+        }
+        for book in &archive.wordbooks {
+            tx.execute(
+                "INSERT INTO vocab_wordbook(id,vault,title,description,created_at_ms) VALUES(?1,?2,?3,?4,?5)",
+                params![
+                    book.id,
+                    book.vault,
+                    book.title,
+                    book.description,
+                    book.created_at_ms
+                ],
+            )?;
+        }
+        for card in &archive.cards {
+            tx.execute(
+                "INSERT INTO vocab_card(id,wordbook_id,position,term,meaning,example) VALUES(?1,?2,?3,?4,?5,?6)",
+                params![
+                    card.id,
+                    card.wordbook_id,
+                    i64::from(card.position),
+                    card.term,
+                    card.meaning,
+                    card.example
+                ],
+            )?;
+        }
+        for schedule in &archive.schedules {
+            tx.execute(
+                "INSERT INTO vocab_schedule(card_id,due_at_ms,stage,stability,difficulty,reps,lapses,last_review_at_ms,last_rating) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9)",
+                params![
+                    schedule.card_id,
+                    schedule.due_at_ms,
+                    schedule.stage.as_str(),
+                    schedule.stability,
+                    schedule.difficulty,
+                    i64::from(schedule.reps),
+                    i64::from(schedule.lapses),
+                    schedule.last_review_at_ms,
+                    schedule.last_rating.code()
+                ],
+            )?;
+        }
+        for review in &archive.reviews {
+            tx.execute(
+                "INSERT INTO vocab_review(id,card_id,operation_id,rating,reviewed_at_ms,stage_before,stage_after,stability,difficulty,scheduled_minutes,due_at_ms,algorithm) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12)",
+                params![
+                    review.id,
+                    review.card_id,
+                    review.operation_id,
+                    review.rating.code(),
+                    review.reviewed_at_ms,
+                    review.stage_before.as_str(),
+                    review.stage_after.as_str(),
+                    review.stability,
+                    review.difficulty,
+                    review.scheduled_minutes,
+                    review.due_at_ms,
+                    review.algorithm
+                ],
+            )?;
+        }
+        (self.observe)(StorageStage::AfterEntities);
+        (self.observe)(StorageStage::BeforeCommit);
+        tx.commit()?;
+        (self.observe)(StorageStage::AfterCommit);
+        Ok(())
+    }
+}
+
+impl StudyStore for SqliteStore {
+    fn study_snapshot(&self) -> Result<StudyArchive> {
+        read_study(&self.db).map_err(storage)
+    }
+
+    fn ensure_wordbook(
+        &mut self,
+        vault: &str,
+        seed: &WordbookSeed,
+        now_ms: i64,
+    ) -> Result<Wordbook> {
+        validate_study_seed(vault, seed)?;
+        if now_ms <= 0 {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::InvalidInput,
+                "invalid study timestamp",
+            ));
+        }
+        self.ensure_wordbook_inner(vault, seed, now_ms)
+            .map_err(storage)
+    }
+
+    fn commit_review(
+        &mut self,
+        guard: &ReviewGuard,
+        schedule: &CardSchedule,
+        review: &ReviewEntry,
+    ) -> Result<ReviewEntry> {
+        validate_study_schedule(schedule)?;
+        validate_study_review(review)?;
+        if review.id != 0 || schedule.card_id != review.card_id {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::InvalidInput,
+                "invalid review commit draft",
+            ));
+        }
+        self.commit_review_inner(guard, schedule, review)
+            .map_err(storage)
+    }
+
+    fn restore_study(&mut self, archive: &StudyArchive) -> Result<()> {
+        validate_study_archive(archive)?;
+        self.restore_study_inner(archive).map_err(storage)
     }
 }

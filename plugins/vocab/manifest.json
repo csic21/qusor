@@ -1,0 +1,30 @@
+{
+  "manifest_version": 1,
+  "package_id": "org.qusor.vocab",
+  "publisher_id": "org.qusor",
+  "package_version": {
+    "major": 0,
+    "minor": 1,
+    "patch": 0
+  },
+  "host_api": {
+    "major": 0,
+    "min_minor": 5,
+    "max_minor": 5
+  },
+  "required_capabilities": [
+    "vocab.read",
+    "vocab.review"
+  ],
+  "optional_capabilities": [],
+  "contributions": [
+    {
+      "id": "org.qusor.vocab.workspace",
+      "title": "背单词",
+      "kind": "vocab_workspace",
+      "required_capabilities": [
+        "vocab.read"
+      ]
+    }
+  ]
+}

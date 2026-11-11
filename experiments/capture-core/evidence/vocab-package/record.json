@@ -1,0 +1,85 @@
+{
+  "date": "2026-11-11",
+  "platform": "macOS arm64",
+  "rust": "rustc 1.97.1 (2026-07-14)",
+  "package": {
+    "path": "plugins/vocab/target/vocab.qpk",
+    "sha256": "4ce99011b45ce6c01b158e236762ea3d4465a2dd050e590b77be8e0284dd0823",
+    "bytes": 2149,
+    "manifest_sha256": "601fc0db4ae2ab5429715b53e415abf95f4c5e4cffe5c2553b4619adb7140779",
+    "guest_wat_sha256": "a26a965c05f307fb4f3ca5db481de755013d4fa061660cc9bf935d7b29a94cf9",
+    "package_id": "org.qusor.vocab",
+    "host_api": {
+      "major": 0,
+      "min_minor": 5,
+      "max_minor": 5
+    },
+    "required_capabilities": [
+      "vocab.read",
+      "vocab.review"
+    ],
+    "contributions": [
+      {
+        "id": "org.qusor.vocab.workspace",
+        "title": "背单词",
+        "kind": "vocab_workspace",
+        "required_capabilities": [
+          "vocab.read"
+        ]
+      }
+    ]
+  },
+  "publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+  "author_lock_sha256": "76197083888fdb819526b5fda6514076424863b03d83c8fc73a0dee9073af5d0",
+  "tests": {
+    "workspace_excluding_runtime_process": {
+      "passed": 282,
+      "failed": 0
+    },
+    "learning_domain": {
+      "passed": 20,
+      "failed": 0
+    },
+    "core_api": {
+      "passed": 29,
+      "failed": 0
+    },
+    "extension_api": {
+      "passed": 66,
+      "failed": 0
+    },
+    "extension_host": {
+      "passed": 83,
+      "failed": 0
+    },
+    "storage_sqlite": {
+      "passed": 20,
+      "failed": 0
+    },
+    "learning_application": {
+      "passed": 43,
+      "failed": 0
+    },
+    "capture_core_vocab_package": {
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "checks": {
+    "cargo_fmt": "passed",
+    "cargo_clippy_workspace_all_targets": "passed",
+    "architecture_guard": "passed",
+    "python_unittest": "42 passed",
+    "docs_links": "passed"
+  },
+  "known_environment_failure": {
+    "command": "cargo test -p runtime-process --test controller",
+    "note": "same failure on a clean tree (stashed work); macOS process-supervision case, not modified by this change"
+  },
+  "not_verified": [
+    "native workspace UI and real window",
+    "production install/authority interface and publisher key management",
+    "wordbook packaging/import and capture-from-reading",
+    "reminders, sync, mobile/web profiles"
+  ]
+}

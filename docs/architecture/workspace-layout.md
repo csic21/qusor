@@ -8,14 +8,14 @@
 qusor/
 ├── apps/                 应用入口、装配、打包；当前只有说明
 ├── crates/               Core、公开协议、宿主策略等平台无关 Rust 库
-│   ├── learning-domain/  现有：零外部依赖，尚无业务类型
+│   ├── learning-domain/  现有：零外部依赖；FSRS-5 词汇调度内核
 │   ├── core-api/         现有：捕获/锚点与纯知识归档不变量
 │   ├── learning-ports/   现有：完整原子提交/恢复端口
 │   ├── learning-application/  现有：真实知识用例与计划
 │   ├── extension-api/    现有：0.1 wire 协议、schema、校验
 │   └── extension-host/   现有：内存授权、会话、生命周期策略
 ├── adapters/             已有 SQLite/CAS、插件持久内核与受限执行；平台与渲染仍按门槛推进
-├── plugins/              独立构建/安装的功能包；当前只有目录与作者约束
+├── plugins/              独立功能包；notes 读取与 vocab 词汇包为资格切片
 ├── sdk/                  公共契约的发行、绑定与作者入口；尚未发布 SDK
 ├── experiments/          独立验证，不属于生产 Workspace
 │   ├── extension-wasm/   已有本机执行证据

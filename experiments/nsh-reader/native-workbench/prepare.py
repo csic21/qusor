@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import datetime
 import hashlib
 import json
 import os
@@ -18,8 +19,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--size", default="1280x820")
     parser.add_argument("--build-only", action="store_true")
-    parser.add_argument("--evidence", action="store_true",
-                        help="auto-navigate to notes and capture in-process window renders")
+    parser.add_argument("--evidence", nargs="?", const="notes", choices=["notes", "vocab"],
+                        help="auto-navigate to a workspace and capture in-process window renders")
     args = parser.parse_args()
     try:
         width, height = map(int, args.size.split("x"))
@@ -62,6 +63,24 @@ def main() -> None:
     shutil.rmtree(core, ignore_errors=True)
     subprocess.run([str(seed), str(core), str(cache / "seed.json")], check=True)
     seed_receipt = json.loads((cache / "seed.json").read_text())
+    # Ordinary signed vocabulary package, built outside the repository from the SDK.
+    subprocess.run([sys.executable, str(root / "plugins/vocab/build.py")], check=True)
+    vocab_proof = json.loads((root / "plugins/vocab/target/author-proof.json").read_text())
+    shutil.copyfile(root / "plugins/vocab/target/vocab.qpk", cache / "vocab.package")
+    (cache / "vocab-key.txt").write_text(vocab_proof["publisher_key"] + "\n")
+    # Seed a real Core database with two synthetic wordbooks.
+    vocab_seed = root / "experiments/capture-core/target/debug/seed_workbench_vocab"
+    if not vocab_seed.is_file():
+        subprocess.run(["cargo", "build", "--manifest-path",
+                        str(root / "experiments/capture-core/Cargo.toml"),
+                        "--offline", "--bin", "seed_workbench_vocab"], check=True)
+    vocab_core = cache / "core-vocab"
+    shutil.rmtree(vocab_core, ignore_errors=True)
+    subprocess.run([str(vocab_seed), str(vocab_core), str(cache / "vocab-seed.json")], check=True)
+    vocab_seed_receipt = json.loads((cache / "vocab-seed.json").read_text())
+    local_midnight = datetime.datetime.now().replace(
+        hour=0, minute=0, second=0, microsecond=0)
+    day_start_ms = int(local_midnight.timestamp() * 1000)
     app = cache / "QUSOR 工作台研究.app"
     macos = app / "Contents/MacOS"
     macos.mkdir(parents=True, exist_ok=True)
@@ -82,6 +101,10 @@ def main() -> None:
         "QUSOR_NOTES_PACKAGE": str(cache / "notes.package"),
         "QUSOR_NOTES_KEY": str(cache / "notes-key.txt"),
         "QUSOR_NOTES_DOCUMENT": str(seed_receipt["document_id"]),
+        "QUSOR_VOCAB_DATA": str(vocab_core),
+        "QUSOR_VOCAB_PACKAGE": str(cache / "vocab.package"),
+        "QUSOR_VOCAB_KEY": str(cache / "vocab-key.txt"),
+        "QUSOR_VOCAB_DAY_START_MS": str(day_start_ms),
     }
     captures = cache / "captures"
     if args.evidence:
@@ -89,6 +112,7 @@ def main() -> None:
         captures.mkdir(parents=True)
         exports["QUSOR_WORKBENCH_EVIDENCE"] = "1"
         exports["QUSOR_WORKBENCH_CAPTURE_DIR"] = str(captures)
+        exports["QUSOR_WORKBENCH_EVIDENCE_TARGET"] = args.evidence
     launcher.write_text("#!/bin/sh\n" + "\n".join(f"export {key}={shlex.quote(value)}" for key, value in exports.items())
                         + "\nexec " + shlex.join(command) + ' "$@" >>' + shlex.quote(str(log)) + " 2>&1\n")
     launcher.chmod(0o755)
@@ -109,9 +133,15 @@ def main() -> None:
                "notes_publisher_key": proof["publisher_key"],
                "seed": seed_receipt,
                "notes_core": str(core),
+               "vocab_package_sha256": hashlib.sha256((cache / "vocab.package").read_bytes()).hexdigest(),
+               "vocab_publisher_key": vocab_proof["publisher_key"],
+               "vocab_seed": vocab_seed_receipt,
+               "vocab_core": str(vocab_core),
+               "vocab_day_start_ms": day_start_ms,
                "evidence": bool(args.evidence),
+               "evidence_target": args.evidence or None,
                "captures": str(captures) if args.evidence else None,
-               "fixture": "Real Core notes in a sealed local data directory; ordinary signed notes package; no network."}
+               "fixture": "Real Core notes and vocabulary in sealed local data directories; ordinary signed notes/vocab packages; no network."}
     (cache / "artifact.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps(receipt, ensure_ascii=False, indent=2))
 

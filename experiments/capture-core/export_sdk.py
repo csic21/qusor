@@ -106,6 +106,6 @@ def export_sdk(destination: Path):
         '# Capture experimental public SDK\n\n'
         'Capture/anchor subset (contract, pdf_contract, pdf_compound) exported from core-api; knowledge storage envelopes/ports are excluded. Package format/signer comes from crates/extension-package.\n'
         'No Host, Core, database or Wasm runtime implementation is included.\n'
-        'api/schema contains the authoritative 0.1/0.2/0.3 policy, Surface, Draft, Composition, Component Invocation, Context, Continuation and Paragraph Projection schemas; parsing does not grant authority.\n'
+        'api/schema contains the authoritative 0.1-0.5 policy, Surface, Draft, Composition, Component Invocation, Context, Continuation and Paragraph Projection schemas; parsing does not grant authority.\n'
         'This is a validation artifact, not a production SDK release.\n')
     return fingerprints

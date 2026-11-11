@@ -428,9 +428,14 @@ name = "learning-application"
 version = "0.0.0"
 dependencies = [
  "core-api",
+ "learning-domain",
  "learning-ports",
  "serde_json",
 ]
+
+[[package]]
+name = "learning-domain"
+version = "0.0.0"
 
 [[package]]
 name = "learning-ports"

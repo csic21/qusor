@@ -383,10 +383,11 @@ allowed_dependencies = ["core-api"]
 allowed_transitive_dependencies = ["base64", "block-buffer", "cfg-if", "core-api", "cpufeatures", "crypto-common", "digest", "generic-array", "itoa", "libc", "memchr", "proc-macro2", "quote", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "syn", "typenum", "unicode-ident", "unicode-segmentation", "version_check", "zmij"]
 
 # ADR 0019: real knowledge application / atomic persistence boundary.
+# ADR 0036: vocabulary study use cases map the pure FSRS-5 kernel onto the StudyStore port.
 [packages.learning-application]
 manifest = "crates/learning-application/Cargo.toml"
-allowed_dependencies = ["core-api", "learning-ports", "serde_json"]
-allowed_transitive_dependencies = ["base64", "block-buffer", "cfg-if", "core-api", "cpufeatures", "crypto-common", "digest", "generic-array", "itoa", "learning-ports", "libc", "memchr", "proc-macro2", "quote", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "syn", "typenum", "unicode-ident", "unicode-segmentation", "version_check", "zmij"]
+allowed_dependencies = ["core-api", "learning-domain", "learning-ports", "serde_json"]
+allowed_transitive_dependencies = ["base64", "block-buffer", "cfg-if", "core-api", "cpufeatures", "crypto-common", "digest", "generic-array", "itoa", "learning-domain", "learning-ports", "libc", "memchr", "proc-macro2", "quote", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "syn", "typenum", "unicode-ident", "unicode-segmentation", "version_check", "zmij"]
 
 # ADR 0019: real knowledge application / atomic persistence boundary.
 [packages.blob-store]
@@ -398,7 +399,7 @@ allowed_transitive_dependencies = ["base64", "block-buffer", "cfg-if", "core-api
 [packages.storage-sqlite]
 manifest = "adapters/storage-sqlite/Cargo.toml"
 allowed_dependencies = ["blob-store", "core-api", "learning-application", "learning-ports", "rusqlite", "serde_json"]
-allowed_transitive_dependencies = ["ahash", "base64", "bitflags", "blob-store", "block-buffer", "cc", "cfg-if", "core-api", "cpufeatures", "crypto-common", "digest", "fallible-iterator", "fallible-streaming-iterator", "find-msvc-tools", "fs2", "generic-array", "hashbrown", "hashlink", "itoa", "learning-application", "learning-ports", "libc", "libsqlite3-sys", "memchr", "once_cell", "pkg-config", "proc-macro2", "quote", "rusqlite", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "shlex", "smallvec", "syn", "typenum", "unicode-ident", "unicode-segmentation", "vcpkg", "version_check", "winapi", "winapi-i686-pc-windows-gnu", "winapi-x86_64-pc-windows-gnu", "zerocopy", "zerocopy-derive", "zmij"]
+allowed_transitive_dependencies = ["ahash", "base64", "bitflags", "blob-store", "block-buffer", "cc", "cfg-if", "core-api", "cpufeatures", "crypto-common", "digest", "fallible-iterator", "fallible-streaming-iterator", "find-msvc-tools", "fs2", "generic-array", "hashbrown", "hashlink", "itoa", "learning-application", "learning-domain", "learning-ports", "libc", "libsqlite3-sys", "memchr", "once_cell", "pkg-config", "proc-macro2", "quote", "rusqlite", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "shlex", "smallvec", "syn", "typenum", "unicode-ident", "unicode-segmentation", "vcpkg", "version_check", "winapi", "winapi-i686-pc-windows-gnu", "winapi-x86_64-pc-windows-gnu", "zerocopy", "zerocopy-derive", "zmij"]
 
 # ADR 0025: same durable kernel; Host dependency implements pure authority-source port, no Host/Session instances or VM/UI.
 [packages.extension-store]

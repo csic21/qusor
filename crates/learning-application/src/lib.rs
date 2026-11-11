@@ -5,6 +5,7 @@ pub mod draft_text;
 pub mod pdf_notes;
 pub mod provider_events;
 pub mod provider_projections;
+pub mod study;
 use core_api::{
     contract::{CaptureDraft, ResolvedRange, sha256},
     knowledge::*,

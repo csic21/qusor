@@ -39,6 +39,29 @@ schema2 PDF/混合资料回归使用 `python3 experiments/capture-core/validate_
 
 [C0 捕获资格实验](../experiments/capture-core/README.md) 的完整复现入口为 `python3 experiments/capture-core/validate.py`。它验证仓库外公开 SDK 作者、真实 Wasm 提案与批准、Core 事务、故障恢复、卸载保留及空库恢复，并重跑受影响的包管理和运行器测试；实际范围见 [结果](../experiments/capture-core/RESULTS.md)。新实验不进入生产根 Workspace，不证明 NSH 或正式阅读通过。
 
+[背单词插件首个切片](product/vocab-plugin.md) 的公开能力、Core 学习数据与普通包回归：
+
+```sh
+cargo test -p learning-domain -p extension-api -p extension-host -p storage-sqlite --locked --offline
+cargo test --manifest-path experiments/capture-core/Cargo.toml --test vocab_package --locked --offline
+python3 plugins/vocab/build.py
+```
+
+`build.py` 在仓库外导出 SDK 并生成 `plugins/vocab/target/vocab.qpk` 与作者证明；固定测试签名种子不是生产发布密钥。注释：本机 macOS 上 `runtime-process --test controller` 在干净树同样失败（进程监督用例），与本切片无关，因此不要把本机全工作区测试结果表述为整体通过。
+
+原生工作台背单词工作区（fixture + 真实 Core 双模式）的回归：
+
+```sh
+python3 experiments/nsh-reader/native-workbench/prepare.py --size 1280x820 --evidence vocab
+cd experiments/nsh-reader/native-workbench
+../target/nsh/target/debug/nsh check App.tsx
+../target/nsh/target/debug/nsh test tests/vocab-workspace.test.tsx
+../target/nsh/target/debug/nsh test tests/notes-workspace.test.tsx
+cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offline --test vocab_native
+```
+
+`--evidence vocab` 会在应用进程内把真实 `NSWindow` 渲染成 decks/study/revealed/reviewed/done 五张 PNG，不依赖屏幕录制授权；同一 Core 重启后补两张恢复图，见[实窗记录](../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)。
+
 [目录架构](architecture/workspace-layout.md) 规定 apps/crates/adapters 为生产源码范围，plugins/sdk/experiments 独立。新增 Cargo package 和独立 Workspace 都必须在 [architecture.toml](../config/architecture.toml) 登记。根检查先扫描管理目录的 manifest，再核对生产 Cargo 图；隐藏目录与构建缓存不作为项目模块，源码符号链接被拒绝。
 
 生产成员及 Cargo metadata 可见包的 path 声明不能指向插件、SDK、实验或未登记的本地实现，normal/dev/build/optional/target 声明均检查，已解析间接 helper 的本地路径也在范围内。独立 Workspace 的登记不代表其依赖图已通过，仍需自身验证入口调用 validate_graph。Rust include!/构建脚本任意读文件、未解析第三方可选分支、插件运行权限和 SDK 仓库外可用性不由该检查证明。

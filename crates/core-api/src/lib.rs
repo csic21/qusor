@@ -5,3 +5,4 @@ pub mod error;
 pub mod knowledge;
 pub mod pdf_compound;
 pub mod pdf_contract;
+pub mod vocab;

@@ -1,8 +1,9 @@
 use extension_api::{
     ApiRange, ApiVersion, Capability, CapabilityRequest, ContributionKind, ErrorCode, HOST_API,
-    HOST_API_V0_2, Manifest, Resource, SUPPORTED_HOST_APIS, capability_available_in,
+    HOST_API_V0_2, HOST_API_V0_5, Manifest, Resource, SUPPORTED_HOST_APIS, capability_available_in,
     capability_resource_valid,
     invocation::{INVOCATION_PROTOCOL, InvocationRequest},
+    is_supported_api,
     surface::*,
     validate_supported_apis,
 };
@@ -68,10 +69,11 @@ fn manifest() -> Manifest {
 fn explicit_support_set_and_manifest_vocabulary_prevent_silent_legacy_upgrade() {
     assert_eq!(HOST_API, ApiVersion { major: 0, minor: 1 });
     validate_supported_apis(&SUPPORTED_HOST_APIS).unwrap();
+    assert!(is_supported_api(HOST_API_V0_5));
     for bad in [
         vec![],
         vec![HOST_API, HOST_API],
-        vec![ApiVersion { major: 0, minor: 5 }],
+        vec![ApiVersion { major: 0, minor: 6 }],
     ] {
         assert_eq!(
             validate_supported_apis(&bad).unwrap_err().code,

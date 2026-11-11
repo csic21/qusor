@@ -10,16 +10,16 @@
 
 ```text
 Cargo workspace
-├── learning-domain      无业务实现、无外部依赖
-├── core-api             捕获/来源/锚点、知识记录与纯归档不变量
-├── learning-ports       一致快照、完整原子提交/恢复端口
-├── learning-application 文本/PDF/复合知识用例与提交计划
+├── learning-domain      FSRS-5 词汇调度内核；无外部依赖
+├── core-api             捕获/来源/锚点、知识记录、词汇学习契约与纯归档不变量
+├── learning-ports       一致快照/原子提交恢复与词汇学习端口
+├── learning-application 文本/PDF/复合知识用例与词汇学习用例
 ├── blob-store           Unix私有目录、单writer与耐久CAS适配器
-├── storage-sqlite       schema/关系核验与整体SQL事务适配器
+├── storage-sqlite       schema/关系核验、整体SQL事务与schema4词汇学习表
 ├── extension-package    有界签名容器、内容/发布者键绑定验证
 ├── extension-runtime-api 无授权副作用的执行端口/预算
 ├── runtime-wasm         Wasmi执行适配器；不创建Host或读取包路径
-├── extension-api        0.1 JSON 策略协议、manifest 投影与能力校验
+├── extension-api        0.5 JSON 策略协议、manifest 投影与能力校验
 └── extension-host       内存安装元数据、授权、会话、生命周期与贡献查询
 
 config/architecture.toml  当前成员与依赖允许清单
@@ -29,11 +29,11 @@ docs/product/            功能和体验设计
 docs/research/           固定版本研究证据
 apps/                   装配入口（只有目录说明）
 adapters/               已有SQLite/CAS/Wasmi；NSH/平台等仍按门槛实施
-plugins/ sdk/            独立功能包与 SDK 入口（尚无正式包/发行）
+plugins/ sdk/            plugins/vocab 普通包资格切片；SDK 尚未发行
 experiments/             Wasm、签名包/安装事务证据、NSH 环境/构建记录
 ```
 
-learning-domain 保持独立核心边界；extension-api/extension-host 承接已授权的实际协议与策略职责，见 [无界面基座规格](../product/foundation.md) 与 [ADR 0004](adr/0004-headless-extension-policy.md)。core-api 随 C3 后续落位捕获/来源/锚点契约，见 [ADR 0018](adr/0018-core-api-contract-source.md)。不引入与原计划重叠的 qusor-core 大模块，也不一次创建全部空业务 crate。
+learning-domain 已从空壳变为 FSRS-5 词汇调度内核，仍保持独立核心边界与零外部依赖；extension-api/extension-host 承接已授权的实际协议与策略职责（当前 0.5），词汇学习切片见 [ADR 0036](adr/0036-vocabulary-study-capability.md)。core-api 随 C3 后续落位捕获/来源/锚点契约，见 [ADR 0018](adr/0018-core-api-contract-source.md)。不引入与原计划重叠的 qusor-core 大模块，也不一次创建全部空业务 crate。
 
 ## 未来依赖方向
 

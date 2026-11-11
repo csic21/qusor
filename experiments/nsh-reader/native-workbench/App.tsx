@@ -1,9 +1,10 @@
 import { mount, Scroll, setColorScheme, signal, Text, View } from "nsh";
-import { NotesHost } from "qusor/pdf-surface";
+import { NotesHost, VocabHost } from "qusor/pdf-surface";
 import { Button, Command, Dialog, Menu, MenuItem, Tab, Tabs } from "nsh/base";
 import { titleBar } from "nsh/desktop";
 import {
     captureNotesEvidence,
+    captureVocabEvidence,
     entries,
     pluginWorkspaces,
     Diagram,
@@ -1284,11 +1285,33 @@ function App() {
 setColorScheme("light");
 mount(App);
 
+// Evidence-only entry: the launcher names the workspace to capture. The notes
+// host is the fallback for hosts that only know the notes bridge, so a plain
+// headless test (no native module) stays in the normal shell.
 void (async () => {
     try {
-        const result = JSON.parse(await NotesHost.evidence());
-        if (!result.ok || !result.value?.active) return;
+        let target = "";
+        try {
+            const vocab = JSON.parse(await VocabHost.evidence());
+            if (vocab.ok && vocab.value?.active)
+                target = String(vocab.value.target ?? "notes");
+        } catch (_) {
+            // Older hosts expose the evidence switch only through NotesHost.
+        }
+        if (!target) {
+            const notes = JSON.parse(await NotesHost.evidence());
+            if (!notes.ok || !notes.value?.active) return;
+            target = String(notes.value.target ?? "notes");
+        }
         setTimeout(() => {
+            if (target === "vocab") {
+                openPluginWorkspace("fixture.vocab");
+                void (async () => {
+                    await new Promise((resolve) => setTimeout(resolve, 700));
+                    await captureVocabEvidence();
+                })();
+                return;
+            }
             openPluginWorkspace("fixture.notes");
             void (async () => {
                 await new Promise((resolve) => setTimeout(resolve, 700));

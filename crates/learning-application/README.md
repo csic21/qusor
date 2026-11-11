@@ -6,6 +6,8 @@
 
 当前是有界完整快照路径，尚未完成大资料库的增量查询/性能、生产平台适配或正式功能插件旅程。见 [ADR 0019](../../docs/architecture/adr/0019-atomic-knowledge-persistence.md)。
 
+`study::StudyApplication<S: StudyStore>` 提供词汇学习用例：幂等播种、词书计数、到期优先队列、四档评分与 FSRS 安排、导出/空库恢复。调度数学来自零依赖的 `learning-domain`；应用层固定每日新词预算 10、日起点由可信调用方传入。见 [ADR 0036](../../docs/architecture/adr/0036-vocabulary-study-capability.md)。
+
 ## 会话草稿基础
 
 `draft_text`提供独立于renderer的会话文本、1MiB上限、UTF-8分块读取、暂存上传/原子替换、修订CAS、mount owner与超时、声明内存预留，以及Saving/Saved和未知结果锁定。`annotation_source::FrozenPdfSource`核对Core中的不可变PDF引用，保留来源和provenance；其只读receipt核对完整payload，不把查询当成新提交。

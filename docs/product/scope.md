@@ -1,5 +1,7 @@
 # QUSOR 功能基线与范围确认
 
+2026-11-11，用户询问自动更新与手机端进度，并建议“通过 GitHub Release 发版本、GitHub Actions 构建”。新增 C-17、F-PLAT-02（发行与自动更新），关联 C-15、F-PLAT-01、F-DATA-01：确认更新源使用主仓库 GitHub Releases（仓库转 public，`updater.github`，免认证的 `releases/latest/download/`）；应用先改造成 `nsh package` 形态（`apps/` 生产入口），一次取得桌面打包、自动更新、OTA 与 Android/iOS 打包；当前既无 Apple Developer Program 账号也无 Android 发布 keystore，只能产出 ad hoc／调试签名产物。现状核对与流水线设计见 [发行与更新](release-and-update.md)。本轮不创建 tag 或 Release、不改仓库可见性、不生成生产密钥；移动端仍只有库交叉编译，不构成支持。
+
 2026-11-09，用户明确要求“一口气支持全平台”。新增 C-15：本轮将 macOS、Windows、Linux、iOS、Android 以及 Web 纳入同一交付目标；各平台共用 Core、公开插件契约与阅读流程，按平台装配宿主、文件、PDF、持久化与执行隔离服务。此指令取代“首发平台待定”对本轮平台范围的限制；不自动扩展 AI/同步/云上传。实现、构建、启动、交互、恢复及渠道分发资格分别记录，未通过不能标为支持完成。关联 F-PLAT-01、F-EXT-07、F-READ-01/03、F-NOTE-01、F-DATA-01；决策见 [ADR 0033](../architecture/adr/0033-cross-platform-runtime.md)。
 
 2026-11-08，用户明确要求设计插件系统的平台差异支持，确认插件不必全部通用。新增 C-14、F-EXT-07（平台兼容与实现选择），关联 F-EXT-01/03/04/05/06、F-PLAT-01：允许单平台插件、同包多实现及平台专属贡献；按系统/架构/版本、运行环境、能力与分发渠道选择，知识和公开功能语义保持通用。见 [规格](../architecture/plugin-platforms.md) 和 [ADR 0031](../architecture/adr/0031-platform-aware-plugins.md)。本轮交付设计，不修改生产协议或运行器；Hex/语音是验收示例，未确认具体功能排期、云识别、首发平台或移动分发已通过。
@@ -93,7 +95,7 @@ B2 后续增量按 [ADR 0008](../architecture/adr/0008-durable-grant-recovery-pr
 | F-KG-01 | Document/Concept/Claim/Evidence/Note/Question/Person | M1 | 同一知识点连接多份资料，可查找和编辑 |
 | F-KG-02 | 支持/反驳/因果/包含/相似/衍生/引用 | M1 | 关系类型/方向可编辑，能查看来源 |
 | F-AI-04 | 头脑风暴和候选知识结构 | M1 | 用户选择、修改或拒绝候选节点/关系 |
-| F-LEARN-01 | 卡片、FSRS、复习记录和提醒 | M2 | 复习后有明确下一次安排和可恢复记录 |
+| F-LEARN-01 | 卡片、FSRS、复习记录和提醒 | M2（首个词汇切片已由用户要求提前，见 [词汇插件规格](vocab-plugin.md)）；提醒仍在后续 | 复习后有明确下一次安排和可恢复记录 |
 | F-LEARN-02 | 测验、理解反馈、对比和因果链练习 | M2 | 可以检查理解并纠正 AI 判断 |
 | F-LEARN-03 | 学习路径与掌握情况 | M2 | 学习顺序和进展可见、可调整 |
 | F-AI-05 | 跨资料研究、观点冲突、研究报告 | M3 | 结论和分歧附可核查依据 |
@@ -106,6 +108,7 @@ B2 后续增量按 [ADR 0008](../architecture/adr/0008-durable-grant-recovery-pr
 | F-AGENT-05 | 多任务监督、恢复与成果管理 | 本轮设计，验证后实施 | 停止和重启不伪报完成或重复副作用 |
 | F-SYNC-01 | 账户、设备、增量同步和冲突处理 | 架构预留，上线阶段待定 | 双设备离线编辑后不静默丢内容 |
 | F-SYNC-02 | 可选云备份与文件同步 | 同步上线时 | 用户决定上传范围，原书不默认上传 |
+| F-PLAT-02 | 桌面/移动发行与自动更新（GitHub Release + 签名清单） | 随 C-17 推进 | 已装版本能校验并安装更新；移动端给出商店链接或 OTA 包；首次发布即内置更新配置 |
 | F-PLAT-01 | Windows/macOS/Linux/Android/iOS | M-1 验证，首发门槛待定 | 已声明支持的平台有真实安装与使用记录 |
 | F-EXT-01 | 通用插件扩展接口，新增来源/处理/工具能力不绑定Core内部实现 | M-1验证；M0功能开发前建立SDK与宿主 | 两个不同来源经同一契约接入，不增加服务名领域分支 |
 | F-EXT-02 | 外部阅读选段进入知识库，保留出处与本地快照 | 契约现在；具体服务排期待定 | 保存选文可检索、引用；本地回源与外部回跳等级明确 |
@@ -138,6 +141,7 @@ Reader AI 按原愿景建议保留 M0，但当前问题允许用户选择延后�
 
 | 决策 ID | 选择 | 当前状态 |
 |---|---|---|
+| C-17 发行与自动更新 | GitHub Release 发版 + GitHub Actions 构建；主仓库转 public 作更新源；应用改为 `nsh package` 形态 | 已确认，2026-11-11；生产入口、流水线与签名账号均未具备；见 [方案](release-and-update.md) |
 | C-11 设计沉淀与UI同步交付 | 先把已有优秀设计研究落实为统一视觉/交互规则；做功能时交付对应UI，探针不代替正式工作区 | 已确认要求，2026-11-08；当前v0.1为可评审工作基线，具体数值与品牌未最终冻结 |
 | C-16 原生软件视觉 | 研究具体设计师的软件作品，形成精美、符合 NSH 原生绘制的界面，保留通用插件 / Agent 基座 | 用户于2026-11-09明确要求；此前 Web 感稿不作为视觉批准，新[原生候选](../design/native-art-direction.md)待评审 |
 | C-12 分区与组件扩展 | 稳定软件分区，区分区域/角色/提供者；插件可接入、兼容组件可替换，数据独立于UI实现 | 已确认要求，2026-11-08；公开组合协议尚未实现，既有0.2保持兼容；见ADR 0028 |
@@ -177,3 +181,5 @@ PDF/EPUB库、数据库库和布局算法由技术验证决定，不要求用户
 2026-11-08，C-08/C-09继续完成 [C7持久安装内核落位](../../experiments/extension-package/INSTALLATION_PRODUCTION_RESULTS.md)：schema1—4唯一SQL实现、统一Host恢复/精确版本重核和Linux身份原语进入生产目录，旧实验真实消费；根121项Rust、包/Wasm/C3完整回归与新二进制原生保存恢复通过。当前持续授权仍仅metadata profile，完整安装/信任UI、异步进程监督、动态任意PDF与正式library/reader/notes未完成，不扩大AI/云/首发平台范围。
 
 随后完成 [C8持续阅读权限与动态原生PDF资格](../../experiments/capture-core/READER_AUTHORITY_RESULTS.md)：显式profile2保存精确多能力集合，旧profile1保持；同一DurableHost逐次Surface判权、资源配额和绑定vault的真实卸载退役通过回归。最终根134项Rust、42项边界守卫及包/Wasm/C3完整回归通过，新工件在真实原生chooser选择构建后生成的三/四页PDF，选文/非空笔记/保存与Core重开/空库恢复精确回源已有证据。当前仅16MiB/16页预算，非普通长书支持；正式功能包、通用监督、资源释放ack、中文IME与完整产品旅程仍待完成，不扩大AI/云/首发平台范围。
+
+2026-11-11，用户明确要求开发背单词插件。这是 F-LEARN-01 的首个真实切片，已落地 Host API 0.5（`vocab.read`/`vocab.review`、`vocab_workspace`）、`vocab-study-v1` 有界 wire、Core 词汇学习数据（SQLite schema 4）、零外部依赖的 FSRS-5 调度内核、`plugins/vocab` 普通签名包与真实 SQLite 端到端测试，见 [ADR 0036](../architecture/adr/0036-vocabulary-study-capability.md) 与 [词汇插件规格](vocab-plugin.md)。词书内容当前为合成示例；原生工作台样例 UI 已接入同一 0.5 wire 与真实 Core（先回想后揭晓、四档评分、重开恢复，见[实窗记录](../../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)），但正式产品工作区装配、生产安装界面、导入/随包词库、从阅读收词、提醒、云、移动与首发平台均未因此自动确认或完成。该切片不改变既有阅读闭环与六端门槛，也不代表正式产品功能插件已交付。

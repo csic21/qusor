@@ -1,7 +1,7 @@
 import { Canvas, Clipboard, keymap, Path2D, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
 import { Button, Input, Menu, MenuItem, MenuSeparator, TextView } from "nsh/base";
 import { Menu as DesktopMenu, type MenuItem as DesktopMenuItem } from "nsh/desktop";
-import { NotesHost } from "qusor/pdf-surface";
+import { NotesHost, VocabHost } from "qusor/pdf-surface";
 import {
     Badge,
     Copy,
@@ -1171,7 +1171,7 @@ function loadNoteBody(note: Note) {
         return;
     }
     setTimeout(() => {
-        notesBody.set({ ...notesBody(), [note.id]: note.full });
+        notesBody.set({ ...notesBody(), [note.id]: note.full ?? "" });
         notesBodyLoading.set("");
     }, 450);
 }
@@ -1915,6 +1915,942 @@ function NotesWorkspace(props: { compact: boolean }) {
         </View>
     );
 }
+// ---------------------------------------------------------------------------
+// 背单词工作区：词书、学习卡与四档评分。
+// The fixture lives in this window; when the host exposes the vocabulary module
+// the workspace reads the local Core first and falls back here, saying so.
+// ---------------------------------------------------------------------------
+type VocabCard = {
+    cardId: number;
+    term: string;
+    meaning: string;
+    example: string;
+    stage: string;
+};
+type VocabDeck = {
+    id: number;
+    title: string;
+    total: number;
+    due: number;
+    new: number;
+};
+type VocabOperation = {
+    cardId: number;
+    rating: string;
+    id: string;
+    attempts: number;
+};
+const vocabDecksFixture: VocabDeck[] = [
+    { id: 1, title: "CET-4 示例", total: 3, due: 0, new: 3 },
+    { id: 2, title: "学术写作 示例", total: 2, due: 0, new: 2 },
+];
+const vocabCardsFixture: Record<number, VocabCard[]> = {
+    1: [
+        {
+            cardId: 1,
+            term: "abandon",
+            meaning: "放弃；抛弃",
+            example: "They had to abandon the plan when the funding was withdrawn.",
+            stage: "new",
+        },
+        {
+            cardId: 2,
+            term: "benefit",
+            meaning: "好处；使受益",
+            example: "Daily review benefits long-term memory more than one long session.",
+            stage: "new",
+        },
+        {
+            cardId: 3,
+            term: "candidate",
+            meaning: "候选人；应试者",
+            example: "Each candidate read the passage twice before answering.",
+            stage: "new",
+        },
+    ],
+    2: [
+        {
+            cardId: 4,
+            term: "coherent",
+            meaning: "连贯的；一致的",
+            example: "A coherent argument states its claim before the evidence.",
+            stage: "new",
+        },
+        {
+            cardId: 5,
+            term: "cite",
+            meaning: "引用；举例",
+            example: "Cite the original page instead of a summary of it.",
+            stage: "new",
+        },
+    ],
+};
+/// The four grades the vocabulary wire accepts, with the FSRS-5 interval the
+/// spec expects for a new card.
+const vocabRatings = [
+    { rating: "again", label: "不认识", hint: "约 10 分钟" },
+    { rating: "hard", label: "模糊", hint: "约 30 分钟" },
+    { rating: "good", label: "认识", hint: "约 3 天" },
+    { rating: "easy", label: "很熟", hint: "约 16 天" },
+];
+const vocabStageLabels: Record<string, string> = {
+    new: "新词",
+    learning: "学习中",
+    review: "复习",
+};
+const vocabDecks = signal<VocabDeck[]>([]);
+const vocabDeck = signal(0);
+const vocabQueue = signal<VocabCard[]>([]);
+const vocabRemainingDue = signal(0);
+const vocabRemainingNew = signal(0);
+const vocabLoading = signal(true);
+const vocabReady = signal(false);
+const vocabBusy = signal(false);
+const vocabError = signal("");
+const vocabNotice = signal("");
+const vocabLive = signal(false);
+const vocabSource = signal("样例数据");
+const vocabSourceDetail = signal("窗口内样例");
+const vocabOperation = signal<VocabOperation | null>(null);
+const vocabRevealed = signal(false);
+
+function vocabDeckOf(id: number) {
+    return vocabDecks().find((deck) => deck.id === id);
+}
+function currentVocabCard() {
+    return vocabQueue()[0];
+}
+function vocabRatingLabel(rating: string) {
+    const entry = vocabRatings.find((item) => item.rating === rating);
+    return entry ? entry.label : rating;
+}
+function vocabStageLabel(stage: string) {
+    return vocabStageLabels[stage] ?? "复习";
+}
+function vocabFailureText(error: unknown) {
+    if (error && typeof error === "object" && "message" in error)
+        return String((error as { message: unknown }).message);
+    return String(error ?? "未知错误");
+}
+/// One user action keeps one operation id: a retry of the same click must not
+/// schedule the card twice, so the id is only minted when the click is new.
+function vocabOperationId(card: VocabCard, rating: string) {
+    const nonce = Math.random().toString(36).slice(2, 10);
+    return `vocab-rate-${card.cardId}-${rating}-${Date.now().toString(36)}-${nonce}`;
+}
+function vocabAnswer(raw: string) {
+    const result = JSON.parse(raw);
+    if (!result || result.ok !== true)
+        throw new Error(String(result?.error ?? "本机 Core 未返回结果"));
+    return result.value ?? {};
+}
+function mapVocabCard(wire: any): VocabCard {
+    return {
+        cardId: Number(wire.card_id),
+        term: String(wire.term ?? ""),
+        meaning: String(wire.meaning ?? ""),
+        example: String(wire.example ?? ""),
+        stage: String(wire.stage ?? "new"),
+    };
+}
+function mapVocabDeck(wire: any): VocabDeck {
+    return {
+        id: Number(wire.wordbook_id),
+        title: String(wire.title ?? "词书"),
+        total: Number(wire.total ?? 0),
+        due: Number(wire.due ?? 0),
+        new: Number(wire.new ?? 0),
+    };
+}
+/// The sidebar shows the book's own due/new counters, so a committed review
+/// asks the Core for them again instead of trusting the window's copy.
+async function refreshVocabDecks() {
+    if (!vocabLive()) return;
+    try {
+        const value = vocabAnswer(await VocabHost.decks());
+        const decks: VocabDeck[] = Array.isArray(value.decks)
+            ? value.decks.map(mapVocabDeck)
+            : [];
+        if (decks.length > 0) vocabDecks.set(decks);
+    } catch (_) {
+        // The review already went through; keep the last readable counters.
+    }
+}
+/// The fixture has no Core behind it, so one graded card lowers the same
+/// counter the deck row shows. Card stage decides which of due/new moves.
+function decrementVocabDeck(card: VocabCard) {
+    const id = vocabDeck();
+    vocabDecks.set(
+        vocabDecks().map((deck) => {
+            if (deck.id !== id) return deck;
+            if (card.stage === "new")
+                return { ...deck, new: Math.max(0, deck.new - 1) };
+            return { ...deck, due: Math.max(0, deck.due - 1) };
+        }),
+    );
+}
+function revealVocabAnswer() {
+    if (currentVocabCard()) vocabRevealed.set(true);
+}
+function loadVocabFixtureQueue(id: number) {
+    // Picking a sample wordbook starts its sample queue again, so the deck
+    // row and the remaining counters both come from the fixture cards.
+    const deck = vocabDecksFixture.find((item) => item.id === id);
+    const cards = vocabCardsFixture[id] ?? [];
+    vocabQueue.set(cards.map((card) => ({ ...card })));
+    vocabRevealed.set(false);
+    vocabRemainingDue.set(cards.filter((card) => card.stage !== "new").length);
+    vocabRemainingNew.set(cards.filter((card) => card.stage === "new").length);
+    if (deck)
+        vocabDecks.set(
+            vocabDecks().map((item) => (item.id === id ? { ...deck } : item)),
+        );
+    vocabLoading.set(false);
+    vocabBusy.set(false);
+    vocabReady.set(true);
+}
+/// Any failed Core read falls back to the window fixture. The header then says
+/// 样例数据 instead of 本机 Core and the reason stays visible.
+function useVocabFixture(reason: string) {
+    const previous = vocabDeck();
+    const sameDeck = vocabDecksFixture.find((deck) => deck.id === previous);
+    vocabLive.set(false);
+    vocabSource.set("样例数据");
+    vocabSourceDetail.set("窗口内样例");
+    vocabDecks.set(vocabDecksFixture);
+    vocabDeck.set(sameDeck ? sameDeck.id : 0);
+    vocabQueue.set([]);
+    vocabRevealed.set(false);
+    vocabRemainingDue.set(0);
+    vocabRemainingNew.set(0);
+    vocabOperation.set(null);
+    vocabError.set(reason);
+    vocabNotice.set("");
+    vocabLoading.set(false);
+    vocabBusy.set(false);
+    vocabReady.set(true);
+    if (sameDeck) loadVocabFixtureQueue(sameDeck.id);
+}
+async function loadVocabDecks(retrying = false) {
+    vocabLoading.set(true);
+    try {
+        const value = vocabAnswer(await VocabHost.decks());
+        const decks: VocabDeck[] = Array.isArray(value.decks)
+            ? value.decks.map(mapVocabDeck)
+            : [];
+        if (decks.length === 0) throw new Error("词书列表为空");
+        vocabDecks.set(decks);
+        vocabLive.set(true);
+        vocabSource.set("本机 Core");
+        vocabSourceDetail.set("由 vocab 插件读取");
+        vocabDeck.set(0);
+        vocabQueue.set([]);
+        vocabRevealed.set(false);
+        vocabRemainingDue.set(0);
+        vocabRemainingNew.set(0);
+        vocabError.set("");
+    } catch (_) {
+        // Headless tests and a plain development host have no native module:
+        // the fixture stays and the header names it as a sample.
+        vocabDecks.set(vocabDecksFixture);
+        vocabLive.set(false);
+        vocabSource.set("样例数据");
+        vocabSourceDetail.set("窗口内样例");
+        vocabDeck.set(0);
+        vocabQueue.set([]);
+        vocabRevealed.set(false);
+        vocabRemainingDue.set(0);
+        vocabRemainingNew.set(0);
+        vocabError.set(
+            retrying ? "仍读不到本机 Core，继续使用样例数据。" : "",
+        );
+    }
+    vocabLoading.set(false);
+    vocabReady.set(true);
+}
+function retryVocabDecks() {
+    vocabError.set("");
+    vocabLoading.set(true);
+    void loadVocabDecks(true);
+}
+async function loadVocabQueue(id: number) {
+    try {
+        const value = vocabAnswer(await VocabHost.queue(id, 6));
+        const cards: VocabCard[] = Array.isArray(value.cards)
+            ? value.cards.map(mapVocabCard)
+            : [];
+        vocabQueue.set(cards);
+        vocabRevealed.set(false);
+        vocabRemainingDue.set(Number(value.remaining_due ?? 0));
+        vocabRemainingNew.set(Number(value.remaining_new ?? 0));
+        vocabError.set("");
+    } catch (error) {
+        useVocabFixture(
+            `复习队列读取失败（${vocabFailureText(error)}），已回退样例数据。`,
+        );
+    }
+}
+function selectVocabDeck(id: number) {
+    vocabDeck.set(id);
+    vocabQueue.set([]);
+    vocabRevealed.set(false);
+    vocabNotice.set("");
+    vocabError.set("");
+    vocabOperation.set(null);
+    vocabLoading.set(true);
+    vocabBusy.set(true);
+    if (vocabLive()) {
+        void (async () => {
+            await loadVocabQueue(id);
+            vocabLoading.set(false);
+            vocabBusy.set(false);
+        })();
+        return;
+    }
+    loadVocabFixtureQueue(id);
+}
+function vocabScheduledText(minutes: number) {
+    if (!Number.isFinite(minutes) || minutes <= 0) return "稍后";
+    if (minutes < 60) return `${Math.round(minutes)} 分钟后`;
+    if (minutes < 1440) return `${Math.round(minutes / 60)} 小时后`;
+    return `${(minutes / 1440).toFixed(1)} 天后`;
+}
+async function gradeVocabCard(rating: string) {
+    const card = vocabQueue()[0];
+    // A grade is a self-assessment of a shown answer: the answer has to be
+    // visible first, so a stray digit cannot rate a card the user never saw.
+    if (!card || vocabBusy() || !vocabRevealed()) return;
+    if (!vocabLive()) {
+        vocabQueue.set(vocabQueue().filter((item) => item.cardId !== card.cardId));
+        if (card.stage === "new")
+            vocabRemainingNew.set(Math.max(0, vocabRemainingNew() - 1));
+        else vocabRemainingDue.set(Math.max(0, vocabRemainingDue() - 1));
+        decrementVocabDeck(card);
+        vocabRevealed.set(false);
+        vocabOperation.set(null);
+        vocabError.set("");
+        vocabNotice.set(
+            `已记录：${vocabRatingLabel(rating)} · 样例队列不写入 Core`,
+        );
+        return;
+    }
+    const previous = vocabOperation();
+    const reuse =
+        !!previous &&
+        previous.cardId === card.cardId &&
+        previous.rating === rating;
+    const operation: VocabOperation =
+        reuse && previous
+            ? { ...previous, attempts: previous.attempts + 1 }
+            : {
+                  cardId: card.cardId,
+                  rating,
+                  id: vocabOperationId(card, rating),
+                  attempts: 1,
+              };
+    vocabOperation.set(operation);
+    vocabBusy.set(true);
+    vocabError.set("");
+    vocabNotice.set("");
+    let failure = "";
+    try {
+        const value = vocabAnswer(
+            await VocabHost.review(card.cardId, rating, operation.id),
+        );
+        vocabOperation.set(null);
+        vocabRemainingDue.set(Number(value.remaining_due ?? vocabRemainingDue()));
+        vocabRemainingNew.set(Number(value.remaining_new ?? vocabRemainingNew()));
+        vocabQueue.set(vocabQueue().filter((item) => item.cardId !== card.cardId));
+        vocabRevealed.set(false);
+        vocabNotice.set(
+            `已记录：${vocabRatingLabel(rating)} · 下次 ${vocabScheduledText(
+                Number(value.scheduled_minutes ?? 0),
+            )}`,
+        );
+        await refreshVocabDecks();
+        await loadVocabQueue(vocabDeck());
+    } catch (error) {
+        failure = vocabFailureText(error);
+    } finally {
+        vocabBusy.set(false);
+    }
+    if (!failure) return;
+    if (operation.attempts >= 2) {
+        useVocabFixture(
+            `评分未能写入本机 Core（${failure}），已回退样例数据。`,
+        );
+        return;
+    }
+    vocabError.set(`评分未保存：${failure}`);
+    vocabNotice.set("重试会复用同一次评分的操作编号，不会重复安排这张卡。");
+}
+function retryVocabReview() {
+    const operation = vocabOperation();
+    if (!operation) {
+        vocabError.set("");
+        return;
+    }
+    void gradeVocabCard(operation.rating);
+}
+let vocabBooted = false;
+function bootVocabWorkspace() {
+    if (vocabBooted) return;
+    vocabBooted = true;
+    setTimeout(() => void loadVocabDecks(), 0);
+}
+async function settleVocab() {
+    for (let attempt = 0; attempt < 60 && vocabBusy(); attempt += 1)
+        await new Promise((resolve) => setTimeout(resolve, 100));
+}
+/// Evidence-only, driven by App when the host was started with
+/// QUSOR_WORKBENCH_EVIDENCE and the launcher asked for the vocabulary target.
+export async function captureVocabEvidence() {
+    let dir = "";
+    try {
+        const result = JSON.parse(await VocabHost.evidence());
+        if (!result.ok || !result.value?.active) return;
+        if (String(result.value.target ?? "") !== "vocab") return;
+        dir = result.value.dir;
+    } catch (_) {
+        return;
+    }
+    if (!dir) return;
+    for (let attempt = 0; attempt < 40 && !vocabReady(); attempt += 1)
+        await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await VocabHost.capture(`${dir}/decks.png`);
+    const deck = vocabDecks()[0];
+    if (!deck) return;
+    selectVocabDeck(deck.id);
+    for (let attempt = 0; attempt < 40 && !currentVocabCard(); attempt += 1)
+        await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await VocabHost.capture(`${dir}/study.png`);
+    if (!currentVocabCard()) return;
+    revealVocabAnswer();
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await VocabHost.capture(`${dir}/revealed.png`);
+    await gradeVocabCard("good");
+    await settleVocab();
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await VocabHost.capture(`${dir}/reviewed.png`);
+    for (let round = 0; round < 40 && currentVocabCard(); round += 1) {
+        revealVocabAnswer();
+        await gradeVocabCard("good");
+        await settleVocab();
+    }
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await VocabHost.capture(`${dir}/done.png`);
+}
+
+function VocabDeckRow(props: { deck: VocabDeck; compact: boolean }) {
+    const selected = () => vocabDeck() === props.deck.id;
+    return (
+        <Button
+            accessibilityLabel={`选择词书 ${props.deck.title}`}
+            onPress={() => selectVocabDeck(props.deck.id)}
+            style={{
+                height: 44,
+                paddingHorizontal: 10,
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 8,
+                borderRadius: 7,
+                borderCurve: "continuous",
+                backgroundColor: ink(
+                    selected() ? "surface-selected" : "transparent",
+                ),
+            }}
+            hoverStyle={{ backgroundColor: ink("surface-hover") }}
+            activeStyle={{ backgroundColor: ink("surface-pressed") }}
+            focusStyle={focus()}
+        >
+            <Glyph
+                name="book"
+                size={15}
+                color={ink(selected() ? "text-accent" : "text-secondary")}
+            />
+            <View style={{ gap: 1, minWidth: 0 }}>
+                <Copy size={props.compact ? 12 : 13}>
+                    {props.deck.title}
+                </Copy>
+                <Copy size={11} muted>
+                    {`共 ${props.deck.total} · 待复习 ${props.deck.due} · 新词 ${props.deck.new}`}
+                </Copy>
+            </View>
+        </Button>
+    );
+}
+
+function VocabDeckList(props: { compact: boolean }) {
+    return (
+        <View
+            accessibilityLabel="背单词词书导航"
+            style={{
+                width: props.compact ? "100%" : 214,
+                flexShrink: 0,
+                borderRightWidth: props.compact ? 0 : 1,
+                borderBottomWidth: props.compact ? 1 : 0,
+                borderColor: ink("border-subtle"),
+                backgroundColor: ink("surface-toolbar"),
+            }}
+        >
+            <If when={!props.compact}>
+                <View
+                    style={{
+                        height: 48,
+                        paddingHorizontal: 14,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 9,
+                    }}
+                >
+                    <Badge icon="book" size={28} tone="surface-accent" />
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                        <Copy strong>背单词</Copy>
+                        <Copy size={11} muted>
+                            {vocabSourceDetail()}
+                        </Copy>
+                    </View>
+                    <Copy size={11} muted>
+                        {`${vocabDecks().length} 本词书`}
+                    </Copy>
+                </View>
+                <Rule />
+            </If>
+            <If when={vocabDecks().length === 0}>
+                <View style={{ paddingHorizontal: 14, paddingVertical: 10 }}>
+                    <Copy size={11} muted>
+                        正在读取词书…
+                    </Copy>
+                </View>
+            </If>
+            <If when={props.compact}>
+                <View
+                    style={{
+                        paddingHorizontal: 10,
+                        paddingVertical: 8,
+                        gap: 6,
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                    }}
+                >
+                    <Each
+                        of={vocabDecks()}
+                        key={(deck) => `vocab-deck-compact-${deck.id}`}
+                    >
+                        {(deck) => (
+                            <VocabDeckRow deck={deck()} compact={true} />
+                        )}
+                    </Each>
+                </View>
+            </If>
+            <If when={!props.compact}>
+                <Scroll style={{ flex: 1 }}>
+                    <View style={{ padding: 10, gap: 3 }}>
+                        <Each of={vocabDecks()} key={(deck) => `vocab-deck-${deck.id}`}>
+                            {(deck) => (
+                                <VocabDeckRow deck={deck()} compact={false} />
+                            )}
+                        </Each>
+                    </View>
+                </Scroll>
+                <Rule />
+                <View style={{ padding: 13 }}>
+                    <Copy size={11} muted lines={2}>
+                        评分由 FSRS-5 安排下次复习 · 卸载插件后学习数据仍在 Core
+                    </Copy>
+                </View>
+            </If>
+        </View>
+    );
+}
+
+function VocabDeckPlaceholder() {
+    return (
+        <View
+            style={{
+                flexGrow: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                paddingVertical: 40,
+            }}
+        >
+            <Badge icon="book" size={52} tone="surface-accent" />
+            <Copy size={20} strong>
+                选择一本词书
+            </Copy>
+            <Copy muted>
+                {`共 ${vocabDecks().length} 本词书 · 来源：${vocabSource()}`}
+            </Copy>
+            <Copy size={11} muted>
+                先清到期复习，再按今日新词预算学习
+            </Copy>
+        </View>
+    );
+}
+
+function VocabDoneState() {
+    return (
+        <View
+            style={{
+                flexGrow: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                paddingVertical: 40,
+            }}
+        >
+            <Badge icon="clock" size={52} tone="surface-accent" />
+            <Copy size={22} strong>
+                今天完成
+            </Copy>
+            <Copy muted>这本词书的队列已经清空，明天再来；不会自动扩大新词预算。</Copy>
+            <Copy size={11} muted>
+                {`来源：${vocabSource()}`}
+            </Copy>
+        </View>
+    );
+}
+
+function VocabCardView(props: { compact: boolean }) {
+    return (
+        <View
+            accessibilityLabel={`学习卡片 ${currentVocabCard()!.term}`}
+            style={{
+                alignSelf: "center",
+                width: "100%",
+                maxWidth: 720,
+                padding: props.compact ? 20 : 26,
+                gap: 14,
+                borderWidth: 1,
+                borderColor: ink("border-subtle"),
+                borderRadius: 12,
+                borderCurve: "continuous",
+                backgroundColor: ink("surface-preview"),
+            }}
+        >
+            <View
+                style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 8,
+                }}
+            >
+                <Badge icon="book" size={26} />
+                <Copy size={11} muted strong>
+                    {vocabStageLabel(currentVocabCard()!.stage)}
+                </Copy>
+                <View style={{ flex: 1 }} />
+                <Copy size={11} muted>
+                    {`队列 ${vocabQueue().length} 张`}
+                </Copy>
+            </View>
+            <Copy size={props.compact ? 32 : 40} strong>
+                {currentVocabCard()!.term}
+            </Copy>
+            <If when={!vocabRevealed()}>
+                <Copy size={13} muted>
+                    先回想这个词的意思，再显示答案。
+                </Copy>
+                <Copy size={11} muted>
+                    释义、例句与四档评分在显示答案后出现。
+                </Copy>
+            </If>
+            <If when={vocabRevealed()}>
+                <Copy size={17}>{currentVocabCard()!.meaning}</Copy>
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                    <View
+                        style={{
+                            width: 3,
+                            borderRadius: 2,
+                            backgroundColor: ink("border-control"),
+                        }}
+                    />
+                    <View style={{ flex: 1 }}>
+                        <Copy size={14} muted lines={3}>
+                            {currentVocabCard()!.example}
+                        </Copy>
+                    </View>
+                </View>
+            </If>
+        </View>
+    );
+}
+
+function VocabActionBar(props: { compact: boolean }) {
+    return (
+        <View style={{ flexShrink: 0 }}>
+            <Rule />
+            <If when={!vocabRevealed()}>
+                <View
+                    style={{
+                        paddingHorizontal: props.compact ? 16 : 22,
+                        paddingVertical: 12,
+                        gap: 8,
+                        backgroundColor: ink("surface-toolbar"),
+                    }}
+                >
+                    <Button
+                        accessibilityLabel="显示答案"
+                        onPress={revealVocabAnswer}
+                        style={{
+                            height: props.compact ? 40 : 44,
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderRadius: 8,
+                            borderCurve: "continuous",
+                            backgroundColor: ink("surface-accent"),
+                            borderWidth: 1,
+                            borderColor: ink("border-control"),
+                        }}
+                        hoverStyle={{ backgroundColor: ink("surface-hover") }}
+                        activeStyle={{ backgroundColor: ink("surface-pressed") }}
+                        focusStyle={focus()}
+                    >
+                        <Copy size={14} strong>
+                            显示答案
+                        </Copy>
+                    </Button>
+                    <Copy size={11} muted>
+                        空格或回车显示答案；只看词条，先自己回想
+                    </Copy>
+                </View>
+            </If>
+            <If when={vocabRevealed()}>
+                <View
+                    style={{
+                        paddingHorizontal: props.compact ? 16 : 22,
+                        paddingVertical: 12,
+                        gap: 8,
+                        backgroundColor: ink("surface-toolbar"),
+                    }}
+                >
+                    <View style={{ flexDirection: "row", gap: 8 }}>
+                        <Each of={vocabRatings}>
+                            {(rating) => (
+                                <Button
+                                    accessibilityLabel={rating().label}
+                                    disabled={vocabBusy()}
+                                    onPress={() =>
+                                        void gradeVocabCard(rating().rating)
+                                    }
+                                    style={{
+                                        flex: 1,
+                                        height: props.compact ? 40 : 44,
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        gap: 1,
+                                        borderRadius: 8,
+                                        borderCurve: "continuous",
+                                        backgroundColor: ink("surface-control"),
+                                        borderWidth: 1,
+                                        borderColor: ink("border-subtle"),
+                                        opacity: vocabBusy() ? 0.4 : 1,
+                                    }}
+                                    hoverStyle={{
+                                        backgroundColor: ink("surface-hover"),
+                                        borderColor: ink("border-control"),
+                                    }}
+                                    activeStyle={{
+                                        backgroundColor: ink("surface-pressed"),
+                                    }}
+                                    focusStyle={focus()}
+                                >
+                                    <Copy size={13} strong>
+                                        {rating().label}
+                                    </Copy>
+                                    <Copy size={10} muted>
+                                        {rating().hint}
+                                    </Copy>
+                                </Button>
+                            )}
+                        </Each>
+                    </View>
+                    <Copy size={11} muted>
+                        {vocabLive()
+                            ? "评分写入本机 Core · 数字键 1–4"
+                            : "样例数据不写入 Core · 数字键 1–4"}
+                    </Copy>
+                </View>
+            </If>
+        </View>
+    );
+}
+
+function VocabStudy(props: { compact: boolean }) {
+    return (
+        <View style={{ flex: 1, minWidth: 0 }}>
+            <View
+                style={{
+                    height: props.compact ? 52 : 58,
+                    paddingHorizontal: props.compact ? 16 : 22,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 12,
+                    backgroundColor: ink("surface-base"),
+                }}
+            >
+                <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                    <Copy strong>
+                        {vocabDeckOf(vocabDeck())?.title ?? "背单词"}
+                    </Copy>
+                    <Copy size={11} muted>
+                        {`${vocabSource()} · ${vocabSourceDetail()}`}
+                    </Copy>
+                </View>
+                <View style={{ alignItems: "flex-end", gap: 1 }}>
+                    <Copy size={11} muted>
+                        {`待复习 ${vocabRemainingDue()}`}
+                    </Copy>
+                    <Copy size={11} muted>
+                        {`今日新词 ${vocabRemainingNew()}`}
+                    </Copy>
+                </View>
+            </View>
+            <Rule />
+            <Scroll style={{ flex: 1 }} contentStyle={{ flexGrow: 1 }}>
+                <View
+                    style={{
+                        flexGrow: 1,
+                        justifyContent: "center",
+                        padding: props.compact ? 18 : 26,
+                        gap: 14,
+                    }}
+                >
+                    <If when={!!vocabError()}>
+                        <View
+                            style={{
+                                alignSelf: "center",
+                                width: "100%",
+                                maxWidth: 720,
+                                padding: 12,
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: 9,
+                                borderWidth: 1,
+                                borderColor: ink("border-subtle"),
+                                borderRadius: 9,
+                                borderCurve: "continuous",
+                                backgroundColor: ink("surface-inset"),
+                            }}
+                        >
+                            <Glyph
+                                name="info"
+                                size={16}
+                                color={ink("text-accent")}
+                            />
+                            <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                                <Copy size={12} lines={2}>
+                                    {vocabError()}
+                                </Copy>
+                                <If when={!!vocabOperation()}>
+                                    <Copy size={11} muted>
+                                        重试复用同一次评分的操作编号。
+                                    </Copy>
+                                </If>
+                            </View>
+                            <If when={!!vocabOperation()}>
+                                <TextButton
+                                    label="重试评分"
+                                    size="compact"
+                                    filled
+                                    onPress={retryVocabReview}
+                                />
+                            </If>
+                            <If when={!vocabOperation()}>
+                                <TextButton
+                                    label="重试读取"
+                                    size="compact"
+                                    filled
+                                    onPress={retryVocabDecks}
+                                />
+                            </If>
+                        </View>
+                    </If>
+                    <If when={vocabLoading()}>
+                        <View
+                            style={{
+                                flexGrow: 1,
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 8,
+                                paddingVertical: 40,
+                            }}
+                        >
+                            <Copy muted>正在读取学习队列…</Copy>
+                        </View>
+                    </If>
+                    <If when={!vocabLoading() && !vocabDeckOf(vocabDeck())}>
+                        <VocabDeckPlaceholder />
+                    </If>
+                    <If
+                        when={
+                            !vocabLoading() &&
+                            !!vocabDeckOf(vocabDeck()) &&
+                            !currentVocabCard()
+                        }
+                    >
+                        <VocabDoneState />
+                    </If>
+                    <If
+                        when={
+                            !vocabLoading() &&
+                            !!vocabDeckOf(vocabDeck()) &&
+                            !!currentVocabCard()
+                        }
+                    >
+                        <VocabCardView compact={props.compact} />
+                    </If>
+                    <If when={!!vocabNotice()}>
+                        <View
+                            style={{
+                                alignSelf: "center",
+                                width: "100%",
+                                maxWidth: 720,
+                            }}
+                        >
+                            <Copy size={11} muted>
+                                {vocabNotice()}
+                            </Copy>
+                        </View>
+                    </If>
+                </View>
+            </Scroll>
+            <If when={!vocabLoading() && !!currentVocabCard()}>
+                <VocabActionBar compact={props.compact} />
+            </If>
+        </View>
+    );
+}
+
+function VocabWorkspace(props: { compact: boolean }) {
+    bootVocabWorkspace();
+    keymap.bind({
+        space: () => revealVocabAnswer(),
+        enter: () => revealVocabAnswer(),
+        "1": () => void gradeVocabCard("again"),
+        "2": () => void gradeVocabCard("hard"),
+        "3": () => void gradeVocabCard("good"),
+        "4": () => void gradeVocabCard("easy"),
+    });
+    return (
+        <View
+            accessibilityLabel="背单词插件工作区"
+            style={{
+                flex: 1,
+                minWidth: 0,
+                flexDirection: props.compact ? "column" : "row",
+                backgroundColor: ink("surface-base"),
+            }}
+        >
+            <VocabDeckList compact={props.compact} />
+            <VocabStudy compact={props.compact} />
+        </View>
+    );
+}
+
 export const entries: Entry[] = [
     {
         id: "note",
@@ -1969,5 +2905,13 @@ export const pluginWorkspaces: PluginWorkspace[] = [
         icon: "book",
         description: "书库、阅读和工具由插件组织",
         render: (props) => <ReadingWorkspace compact={props.compact} />,
+    },
+    {
+        id: "fixture.vocab",
+        title: "背单词",
+        kind: "插件工作区样例",
+        icon: "book",
+        description: "词书、复习安排与四档评分",
+        render: (props) => <VocabWorkspace compact={props.compact} />,
     },
 ];

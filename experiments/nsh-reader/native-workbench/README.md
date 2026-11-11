@@ -1,6 +1,6 @@
 # Native workbench · UI craft study
 
-2026-11-09，关联 F-UX-01/02、F-EXT-01/03、M-1；承接 [外壳布局](../../../docs/design/shell-layout.md)。这是独立的 NSH 原生交互样例，使用自写内容，不连接 Core、Agent、网络或真实插件安装器。所有状态只留在窗口内。
+2026-11-09，关联 F-UX-01/02、F-EXT-01/03、M-1；承接 [外壳布局](../../../docs/design/shell-layout.md)。这是独立的 NSH 原生交互样例。外壳与多数 fixture 仍是窗口内自写内容；想法与背单词两个工作区在 `prepare.py` 注入普通签名包与数据目录时可改为真实 SQLite Core（未经安装器、无网络）。未注入宿主时自动回退窗口内样例并标注来源。
 
 导航层级修正见[设计规格](../../../docs/design/navigation-hierarchy.md)和[本轮记录](../evidence/native-navigation-hierarchy/README.md)：宿主顶部保留唯一的“导航”开关、所属工作区与插件身份；空间入口和当前工作区内容共享一个导航区；完整插件的外层返回明确显示来源，并恢复进入前对象与布局。阅读内部“书架 / 书库导航”不再与宿主显隐控件同形无字。
 
@@ -52,6 +52,23 @@ cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offli
 headless 模块测试证明普通包 + 公开 wire + 真实 Core 的分页/正文；`prepare.py --evidence` 会在应用进程内把真实 `NSWindow` 渲染成 PNG（不依赖屏幕录制授权），自动进入想法工作区并截取列表/详情/截断/完整正文。同一 Core 重启后截图逐字节相同，构成实窗与恢复证据；详见[实窗记录](../evidence/notes-workspace-live/README.md) 与 [原生桥记录](../evidence/notes-workbench-bridge/README.md)。
 
 按钮与文本动作统一走 `ui.tsx` 的 `control()` 刻度（28/30/34），搜索框 32，菜单项 30；引文强调线用独立 3pt View，避免固定 NSH 的 macOS 开发宿主把 `borderLeftWidth` 画成横线。
+
+## 背单词工作区（2026-11-11）
+
+新增 `fixture.vocab` 插件工作区（title「背单词」）：词书导航（两本合成词书）、先回想后揭晓的学习卡、四档评分（不认识/模糊/认识/很熟，显示 FSRS 安排区间）、待复习/今日新词计数与「今天完成」。UI 与想法工作区共用同一外壳、语义 token 与控件刻度；900×680 用顶部词书条替代侧栏。
+
+数据有两种来源并始终标注：headless / 普通开发宿主使用窗口内 fixture（“样例数据”）；`prepare.py` 注入 `QUSOR_VOCAB_*` 后，宿主验证普通签名 `plugins/vocab` 包、建立 0.5 session，经 `VocabHost.decks/queue/review` 读取真实 SQLite Core（“本机 Core”）。评分操作编号由 UI 生成并在同一次点击重试时复用，失败两次才回退 fixture。
+
+验证：`nsh check App.tsx`、`nsh test tests/vocab-workspace.test.tsx`（10 项）、`nsh test tests/notes-workspace.test.tsx`（6 项回归）、`cargo test --manifest-path ../native-host/Cargo.toml --offline --test vocab_native`（1 项真实 Core 模块测试）；`prepare.py --size 1280x820 --evidence vocab` 生成五张应用内实窗渲染，并在同一 Core 重启后补两张恢复图。记录见[背单词工作区实窗](../evidence/vocab-workspace-live/README.md)。
+
+```sh
+python3 experiments/nsh-reader/native-workbench/prepare.py --size 1280x820 --evidence vocab
+cd experiments/nsh-reader/native-workbench
+../target/nsh/target/debug/nsh check App.tsx
+../target/nsh/target/debug/nsh test tests/vocab-workspace.test.tsx
+```
+
+注：本目录补了根 `tsconfig.json`（`extends ./.nsh/tsconfig.json`），否则固定 NSH CLI 的 `nsh check` 会因缺 tsconfig 失败；顺带修正了想法工作区既有 `note.full` 的严格类型错误。
 
 ## 复现
 

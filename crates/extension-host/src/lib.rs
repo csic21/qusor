@@ -25,6 +25,7 @@ mod durable_surface;
 pub mod notes;
 pub mod platform;
 pub mod surface;
+pub mod vocab;
 
 const MAX_INSTALLATIONS: usize = 256;
 const MAX_SESSIONS: usize = 1024;

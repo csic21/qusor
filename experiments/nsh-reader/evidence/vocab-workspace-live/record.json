@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-11",
+  "platform": "macOS arm64",
+  "run": "prepare.py --size 1280x820 --evidence vocab",
+  "captures": {
+    "decks.png": "c1464b7c514cbbc36e7957d272487dd09a7ef680399a0e978f633be5b1d9b075",
+    "done.png": "c78eaed473ebf86588ce4ce3cebe5b32343d481e6b62c0b7ae1f84aebc55ec7e",
+    "restart-decks.png": "e435957a2cb16eea3104f60a14e1607b27ff038d41f89f64395b25cf7d3a22b5",
+    "restart-done.png": "6186092ba25dd31b8541a4a3965a95b24fc1c77587e1b7424638d53b5a019e27",
+    "revealed.png": "3ac431cf8e3ef7ca55c21040bc1ecfde80c16cf06a85e48cc37ab9322ead9128",
+    "reviewed.png": "751575926d6986e22a79059ac1390358127c48027d0859298ddf0f8b17ded628",
+    "study.png": "be45fc21ec658bd5c15a26b523d253f68de3cd22ee236e5cd240e6dac9d873e0"
+  },
+  "app": {
+    "bundle_tree_sha256": "5ed5620d110af6a2a314259e8ffeba77651863e1d5649c759a22fd45dcceef0f",
+    "host_sha256": "0e03fe62e9c0f406e7305923693842efe16fd46a78a8b1b880ca513ac8bb68a4",
+    "vocab_package_sha256": "4ce99011b45ce6c01b158e236762ea3d4465a2dd050e590b77be8e0284dd0823",
+    "vocab_publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
+    "vocab_seed": {
+      "decks": [
+        {
+          "due": 0,
+          "new": 3,
+          "title": "CET-4 示例",
+          "total": 3,
+          "wordbook_id": 1
+        },
+        {
+          "due": 0,
+          "new": 2,
+          "title": "QUSOR 术语",
+          "total": 2,
+          "wordbook_id": 2
+        }
+      ],
+      "vault": "workbench-vault",
+      "wordbooks": [
+        {
+          "cards": 3,
+          "title": "CET-4 示例",
+          "wordbook_id": 1
+        },
+        {
+          "cards": 2,
+          "title": "QUSOR 术语",
+          "wordbook_id": 2
+        }
+      ]
+    },
+    "evidence_target": "vocab"
+  },
+  "restart": {
+    "captures": [
+      "restart-decks.png",
+      "restart-done.png"
+    ],
+    "state": "same Core, app relaunched without reseeding; CET-4 shows 0 due / 0 new and the queue is empty"
+  },
+  "tests": {
+    "vendor_module": "cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offline --test vocab_native (1 passed)",
+    "headless_ui": "nsh test tests/vocab-workspace.test.tsx (10 passed)",
+    "notes_regression": "nsh test tests/notes-workspace.test.tsx (6 passed)",
+    "typecheck": "nsh check App.tsx (exit 0)"
+  },
+  "not_verified": [
+    "review failure retry/fallback banner in the live window",
+    "dark appearance, IME/assistive technology and non-macOS platforms",
+    "production install/authority UI and publisher key management"
+  ],
+  "source_hashes": {
+    "experiments/nsh-reader/native-host/vocab_native.rs": "e201e68df81c477f68e8992e574e83addb00eaf068219e7f8fc8ddb99ec954ad",
+    "experiments/nsh-reader/native-host/tests/vocab_native.rs": "42313213a814dac0ff4b3d4a671387ce25f8ebc61960ae44719731f33eea8dfa",
+    "experiments/nsh-reader/native-workbench/contributions.tsx": "9d02eb19ae9576f6c5a488cd7ebb19c2c88f4169cc7a295ea8706c9d3e97522b",
+    "experiments/nsh-reader/native-workbench/App.tsx": "441876d30fda4f79dd83e48cbd2de21faa7badd55a449eae15bf4766d1810cf9",
+    "experiments/nsh-reader/native-workbench/prepare.py": "ba2ec515f40d7b42c535a1d504f733d825f85575f7090082addf23e427a0d6f6",
+    "experiments/nsh-reader/native-workbench/tsconfig.json": "9a30b492d5c8bcf444243e40dcea00f45918c80f85af34258386c83b152d8a74",
+    "experiments/nsh-reader/native-workbench/tests/vocab-workspace.test.tsx": "a5cc31dc57ba8c4275297ba890c7f1792c8368940378fc8acda9a6c23d85911e",
+    "docs/design/vocab-workspace.md": "6c2e7a6f1cc8223405bb924b2cf44d5c380e5c387ddf177821e72ec1dc9acf5f"
+  }
+}

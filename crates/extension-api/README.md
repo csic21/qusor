@@ -28,6 +28,9 @@ manifest 的 required/optional 能力列表不能重复或相交。贡献需要�
 | `document.metadata.read` | Document、Vault | 评估资料元数据读取是否被策略允许 |
 | `capture.propose` | Vault | 评估提出捕获候选是否被策略允许 |
 | `reader.surface` | 仅0.2精确Document | 受控原生呈现；不自动授予选区、原始文件或数据出站权限 |
+| `notes.read` | 仅0.4的Vault | 有界想法分页/正文块读取；范围由Host绑定，不授予写入 |
+| `vocab.read` | 仅0.5的Vault | 有界词书/学习队列读取；不授予复习写入 |
+| `vocab.review` | 仅0.5的Vault | 提交一次有幂等operation id的评分；不授予整库写入 |
 
 这些授权查询不返回真实知识内容，也不提交业务副作用。`capture.propose` 不能替代正式知识写入所需的审核、事务和审计。
 
@@ -43,7 +46,7 @@ manifest 的 required/optional 能力列表不能重复或相交。贡献需要�
 | title | 非空白、无 Unicode 控制字符，最多 256 UTF-8 bytes |
 | error message | 非空白、无 Unicode 控制字符，最多 512 UTF-8 bytes |
 | contribution 数量 | 每 manifest 最多 64 项 |
-| 每份能力列表 | 最多4项且不重复；旧0.1仍只可表达原三种能力 |
+| 每份能力列表 | 最多6项且不重复；旧0.1仍只可表达原三种能力 |
 
 opaque ID 不解释为文件路径或 URL；真实资源存在性与归属由后续受信任能力适配器核验，当前宿主只检查库绑定与授权资源标识，不读取真实资源。字符串不执行隐式大小写转换或 Unicode 归一化。
 
@@ -82,6 +85,10 @@ Draft请求至多64KiB、每文本块512bytes、完整响应4KiB、单想法文�
 ## 显式0.4想法读取（实施切片）
 
 新增 [0.4策略schema](schema/policy-v0.4.schema.json)、`notes.read` 能力与 `notes_workspace` 贡献类型；0.4是独立词表，旧0.1–0.3不变，能力上限由5提到6。`notes` 模块提供 `notes-query-v1`：有界分页（≤6条/页、标题与预览≤96 bytes）与正文分块（4–2048 bytes），整响应≤4 KiB；请求不自报 vault，由Host绑定精确授权。见 [ADR 0035](../../docs/architecture/adr/0035-notes-read-capability.md)。wire通过不等于可信后端、普通包或真实窗口已接通。
+
+## 显式0.4想法读取后的0.5词汇学习（实施切片）
+
+新增 [0.5策略schema](schema/policy-v0.5.schema.json)、`vocab.read`/`vocab.review` 能力与 `vocab_workspace` 贡献类型；0.5是独立词表，不继承0.1–0.4，旧版本语义与测试保持不变。`vocab` 模块提供 `vocab-study-v1`：词书列表（≤6本）、学习队列（≤6张/页，词条/释义/例句分别≤64/96/160 bytes）与一次评分提交；整响应≤4 KiB，请求不自报vault，由Host绑定精确授权。评分的 `request_id` 同时是Core幂等键：重复同一评分返回原结果，换卡片或评分报冲突。见 [ADR 0036](../../docs/architecture/adr/0036-vocabulary-study-capability.md)。wire通过不等于可信后端、普通包、真实SQLite或原生工作区已接通。
 
 ## 只读段落投影（实施切片）
 

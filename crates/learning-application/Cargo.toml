@@ -9,6 +9,7 @@ repository.workspace = true
 
 [dependencies]
 core-api = { path = "../core-api" }
+learning-domain = { path = "../learning-domain" }
 learning-ports = { path = "../learning-ports" }
 serde_json = "=1.0.149"
 

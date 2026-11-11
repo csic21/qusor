@@ -6,6 +6,8 @@
 
 2026-11-08 增量：本实验现有 schema2 PDF 原件与混合知识资格实现，见 [PDF 本机记录](PDF_RESULTS.md)。完整复现为 `python3 experiments/capture-core/validate_pdf.py`，需先按 [原生 PDF provider](../pdf-provider/README.md) 准备固定运行库。原 C0 文本接口仍兼容；混合资料库应使用 `export-all/restore-all`，旧 `export` 明确拒绝漏掉 PDF。以下保留最初文本 profile 的说明。
 
+2026-11-11 增量：词汇学习普通包切片。`vocab_bridge` 把公开 `vocab-study-v1` 映射到 `StudyApplication`，`tests/vocab_package.rs` 用仓库外构建的 `plugins/vocab` 普通签名包在 Host 0.5 下依次请求词书/队列/评分，并读写真实 SQLite Core；只读包在评分处被拒绝。见 [词汇包记录](evidence/vocab-package/README.md) 与 [ADR 0036](../../docs/architecture/adr/0036-vocabulary-study-capability.md)。本切片不包含原生工作区 UI。
+
 关联 F-EXT-01/02/03/05/06、F-SRC-01、F-DATA-01；规格见 [捕获资格切片](../../docs/product/capture-qualification.md)，决定见 [ADR 0013](../../docs/architecture/adr/0013-capture-core-qualification.md)。独立 Workspace；原始C0轮次不接生产Core或NSH。随后知识用例与SQL/CAS按ADR0019生产落位，实验门面直接消费同一实现，仍未接NSH阅读旅程。
 
 普通签名插件在受限 Wasm 中提交真实文本；宿主预览后按指定草稿 hash 接受用户意图，Core 保存不可变 UTF-8 blob、来源、锚点、用户备注及事务凭据。插件仅提案，不能直接访问 SQLite，也不能在 JSON 中声明批准。来源没有服务名分支。

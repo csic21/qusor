@@ -9,3 +9,4 @@ pub mod notes_bridge;
 pub mod pdf_compound;
 pub mod pdf_contract;
 pub mod pdf_host;
+pub mod vocab_bridge;

@@ -428,6 +428,7 @@ name = "learning-application"
 version = "0.0.0"
 dependencies = [
  "core-api",
+ "learning-domain",
  "learning-ports",
  "serde_json",
 ]

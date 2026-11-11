@@ -1,6 +1,6 @@
 # 功能插件
 
-当前尚无正式功能包。本目录明确代码归属，不代表功能已存在。全部 Feature 归属见 [目录架构](../docs/architecture/workspace-layout.md)，首条旅程见 [下一阶段计划](../docs/product/next-phase.md)。
+当前资格切片：[notes](../plugins/notes/README.md) 只读想法包与 [vocab](vocab/README.md) 词汇学习包（Host API 0.5、真实 SQLite 端到端）；两者都不是完整产品插件，原生 UI 与生产安装界面仍未完成。全部 Feature 归属见 [目录架构](../docs/architecture/workspace-layout.md)，首条旅程见 [下一阶段计划](../docs/product/next-phase.md)。
 
 资料库、阅读、笔记、AI、知识/画布、学习、同步等工作流以完整功能包交付。Core/Host 保证共享数据、事务、来源、授权、原生服务与恢复。官方和第三方用同一 SDK/贡献点/安装/执行链，预装只表示来源。
 
