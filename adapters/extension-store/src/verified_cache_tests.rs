@@ -231,13 +231,22 @@ fn warm_authentication_does_not_memoize_installation_generation_or_removal() {
 #[test]
 fn api_support_input_cannot_create_an_unbounded_retained_vector() {
     use extension_api::{SUPPORTED_HOST_APIS, validate_supported_apis};
-    assert_eq!(SUPPORTED_HOST_APIS.len(), 3);
+    // The implemented set is a published contract: every version it names is accepted, and
+    // the budget keeps that list bounded as versions are added. Reaudit `METADATA_ALLOWANCE`
+    // below when adding an API version; never let this list grow without a wire schema.
+    assert!(!SUPPORTED_HOST_APIS.is_empty() && SUPPORTED_HOST_APIS.len() <= 8);
     validate_supported_apis(&SUPPORTED_HOST_APIS).unwrap();
     assert!(validate_supported_apis(&[HOST_API_V0_3; 1024]).is_err());
-    assert!(validate_supported_apis(&[ApiVersion { major: 0, minor: 4 }]).is_err());
+    assert!(
+        validate_supported_apis(&[ApiVersion {
+            major: 0,
+            minor: u16::MAX
+        }])
+        .is_err()
+    );
     // A successful configuration has unique elements from the implemented set.
-    // Current Vec payload is at most3 * size_of(ApiVersion), within the charged
-    // metadata allowance. Reaudit alongside limits when adding API versions.
+    // The retained Vec is at most `SUPPORTED_HOST_APIS.len()` * size_of(ApiVersion),
+    // within the charged metadata allowance. Reaudit alongside limits on every new version.
     assert!(SUPPORTED_HOST_APIS.len() * std::mem::size_of::<ApiVersion>() < METADATA_ALLOWANCE);
 }
 
