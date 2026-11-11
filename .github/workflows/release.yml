@@ -57,11 +57,15 @@ jobs:
         env:
           CARGO_BUILD_JOBS: "1"
         run: cargo build --locked -p nsh-cli --manifest-path experiments/nsh-reader/target/nsh/Cargo.toml
+      - name: Fetch locked dependencies
+        # The plugin builders compile their signer offline against the SDK, so
+        # the registry has to hold every lock entry before prepare.py runs.
+        run: cargo fetch --locked
       - name: Build the packages the app ships
         run: python apps/qusor/prepare.py
       - name: Package the app
         run: |
-          experiments/nsh-reader/target/nsh/target/debug/nsh package \
+          "$GITHUB_WORKSPACE/experiments/nsh-reader/target/nsh/target/debug/nsh" package \
             --target ${{ matrix.target }} --out dist
         working-directory: apps/qusor
       - uses: actions/upload-artifact@v4
@@ -136,6 +140,11 @@ jobs:
           PY_SH
           )"
           printf '%s\n' "$notes" > "$RUNNER_TEMP/release-notes.md"
-          gh release create "v$version" \
-            dist/latest.json dist/latest.json.sig dist/*.tar.gz dist/*.zip \
+          shopt -s nullglob
+          assets=(dist/*.tar.gz dist/*.zip dist/*.ipa dist/*.apk)
+          if [ ${#assets[@]} -eq 0 ]; then
+            echo "no packaged artifact to publish" >&2
+            exit 1
+          fi
+          gh release create "v$version" dist/latest.json dist/latest.json.sig "${assets[@]}" \
             --draft --title "QUSOR $version" --notes-file "$RUNNER_TEMP/release-notes.md"
