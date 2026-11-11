@@ -110,6 +110,9 @@ def main() -> None:
     if args.evidence:
         shutil.rmtree(captures, ignore_errors=True)
         captures.mkdir(parents=True)
+        # The app's own storage (window preferences) starts empty for the first
+        # capture run, so a later run can show the preferences it kept.
+        shutil.rmtree(cache / "data", ignore_errors=True)
         exports["QUSOR_WORKBENCH_EVIDENCE"] = "1"
         exports["QUSOR_WORKBENCH_CAPTURE_DIR"] = str(captures)
         exports["QUSOR_WORKBENCH_EVIDENCE_TARGET"] = args.evidence

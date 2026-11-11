@@ -61,7 +61,7 @@ cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offli
 cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offline --lib vocab_native
 ```
 
-`--evidence vocab` 会在应用进程内把真实 `NSWindow` 渲染成 decks/study/spoken/accent/revealed/reviewed/done 七张 PNG（含美/英朗读状态），不依赖屏幕录制授权；同一 Core 重启后补两张恢复图，见[实窗记录](../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)。音标来自样例词书资源，读音是实验宿主调用 macOS 系统语音的样例能力，不是公开 wire。
+`--evidence vocab` 会在应用进程内把真实 `NSWindow` 渲染成 decks/settings/study/accent/revealed/reviewed/done 七张 PNG（含美/英与自动朗读状态、读音设置），不依赖屏幕录制授权；第一次运行先恢复默认设置再打开，同一 Core 重启后补两张恢复图并保留偏好，见[实窗记录](../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)。音标来自样例词书资源，读音是实验宿主调用 macOS 系统语音的样例能力，读音偏好存应用自身存储，都不是公开 wire 或 Core 数据。
 
 [目录架构](architecture/workspace-layout.md) 规定 apps/crates/adapters 为生产源码范围，plugins/sdk/experiments 独立。新增 Cargo package 和独立 Workspace 都必须在 [architecture.toml](../config/architecture.toml) 登记。根检查先扫描管理目录的 manifest，再核对生产 Cargo 图；隐藏目录与构建缓存不作为项目模块，源码符号链接被拒绝。
 

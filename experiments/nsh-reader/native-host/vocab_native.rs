@@ -163,8 +163,10 @@ const SPEECH_US_VOICES: &[&str] = &["Samantha", "Ava", "Allison", "Alex", "Fred"
 const SPEECH_UK_VOICES: &[&str] = &["Daniel", "Kate", "Serena", "Oliver"];
 /// Longest text one pronunciation call may hand to the system voice.
 const MAX_SPEECH_BYTES: usize = 400;
-/// Speaking rate of the sample service, slightly slower than the default.
-const SPEECH_RATE: &str = "165";
+/// Speaking rate of the sample service: a little slower than the system default.
+const SPEECH_RATE_NORMAL: &str = "165";
+/// Slower speaking rate learners can pick for practice.
+const SPEECH_RATE_SLOW: &str = "120";
 
 /// The locale a voice must have to read the selected accent.
 fn speech_language(accent: &str) -> &'static str {
@@ -223,8 +225,17 @@ fn speech_voice(accent: &str, installed: &[(String, String)]) -> Option<String> 
         })
 }
 
+/// The words-per-minute argument for a requested reading speed.
+fn speech_rate(rate: &str) -> Result<&'static str, String> {
+    match rate {
+        "normal" => Ok(SPEECH_RATE_NORMAL),
+        "slow" => Ok(SPEECH_RATE_SLOW),
+        _ => Err("unknown pronunciation rate".into()),
+    }
+}
+
 /// Rejects speech the system voice must not be asked to read.
-fn validate_speech(text: &str, accent: &str) -> Result<(), String> {
+fn validate_speech(text: &str, accent: &str, rate: &str) -> Result<(), String> {
     if text.is_empty() || text.len() > MAX_SPEECH_BYTES {
         return Err(format!("speech text must be 1 to {MAX_SPEECH_BYTES} bytes"));
     }
@@ -234,6 +245,7 @@ fn validate_speech(text: &str, accent: &str) -> Result<(), String> {
     if accent != "us" && accent != "uk" {
         return Err("unknown pronunciation accent".into());
     }
+    speech_rate(rate)?;
     Ok(())
 }
 
@@ -256,7 +268,7 @@ fn installed_voices() -> &'static [(String, String)] {
 /// Reads the text with the system voice. The process keeps speaking after this
 /// call returns; a new call stops the previous reading instead of stacking.
 #[cfg(target_os = "macos")]
-fn speak_now(text: &str, accent: &str) -> Result<Option<String>, String> {
+fn speak_now(text: &str, accent: &str, rate: &str) -> Result<Option<String>, String> {
     use std::{
         io::Write,
         process::{Child, Command, Stdio},
@@ -271,7 +283,7 @@ fn speak_now(text: &str, accent: &str) -> Result<Option<String>, String> {
     }
     let voice = speech_voice(accent, installed_voices());
     let mut command = Command::new("/usr/bin/say");
-    command.args(["-r", SPEECH_RATE]);
+    command.args(["-r", speech_rate(rate)?]);
     if let Some(voice) = &voice {
         command.args(["-v", voice]);
     }
@@ -294,7 +306,7 @@ fn speak_now(text: &str, accent: &str) -> Result<Option<String>, String> {
 }
 
 #[cfg(not(target_os = "macos"))]
-fn speak_now(_text: &str, _accent: &str) -> Result<Option<String>, String> {
+fn speak_now(_text: &str, _accent: &str, _rate: &str) -> Result<Option<String>, String> {
     Err("this platform's host has no system voice".into())
 }
 
@@ -458,15 +470,16 @@ impl VocabHost {
     /// Read one short text (a term or its example) with the system voice.
     /// The sample host asks the platform's voice; no pronunciation data is
     /// invented here and nothing is written to Core.
-    pub fn pronounce(text: String, accent: String) -> String {
-        if let Err(error) = validate_speech(&text, &accent) {
+    pub fn pronounce(text: String, accent: String, rate: String) -> String {
+        if let Err(error) = validate_speech(&text, &accent, &rate) {
             return json!({ "ok": false, "error": error }).to_string();
         }
         // The sample host serves a workspace that already runs on the real
         // package/Core runtime: a window without it keeps the sample card and
         // says it cannot read instead of starting the system voice anyway.
         answer(|_| {
-            speak_now(&text, &accent).map(|voice| json!({ "accent": accent, "voice": voice }))
+            speak_now(&text, &accent, &rate)
+                .map(|voice| json!({ "accent": accent, "rate": rate, "voice": voice }))
         })
     }
 
@@ -524,12 +537,16 @@ mod tests {
     }
 
     #[test]
-    fn speech_validation_rejects_bad_text_and_accent() {
-        assert!(validate_speech("abandon", "us").is_ok());
-        assert!(validate_speech("They had to abandon the plan.", "uk").is_ok());
-        assert!(validate_speech("", "us").is_err());
-        assert!(validate_speech("abandon", "au").is_err());
-        assert!(validate_speech("a\u{7}b", "us").is_err());
-        assert!(validate_speech(&"a".repeat(MAX_SPEECH_BYTES + 1), "us").is_err());
+    fn speech_validation_rejects_bad_text_accent_and_rate() {
+        assert!(validate_speech("abandon", "us", "normal").is_ok());
+        assert!(validate_speech("They had to abandon the plan.", "uk", "slow").is_ok());
+        assert!(validate_speech("", "us", "normal").is_err());
+        assert!(validate_speech("abandon", "au", "normal").is_err());
+        assert!(validate_speech("abandon", "us", "fastest").is_err());
+        assert!(validate_speech("a\u{7}b", "us", "normal").is_err());
+        assert!(validate_speech(&"a".repeat(MAX_SPEECH_BYTES + 1), "us", "normal").is_err());
+        assert_eq!(speech_rate("slow"), Ok("120"));
+        assert_eq!(speech_rate("normal"), Ok("165"));
+        assert!(speech_rate("fast").is_err());
     }
 }

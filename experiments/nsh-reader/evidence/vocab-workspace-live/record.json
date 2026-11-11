@@ -3,19 +3,19 @@
   "platform": "macOS arm64",
   "run": "prepare.py --size 1280x820 --evidence vocab, then the same launcher again without reseeding",
   "captures": {
-    "accent.png": "4cde12c13a18fefffc4e52d7ef8557273f1168a0296d6075771089413cc54a07",
-    "decks.png": "6177c7afd3e2421cc6682573f42d159318cd9d3580216bf774724a8f831832d4",
-    "done.png": "49b66ea00eb80af49a59825bae9658d0b0075350fe6f8459c4fc0b3c86445e7a",
-    "restart-decks.png": "87049eee8194ae9a495810769b243bfaa4d65efc0a0ec4d7afd8de29ca7dbd26",
-    "restart-done.png": "511fa19cb7d3b207ba609b05c060342653cc2c2b615fbe4f91b0b0ae75add313",
-    "revealed.png": "d2da38fb21033724ea6081d0e09d37ebbafad74eccff7c22df45116f3deeaada",
-    "reviewed.png": "c78e72dee0c404205bd1e026d5af7dacf50e66f746e4052a08f0c1a6ac3f62a9",
-    "spoken.png": "c93cf64cf5db21766760735ce86680599cc5fdf5df7e6fac27b78c9589e14778",
-    "study.png": "1d03e82962bf33209d141a5dff851463fa460624560a8c905b1394e355971f85"
+    "accent.png": "15666cb2afce25eba39cb52d27616e506eb0edbfd7b8882a3f50b8b0e437ee6a",
+    "decks.png": "606351f376f7c645ef3f25a89b6a79b0c4634afb9179ed30438ca365a9b875bf",
+    "done.png": "1d1f4cf144a696cb7c2d6fac5ff0017ba6923db84730ef8ac491ca0054481a7b",
+    "restart-decks.png": "de59aec4ebc65509fe5c9aa60119fa20a590feaecb70df20eb6312fc64c6fe28",
+    "restart-done.png": "20afdb25cc5d8857aefe77efa23a9835ec2fca5e06bf0f5bf578c71230895e97",
+    "revealed.png": "f9035e8c62c839b9c69d95a02f9b76e9c2c9bfa59c7d38f879e6122ce6664660",
+    "reviewed.png": "1a98a3784af8c31e4770c7c532efc23e27c4ed1ec00a9c6c18a91210f0f625d5",
+    "settings.png": "1965351692a5cc2ca7e83134b2496e7e4fbd40e19c8a160075d8e3b495fd7146",
+    "study.png": "dbd93dd8e5d76af5b272337cbafd5e8e1f6b226aece68bd01885c1481bed909b"
   },
   "app": {
-    "bundle_tree_sha256": "609c3b1991fa3e05cae96295448d04d54a67b1a49e9326a44696a220d18953b2",
-    "host_sha256": "48a332f0f9c343fd18b1259702ae0443dc33bb08792a8804f7f3c179ec437fb6",
+    "bundle_tree_sha256": "3baf01480bbd0dcb934c95d599c38a58ce37c0eff238782a1bf7a0346229c362",
+    "host_sha256": "bccc3325b46212f3dc454dab86e5d1e7fa6eb8a59d5c8f31bb5fc3b3897018c4",
     "vocab_package_sha256": "4ce99011b45ce6c01b158e236762ea3d4465a2dd050e590b77be8e0284dd0823",
     "vocab_publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
     "vocab_seed": {
@@ -53,41 +53,43 @@
   },
   "pronunciation": {
     "phonetic_source": "experiments/nsh-reader/native-workbench/pronunciation.ts (sample wordbook resource, not a Core or wire field)",
-    "voice": "host VocabHost.pronounce -> macOS /usr/bin/say; prefers installed Samantha (en_US) / Daniel (en_GB) including localized names, falls back to another voice of the locale, then the system default",
-    "verified": "US reading showed 正在朗读「abandon」 · 美音（Samantha）; UK switch showed 正在朗读「abandon」 · 英音（Daniel）; the same card order and Core state as before",
-    "not_verified": "audibility, volume and latency are not machine-recorded; the actual sound was heard during the live run but the artifact can only show the host call and the selected voice"
+    "voice": "host VocabHost.pronounce(text, accent, rate) -> macOS /usr/bin/say; prefers installed Samantha (en_US) / Daniel (en_GB) including localized names, falls back to another voice of the locale, then the system default",
+    "rate": "rate=normal uses 165 WPM, rate=slow uses 120 WPM; the slow preference applies to manual, example and automatic readings",
+    "preferences": "自动朗读/慢速 live in the app's own storage (vocab.autoRead / vocab.slowRead), not in Core or the wire; the first evidence run resets them to the defaults and turns them on, and the restart run keeps them (visible in restart-decks.png)",
+    "verified": "with 自动朗读 and 慢速 on, entering the deck read the first card on its own: 正在朗读「abandon」 · 美音（Samantha）; the UK switch read it again as 正在朗读「abandon」 · 英音（Daniel）",
+    "not_verified": "audibility, volume, latency and the slower pace are not machine-recorded; the artifact can only show that the host called say, which voice it selected and that automatic reading started"
   },
   "restart": {
     "captures": [
       "restart-decks.png",
       "restart-done.png"
     ],
-    "state": "same Core, app relaunched without reseeding; CET-4 shows 0 due / 0 new and the queue is empty"
+    "state": "same Core, app relaunched without reseeding; CET-4 shows 0 due / 0 new, the queue is empty, and the reading preferences stored by the first run are still on"
   },
   "tests": {
     "vendor_module": "cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offline --test vocab_native (1 passed)",
     "voice_unit": "cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offline --lib vocab_native (3 passed)",
-    "headless_ui": "nsh test tests/vocab-workspace.test.tsx (14 passed)",
+    "headless_ui": "nsh test tests/vocab-workspace.test.tsx (17 passed)",
     "notes_regression": "nsh test tests/notes-workspace.test.tsx (6 passed)",
     "typecheck": "nsh check App.tsx (exit 0)"
   },
   "not_verified": [
-    "听感、音量与朗读延迟没有机器记录；实窗只证明宿主调用了 say 并选到哪个语音",
+    "听感、音量、朗读延迟与慢速语速没有机器记录；实窗只证明宿主调用了 say、选到哪个语音，以及自动朗读会自己开始",
     "没有实验宿主 / 没有系统语音的降级只在 headless 覆盖，未在实窗注入",
     "review failure retry/fallback banner in the live window",
     "dark appearance, IME/assistive technology and non-macOS platforms",
     "production install/authority UI and publisher key management"
   ],
   "source_hashes": {
-    "experiments/nsh-reader/native-host/vocab_native.rs": "f058b174383289aa0be897e6d8ef41aad896dc2267be5c8d6f394b9a2fe931a8",
+    "experiments/nsh-reader/native-host/vocab_native.rs": "104dd7e48384e46f43ed36f85b458d5a28048b1ed59ddb3675d2581346e62918",
     "experiments/nsh-reader/native-host/tests/vocab_native.rs": "42313213a814dac0ff4b3d4a671387ce25f8ebc61960ae44719731f33eea8dfa",
-    "experiments/nsh-reader/native-workbench/contributions.tsx": "279ce2108856f97e322505c9bdf338362788077e70acd8a5643185912133c6e9",
+    "experiments/nsh-reader/native-workbench/contributions.tsx": "6d6b571fb16c35c831e0db73c788b119e3c7b7ef3bd328d4d0dbeb9adc17a5a4",
     "experiments/nsh-reader/native-workbench/ui.tsx": "ff64faf5766b46e5efb0fe75bb409d1596057b619ad38979d1a999e07e4b1cf0",
     "experiments/nsh-reader/native-workbench/pronunciation.ts": "0823b8ee50ebb2f120ec40d4700dfa39e31f16460aaa999cfeee94ba83dbe0eb",
     "experiments/nsh-reader/native-workbench/App.tsx": "441876d30fda4f79dd83e48cbd2de21faa7badd55a449eae15bf4766d1810cf9",
-    "experiments/nsh-reader/native-workbench/prepare.py": "ba2ec515f40d7b42c535a1d504f733d825f85575f7090082addf23e427a0d6f6",
+    "experiments/nsh-reader/native-workbench/prepare.py": "d935ad2c2892d468c6294ea7036ac6bab3bdac71a1f389e2ecd7f764662f1434",
     "experiments/nsh-reader/native-workbench/tsconfig.json": "9a30b492d5c8bcf444243e40dcea00f45918c80f85af34258386c83b152d8a74",
-    "experiments/nsh-reader/native-workbench/tests/vocab-workspace.test.tsx": "c172a47919e3a503f902e712c16b53d4cfc0ea0b16f984fd615b32540372289e",
-    "docs/design/vocab-workspace.md": "2feda37a5019beb4923ed0145f6ed4575ceb0249b6507930b7cd80fee7ccc767"
+    "experiments/nsh-reader/native-workbench/tests/vocab-workspace.test.tsx": "8f92373c6df28d7c2eecb654816f37a2c6808fd566819ec6ad7dfc45da622f11",
+    "docs/design/vocab-workspace.md": "27c81d33bd03ed2905c9e806149183b2e27cb1502f9ac044bfef6fb5d84b7792"
   }
 }

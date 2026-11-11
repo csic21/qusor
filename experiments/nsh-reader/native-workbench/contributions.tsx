@@ -1,4 +1,4 @@
-import { Canvas, Clipboard, keymap, Path2D, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
+import { Canvas, Clipboard, keymap, Path2D, Scroll, signal, Storage, Text, View, type InputRef, type JSX } from "nsh";
 import { Button, Input, Menu, MenuItem, MenuSeparator, TextView } from "nsh/base";
 import { Menu as DesktopMenu, type MenuItem as DesktopMenuItem } from "nsh/desktop";
 import { NotesHost, VocabHost } from "qusor/pdf-surface";
@@ -2019,6 +2019,12 @@ const vocabRevealed = signal(false);
 const vocabAccent = signal("us");
 /// The text the system voice is reading right now (drives the speaker state).
 const vocabSpeaking = signal("");
+/// 自动朗读: read a card as soon as it becomes current.
+const vocabAutoRead = signal(false);
+/// 慢速: ask for the slower system voice rate.
+const vocabSlowRead = signal(false);
+const VOCAB_AUTO_READ_KEY = "vocab.autoRead";
+const VOCAB_SLOW_READ_KEY = "vocab.slowRead";
 
 function vocabDeckOf(id: number) {
     return vocabDecks().find((deck) => deck.id === id);
@@ -2047,36 +2053,68 @@ function chooseVocabAccent(accent: string) {
 function vocabNoticeForMissingVoice() {
     vocabNotice.set("当前宿主没有系统读音；先照音标读一遍再揭晓。");
 }
+function vocabReadRate() {
+    return vocabSlowRead() ? "slow" : "normal";
+}
+/// The two reading preferences live in this app's own storage: they are not
+/// study data, so no Core or wire field changes for them.
+async function loadVocabReadPreferences() {
+    try {
+        const [auto, slow] = await Promise.all([
+            Storage.getItem(VOCAB_AUTO_READ_KEY),
+            Storage.getItem(VOCAB_SLOW_READ_KEY),
+        ]);
+        vocabAutoRead.set(auto === "1");
+        vocabSlowRead.set(slow === "1");
+    } catch (_) {
+        // A host without storage keeps this window's defaults.
+    }
+}
+function setVocabAutoRead(on: boolean) {
+    vocabAutoRead.set(on);
+    void Storage.setItem(VOCAB_AUTO_READ_KEY, on ? "1" : "0").catch(() => {});
+}
+function setVocabSlowRead(on: boolean) {
+    vocabSlowRead.set(on);
+    void Storage.setItem(VOCAB_SLOW_READ_KEY, on ? "1" : "0").catch(() => {});
+}
 /// The sample host asks a system voice to read a term or an example. A window
 /// without that host says so instead of pretending it played something.
-async function speakVocabText(text: string, label: string) {
+/// `ambient` readings keep a status line that already has something to say and
+/// stay silent when there is no voice, so an automatic reading does not drown
+/// the review result or repeat a notice on every card.
+async function speakVocabText(text: string, label: string, ambient = false) {
     const spoken = text.trim();
     if (!spoken) return;
     vocabError.set("");
     const host = VocabHost as {
-        pronounce?: (text: string, accent: string) => string;
+        pronounce?: (text: string, accent: string, rate: string) => string;
     };
     if (typeof host.pronounce !== "function") {
-        vocabNoticeForMissingVoice();
+        if (!ambient) vocabNoticeForMissingVoice();
         return;
     }
     try {
         const accent = vocabAccent();
-        const value = vocabAnswer(await host.pronounce(spoken, accent)) as {
-            voice?: string | null;
-        };
+        const value = vocabAnswer(
+            await host.pronounce(spoken, accent, vocabReadRate()),
+        ) as { voice?: string | null };
         const voice = value.voice ? `（${value.voice}）` : "";
         vocabSpeaking.set(spoken);
-        vocabNotice.set(`正在朗读${label} · ${vocabAccentLabel(accent)}${voice}`);
+        if (!ambient || !vocabNotice())
+            vocabNotice.set(
+                `正在朗读${label} · ${vocabAccentLabel(accent)}${voice}`,
+            );
         setTimeout(() => {
             if (vocabSpeaking() === spoken) vocabSpeaking.set("");
         }, 1600);
     } catch (error) {
-        if (/runtime unavailable/i.test(vocabFailureText(error))) {
-            vocabNoticeForMissingVoice();
+        const failure = vocabFailureText(error);
+        if (/runtime unavailable/i.test(failure)) {
+            if (!ambient) vocabNoticeForMissingVoice();
             return;
         }
-        vocabNotice.set(`朗读没有开始：${vocabFailureText(error)}`);
+        if (!ambient) vocabNotice.set(`朗读没有开始：${failure}`);
     }
 }
 function speakVocabWord() {
@@ -2086,6 +2124,14 @@ function speakVocabWord() {
 function speakVocabExample() {
     const card = currentVocabCard();
     if (card && vocabRevealed()) void speakVocabText(card.example, "例句");
+}
+/// A card just became current: with 自动朗读 on, read it once. This is ambient:
+/// it never replaces a review result already on screen.
+function vocabCardBecameCurrent() {
+    vocabSpeaking.set("");
+    if (!vocabAutoRead()) return;
+    const card = currentVocabCard();
+    if (card) void speakVocabText(card.term, `「${card.term}」`, true);
 }
 function vocabFailureText(error: unknown) {
     if (error && typeof error === "object" && "message" in error)
@@ -2174,6 +2220,7 @@ function loadVocabFixtureQueue(id: number) {
     vocabLoading.set(false);
     vocabBusy.set(false);
     vocabReady.set(true);
+    vocabCardBecameCurrent();
 }
 /// Any failed Core read falls back to the window fixture. The header then says
 /// 样例数据 instead of 本机 Core and the reason stays visible.
@@ -2250,6 +2297,7 @@ async function loadVocabQueue(id: number) {
         vocabRemainingDue.set(Number(value.remaining_due ?? 0));
         vocabRemainingNew.set(Number(value.remaining_new ?? 0));
         vocabError.set("");
+        vocabCardBecameCurrent();
     } catch (error) {
         useVocabFixture(
             `复习队列读取失败（${vocabFailureText(error)}），已回退样例数据。`,
@@ -2298,6 +2346,7 @@ async function gradeVocabCard(rating: string) {
         vocabNotice.set(
             `已记录：${vocabRatingLabel(rating)} · 样例队列不写入 Core`,
         );
+        vocabCardBecameCurrent();
         return;
     }
     const previous = vocabOperation();
@@ -2362,6 +2411,7 @@ let vocabBooted = false;
 function bootVocabWorkspace() {
     if (vocabBooted) return;
     vocabBooted = true;
+    void loadVocabReadPreferences();
     setTimeout(() => void loadVocabDecks(), 0);
 }
 async function settleVocab() {
@@ -2384,18 +2434,31 @@ export async function captureVocabEvidence() {
     for (let attempt = 0; attempt < 40 && !vocabReady(); attempt += 1)
         await new Promise((resolve) => setTimeout(resolve, 100));
     await new Promise((resolve) => setTimeout(resolve, 300));
+    // The first capture run starts from the default reading settings and turns
+    // them on the way a learner would; the second (restart) run must keep what
+    // the first one stored, so its deck capture can show the kept preferences.
+    const firstEvidenceRun = (await Storage.getItem("vocab.evidence")) !== "1";
+    if (firstEvidenceRun) {
+        await Storage.setItem("vocab.evidence", "1");
+        setVocabAutoRead(false);
+        setVocabSlowRead(false);
+        await new Promise((resolve) => setTimeout(resolve, 250));
+    }
     await VocabHost.capture(`${dir}/decks.png`);
     const deck = vocabDecks()[0];
     if (!deck) return;
+    if (firstEvidenceRun) {
+        setVocabAutoRead(true);
+        setVocabSlowRead(true);
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        await VocabHost.capture(`${dir}/settings.png`);
+    }
     selectVocabDeck(deck.id);
     for (let attempt = 0; attempt < 40 && !currentVocabCard(); attempt += 1)
         await new Promise((resolve) => setTimeout(resolve, 100));
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 450));
     await VocabHost.capture(`${dir}/study.png`);
     if (!currentVocabCard()) return;
-    speakVocabWord();
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    await VocabHost.capture(`${dir}/spoken.png`);
     chooseVocabAccent("uk");
     speakVocabWord();
     await new Promise((resolve) => setTimeout(resolve, 400));
@@ -2518,6 +2581,8 @@ function VocabDeckList(props: { compact: boolean }) {
                         )}
                     </Each>
                 </View>
+                <Rule />
+                <VocabReadSettings compact={true} />
             </If>
             <If when={!props.compact}>
                 <Scroll style={{ flex: 1 }}>
@@ -2530,13 +2595,16 @@ function VocabDeckList(props: { compact: boolean }) {
                     </View>
                 </Scroll>
                 <Rule />
-                <View style={{ padding: 13, gap: 4 }}>
-                    <Copy size={11} muted lines={2}>
-                        评分由 FSRS-5 安排下次复习 · 卸载插件后学习数据仍在 Core
-                    </Copy>
-                    <Copy size={11} muted lines={2}>
-                        音标来自样例词书资源 · 读音由系统语音朗读
-                    </Copy>
+                <View style={{ padding: 13, gap: 8 }}>
+                    <VocabReadSettings compact={false} />
+                    <View style={{ gap: 4 }}>
+                        <Copy size={11} muted lines={2}>
+                            评分由 FSRS-5 安排下次复习 · 卸载插件后学习数据仍在 Core
+                        </Copy>
+                        <Copy size={11} muted lines={2}>
+                            音标来自样例词书资源 · 读音由系统语音朗读
+                        </Copy>
+                    </View>
                 </View>
             </If>
         </View>
@@ -2591,14 +2659,18 @@ function VocabDoneState() {
     );
 }
 
-/// One accent of the sample reading. The chip only changes which IPA shows and
-/// which system voice the speaker asks for; Core keeps none of it.
-function VocabAccentChip(props: { accent: string; label: string }) {
-    const selected = () => vocabAccent() === props.accent;
+/// One small reading chip. Its visible label stands alone; the accessibility
+/// label carries the state, since a pressed look is not readable by VoiceOver.
+function VocabChip(props: {
+    label: string;
+    accessibilityLabel?: string;
+    selected: boolean;
+    onPress: () => void;
+}) {
     return (
         <Button
-            accessibilityLabel={props.label}
-            onPress={() => chooseVocabAccent(props.accent)}
+            accessibilityLabel={props.accessibilityLabel ?? props.label}
+            onPress={props.onPress}
             style={{
                 height: 24,
                 paddingHorizontal: 8,
@@ -2607,21 +2679,66 @@ function VocabAccentChip(props: { accent: string; label: string }) {
                 borderRadius: 6,
                 borderCurve: "continuous",
                 backgroundColor: ink(
-                    selected() ? "surface-selected" : "transparent",
+                    props.selected ? "surface-selected" : "transparent",
                 ),
                 borderWidth: 1,
                 borderColor: ink(
-                    selected() ? "border-control" : "border-subtle",
+                    props.selected ? "border-control" : "border-subtle",
                 ),
             }}
             hoverStyle={{ backgroundColor: ink("surface-hover") }}
             activeStyle={{ backgroundColor: ink("surface-pressed") }}
             focusStyle={focus()}
         >
-            <Copy size={11} muted={!selected()} strong={selected()}>
+            <Copy size={11} muted={!props.selected} strong={props.selected}>
                 {props.label}
             </Copy>
         </Button>
+    );
+}
+
+/// One accent of the sample reading. The chip only changes which IPA shows and
+/// which system voice the speaker asks for; Core keeps none of it.
+function VocabAccentChip(props: { accent: string; label: string }) {
+    return (
+        <VocabChip
+            label={props.label}
+            selected={vocabAccent() === props.accent}
+            onPress={() => chooseVocabAccent(props.accent)}
+        />
+    );
+}
+
+/// 自动朗读 and 慢速 affect every reading and persist in this app's storage.
+/// They are shown in the sidebar (wide) or the wordbook strip (compact).
+function VocabReadSettings(props: { compact: boolean }) {
+    return (
+        <View
+            style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 6,
+                paddingHorizontal: props.compact ? 12 : 0,
+                paddingVertical: props.compact ? 8 : 0,
+            }}
+        >
+            <Copy size={11} muted>
+                读音
+            </Copy>
+            <View style={{ flex: 1 }} />
+            <VocabChip
+                label="自动朗读"
+                accessibilityLabel={`自动朗读：${vocabAutoRead() ? "开" : "关"}`}
+                selected={vocabAutoRead()}
+                onPress={() => setVocabAutoRead(!vocabAutoRead())}
+            />
+            <VocabChip
+                label="慢速"
+                accessibilityLabel={`慢速朗读：${vocabSlowRead() ? "开" : "关"}`}
+                selected={vocabSlowRead()}
+                onPress={() => setVocabSlowRead(!vocabSlowRead())}
+            />
+        </View>
     );
 }
 

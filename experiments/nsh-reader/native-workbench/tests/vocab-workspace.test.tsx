@@ -95,6 +95,54 @@ test("R reads the current word and the revealed example offers its own reading",
     await app.waitFor(missingVoice);
 });
 
+test("reading preferences announce their state and persist in app storage", async () => {
+    const app = await vocabApp();
+    expect(app.shows("label:自动朗读：关")).toBeTruthy();
+    expect(app.shows("label:慢速朗读：关")).toBeTruthy();
+    await app.press("label:自动朗读：关");
+    await app.waitFor("label:自动朗读：开");
+    await app.press("label:慢速朗读：关");
+    await app.waitFor("label:慢速朗读：开");
+    await app.waitUntil(() => app.storage()["vocab.autoRead"] === "1");
+    await app.waitUntil(() => app.storage()["vocab.slowRead"] === "1");
+});
+
+test("a stored reading preference comes back on the next open", async () => {
+    const app = await open("../App.tsx", {
+        platform: "macos",
+        width: 1280,
+        height: 820,
+        storage: { "vocab.autoRead": "1", "vocab.slowRead": "1" },
+    });
+    await app.press("label:背单词");
+    await app.waitFor("text:CET-4 示例");
+    await app.waitFor("label:自动朗读：开");
+    expect(app.shows("label:慢速朗读：开")).toBeTruthy();
+});
+
+test("automatic reading stays quiet when the window has no voice", async () => {
+    const app = await open("../App.tsx", {
+        platform: "macos",
+        width: 1280,
+        height: 820,
+        storage: { "vocab.autoRead": "1" },
+    });
+    await app.press("label:背单词");
+    await app.waitFor("text:CET-4 示例");
+    await app.press(cet4);
+    await app.waitFor("text:abandon");
+    await app.press("label:显示答案");
+    await app.press("label:认识");
+    await app.waitFor("text:benefit");
+    expect(app.texts()).toContain("已记录：认识 · 样例队列不写入 Core");
+    expect(app.texts()).not.toContain(
+        "当前宿主没有系统读音；先照音标读一遍再揭晓。",
+    );
+    // An explicit press still says why nothing is heard.
+    await app.press("label:朗读 benefit");
+    await app.waitFor(missingVoice);
+});
+
 test("showing the answer reveals the meaning, the example and four grades", async () => {
     const app = await vocabApp();
     await openCet4(app);
@@ -183,6 +231,7 @@ test("the 900×680 layout still selects a wordbook and grades a card", async () 
     await app.press(academic);
     await app.waitFor("text:coherent");
     expect(app.shows("label:显示答案")).toBeTruthy();
+    expect(app.shows("label:自动朗读：关")).toBeTruthy();
     await app.press("label:显示答案");
     expect(app.shows("label:很熟")).toBeTruthy();
     await app.press("label:很熟");

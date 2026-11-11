@@ -17,8 +17,8 @@
     1280,
     820
   ],
-  "bundle_tree_sha256": "609c3b1991fa3e05cae96295448d04d54a67b1a49e9326a44696a220d18953b2",
-  "host_sha256": "48a332f0f9c343fd18b1259702ae0443dc33bb08792a8804f7f3c179ec437fb6",
+  "bundle_tree_sha256": "3baf01480bbd0dcb934c95d599c38a58ce37c0eff238782a1bf7a0346229c362",
+  "host_sha256": "bccc3325b46212f3dc454dab86e5d1e7fa6eb8a59d5c8f31bb5fc3b3897018c4",
   "notes_package_sha256": "fbe9e17b514a9d8b9f03a559ed6d112fb86c65e0a2d44dcfd54a66cb35fc9f96",
   "notes_publisher_key": "17cb79fb2b4120f2b1ec65e4198d6e08b28e813feb01e4a400839b85e18080ce",
   "seed": {
