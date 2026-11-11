@@ -20,14 +20,14 @@
 | 版本号 | **无**。`nsh.json` 无 `version`/`build`；仓库无 tag；GitHub 无 Release | `gh release list` 为空 |
 | 更新签名密钥 | **无**。没有 `keys/`，未运行 `nsh keygen` | — |
 | 打包 | **自建**。`dynamic-pdf/run.py` 生成按 exe 摘要命名的 `QUSOR Preview.app`，`bundle.nshc` 由 `nsh build` 生成，不是 `nsh package` 产物 | `experiments/nsh-reader/dynamic-pdf/run.py` |
-| CI | 只有 `foundation.yml`（Core 测试 + 库交叉检查），**没有打包或发布任务**；最近一次运行 ubuntu 与 windows 失败 | run 42813342829 |
+| CI | 只有 `foundation.yml`（Core 测试 + 库交叉检查），**没有打包或发布任务**；修复断言后 ubuntu 已通过，windows 仍失败 | run 42965087520 |
 | 移动端 | 仅 5 个 target 的**库交叉编译**通过；无 iOS/Android 宿主、无设备运行、无分发 | 同 run 的 `portable-libraries` 全部通过 |
 
 ### CI 失败根因（本次核对）
 
 - **ubuntu**：`adapters/extension-store/src/verified_cache_tests.rs` 的断言停在“支持 3 个 Host API”，实际已是 4（未提交工作树为 5）。该文件带 `#![cfg(target_os = "linux")]`，macOS 本机不编译，所以长期没被发现。
 - **windows**：`adapters/extension-store/tests/component.rs` 三例在 `Store::open_for_host` 处失败，对应 [跨平台结果](../../experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md) 已记录的 Windows 私有存储/文件适配缺口。
-- 本次已修 ubuntu 断言：改为预算断言（`<= 8`）并把“不支持版本”改用 `u16::MAX`，不再随 API 增加而失效。本机用临时放宽的 `cfg` 编译并实际跑过该测试。**未提交**，也未改 Windows 行为。
+- 2026-11-11 已修 ubuntu 断言并推送（提交 `12519cd`）：改为预算断言（`<= 8`），并把“不支持版本”改用 `u16::MAX`，不再随 API 增加而失效。本机用临时放宽的 `cfg` 编译并实际跑过该测试；远端 run 42965087520 显示 ubuntu 通过、windows 仍失败。Windows 行为未改。
 
 ## 固定 NSH 基线已有能力
 
@@ -78,32 +78,15 @@
 
 ## 本机实测（2026-11-11）
 
-三个探针，同一固定基线（`nsh 0.4.0` / `913fd76`）：
+同一固定基线（`nsh 0.4.0` / `913fd76`）：
 
-| 探针 | 命令 | 结果 |
-|---|---|---|
-| 纯 TSX 示例（对照） | `nsh package examples/gallery --target macos` | **通过**：release runner（debug 构建，25 s）与 `/tmp/nsh-gallery-probe/Gallery.app` 生成 |
-| 工作台（TSX + 自建 crate） | `nsh package --target macos`（`native-workbench`） | Rust crate 描述、`App.tsx` bundle/字节码均通过；构建 macOS release runner 时停在 `quickjs-jit`：`can't find crate for 'rquickjs_macro'` |
-| 工作台，删掉生成的 `.nsh/rust` 重试 | 同上 | Cargo 需要下载未缓存 crate，被本会话文件沙箱拒绝（`~/.cargo/.../json-escape-simd-3.1.3.crate: Operation not permitted`），未能继续 |
-
-结论：**当前沙箱无法判定**带自建 crate 的 app 能否直接打包；`rquickjs_macro` 失败与未缓存 crate 都可能只是本机依赖缓存/网络限制，不是 QUSOR 或 NSH 的缺陷。纯 TSX 应用的打包链路本机已实际走通。需要在具备 crate 下载能力的环境（或预热 cargo 缓存）复测工作台；复测前不把打包列为已解决，也不据此改应用 crate 依赖。
-
-## 公开前检查与脱敏（2026-11-11）
-
-| 检查项 | 结果 |
+| 探针 | 结果 |
 |---|---|
-| 凭据/令牌（跟踪文件与全部历史） | 未发现私钥、GitHub token、云厂商 key、`password=`/`api_key=` 字面量 |
-| 私有地址 | 未发现内网 IP、`.internal`/`.local` 主机名、个人邮箱或手机号 |
-| 个人文档内容 | 证据中的 PDF 为脚本生成的合成文件；截图内容为自拟示例文集，无真实资料 |
-| 本地路径 | 352 个文本文件（日志、证据 JSON、生成的 `toml`/`py`）含本机用户名路径 |
+| 固定源码自带纯 TSX 示例 `examples/gallery` | **通过**：release runner（debug 构建，25 s）与 `Gallery.app` |
+| 固定源码自带 Rust 示例 `examples/rust-exports` | **通过**：crate 1 m 13 s、release runner 4 m 42 s、`Rust Exports.app` |
+| 工作台（TSX + 自建 crate，`native-workbench`） | **失败**：构建 `quickjs-jit` 时报 `can't find crate for 'rquickjs_macro'` |
 
-处置：用 `git filter-repo --replace-text` 把 `/Users/karl/workspace/ai/qusor`、`/home/xin/workspace/qusor` 统一替换为 `/workspace/qusor`，把 `/Users/karl`、`/Users/Xin`、`/home/xin` 替换为 `/Users/user`、`/home/user`；重写了全部 20 个提交（新 HEAD `2a40494`），随后 `git grep` 与 `git log -p --all` 均无残留。二进制证据（zip/gz/png/jpg）逐个校验前后 SHA-256 一致，未被改写；文件名清单不变。
-
-公开前备份与遗留：
-
-- 重写前历史打包在 `/tmp/qusor-prepublic.bundle`；工作树 WIP 有 `git diff` 与未跟踪文件 tar 备份。
-- GitHub 侧未删除旧对象：当前 token 无 `delete_repo` 权限，无法删除并重建仓库；旧的不可达提交仅能按 SHA 访问，不会被仓库页面或搜索列出。若要求彻底清除，需要删除仓库后重建，或联系 GitHub 支持清理不可达对象。
-- 提交作者仍为 `karl <…@users.noreply.github.com>`（GitHub noreply 地址），与用户名一致，不属于新增暴露。
+失败原因已定位到产物层：`--extern` 指向的 `librquickjs_macro-*.dylib` 本身畸形，`dlopen` 报 `mis-aligned LINKEDIT string pool`；删除该产物、换干净 `CARGO_TARGET_DIR` 重建仍复现，而同一 macro crate 在独立小工程和上述示例构建里的 dylib 可以正常加载。因此这不是缺依赖或缺少宏定义，也不归因于 QUSOR crate 或 NSH 源码；尚未定位到触发条件（下一步按 crate 依赖/feature 二分，并用独立 target dir 复测）。**结论：打包链路本身可用（两个对照都出包），工作台尚不能打包。**
 
 ## 未验证范围
 
