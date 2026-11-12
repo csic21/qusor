@@ -1,7 +1,7 @@
 import { Canvas, Clipboard, keymap, Path2D, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
 import { Button, Input, Menu, MenuItem, MenuSeparator, TextView } from "nsh/base";
 import { Menu as DesktopMenu, type MenuItem as DesktopMenuItem } from "nsh/desktop";
-import { NotesHost, VocabHost } from "qusor/pdf-surface";
+import { CompositionHost, NotesHost, VocabHost } from "qusor/pdf-surface";
 import {
     Badge,
     Copy,
@@ -16,8 +16,9 @@ import {
 } from "./ui";
 import { phoneticOf, pronunciationOf } from "./pronunciation";
 
-// Contribution fixtures, not an installed SDK or a security boundary.
-// This module owns content, geometry and local draft state; the shell owns none of them.
+// Content fixtures plus the manifest-backed workspace contribution catalog.
+// This module owns rendering and local draft state; the shell owns composition
+// and Core facts.
 export type Entry = {
     id: string;
     title: string;
@@ -29,11 +30,19 @@ export type Entry = {
 };
 export type PluginWorkspace = {
     id: string;
+    package: string;
     title: string;
     kind: string;
+    role: string;
     icon: string;
     description: string;
     render: (props: { compact: boolean }) => JSX.Element;
+};
+export type PluginPackage = {
+    id: string;
+    title: string;
+    version: string;
+    enabled: boolean;
 };
 export const draft = signal(
     "让工作区围绕正在处理的内容展开。工具可以随时加入，也可以安静地退到一旁。",
@@ -3078,29 +3087,131 @@ export const entries: Entry[] = [
         render: ReaderView,
     },
 ];
-export const pluginWorkspaces: PluginWorkspace[] = [
-    {
-        id: "fixture.notes",
-        title: "想法",
-        kind: "插件工作区样例",
+type WorkspaceRenderer = {
+    kind: string;
+    icon: string;
+    description: string;
+    render: PluginWorkspace["render"];
+};
+
+const workspaceRenderers: Record<string, WorkspaceRenderer> = {
+    notes_workspace: {
+        kind: "想法",
         icon: "pen",
         description: "引用、个人观点和按资料浏览",
         render: (props) => <NotesWorkspace compact={props.compact} />,
     },
-    {
-        id: "fixture.reading",
-        title: "阅读",
-        kind: "插件工作区样例",
-        icon: "book",
-        description: "书库、阅读和工具由插件组织",
-        render: (props) => <ReadingWorkspace compact={props.compact} />,
-    },
-    {
-        id: "fixture.vocab",
-        title: "背单词",
-        kind: "插件工作区样例",
+    vocab_workspace: {
+        kind: "词汇",
         icon: "book",
         description: "词书、复习安排与四档评分",
         render: (props) => <VocabWorkspace compact={props.compact} />,
+    },
+};
+
+const installedWorkspaces = signal<PluginWorkspace[]>([]);
+const installedPackages = signal<PluginPackage[]>([]);
+let workspacesBooted = false;
+
+function applyWorkspaceCatalog(value: any) {
+    if (!Array.isArray(value?.workspaces)) return false;
+    const workspaces: PluginWorkspace[] = [];
+    for (const raw of value.workspaces) {
+        if (
+            typeof raw?.id !== "string" ||
+            typeof raw?.package !== "string" ||
+            typeof raw?.title !== "string" ||
+            typeof raw?.kind !== "string"
+        ) {
+            continue;
+        }
+        const renderer = workspaceRenderers[raw.kind];
+        if (!renderer) continue;
+        workspaces.push({
+            id: raw.id,
+            package: raw.package,
+            title: raw.title,
+            kind: renderer.kind,
+            role: raw.kind,
+            icon: renderer.icon,
+            description: renderer.description,
+            render: renderer.render,
+        });
+    }
+    installedWorkspaces.set(workspaces);
+    return true;
+}
+
+export function refreshWorkspaceCatalog(): boolean {
+    try {
+        const response = JSON.parse(CompositionHost.workspaces());
+        return response.ok === true && applyWorkspaceCatalog(response.value);
+    } catch (_) {
+        // A headless shell has no native contribution catalog.
+        return false;
+    }
+}
+
+function refreshPackageCatalog(): boolean {
+    try {
+        const response = JSON.parse(CompositionHost.packages());
+        if (!response.ok || !Array.isArray(response.value?.packages))
+            return false;
+        installedPackages.set(
+            response.value.packages.filter(
+                (raw: any) =>
+                    typeof raw?.id === "string" &&
+                    typeof raw?.title === "string" &&
+                    typeof raw?.version === "string" &&
+                    typeof raw?.enabled === "boolean",
+            ),
+        );
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+export function setWorkspacePackageEnabled(
+    packageId: string,
+    enabled: boolean,
+): boolean {
+    try {
+        const response = JSON.parse(
+            CompositionHost.setPackageEnabled(packageId, enabled),
+        );
+        if (!response.ok || !applyWorkspaceCatalog(response.value)) return false;
+        refreshPackageCatalog();
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+export function bootWorkspaceCatalog() {
+    if (workspacesBooted) return;
+    workspacesBooted = true;
+    refreshWorkspaceCatalog();
+    refreshPackageCatalog();
+}
+
+export function pluginWorkspaces(): PluginWorkspace[] {
+    return installedWorkspaces();
+}
+
+export function pluginPackages(): PluginPackage[] {
+    return installedPackages();
+}
+
+export const sampleWorkspaces: PluginWorkspace[] = [
+    {
+        id: "fixture.reading",
+        package: "fixture",
+        title: "阅读",
+        kind: "阅读",
+        role: "reader_workspace",
+        icon: "book",
+        description: "书库、阅读和工具由插件组织",
+        render: (props) => <ReadingWorkspace compact={props.compact} />,
     },
 ];

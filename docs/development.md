@@ -9,6 +9,7 @@ Rust 版本以 [rust-toolchain.toml](../rust-toolchain.toml) 为准；Python 3.1
 ```sh
 cargo fmt --all -- --check
 python3 scripts/check_architecture.py
+python3 scripts/check_native_ui.py
 python3 -m unittest discover -s scripts/tests -v
 python3 scripts/check_docs.py
 cargo clippy --workspace --all-targets --locked --offline -- -D warnings

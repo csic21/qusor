@@ -1,6 +1,6 @@
 use capability_composition::{
-    CompositionError, CompositionLayer, CompositionProfile, Entry, ServiceId, ServiceProvision,
-    ServiceRequirement, ServiceVersion, VersionRequirement,
+    CompositionError, CompositionLayer, CompositionProfile, Entry, MountError, RuntimeScope,
+    ServiceId, ServiceProvision, ServiceRequirement, ServiceVersion, VersionRequirement,
 };
 
 fn service(value: &str) -> ServiceId {
@@ -213,4 +213,79 @@ fn malformed_identifiers_are_rejected() {
     assert!(Entry::new("Bad ID", "org.qusor.host").is_err());
     assert!(ServiceId::parse("..").is_err());
     assert!(CompositionProfile::new("QUSOR").is_err());
+}
+
+#[test]
+fn runtime_scope_mounts_in_plan_order_and_releases_in_reverse() {
+    let plan = profile(vec![
+        CompositionLayer::new(
+            "base",
+            vec![
+                entry("app.core", "org.qusor.core"),
+                entry("app.host", "org.qusor.host"),
+                entry("app.workspace", "org.qusor.notes"),
+            ],
+        )
+        .unwrap(),
+    ])
+    .resolve()
+    .unwrap();
+    let mut scope = RuntimeScope::new(plan);
+    let core = capability_composition::EntryId::parse("app.core").unwrap();
+    let host = capability_composition::EntryId::parse("app.host").unwrap();
+    let workspace = capability_composition::EntryId::parse("app.workspace").unwrap();
+
+    scope.mount(&core, "core").unwrap();
+    scope.mount(&host, "host").unwrap();
+    let error = scope.mount(&core, "again");
+    assert!(matches!(error, Err(MountError::DuplicateMount { .. })));
+    let error = scope.mount(
+        &capability_composition::EntryId::parse("app.workspace").unwrap(),
+        "workspace",
+    );
+    assert!(error.is_ok());
+    assert_eq!(scope.get(&core), Some(&"core"));
+    assert_eq!(scope.get(&host), Some(&"host"));
+    let released = scope.unmount_all();
+    assert_eq!(
+        released
+            .iter()
+            .map(|mounted| mounted.value())
+            .copied()
+            .collect::<Vec<_>>(),
+        ["workspace", "host", "core"]
+    );
+    assert!(scope.mounted().is_empty());
+    assert!(scope.get(&workspace).is_none());
+}
+
+#[test]
+fn runtime_scope_rejects_unknown_entries_and_reverse_order() {
+    let plan = profile(vec![
+        CompositionLayer::new(
+            "base",
+            vec![
+                entry("app.core", "org.qusor.core"),
+                entry("app.host", "org.qusor.host"),
+            ],
+        )
+        .unwrap(),
+    ])
+    .resolve()
+    .unwrap();
+    let mut scope = RuntimeScope::new(plan);
+    let core = capability_composition::EntryId::parse("app.core").unwrap();
+    let host = capability_composition::EntryId::parse("app.host").unwrap();
+    assert!(matches!(
+        scope.mount(
+            &capability_composition::EntryId::parse("app.missing").unwrap(),
+            "missing"
+        ),
+        Err(MountError::UnknownEntry { .. })
+    ));
+    scope.mount(&host, "host").unwrap();
+    assert!(matches!(
+        scope.mount(&core, "core"),
+        Err(MountError::OutOfOrder { .. })
+    ));
 }

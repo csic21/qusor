@@ -36,7 +36,15 @@ experiments/             Wasm、签名包/安装事务证据、NSH 环境/构建
 
 learning-domain 已从空壳变为 FSRS-5 词汇调度内核，仍保持独立核心边界与零外部依赖；extension-api/extension-host 承接已授权的实际协议与策略职责（当前 0.5），词汇学习切片见 [ADR 0036](adr/0036-vocabulary-study-capability.md)。core-api 随 C3 后续落位捕获/来源/锚点契约，见 [ADR 0018](adr/0018-core-api-contract-source.md)。不引入与原计划重叠的 qusor-core 大模块，也不一次创建全部空业务 crate。
 
-`capability-composition` 只规划服务提供/消费、profile 层与启动顺序，不执行插件、不授予权限、不持有 Core。桌面 profile 的解析和 Host 启用门在 `apps/qusor`，见 [ADR 0038](adr/0038-capability-composition.md)。
+`capability-composition` 只规划服务提供/消费、profile 层与启动顺序，不执行插件、不授予权限、不持有 Core。桌面 profile 的解析和 Host 启用门在 `apps/qusor`，见 [ADR 0038](adr/0038-capability-composition.md)；应用级单一 Core writer 与旧分库迁移见 [ADR 0039](adr/0039-single-core-provider.md)。
+
+应用的 `runtime.rs` 用 `RuntimeScope` 按计划顺序挂载 Core/Notes/Vocab Host，并统一所有权与释放顺序；见 [ADR 0040](adr/0040-runtime-mount-scope.md)。UI贡献尚未进入该运行时注册表。
+
+普通包的 workspace 贡献通过 [package_catalog](../../apps/qusor/native/src/package_catalog.rs) 验证 manifest 后提供给 shell；见 [ADR 0041](adr/0041-manifest-workspace-contributions.md)。随应用包启停后的目录刷新已接线，任意用户包安装/卸载仍未完成。
+
+插件 UI 只走 NSH 原生 Surface/组件；WebView、HTML/DOM 和 Electron/Node 页面不是插件集成通路。`scripts/check_native_ui.py` 对应用与插件源码做防回归检查，见 [ADR 0042](adr/0042-native-only-plugin-ui.md)。
+
+随应用普通包的启停偏好现已持久化到应用本地 `extensions/preferences.json`；切换时重建 Host 作用域并刷新工作区目录，Core 句柄与数据保留。该切片不是用户包安装/卸载，见 [ADR 0043](adr/0043-persistent-package-enable-intent.md)。
 
 ## 未来依赖方向
 
@@ -100,6 +108,16 @@ extension-host 策略本身不写知识；新增 application 经 ports 调用真
 - [ADR 0028](adr/0028-extensible-native-workspace.md)：原生工作区区域、组件角色与提供者分离，兼容替换和数据保留；[设计工作基线](../design/README.md) 给出布局、视觉与UX验收，通用组合协议尚未实现。
 
 - [ADR 0038](adr/0038-capability-composition.md)：能力接缝、分层 profile、版本化 provides/requires 与确定性激活规划；当前完成规划和 Host 启用门，通用挂载/卸载、用户 profile 和服务发现未完成。
+
+- [ADR 0039](adr/0039-single-core-provider.md)：应用级共享 Core provider、单 SQLite/CAS writer 与旧分库 staging 迁移；Host 授权仍隔离，真实窗口升级未验证。
+
+- [ADR 0040](adr/0040-runtime-mount-scope.md)：组合顺序驱动的 RuntimeScope、统一 Host Runtime 与逆序释放；随应用包启停可整体重建，单插件热卸载和 UI贡献独立卸载未完成。
+
+- [ADR 0041](adr/0041-manifest-workspace-contributions.md)：普通包 manifest 驱动的 workspace 目录、fixture 与扩展工作区分组；动态安装/卸载目录未完成。
+
+- [ADR 0042](adr/0042-native-only-plugin-ui.md)：插件 UI 原生 NSH-only 边界、Web/DOM 禁止项与检查脚本；第三方原生 TSX UI 运行器未完成。
+
+- [ADR 0043](adr/0043-persistent-package-enable-intent.md)：随应用包的持久启停、Host 作用域重建与工作区刷新；任意用户包的安装/卸载未完成。
 
 - [ADR 0034](adr/0034-note-read-model.md)：想法读取的 keyset 分页、范围绑定游标与有界正文分块；应用层与 SQLite 重开已通过，公开 SDK wire、插件授权与窗口接线未完成。
 

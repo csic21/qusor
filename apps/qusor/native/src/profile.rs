@@ -9,9 +9,10 @@ use capability_composition::{
 };
 use serde::Deserialize;
 use serde_json::json;
-use std::sync::OnceLock;
+use std::{collections::BTreeSet, sync::OnceLock};
 
 const PROFILE_JSON: &str = include_str!("../../desktop-profile.json");
+pub const CORE_ENTRY: &str = "app.qusor.core";
 pub const NOTES_HOST_ENTRY: &str = "app.qusor.notes.host";
 pub const VOCAB_HOST_ENTRY: &str = "app.qusor.vocab.host";
 static PROFILE: OnceLock<Result<CompositionPlan, String>> = OnceLock::new();
@@ -75,6 +76,16 @@ pub fn plan() -> Result<&'static CompositionPlan, String> {
     }
 }
 
+/// Resolve the embedded profile with process-local package enable intent applied.
+/// Disabling a provider also removes its workspace consumer rows, so the plan
+/// never claims that a missing service is still active.
+pub fn plan_with_disabled(disabled_packages: &BTreeSet<String>) -> Result<CompositionPlan, String> {
+    if disabled_packages.is_empty() {
+        return plan().cloned();
+    }
+    load_with_disabled(disabled_packages)
+}
+
 /// Gate a Host initializer on an enabled row. This keeps a disabled plugin from
 /// starting merely because a native method happened to be called.
 pub fn require_active(entry: &str) -> Result<(), String> {
@@ -128,6 +139,10 @@ pub fn report_json() -> String {
 }
 
 fn load() -> Result<CompositionPlan, String> {
+    load_with_disabled(&BTreeSet::new())
+}
+
+fn load_with_disabled(disabled_packages: &BTreeSet<String>) -> Result<CompositionPlan, String> {
     let source: ProfileSource =
         serde_json::from_str(PROFILE_JSON).map_err(|error| format!("invalid profile: {error}"))?;
     if source.protocol_version != 1 {
@@ -142,7 +157,7 @@ fn load() -> Result<CompositionPlan, String> {
         let entries = layer
             .entries
             .into_iter()
-            .map(parse_entry)
+            .map(|entry| parse_entry(entry, disabled_packages))
             .collect::<Result<Vec<_>, _>>()?;
         let layer =
             CompositionLayer::new(layer.name, entries).map_err(|error| error.to_string())?;
@@ -153,9 +168,13 @@ fn load() -> Result<CompositionPlan, String> {
     profile.resolve().map_err(|error| error.to_string())
 }
 
-fn parse_entry(source: EntrySource) -> Result<Entry, String> {
+fn parse_entry(source: EntrySource, disabled_packages: &BTreeSet<String>) -> Result<Entry, String> {
     let mut entry = Entry::new(source.id, source.package).map_err(|error| error.to_string())?;
-    entry = entry.enabled(source.enabled).required(source.required);
+    let enabled = source.enabled
+        && !disabled_packages
+            .iter()
+            .any(|package| package == entry.package().as_str());
+    entry = entry.enabled(enabled).required(source.required);
     for provision in source.provides {
         entry = entry.providing(ServiceProvision::new(
             ServiceId::parse(provision.service).map_err(|error| error.to_string())?,
@@ -179,13 +198,17 @@ mod tests {
     fn embedded_desktop_profile_resolves_its_real_consumers() {
         let plan = plan().unwrap();
         assert_eq!(plan.profile().as_str(), "desktop");
-        assert_eq!(plan.entries().len(), 4);
+        assert_eq!(plan.entries().len(), 5);
         assert!(
-            plan.entry(&EntryId::parse("app.qusor.notes.workspace").unwrap())
+            plan.provider(&capability_composition::ServiceId::parse("vault.read").unwrap())
                 .is_some()
         );
         assert!(
-            plan.entry(&EntryId::parse("app.qusor.vocab.workspace").unwrap())
+            plan.entry(&EntryId::parse("org.qusor.notes.workspace").unwrap())
+                .is_some()
+        );
+        assert!(
+            plan.entry(&EntryId::parse("org.qusor.vocab.workspace").unwrap())
                 .is_some()
         );
         assert!(plan.dump().contains("provides vocab.review 0.5"));
@@ -198,11 +221,33 @@ mod tests {
     }
 
     #[test]
+    fn disabled_package_removes_its_host_and_workspace_rows() {
+        let disabled = BTreeSet::from(["org.qusor.vocab".into()]);
+        let plan = plan_with_disabled(&disabled).unwrap();
+        assert!(
+            plan.entry(&EntryId::parse("app.qusor.core").unwrap())
+                .is_some()
+        );
+        assert!(
+            plan.entry(&EntryId::parse("app.qusor.notes.host").unwrap())
+                .is_some()
+        );
+        assert!(
+            plan.entry(&EntryId::parse("app.qusor.vocab.host").unwrap())
+                .is_none()
+        );
+        assert!(
+            plan.entry(&EntryId::parse("org.qusor.vocab.workspace").unwrap())
+                .is_none()
+        );
+    }
+
+    #[test]
     fn diagnostic_receipt_is_bounded_and_contains_no_runtime_authority() {
         let receipt: serde_json::Value = serde_json::from_str(&report_json()).unwrap();
         assert_eq!(receipt["ok"], true);
         assert_eq!(receipt["value"]["profile"], "desktop");
-        assert_eq!(receipt["value"]["entries"].as_array().unwrap().len(), 4);
+        assert_eq!(receipt["value"]["entries"].as_array().unwrap().len(), 5);
         assert!(receipt["value"]["dump"].as_str().unwrap().contains("base"));
         assert!(receipt.get("grants").is_none());
         assert!(receipt.get("paths").is_none());

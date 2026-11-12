@@ -1,7 +1,7 @@
 # ADR 0038：能力接缝与声明式 Profile 组合
 
 - 日期：2026-11-12
-- 状态：首片实施中；纯组合内核、桌面 profile 与 Notes/Vocab Host 启用门已完成，通用挂载/卸载和用户 profile 未完成
+- 状态：首片实施中；纯组合内核、桌面 profile、共享 Core provider、RuntimeScope 与统一 Host runtime 已完成，动态卸载/重装和用户 profile 未完成
 - 关联：C-07、C-11、C-12、F-EXT-01/03/04/06
 - 承接：[dsh 组合研究](../../research/15-dsh-composition-study.md)、[ADR 0003](0003-plugin-first-delivery.md)、[ADR 0028](0028-extensible-native-workspace.md)、[ADR 0037](0037-production-app-assembly.md)
 
@@ -24,7 +24,7 @@ dsh 的 profile/bundle 与能力接缝提供了可借鉴的结构，但其 Cordi
 4. **服务可达不等于授权**。组合只描述依赖与提供者；包签名、Host 授权、Vault/文件/网络资源和运行隔离继续由原有链路判断。
 5. **应用 profile 是数据**。`apps/qusor/desktop-profile.json` 是当前桌面组合；应用只解析一次并用于 Host 启用门。配置不使用可执行 JS/YAML 表达式。
 6. **诊断可见**。`CompositionHost.dump()` 返回 profile、激活顺序、层来源、provides/requires 和稳定文本摘要，便于本机和发布证据复核。
-7. **本轮只登记真实能力**。NotesHost 提供 `notes.read` 0.4；VocabHost 提供 `vocab.read`/`vocab.review` 0.5；两个工作区消费这些能力。未实现的 reader/library 不写入声称可用的 profile。
+7. **本轮只登记真实能力**。Core provider 提供 `vault.read`/`vault.write` 0.1；NotesHost 提供 `notes.read` 0.4；VocabHost 提供 `vocab.read`/`vocab.review` 0.5；两个工作区消费这些能力。未实现的 reader/library 不写入声称可用的 profile。
 
 ## 数据与依赖方向
 
@@ -45,8 +45,8 @@ plugin package manifest / Host authority
 
 - 桌面 profile 无效时，相关 Host 不静默启动，而是返回具体组合错误。
 - 同一服务的两个启用提供者会在启动前失败，避免“最后加载者胜出”的隐式行为。
-- 后续可以把 Notes/Vocab 的手工初始化替换为通用 MountRegistry；届时每个挂载返回 disposer，停用/更新时按作用域撤销。
-- 共享 Core 应作为 `vault.*` provider 接入，而不是在 Notes/Vocab 各自打开数据库。
+- Notes/Vocab 的手工初始化已收进应用 `RuntimeScope` 和统一 Host runtime；停用/更新时的 UI贡献撤销仍未接入。
+- 共享 Core 已作为 `vault.*` provider 接入，Notes/Vocab 不再各自打开数据库；迁移和安全边界见 [ADR 0039](0039-single-core-provider.md)。
 - 用户覆盖层、bundle 安装、UI贡献发现和 profile 写入尚未实现；“当前嵌入 profile 可校验”不等于完整插件管理器。
 
 ## 验证
@@ -59,6 +59,6 @@ cargo test --manifest-path apps/qusor/native/Cargo.toml --lib --offline
 cargo test --workspace --exclude runtime-process --locked --offline
 ```
 
-覆盖缺失/重复/不兼容 provider、必需项禁用、依赖环、层覆盖、激活顺序、profile 解析和未知 Host 启用门。专项结果为纯内核 8 项、应用 profile 2 项；排除既有 macOS 内核启动身份用例的根 Workspace 为 291 项通过。未排除时 `runtime-process` 的两个 macOS 身份测试因当前环境返回 `kernel boot identity unavailable` 失败，与本切片无关。
+覆盖缺失/重复/不兼容 provider、必需项禁用、依赖环、层覆盖、激活顺序、profile 解析、未知 Host 启用门、RuntimeScope 挂载/释放和迁移后的真实 Notes/Vocab Host 初始化。专项结果为纯内核 10 项、应用 9 项；排除既有 macOS 内核启动身份用例的根 Workspace 为 293 项通过。未排除时 `runtime-process` 的两个 macOS 身份测试因当前环境返回 `kernel boot identity unavailable` 失败，与本切片无关。
 
-未验证：真实 NSH 窗口中的插件启用/停用、动态 bundle 安装、用户 profile 写入、通用 effect scope、共享 Core、reader/library、其他平台。
+未验证：真实 NSH 窗口中的插件启用/停用、动态 bundle 安装、用户 profile 写入、UI贡献卸载、动态重载、reader/library、其他平台。

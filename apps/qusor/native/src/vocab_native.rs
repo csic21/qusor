@@ -1,80 +1,165 @@
+use crate::{package_catalog, runtime, vault::VaultStore};
 use extension_api::{vocab::*, *};
 use extension_host::{Grant, Host, Session};
-use extension_package::package::verify_for_host;
 use learning_application::study::StudyApplication;
 use nsh_core::prelude::*;
 use qusor_app_bridges::vocab_bridge::VocabBridge;
 use serde_json::{Value, json};
-use std::{
-    sync::Mutex,
-    time::{SystemTime, UNIX_EPOCH},
-};
-use storage_sqlite::SqliteStore;
+use std::time::{SystemTime, UNIX_EPOCH};
 
-const VOCAB_PACKAGE: &[u8] = include_bytes!("../assets/vocab.qpk");
-const VOCAB_PACKAGE_KEY: &str = include_str!("../assets/vocab.pub");
-
-struct Runtime {
+pub(crate) struct VocabRuntime {
     host: Host,
     session: Session,
-    bridge: VocabBridge<SqliteStore>,
+    bridge: VocabBridge<VaultStore>,
 }
-static RUNTIME: Mutex<Option<Runtime>> = Mutex::new(None);
 
-/// Trusted startup wiring: the host's own app data directory plus the ordinary
-/// signed package shipped inside this app. TSX never sees a path, a key or Host
-/// authority.
-pub fn initialize(sys: &System) -> Result<(), String> {
-    crate::profile::require_active(crate::profile::VOCAB_HOST_ENTRY)?;
-    let data_dir = sys
-        .data_dir
-        .clone()
-        .ok_or("the host gave no app data directory")?;
-    std::fs::create_dir_all(&data_dir).map_err(text)?;
-    let verified = verify_for_host(
-        VOCAB_PACKAGE,
-        VOCAB_PACKAGE_KEY.trim(),
-        &SUPPORTED_HOST_APIS,
-    )
-    .map_err(text)?;
-    let mut host = Host::new(
-        "qusor-vault",
-        [Capability::VocabRead, Capability::VocabReview],
-    )
-    .map_err(text)?;
-    let installation = host
-        .register(verified.manifest().clone(), verified.digest())
+impl VocabRuntime {
+    pub(crate) fn mount(store: VaultStore) -> Result<Self, String> {
+        crate::profile::require_active(crate::profile::VOCAB_HOST_ENTRY)?;
+        let verified = package_catalog::verify("org.qusor.vocab")?;
+        let mut host = Host::new(
+            "qusor-vault",
+            [Capability::VocabRead, Capability::VocabReview],
+        )
         .map_err(text)?;
-    host.replace_grants(
-        installation,
-        vec![
-            Grant {
-                capability: Capability::VocabRead,
-                resource: extension_api::Resource::Vault {
-                    vault_id: "qusor-vault".into(),
+        let installation = host
+            .register(verified.manifest().clone(), verified.digest())
+            .map_err(text)?;
+        host.replace_grants(
+            installation,
+            vec![
+                Grant {
+                    capability: Capability::VocabRead,
+                    resource: extension_api::Resource::Vault {
+                        vault_id: "qusor-vault".into(),
+                    },
                 },
-            },
-            Grant {
-                capability: Capability::VocabReview,
-                resource: extension_api::Resource::Vault {
-                    vault_id: "qusor-vault".into(),
+                Grant {
+                    capability: Capability::VocabReview,
+                    resource: extension_api::Resource::Vault {
+                        vault_id: "qusor-vault".into(),
+                    },
                 },
-            },
-        ],
-    )
-    .map_err(text)?;
-    host.enable(installation).map_err(text)?;
-    let session = host
-        .open_session_for_api(installation, HOST_API_V0_5)
+            ],
+        )
         .map_err(text)?;
-    let app = StudyApplication::new(SqliteStore::open(data_dir.join("vocab")).map_err(text)?);
-    let now = now_ms();
-    *RUNTIME.lock().map_err(text)? = Some(Runtime {
-        host,
-        session,
-        bridge: VocabBridge::new(app, "qusor-vault", now, day_start_ms(now)),
-    });
-    Ok(())
+        host.enable(installation).map_err(text)?;
+        let session = host
+            .open_session_for_api(installation, HOST_API_V0_5)
+            .map_err(text)?;
+        let now = now_ms();
+        Ok(Self {
+            host,
+            session,
+            bridge: VocabBridge::new(
+                StudyApplication::new(store),
+                "qusor-vault",
+                now,
+                day_start_ms(now),
+            ),
+        })
+    }
+
+    fn clock(&mut self) {
+        let now = now_ms();
+        self.bridge.set_clock(now, day_start_ms(now));
+    }
+
+    fn decks(&mut self) -> Result<Value, String> {
+        self.clock();
+        let request = VocabRequest {
+            vocab_protocol: VOCAB_PROTOCOL,
+            api_version: HOST_API_V0_5,
+            request_id: "workbench-decks".into(),
+            operation: VocabOperation::Decks {},
+        };
+        let Self {
+            host,
+            session,
+            bridge,
+        } = self;
+        let permit = host.authorize_vocab(session, &request).map_err(text)?;
+        let response = host
+            .dispatch(permit, |_context| Ok(bridge.respond(&request)))
+            .map_err(text)?;
+        match response.result {
+            VocabResult::Decks { decks } => Ok(json!({ "decks": decks })),
+            VocabResult::Queue { .. } => Err("unexpected queue response".into()),
+            VocabResult::Review(_) => Err("unexpected review response".into()),
+            VocabResult::Error { error } => Err(wire_error(error)),
+        }
+    }
+
+    fn queue(&mut self, wordbook_id: i64, limit: u16) -> Result<Value, String> {
+        self.clock();
+        let request = VocabRequest {
+            vocab_protocol: VOCAB_PROTOCOL,
+            api_version: HOST_API_V0_5,
+            request_id: "workbench-queue".into(),
+            operation: VocabOperation::Queue { wordbook_id, limit },
+        };
+        let Self {
+            host,
+            session,
+            bridge,
+        } = self;
+        let permit = host.authorize_vocab(session, &request).map_err(text)?;
+        let response = host
+            .dispatch(permit, |_context| Ok(bridge.respond(&request)))
+            .map_err(text)?;
+        match response.result {
+            VocabResult::Queue {
+                cards,
+                remaining_due,
+                remaining_new,
+            } => Ok(json!({
+                "cards": cards,
+                "remaining_due": remaining_due,
+                "remaining_new": remaining_new,
+            })),
+            VocabResult::Decks { .. } => Err("unexpected decks response".into()),
+            VocabResult::Review(_) => Err("unexpected review response".into()),
+            VocabResult::Error { error } => Err(wire_error(error)),
+        }
+    }
+
+    fn review(
+        &mut self,
+        card_id: i64,
+        rating: String,
+        operation_id: String,
+    ) -> Result<Value, String> {
+        self.clock();
+        let rating = parse_rating(&rating)?;
+        let request = VocabRequest {
+            vocab_protocol: VOCAB_PROTOCOL,
+            api_version: HOST_API_V0_5,
+            request_id: operation_id,
+            operation: VocabOperation::Review { card_id, rating },
+        };
+        let Self {
+            host,
+            session,
+            bridge,
+        } = self;
+        let permit = host.authorize_vocab(session, &request).map_err(text)?;
+        let response = host
+            .dispatch(permit, |_context| Ok(bridge.respond(&request)))
+            .map_err(text)?;
+        match response.result {
+            VocabResult::Review(outcome) => Ok(json!({
+                "card_id": outcome.card_id,
+                "stage": outcome.stage,
+                "due_at_ms": outcome.due_at_ms,
+                "scheduled_minutes": outcome.scheduled_minutes,
+                "remaining_due": outcome.remaining_due,
+                "remaining_new": outcome.remaining_new,
+            })),
+            VocabResult::Decks { .. } => Err("unexpected decks response".into()),
+            VocabResult::Queue { .. } => Err("unexpected queue response".into()),
+            VocabResult::Error { error } => Err(wire_error(error)),
+        }
+    }
 }
 
 fn text(error: impl std::fmt::Display) -> String {
@@ -98,38 +183,15 @@ fn day_start_ms(now: i64) -> i64 {
         .unwrap_or(now - now.rem_euclid(86_400_000))
 }
 
-/// The normal host initializes at startup; a test host may only call the
-/// module, so initialization is also lazy when the environment is present.
-fn ensure_runtime(sys: &System) -> Result<(), String> {
-    if RUNTIME.lock().map_err(text)?.is_some() {
-        return Ok(());
-    }
-    initialize(sys)
-}
-
-fn answer(sys: &System, f: impl FnOnce(&mut Runtime) -> Result<Value, String>) -> String {
-    if let Err(error) = ensure_runtime(sys) {
-        return json!({"ok": false, "error": error}).to_string();
-    }
-    let value = match RUNTIME.lock() {
-        Ok(mut guard) => match guard.as_mut() {
-            Some(runtime) => {
-                let now = now_ms();
-                runtime.bridge.set_clock(now, day_start_ms(now));
-                match f(runtime) {
-                    Ok(value) => json!({"ok": true, "value": value}),
-                    Err(error) => json!({"ok": false, "error": error}),
-                }
-            }
-            None => json!({"ok": false, "error": "vocab runtime unavailable"}),
-        },
-        Err(_) => json!({"ok": false, "error": "vocab runtime unavailable"}),
-    };
-    value.to_string()
-}
-
 fn wire_error(error: ApiError) -> String {
     format!("{:?}: {}", error.code, error.message)
+}
+
+fn answer(value: Result<Value, String>) -> String {
+    match value {
+        Ok(value) => json!({"ok": true, "value": value}).to_string(),
+        Err(error) => json!({"ok": false, "error": error}).to_string(),
+    }
 }
 
 fn parse_rating(value: &str) -> Result<VocabRating, String> {
@@ -294,6 +356,7 @@ fn speak_now(_text: &str, _accent: &str) -> Result<Option<String>, String> {
     Err("this platform's host has no system voice".into())
 }
 
+/// Native Host surface for bounded, package-authorized vocabulary study.
 #[module]
 pub struct VocabHost;
 
@@ -301,100 +364,22 @@ pub struct VocabHost;
 impl VocabHost {
     /// Wordbooks and their total/due/new counters from the package-authorized Core.
     pub fn decks(sys: System) -> String {
-        answer(&sys, |runtime| {
-            let request = VocabRequest {
-                vocab_protocol: VOCAB_PROTOCOL,
-                api_version: HOST_API_V0_5,
-                request_id: "workbench-decks".into(),
-                operation: VocabOperation::Decks {},
-            };
-            let Runtime {
-                host,
-                session,
-                bridge,
-            } = runtime;
-            let permit = host.authorize_vocab(session, &request).map_err(text)?;
-            let response = host
-                .dispatch(permit, |_context| Ok(bridge.respond(&request)))
-                .map_err(text)?;
-            match response.result {
-                VocabResult::Decks { decks } => Ok(json!({ "decks": decks })),
-                VocabResult::Queue { .. } => Err("unexpected queue response".into()),
-                VocabResult::Review(_) => Err("unexpected review response".into()),
-                VocabResult::Error { error } => Err(wire_error(error)),
-            }
-        })
+        answer(runtime::with_vocab(&sys, VocabRuntime::decks))
     }
 
     /// One bounded study queue page: due reviews first, then new cards.
     pub fn queue(sys: System, wordbook_id: i64, limit: u16) -> String {
-        answer(&sys, |runtime| {
-            let request = VocabRequest {
-                vocab_protocol: VOCAB_PROTOCOL,
-                api_version: HOST_API_V0_5,
-                request_id: "workbench-queue".into(),
-                operation: VocabOperation::Queue { wordbook_id, limit },
-            };
-            let Runtime {
-                host,
-                session,
-                bridge,
-            } = runtime;
-            let permit = host.authorize_vocab(session, &request).map_err(text)?;
-            let response = host
-                .dispatch(permit, |_context| Ok(bridge.respond(&request)))
-                .map_err(text)?;
-            match response.result {
-                VocabResult::Queue {
-                    cards,
-                    remaining_due,
-                    remaining_new,
-                } => Ok(json!({
-                    "cards": cards,
-                    "remaining_due": remaining_due,
-                    "remaining_new": remaining_new,
-                })),
-                VocabResult::Decks { .. } => Err("unexpected decks response".into()),
-                VocabResult::Review(_) => Err("unexpected review response".into()),
-                VocabResult::Error { error } => Err(wire_error(error)),
-            }
-        })
+        answer(runtime::with_vocab(&sys, |vocab| {
+            vocab.queue(wordbook_id, limit)
+        }))
     }
 
     /// Commit one graded review through the public wire. `operation_id` is the
     /// caller's user-action key: repeating it must not schedule the card twice.
     pub fn review(sys: System, card_id: i64, rating: String, operation_id: String) -> String {
-        answer(&sys, |runtime| {
-            let rating = parse_rating(&rating)?;
-            let request = VocabRequest {
-                vocab_protocol: VOCAB_PROTOCOL,
-                api_version: HOST_API_V0_5,
-                request_id: operation_id,
-                operation: VocabOperation::Review { card_id, rating },
-            };
-            let Runtime {
-                host,
-                session,
-                bridge,
-            } = runtime;
-            let permit = host.authorize_vocab(session, &request).map_err(text)?;
-            let response = host
-                .dispatch(permit, |_context| Ok(bridge.respond(&request)))
-                .map_err(text)?;
-            match response.result {
-                VocabResult::Review(outcome) => Ok(json!({
-                    "card_id": outcome.card_id,
-                    "stage": outcome.stage,
-                    "due_at_ms": outcome.due_at_ms,
-                    "scheduled_minutes": outcome.scheduled_minutes,
-                    "remaining_due": outcome.remaining_due,
-                    "remaining_new": outcome.remaining_new,
-                })),
-                VocabResult::Decks { .. } => Err("unexpected decks response".into()),
-                VocabResult::Queue { .. } => Err("unexpected queue response".into()),
-                VocabResult::Error { error } => Err(wire_error(error)),
-            }
-        })
+        answer(runtime::with_vocab(&sys, |vocab| {
+            vocab.review(card_id, rating, operation_id)
+        }))
     }
 
     /// Read one short text (a term or its example) with the system voice.
@@ -407,9 +392,9 @@ impl VocabHost {
         // The sample host serves a workspace that already runs on the real
         // package/Core runtime: a window without it keeps the sample card and
         // says it cannot read instead of starting the system voice anyway.
-        answer(&sys, |_| {
+        answer(runtime::with_vocab(&sys, |_| {
             speak_now(&text, &accent).map(|voice| json!({ "accent": accent, "voice": voice }))
-        })
+        }))
     }
 
     /// Evidence-only: report whether the host was started for capture and which

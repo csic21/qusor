@@ -6,8 +6,32 @@
       "name": "base",
       "entries": [
         {
+          "id": "app.qusor.core",
+          "package": "org.qusor.core",
+          "required": true,
+          "provides": [
+            {
+              "service": "vault.read",
+              "major": 0,
+              "minor": 1
+            },
+            {
+              "service": "vault.write",
+              "major": 0,
+              "minor": 1
+            }
+          ]
+        },
+        {
           "id": "app.qusor.notes.host",
           "package": "org.qusor.notes",
+          "requires": [
+            {
+              "service": "vault.read",
+              "major": 0,
+              "min_minor": 1
+            }
+          ],
           "provides": [
             {
               "service": "notes.read",
@@ -19,6 +43,18 @@
         {
           "id": "app.qusor.vocab.host",
           "package": "org.qusor.vocab",
+          "requires": [
+            {
+              "service": "vault.read",
+              "major": 0,
+              "min_minor": 1
+            },
+            {
+              "service": "vault.write",
+              "major": 0,
+              "min_minor": 1
+            }
+          ],
           "provides": [
             {
               "service": "vocab.read",
@@ -38,7 +74,7 @@
       "name": "features",
       "entries": [
         {
-          "id": "app.qusor.notes.workspace",
+          "id": "org.qusor.notes.workspace",
           "package": "org.qusor.notes",
           "requires": [
             {
@@ -49,7 +85,7 @@
           ]
         },
         {
-          "id": "app.qusor.vocab.workspace",
+          "id": "org.qusor.vocab.workspace",
           "package": "org.qusor.vocab",
           "requires": [
             {

@@ -5,8 +5,12 @@ import { titleBar } from "nsh/desktop";
 import {
     captureNotesEvidence,
     captureVocabEvidence,
+    bootWorkspaceCatalog,
     entries,
+    pluginPackages,
     pluginWorkspaces,
+    sampleWorkspaces,
+    setWorkspacePackageEnabled,
     Diagram,
     type Entry,
 } from "./contributions";
@@ -82,10 +86,10 @@ function openLibrary() {
     searchOpen.set(false);
 }
 function currentPlugin() {
-    return pluginWorkspaces.find((workspace) => workspace.id === activePlugin());
+    return allWorkspaces().find((workspace) => workspace.id === activePlugin());
 }
 function openPluginWorkspace(id: string) {
-    if (!pluginWorkspaces.some((workspace) => workspace.id === id)) return;
+    if (!allWorkspaces().some((workspace) => workspace.id === id)) return;
     if (!activePlugin()) {
         pluginOrigin.set({
             active: active(),
@@ -99,6 +103,22 @@ function openPluginWorkspace(id: string) {
     library.set(false);
     inspector.set(false);
     searchOpen.set(false);
+}
+function allWorkspaces() {
+    return [...pluginWorkspaces(), ...sampleWorkspaces];
+}
+function togglePluginPackage(packageId: string, enabled: boolean) {
+    const activePackage = currentPlugin()?.package;
+    if (!setWorkspacePackageEnabled(packageId, enabled)) return;
+    if (!enabled && activePackage === packageId) closePluginWorkspace();
+}
+function openPluginWorkspaceByRole(role: string) {
+    const workspace = pluginWorkspaces().find(
+        (candidate) => candidate.role === role,
+    );
+    if (!workspace) return false;
+    openPluginWorkspace(workspace.id);
+    return true;
 }
 function closePluginWorkspace() {
     activePlugin.set("");
@@ -273,10 +293,29 @@ function Sidebar() {
                 <View style={{ gap: 5 }}>
                     <View style={{ paddingHorizontal: 10, paddingBottom: 3 }}>
                         <Copy size={11} muted strong>
-                            工作区样例
+                            扩展工作区
                         </Copy>
                     </View>
-                    <Each of={pluginWorkspaces}>
+                    <Each of={pluginWorkspaces()}>
+                        {(workspace) => (
+                            <SidebarRow
+                                title={workspace().title}
+                                icon={workspace().icon}
+                                onPress={() =>
+                                    openPluginWorkspace(workspace().id)
+                                }
+                                trailing="插件"
+                            />
+                        )}
+                    </Each>
+                </View>
+                <View style={{ gap: 5 }}>
+                    <View style={{ paddingHorizontal: 10, paddingBottom: 3 }}>
+                        <Copy size={11} muted strong>
+                            界面样例
+                        </Copy>
+                    </View>
+                    <Each of={sampleWorkspaces}>
                         {(workspace) => (
                             <SidebarRow
                                 title={workspace().title}
@@ -757,9 +796,9 @@ function Library() {
                 </Copy>
                 <Copy muted>选择一种适合当前工作的视图</Copy>
                 <Copy size={12} muted>
-                    以下为贡献样例，尚未安装真实插件包
+                    扩展工作区来自已验签的普通插件包；界面样例不写入 Core。
                 </Copy>
-                <Each of={pluginWorkspaces}>
+                <Each of={pluginWorkspaces()}>
                     {(workspace) => (
                         <View
                             style={{
@@ -792,7 +831,7 @@ function Library() {
                                 </Copy>
                             </View>
                             <Tool
-                                label={`打开${workspace().title}工作区样例`}
+                                label={`打开${workspace().title}工作区`}
                                 text="打开工作区"
                                 raised
                                 onPress={() =>
@@ -802,6 +841,102 @@ function Library() {
                         </View>
                     )}
                 </Each>
+                <Each of={sampleWorkspaces}>
+                    {(workspace) => (
+                        <View
+                            style={{
+                                paddingVertical: 18,
+                                borderBottomWidth: 1,
+                                borderColor: ink("border-subtle"),
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: 15,
+                            }}
+                        >
+                            <Badge icon={workspace().icon} size={42} />
+                            <View style={{ flex: 1, gap: 4 }}>
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        gap: 8,
+                                    }}
+                                >
+                                    <Copy size={15} strong>
+                                        {workspace().title}
+                                    </Copy>
+                                    <Copy size={11} muted>
+                                        界面样例
+                                    </Copy>
+                                </View>
+                                <Copy size={12} muted>
+                                    {workspace().description}
+                                </Copy>
+                            </View>
+                            <Tool
+                                label={`打开${workspace().title}界面样例`}
+                                text="打开样例"
+                                raised
+                                onPress={() =>
+                                    openPluginWorkspace(workspace().id)
+                                }
+                            />
+                        </View>
+                    )}
+                </Each>
+                <View style={{ paddingTop: 10, gap: 8 }}>
+                    <Copy size={18} strong>
+                        扩展管理
+                    </Copy>
+                    <Copy size={12} muted>
+                        启停随应用包；停用会移除工作区入口和 Host
+                        会话，已收录内容仍保留。
+                    </Copy>
+                    <Each of={pluginPackages()}>
+                        {(plugin) => (
+                            <View
+                                style={{
+                                    paddingVertical: 13,
+                                    borderBottomWidth: 1,
+                                    borderColor: ink("border-subtle"),
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    gap: 12,
+                                }}
+                            >
+                                <Badge
+                                    icon={
+                                        plugin().id.includes("vocab")
+                                            ? "book"
+                                            : plugin().id.includes("notes")
+                                              ? "pen"
+                                              : "plug"
+                                    }
+                                    size={34}
+                                />
+                                <View style={{ flex: 1, gap: 3 }}>
+                                    <Copy size={14} strong>
+                                        {plugin().title}
+                                    </Copy>
+                                    <Copy size={11} muted>
+                                        {plugin().id} · v{plugin().version} ·{" "}
+                                        {plugin().enabled ? "已启用" : "已停用"}
+                                    </Copy>
+                                </View>
+                                <Tool
+                                    label={`${plugin().enabled ? "停用" : "启用"}${plugin().title}插件`}
+                                    text={plugin().enabled ? "停用" : "启用"}
+                                    onPress={() =>
+                                        togglePluginPackage(
+                                            plugin().id,
+                                            !plugin().enabled,
+                                        )
+                                    }
+                                />
+                            </View>
+                        )}
+                    </Each>
+                </View>
                 <Each of={entries}>
                     {(entry) => (
                         <View
@@ -1256,7 +1391,7 @@ function App() {
                         >
                             <Overview />
                         </If>
-                        <Each of={pluginWorkspaces}>
+                        <Each of={allWorkspaces()}>
                             {(workspace) => (
                                 <If
                                     when={
@@ -1295,6 +1430,7 @@ function App() {
         </View>
     );
 }
+bootWorkspaceCatalog();
 setColorScheme("light");
 mount(App);
 
@@ -1319,14 +1455,14 @@ void (async () => {
         }
         setTimeout(() => {
             if (target === "vocab") {
-                openPluginWorkspace("fixture.vocab");
+                if (!openPluginWorkspaceByRole("vocab_workspace")) return;
                 void (async () => {
                     await new Promise((resolve) => setTimeout(resolve, 700));
                     await captureVocabEvidence();
                 })();
                 return;
             }
-            openPluginWorkspace("fixture.notes");
+            if (!openPluginWorkspaceByRole("notes_workspace")) return;
             void (async () => {
                 await new Promise((resolve) => setTimeout(resolve, 700));
                 await captureNotesEvidence();

@@ -50,6 +50,8 @@ qusor/
 | `apps/qusor-desktop/`、`apps/qusor-mobile/` | 平台入口、装配与发布包 | 对应 NSH 实验通过；目录不决定首发平台 |
 | `crates/core-api/` | 已有捕获/来源/锚点契约；持久用例命令/查询入口随后补齐，与 Host wire 独立版本 | C3 后公开契约已落位，非生产存储完成 |
 | `crates/capability-composition/` | 已落位：服务 provides/requires、profile 层、确定性激活规划；不含运行时、权限或存储 | 桌面 Notes/Vocab 启用门消费；通用挂载与用户覆盖待实现 |
+
+应用级 `VaultStore` 位于 `apps/qusor/native`，只作为 `vault.read`/`vault.write` 的可信 provider；它不是插件 SDK 类型，也不把 SQLite 连接交给插件。`runtime.rs` 使用 `RuntimeScope` 挂载 Core/Notes/Vocab Host 并统一释放顺序。迁移与边界见 [ADR 0039](adr/0039-single-core-provider.md) 与 [ADR 0040](adr/0040-runtime-mount-scope.md)。
 | `crates/learning-ports/` | 已落位：一致快照与完整原子提交/恢复端口 | 由真实知识 application 与 SQLite 消费 |
 | `crates/learning-application/` | 已落位：文本/PDF/复合用例、校验与整体提交计划 | 捕获实验已通过同一实现执行 |
 | `crates/document-engine/`、`crates/anchor-engine/` | 规范文档/来源与定位算法；无平台 view | 阅读、导入、引用用例需要 |

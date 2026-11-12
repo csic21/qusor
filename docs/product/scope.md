@@ -1,5 +1,7 @@
 # QUSOR 功能基线与范围确认
 
+2026-11-12 插件 UI 载体确认：用户明确指出集成插件不能采用 dsh 的 Web 形态，不接受插件集成后呈现网页 UI。新增 C-18，关联 C-09、F-EXT-04、F-UX-01/02：插件入口、工作区、工具栏和面板只使用 NSH 原生 Surface/组件或声明式原生描述；禁止 WebView、iframe、HTML/DOM、Electron/Node 页面作为插件 UI。文档格式内容引擎如使用浏览器内核，必须单独评审且不能扩张成插件外壳。核对与防回归见 [ADR 0042](../architecture/adr/0042-native-only-plugin-ui.md) 与 `scripts/check_native_ui.py`。
+
 2026-11-12，生产应用与首次云端发行继续推进：`apps/qusor/` 保持独立 workspace（provider/bridges/native），NSH 以 Git revision 固定，随包插件资产由 `prepare.py` 生成，`nsh.json` 内置 updater。Release workflow run 43142491761 已在 GitHub Actions 成功产出 macOS arm64 `QUSOR-0.1.0` 归档、签名 `latest.json` 并创建固定到源码 SHA 的 draft `v0.1.0`；下载产物通过清单摘要、Ed25519 独立验签、ad hoc code signature 与实窗启动检查。决策见 [ADR 0037](../architecture/adr/0037-production-app-assembly.md)，机器记录见 [draft 验收](../../experiments/nsh-reader/evidence/github-release/README.md)。draft 尚未公开为 latest，线上自动更新拉取、PDF 阅读/编辑生产 UI、Windows/Linux 打包与签名账号仍未完成。
 
 2026-11-11，用户询问自动更新与手机端进度，并建议“通过 GitHub Release 发版本、GitHub Actions 构建”。新增 C-17、F-PLAT-02（发行与自动更新），关联 C-15、F-PLAT-01、F-DATA-01：确认更新源使用主仓库 GitHub Releases（仓库转 public，`updater.github`，免认证的 `releases/latest/download/`）；应用先改造成 `nsh package` 形态（`apps/` 生产入口），一次取得桌面打包、自动更新、OTA 与 Android/iOS 打包；当前既无 Apple Developer Program 账号也无 Android 发布 keystore，只能产出 ad hoc／调试签名产物。现状核对与流水线设计见 [发行与更新](release-and-update.md)。本轮不创建 tag 或 Release、不改仓库可见性、不生成生产密钥；移动端仍只有库交叉编译，不构成支持。
@@ -143,6 +145,7 @@ Reader AI 按原愿景建议保留 M0，但当前问题允许用户选择延后�
 
 | 决策 ID | 选择 | 当前状态 |
 |---|---|---|
+| C-18 插件 UI 原生载体 | 插件入口/工作区/工具只走 NSH 原生 Surface/组件；禁止 WebView、HTML/DOM、Electron/Node 页面冒充插件 UI；dsh 仅借鉴组合/接缝 | 已确认，2026-11-12；检查脚本已接入，第三方原生 TSX UI 挂载仍待资格验证；见 [ADR 0042](../architecture/adr/0042-native-only-plugin-ui.md) |
 | C-17 发行与自动更新 | GitHub Release 发版 + GitHub Actions 构建；主仓库转 public 作更新源；应用改为 `nsh package` 形态 | 已确认，2026-11-11；生产入口、流水线与签名账号均未具备；见 [方案](release-and-update.md) |
 | C-11 设计沉淀与UI同步交付 | 先把已有优秀设计研究落实为统一视觉/交互规则；做功能时交付对应UI，探针不代替正式工作区 | 已确认要求，2026-11-08；当前v0.1为可评审工作基线，具体数值与品牌未最终冻结 |
 | C-16 原生软件视觉 | 研究具体设计师的软件作品，形成精美、符合 NSH 原生绘制的界面，保留通用插件 / Agent 基座 | 用户于2026-11-09明确要求；此前 Web 感稿不作为视觉批准，新[原生候选](../design/native-art-direction.md)待评审 |

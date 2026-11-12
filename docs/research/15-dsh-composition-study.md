@@ -72,7 +72,7 @@ QUSOR 第一轮采用纯 Rust 规划内核，不采用 Cordis 的运行时对象
 
 后续按真实功能增加：
 
-- `vault.read` / `vault.write`：共享 Core 服务；
+- `vault.read` / `vault.write`：共享 Core 服务（第一版由 `app.qusor.core` 提供）；
 - `library.import` / `library.list`；
 - `reader.surface` / `reader.selection`；
 - `notes.write` / `source.resolve`；
@@ -82,6 +82,6 @@ QUSOR 第一轮采用纯 Rust 规划内核，不采用 Cordis 的运行时对象
 
 ## 本轮落地与未覆盖
 
-已落地纯 `capability-composition` crate、桌面 profile 和 Notes/Vocab Host 的启用门。内核检查层级覆盖、重复 provider、缺失 provider、版本不兼容、必需项禁用和依赖环，并输出确定性激活顺序。
+已落地纯 `capability-composition` crate、桌面 profile、Core provider 和 Notes/Vocab Host 的启用门。内核检查层级覆盖、重复 provider、缺失 provider、版本不兼容、必需项禁用和依赖环，并输出确定性激活顺序；Core provider 已让两个 Host 共享一个 SQLite/CAS 写者，旧分库通过 staging 迁入。
 
-尚未完成通用运行时 MountRegistry/effect scope、用户 profile 覆盖写入、UI贡献过滤、共享 Core provider、正式 reader/library 包和动态 bundle 安装。当前结果只证明组合规划与 Host 启动门，不证明插件热插拔、安全沙箱或产品阅读旅程。
+已完成纯 RuntimeScope 的顺序挂载/逆序释放和应用统一 Host runtime；尚未完成动态重载/停用、用户 profile 覆盖写入、UI贡献过滤、正式 reader/library 包和动态 bundle 安装。当前结果证明组合规划、Host 启动门、共享 Core 所有权和统一运行时，不证明插件热插拔、安全沙箱或产品阅读旅程。

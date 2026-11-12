@@ -5,8 +5,12 @@
 //! a package key or Host authority.
 pub mod app_info;
 pub mod composition_native;
+pub mod extension_preferences;
 pub mod notes_native;
+pub mod package_catalog;
 pub mod profile;
+mod runtime;
+pub mod vault;
 pub mod vocab_native;
 
 use nsh_core::prelude::*;

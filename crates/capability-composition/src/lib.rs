@@ -621,6 +621,155 @@ impl CompositionPlan {
     }
 }
 
+/// A value mounted in composition order. The value itself owns any resources
+/// that must be released when it is unmounted.
+#[derive(Clone, Debug)]
+pub struct MountedValue<T> {
+    entry: EntryId,
+    layer: LayerId,
+    value: T,
+}
+
+impl<T> MountedValue<T> {
+    pub fn entry(&self) -> &EntryId {
+        &self.entry
+    }
+
+    pub fn layer(&self) -> &LayerId {
+        &self.layer
+    }
+
+    pub fn value(&self) -> &T {
+        &self.value
+    }
+}
+
+/// Runtime half of a composition plan: values can only be mounted in plan order,
+/// at most once per entry, and `unmount_all` releases them in reverse order.
+#[derive(Clone, Debug)]
+pub struct RuntimeScope<T> {
+    plan: CompositionPlan,
+    mounted: Vec<MountedValue<T>>,
+}
+
+impl<T> RuntimeScope<T> {
+    pub fn new(plan: CompositionPlan) -> Self {
+        Self {
+            plan,
+            mounted: Vec::new(),
+        }
+    }
+
+    pub fn plan(&self) -> &CompositionPlan {
+        &self.plan
+    }
+
+    pub fn mounted(&self) -> &[MountedValue<T>] {
+        &self.mounted
+    }
+
+    pub fn get(&self, entry: &EntryId) -> Option<&T> {
+        self.mounted
+            .iter()
+            .find(|mounted| mounted.entry == *entry)
+            .map(MountedValue::value)
+    }
+
+    pub fn get_mut(&mut self, entry: &EntryId) -> Option<&mut T> {
+        self.mounted
+            .iter_mut()
+            .find(|mounted| mounted.entry == *entry)
+            .map(|mounted| &mut mounted.value)
+    }
+
+    pub fn mount(&mut self, entry: &EntryId, value: T) -> Result<(), MountError> {
+        let Some((position, planned)) = self
+            .plan
+            .entries()
+            .iter()
+            .enumerate()
+            .find(|(_, planned)| planned.entry.id == *entry)
+        else {
+            return Err(MountError::UnknownEntry {
+                entry: entry.clone(),
+            });
+        };
+        if self.mounted.iter().any(|mounted| mounted.entry == *entry) {
+            return Err(MountError::DuplicateMount {
+                entry: entry.clone(),
+            });
+        }
+        if let Some((after, _)) = self
+            .mounted
+            .iter()
+            .filter_map(|mounted| {
+                self.plan
+                    .entries()
+                    .iter()
+                    .position(|planned| planned.entry.id == mounted.entry)
+                    .map(|mounted_position| (mounted.entry.clone(), mounted_position))
+            })
+            .filter(|(_, mounted_position)| *mounted_position >= position)
+            .max_by_key(|(_, mounted_position)| *mounted_position)
+        {
+            return Err(MountError::OutOfOrder {
+                entry: entry.clone(),
+                after,
+            });
+        }
+        self.mounted.push(MountedValue {
+            entry: entry.clone(),
+            layer: planned.layer().clone(),
+            value,
+        });
+        Ok(())
+    }
+
+    /// Remove one value without disturbing the remaining plan order.
+    pub fn unmount(&mut self, entry: &EntryId) -> Option<T> {
+        self.mounted
+            .iter()
+            .position(|mounted| mounted.entry == *entry)
+            .map(|index| self.mounted.remove(index).value)
+    }
+
+    /// Release every mounted value in reverse activation order. The returned
+    /// values retain that order and drop in it when the caller drops them.
+    pub fn unmount_all(&mut self) -> Vec<MountedValue<T>> {
+        let mut released = Vec::with_capacity(self.mounted.len());
+        while let Some(value) = self.mounted.pop() {
+            released.push(value);
+        }
+        released
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum MountError {
+    UnknownEntry { entry: EntryId },
+    DuplicateMount { entry: EntryId },
+    OutOfOrder { entry: EntryId, after: EntryId },
+}
+
+impl fmt::Display for MountError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::UnknownEntry { entry } => {
+                write!(formatter, "cannot mount unknown or disabled entry {entry}")
+            }
+            Self::DuplicateMount { entry } => {
+                write!(formatter, "entry {entry} is already mounted")
+            }
+            Self::OutOfOrder { entry, after } => write!(
+                formatter,
+                "entry {entry} must mount after {after}, following its composition order"
+            ),
+        }
+    }
+}
+
+impl Error for MountError {}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum CompositionError {
     InvalidIdentifier {
