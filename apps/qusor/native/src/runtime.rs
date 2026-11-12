@@ -54,6 +54,11 @@ impl AppRuntime {
                         Some(store) => store,
                         None => vault::open(sys)?,
                     };
+                    // Bundled study content is optional: a seed failure must not
+                    // block notes or reading from opening the same Core.
+                    if core.is_none() {
+                        let _ = store.ensure_starter_wordbook();
+                    }
                     core = Some(store.clone());
                     scope
                         .mount(&entry, AppService::Core(store))

@@ -49,7 +49,9 @@
 
 2026-11-09 平台优先级更新：用户要求一次推进 macOS / Windows / Linux / iOS / Android / Web。先解除 Linux 专用宿主和服务绑定，完成共享平台契约、对应运行入口及每端资格记录；原有第三方插件、Core 事务与原生优先门槛保持。平台支持以真实结果表为准，不将矩阵配置当作交付。见 [ADR 0033](../architecture/adr/0033-cross-platform-runtime.md)。
 
-2026-11-12 Android 里程碑：Android arm64 debug APK 已实际构建、安装并在 API 36 模拟器启动；手机首屏改为单栏，导航占满宽度，Android 返回键先关闭导航/详情/插件而不是退出应用；想法 Host 读取本机 Core 空态，背单词可触控打开学习卡、揭晓答案与显示四档评分。根因不是 NSH 源码缺失，而是本机 Rust 1.97.1 release 的 proc-macro dylib 缺陷，Android 打包改用 stable 1.99.1。真机、商店签名、Android PDF/IME/选文与持久数据写入仍未完成，见 [Android 资格记录](../../experiments/nsh-reader/evidence/android-package-launch/README.md)。
+2026-11-12 Android 里程碑：Android arm64 debug APK 已实际构建、安装并在 API 36 模拟器启动；手机首屏改为单栏，导航占满宽度，Android 返回键先关闭导航/详情/插件而不是退出应用。空学习库会由可信应用幂等安装自编“QUSOR 入门 12 词”，真实 Core 完成“认识”评分并在强制停止重开后保持新词 11。根因不是 NSH 源码缺失，而是本机 Rust 1.97.1 release 的 proc-macro dylib 缺陷，Android 打包改用 stable 1.99.1。真机、商店签名、用户词书导入、Android PDF/IME/选文仍未完成，见 [Android 资格记录](../../experiments/nsh-reader/evidence/android-package-launch/README.md)。
+
+2026-11-12 继续阅读游标：资料库在 NSH 应用存储中按文档 ID 保存页级阅读位置，重开应用后打开同一资料恢复该页，列表显示“上次读到第 N 页”并把动作改为“继续”；页数变化、损坏/越界值和存储失败都安全回到第一页。5 项 `nsh test` 覆盖格式、失效、重开恢复和翻页写入。该游标是设备级界面偏好，不写 Core、不导出、不能替代带来源版本的正式阅读锚点。
 新增 C-14/F-EXT-07 设计增量见 [插件平台兼容](../architecture/plugin-platforms.md)：后续包/SDK 切片先补纯兼容解析与旧协议回归，再补签名多实现包、安装/恢复，最后按真实平台/渠道验证。纯兼容解析已实现，签名包/安装/恢复接线待推进；不自动启动语音插件或改变既有阅读闭环优先级。
 
 更新：2026-11-09。状态：用户已同意顺序及插件化目录设计，当前实施前置验证。首版 AI、云默认行为与六端平台范围见 [范围记录](scope.md)。

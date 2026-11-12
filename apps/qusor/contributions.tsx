@@ -16,6 +16,11 @@ import {
     Tool,
 } from "./ui";
 import { phoneticOf, pronunciationOf } from "./pronunciation";
+import {
+    loadReadingPosition,
+    saveReadingPosition,
+    type ReadingPosition,
+} from "./reading_position";
 
 // Content fixtures plus the manifest-backed workspace contribution catalog.
 // This module owns rendering and local draft state; the shell owns composition
@@ -3098,12 +3103,14 @@ type LibrarySourceTarget = {
 };
 
 const libraryRows = signal<LibraryRow[]>([]);
+const libraryPositions = signal<Record<number, ReadingPosition>>({});
 const libraryStatus = signal("正在读取本机资料库…");
 const libraryNext = signal("");
 const libraryOpenDoc = signal<LibraryRow | null>(null);
 const libraryPageIndex = signal(0);
 const libraryPageText = signal("");
 const libraryPageStatus = signal("");
+const libraryResumeNotice = signal("");
 const librarySelection = signal("");
 const librarySelectionStart = signal(0);
 const librarySelectionNote = signal("");
@@ -3127,6 +3134,29 @@ function libraryRow(raw: any): LibraryRow | null {
         return null;
     }
     return raw;
+}
+
+async function refreshLibraryPositions(rows: LibraryRow[]) {
+    const positions: Record<number, ReadingPosition> = {};
+    await Promise.all(
+        rows.map(async (row) => {
+            const position = await loadReadingPosition(
+                row.document_id,
+                row.page_count,
+            );
+            if (position) positions[row.document_id] = position;
+        }),
+    );
+    libraryPositions.set(positions);
+}
+
+function libraryPositionOf(row: LibraryRow): ReadingPosition | null {
+    return libraryPositions()[row.document_id] ?? null;
+}
+
+function libraryPositionLabel(row: LibraryRow): string {
+    const position = libraryPositionOf(row);
+    return position ? ` · 上次读到第 ${position.page + 1} 页` : "";
 }
 
 function openLibrarySource(
@@ -3154,6 +3184,7 @@ async function loadLibraryPage(cursor = "") {
             if (row) rows.push(row);
         }
         libraryRows.set(rows);
+        await refreshLibraryPositions(rows);
         libraryNext.set(
             typeof response.value.next_cursor === "string"
                 ? response.value.next_cursor
@@ -3179,6 +3210,7 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
     librarySelectionStart.set(0);
     librarySelectionNote.set("");
     librarySourceQuote.set(null);
+    libraryResumeNotice.set("");
     libraryPageStatus.set("正在读取本机文字…");
     let offset = 0;
     let text = "";
@@ -3204,8 +3236,33 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
                 ? "本机 Core · 文字层阅读（页图/版面尚未接入）"
                 : "这一页没有可提取的文字层。",
         );
+        const saved = await saveReadingPosition(
+            row.document_id,
+            pageIndex,
+            row.page_count,
+        );
+        if (saved) {
+            libraryPositions.set({
+                ...libraryPositions(),
+                [row.document_id]: saved,
+            });
+        }
     } catch (_) {
         libraryPageStatus.set("这一页的文字暂时读不到；资料仍保留在本机。");
+    }
+}
+
+async function openLibraryDocument(row: LibraryRow) {
+    const position = await loadReadingPosition(
+        row.document_id,
+        row.page_count,
+    );
+    const page = position ? position.page : 0;
+    await loadLibraryText(row, page);
+    if (position) {
+        libraryResumeNotice.set(
+            `已继续上次阅读 · 第 ${position.page + 1} 页`,
+        );
     }
 }
 
@@ -3349,6 +3406,11 @@ function LibraryReader(props: { compact: boolean }) {
                 <Copy size={12} muted>
                     {libraryPageStatus()}
                 </Copy>
+                <If when={!!libraryResumeNotice()}>
+                    <Copy size={11} muted>
+                        {libraryResumeNotice()}
+                    </Copy>
+                </If>
                 <If when={!!librarySourceQuote()}>
                     <View
                         style={{
@@ -3509,12 +3571,23 @@ function LibraryWorkspace(props: { compact: boolean }) {
                                         Math.round(row().original_bytes / 1024),
                                     )}{" "}
                                     KiB · 提交 {row().commit_rev}
+                                    {libraryPositionLabel(row())}
                                 </Copy>
                             </View>
                             <Tool
-                                label={`阅读${row().title}`}
-                                text="阅读"
-                                onPress={() => void loadLibraryText(row(), 0)}
+                                label={`${
+                                    libraryPositionOf(row())
+                                        ? "继续阅读"
+                                        : "阅读"
+                                }${row().title}`}
+                                text={
+                                    libraryPositionOf(row())
+                                        ? "继续"
+                                        : "阅读"
+                                }
+                                onPress={() =>
+                                    void openLibraryDocument(row())
+                                }
                             />
                         </View>
                     )}

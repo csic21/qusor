@@ -1,6 +1,6 @@
 # ADR 0036：词汇学习的公开能力（协议 0.5）
 
-日期：2026-11-11。状态：Host API 0.5 wire、`vocab.read`/`vocab.review`、`vocab_workspace` 贡献、FSRS-5 调度内核、Core 词汇学习数据（SQLite schema 4）、`StudyStore` 用例、`plugins/vocab` 普通签名包与真实 SQLite 端到端测试已通过；原生工作台样例 UI（先回想后揭晓、四档评分、真实 Core、重开恢复）也已通过 headless 与实窗证据；生产安装界面、正式产品工作区、词书导入/随包数据与移动/渠道资格仍未完成。关联 F-LEARN-01、F-EXT-01/03/04/05/06，承接 [ADR 0035](0035-notes-read-capability.md)，规格见 [词汇插件](../../product/vocab-plugin.md)。
+日期：2026-11-11。状态：Host API 0.5 wire、`vocab.read`/`vocab.review`、`vocab_workspace` 贡献、FSRS-5 调度内核、Core 词汇学习数据（SQLite schema 4）、`StudyStore` 用例、`plugins/vocab` 普通签名包与真实 SQLite 端到端测试已通过；原生工作台样例 UI（先回想后揭晓、四档评分、真实 Core、重开恢复）也已通过 headless 与实窗证据；产品应用会在学习库为空时幂等安装自编入门词书，Android API 36 模拟器已通过真实 Core 评分与重启恢复。生产安装界面、用户词书导入、真机/渠道资格仍未完成。关联 F-LEARN-01、F-EXT-01/03/04/05/06，承接 [ADR 0035](0035-notes-read-capability.md)，规格见 [词汇插件](../../product/vocab-plugin.md)。
 
 ## 问题
 
@@ -73,8 +73,8 @@ SQLite schema 从 3 迁移到 4，新增四张 Core 表（同一 `core.sqlite`�
 - 0.1–0.4 的 manifest、请求、签名、Surface 与 notes 路径不变；`policy-v0.5.schema.json` 独立描述 0.5 词汇。
 - 0.5 不继承旧能力：同时需要阅读/想法与词汇的包当前无法在同一个会话版本内声明；应拆包或等待后续合并词表。
 - 原生工作台样例 UI 已按 [想法工作区](../../design/notes-workspace.md) 相同模式接入 `VocabHost`（`VocabBridge` + 真实 SQLite Core），见[实窗记录](../../../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)；它仍不是正式产品工作区或安装界面，不能据此声明产品旅程完成。
-- 词书内容当前由宿主/可信应用播种（合成示例，不是授权词表）；插件随包数据、用户导入与“从阅读收词”需要新的数据文件/导入能力和对应授权，本切片不假装已支持。
-- 没有 AI、云同步、提醒、网络、账号或外部词库；没有移动端与渠道资格。
+- 工作台样例仍可使用合成示例；产品应用在第一次打开且学习库完全为空时，由可信应用播种自编“QUSOR 入门 12 词”。已有任意词书时不追加；它不是考试词表或授权词库。用户词书导入、随包正式词库与“从阅读收词”仍需要新的数据文件/导入能力和对应授权。
+- 没有 AI、云同步、提醒、网络、账号或外部词库；Android 仅有 debug APK 模拟器资格，没有真机、商店或渠道资格。
 
 ## 验证
 
@@ -88,6 +88,7 @@ SQLite schema 从 3 迁移到 4，新增四张 Core 表（同一 `core.sqlite`�
 - `experiments/capture-core`：普通签名包端到端 3 项；`plugins/vocab/build.py` 在仓库外生成 `vocab.qpk`（sha256 `4ce99011…dd0823`，2149 bytes，固定测试发布键不是生产密钥）。
 - 工作区排除 `runtime-process` 合计 282 项通过；`cargo fmt --all -- --check`、`cargo clippy --workspace --all-targets -- -D warnings`、架构守卫/依赖闭包、42 项 Python 边界测试与 188 份 Markdown 本地链接通过。
 - 原生工作台：`nsh check App.tsx` 通过；`vocab-workspace` headless 10 项、`notes-workspace` 回归 6 项通过；`vocab_native` 模块测试 1 项通过；`prepare.py --evidence vocab` 在真实 NSWindow 内捕获 decks/study/revealed/reviewed/done 五张，并在同一 Core 重启后补两张恢复图（见[实窗记录](../../../experiments/nsh-reader/evidence/vocab-workspace-live/record.json)）。
+- 产品应用原生测试 13 项通过，其中入门词书安装验证空学习库播种 12 卡、重复调用不重复，旧迁移词书存在时不追加；Android API 36 模拟器对真实 Core 词书完成“认识”评分，回执为 3 天后，强制停止重开后新词计数保持 11，见 [Android 资格](../../../experiments/nsh-reader/evidence/android-package-launch/README.md)。
 - 已知环境问题：本机 `runtime-process --test controller` 在干净树（stash 后）同样失败，属 macOS 进程监督用例，与本变更无关；该包未被本变更修改，因此不宣称本机全工作区整体通过。
 - 机器可读记录见 [词汇包记录](../../../experiments/capture-core/evidence/vocab-package/record.json) 与 [author-proof](../../../experiments/capture-core/evidence/vocab-package/author-proof.json)。
 
@@ -95,5 +96,5 @@ SQLite schema 从 3 迁移到 4，新增四张 Core 表（同一 `core.sqlite`�
 
 - 正式产品工作区装配（工作台样例之外的宿主接线）、生产安装/权限界面与发布密钥管理；实窗中的评分失败重试/回退横幅未注入真实故障。
 - 词书随包数据、用户导入、从阅读/笔记收词、标签与搜索。
-- 持久安装后的评分、多设备/同步、提醒、移动与 Web 运行 profile。
+- 持久安装后的评分、用户词书导入、多设备/同步、提醒、Android 真机与 Web 运行 profile。
 - FSRS 参数个性化与算法升级迁移。

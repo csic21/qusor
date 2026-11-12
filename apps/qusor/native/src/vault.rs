@@ -6,8 +6,11 @@
 //! contracts. Plugins never receive this handle or a database path.
 use core_api::{
     knowledge::{ArchiveV2, KnowledgeError, KnowledgeErrorCode},
-    vocab::{CardSchedule, ReviewEntry, ReviewGuard, StudyArchive, Wordbook, WordbookSeed},
+    vocab::{
+        CardSchedule, NewWord, ReviewEntry, ReviewGuard, StudyArchive, Wordbook, WordbookSeed,
+    },
 };
+use learning_application::study::StudyApplication;
 use learning_ports::{CommitPlan, KnowledgeStore, StudyStore};
 use nsh_core::prelude::*;
 use std::{
@@ -44,6 +47,27 @@ impl VaultStore {
         Self::open_path(&core)
     }
 
+    pub fn ensure_starter_wordbook(&self) -> Result<(), String> {
+        let mut study = StudyApplication::new(self.clone());
+        if !study
+            .export_study()
+            .map_err(|error| error.to_string())?
+            .wordbooks
+            .is_empty()
+        {
+            return Ok(());
+        }
+        let now_ms = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_err(|error| error.to_string())?
+            .as_millis();
+        let now_ms = i64::try_from(now_ms).map_err(|_| "system time is unsupported")?;
+        study
+            .seed_wordbook("qusor-vault", &starter_wordbook(), now_ms)
+            .map(|_| ())
+            .map_err(|error| error.to_string())
+    }
+
     fn open_path(path: &Path) -> Result<Self, String> {
         Ok(Self {
             inner: Arc::new(Mutex::new(SqliteStore::open(path).map_err(text)?)),
@@ -61,6 +85,80 @@ impl VaultStore {
             )
         })?;
         operation(&mut store)
+    }
+}
+
+fn starter_wordbook() -> WordbookSeed {
+    let word = |term: &str, meaning: &str, example: &str| NewWord {
+        term: term.into(),
+        meaning: meaning.into(),
+        example: example.into(),
+    };
+    WordbookSeed {
+        title: "QUSOR 入门 12 词".into(),
+        description: "随应用提供的入门词书；用于首次学习，不代表考试词表。".into(),
+        words: vec![
+            word(
+                "abandon",
+                "放弃；抛弃",
+                "They had to abandon the plan when the funding was withdrawn.",
+            ),
+            word(
+                "benefit",
+                "好处；使受益",
+                "Daily review benefits long-term memory more than one long session.",
+            ),
+            word(
+                "candidate",
+                "候选人；应试者",
+                "Each candidate read the passage twice before answering.",
+            ),
+            word(
+                "coherent",
+                "连贯的；一致的",
+                "A coherent argument states its claim before the evidence.",
+            ),
+            word(
+                "cite",
+                "引用；举例",
+                "Cite the original page instead of a summary of it.",
+            ),
+            word(
+                "context",
+                "上下文；语境",
+                "The surrounding context changes how a sentence is understood.",
+            ),
+            word(
+                "deliberate",
+                "深思熟虑的；故意的",
+                "A deliberate pause can make room for a better answer.",
+            ),
+            word(
+                "evidence",
+                "证据",
+                "Keep the evidence next to the claim it supports.",
+            ),
+            word(
+                "interpret",
+                "解释；理解",
+                "Readers may interpret the same passage in different ways.",
+            ),
+            word(
+                "method",
+                "方法",
+                "A clear method makes the result easier to reproduce.",
+            ),
+            word(
+                "primary",
+                "主要的；最初的",
+                "The primary source is more reliable than a later summary.",
+            ),
+            word(
+                "source",
+                "来源；出处",
+                "Every quotation should preserve its source and page.",
+            ),
+        ],
     }
 }
 
@@ -340,6 +438,26 @@ mod tests {
                 .len(),
             1
         );
+    }
+
+    #[test]
+    fn starter_wordbook_is_installed_once_and_reopens() {
+        let scratch = Scratch::new();
+        {
+            let store = VaultStore::open_app(&scratch.0).unwrap();
+            store.ensure_starter_wordbook().unwrap();
+            store.ensure_starter_wordbook().unwrap();
+            let study = StudyApplication::new(store).export_study().unwrap();
+            assert_eq!(study.wordbooks.len(), 1);
+            assert_eq!(study.wordbooks[0].title, "QUSOR 入门 12 词");
+            assert_eq!(study.cards.len(), 12);
+            assert!(study.schedules.is_empty());
+            assert!(study.reviews.is_empty());
+        }
+        let reopened = VaultStore::open_app(&scratch.0).unwrap();
+        let study = StudyApplication::new(reopened).export_study().unwrap();
+        assert_eq!(study.wordbooks.len(), 1);
+        assert_eq!(study.cards.len(), 12);
     }
 
     #[test]

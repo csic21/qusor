@@ -102,6 +102,15 @@ export RUSTUP_TOOLCHAIN=stable
 
 这不是商店签名。APK 在 API 36 模拟器的安装、单栏导航、返回键、想法 Core 空态和背单词触控结果见 [Android 资格记录](../experiments/nsh-reader/evidence/android-package-launch/README.md)。
 
+资料库页级继续阅读偏好的无界面回归：
+
+```sh
+cd apps/qusor
+../../experiments/nsh-reader/target/nsh/target/debug/nsh test tests/reading-position.test.tsx
+```
+
+该测试验证存储格式、损坏/越界值拒绝、页数变化失效、应用重开恢复和翻页写入；它不是 Core 阅读锚点、跨设备同步或导出资格。
+
 应用内自动更新（检查→下载→替换→重启）的本机自测：
 
 ```sh

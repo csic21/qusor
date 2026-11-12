@@ -23,7 +23,7 @@
 | 更新签名密钥 | 更新公钥已内置；私钥保存在本机 `.local/keys` 与 GitHub secret `NSH_UPDATE_KEY`，未提交。draft 清单已用该密钥签名并由独立 OpenSSL 复算通过 | 同左 |
 | 打包 | 生产入口使用 `nsh package --target macos`，产出 ad hoc `QUSOR.app` 和归档；实验目录仍有早期自建 Preview 包装 | `apps/qusor`、[Release 验收](../../experiments/nsh-reader/evidence/github-release/README.md) |
 | CI | `foundation.yml` 三 OS Core/库任务通过；`release.yml` 的 macOS package 与 publish 在 run 43142491761 首次完整通过并创建固定 SHA 的 draft | run 43142491761；[平台缺口](../../adapters/extension-store/tests/platform_profile.rs) |
-| 移动端 | 5 个 target 的库交叉编译通过；另有 Android arm64 debug APK 在 API 36 模拟器实际安装、启动并完成手机布局/返回键/想法与背单词界面验证 | [Android APK/界面记录](../../experiments/nsh-reader/evidence/android-package-launch/README.md) |
+| 移动端 | 5 个 target 的库交叉编译通过；另有 Android arm64 debug APK 在 API 36 模拟器实际安装、启动并完成手机布局/返回键；空学习库播种 12 词入门词书，真实 Core 评分与重启恢复通过 | [Android APK/界面记录](../../experiments/nsh-reader/evidence/android-package-launch/README.md) |
 
 ### CI 失败根因与处理（2026-11-11）
 
@@ -76,7 +76,7 @@
 | macOS | ad hoc 签名 `.app` | Developer ID 签名 + notarize；否则用户需手动放行 |
 | Windows | 目录 / `.zip` | MSVC 构建与实窗；当前 store 测试仍失败 |
 | Linux | 目录 / `.tar.gz` | GTK 依赖与实窗复验 |
-| Android | 调试签名 arm64 APK；API 36 模拟器已安装、启动并操作手机布局、返回键、想法 Core 空态与背单词学习卡 | 真机/平板、商店签名与渠道、持久数据播种、PDF/IME/选文、性能与耗电 |
+| Android | 调试签名 arm64 APK；API 36 模拟器已安装、启动并操作手机布局与返回键；空学习库会安装自编入门词书，真实 Core 评分与重启恢复通过 | 真机/平板、商店签名与渠道、用户词书导入、PDF/IME/选文、性能与耗电 |
 | iOS | 模拟器 `.app` | Apple 账号、设备 `.ipa`、真机与 TestFlight/商店 |
 | Web | 静态站点 | 浏览器宿主、持久存储与真实阅读流程 |
 

@@ -16,9 +16,9 @@
     "abi": "arm64-v8a"
   },
   "artifact": {
-    "path": "/private/tmp/qusor-android-navigation-2/QUSOR.apk",
-    "bytes": 48866048,
-    "sha256": "10461150370065a3a9f36027feb2107b1dcf2ef0cb27f0aa0b797d5cd613051a",
+    "path": "/private/tmp/qusor-android-final/QUSOR.apk",
+    "bytes": 48882432,
+    "sha256": "153a8a5ff182725733559725c76a4665102fca990662ce199119c32f68206d5e",
     "package": "org.qusor.app",
     "version_name": "0.1.0",
     "version_code": 1,
@@ -38,6 +38,9 @@
     "notes_core_read": true,
     "vocab_workspace_touch": true,
     "vocab_reveal_touch": true,
+    "starter_wordbook_in_core": true,
+    "vocab_review_persisted": true,
+    "vocab_review_survives_restart": true,
     "landscape_scroll": true,
     "fatal_logcat_entries": 0
   },
@@ -49,13 +52,16 @@
     "vocab-mobile.png": "ecd69edd2bd5306b4f259824636f292cb1241dda2228129e3adc3d6e1795c892",
     "vocab-study.png": "68a592d6c0a6e7ae59aab0c930d324a161e21bb5befa52615b42ff982e9a38ed",
     "vocab-revealed.png": "11bbb5694635dff912ec1945190983bd7f13843a743594b2fc83f7ffd7668ebd",
+    "vocab-core.png": "9e2835b91af82cf143bff754ab0dd4682fece4730a0006810f08295f065eb241",
+    "vocab-core-reviewed.png": "b3e3da0ccb8c8e0c96c56dfa465cca9e57ab22dba0d0cc28a84c21761b527305",
+    "vocab-core-restart.png": "b0ecbcb9ec669a941076e17e4f667d07612248c62426a5647503184c80c9a7f6",
     "vocab-landscape-scrolled.png": "1971b8bc601da851b2e69675c7b830e480a357bdac5479867165834aefe83aa3"
   },
   "limitations": [
     "No physical Android device.",
     "Debug signing only; no store or release keystore.",
     "No seeded Android Core or PDF reading/capture persistence.",
-    "Vocabulary shown from sample fallback, not an Android Core write.",
+    "The bundled starter wordbook is app-authored; user wordbook import is not implemented.",
     "No soft-keyboard, Chinese IME, touch text selection, performance or battery qualification."
   ]
 }
