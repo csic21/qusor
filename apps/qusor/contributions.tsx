@@ -3064,6 +3064,7 @@ const libraryOpenDoc = signal<LibraryRow | null>(null);
 const libraryPageIndex = signal(0);
 const libraryPageText = signal("");
 const libraryPageStatus = signal("");
+const librarySelection = signal("");
 let libraryBooted = false;
 
 async function loadLibraryPage(cursor = "") {
@@ -3103,6 +3104,7 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
     libraryOpenDoc.set(row);
     libraryPageIndex.set(pageIndex);
     libraryPageText.set("");
+    librarySelection.set("");
     libraryPageStatus.set("正在读取本机文字…");
     let offset = 0;
     let text = "";
@@ -3178,17 +3180,36 @@ function LibraryReader(props: { compact: boolean }) {
                 <Copy size={12} muted>
                     {libraryPageStatus()}
                 </Copy>
-                <Text
-                    accessibilityLabel="当前页文字"
-                    style={{
-                        fontSize: 16,
-                        lineHeight: 29,
-                        color: ink("text-primary"),
-                        userSelect: "text",
-                    }}
+                <View
+                    selectable
+                    accessibilityLabel="可选择的本页文字"
+                    onSelectionChange={({ text }) => librarySelection.set(text)}
                 >
-                    {libraryPageText()}
-                </Text>
+                    <Text
+                        style={{
+                            fontSize: 16,
+                            lineHeight: 29,
+                            color: ink("text-primary"),
+                            userSelect: "text",
+                        }}
+                    >
+                        {libraryPageText()}
+                    </Text>
+                </View>
+                <If when={!!librarySelection()}>
+                    <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+                        <Copy size={11} muted>
+                            已选 {Array.from(librarySelection()).length} 字
+                        </Copy>
+                        <Tool
+                            label="复制当前选文"
+                            text="复制选文"
+                            onPress={() =>
+                                void Clipboard.writeText(librarySelection())
+                            }
+                        />
+                    </View>
+                </If>
             </View>
         </Scroll>
     );

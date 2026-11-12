@@ -2,7 +2,7 @@
 
 日期：2026-11-12
 
-状态：协议、Host 授权、应用 Core 后端适配、初始原生资料库列表和文本层翻页已实现；PDF 页图、精确版面、选文与 Reader Surface 未完成。
+状态：协议、Host 授权、应用 Core 后端适配、初始原生资料库列表、文本层翻页和选文复制已实现；PDF 页图、精确版面、选文保存与 Reader Surface 未完成。
 
 ## 背景
 
@@ -27,6 +27,7 @@
 - “打开文档”仍需另一条受控 Reader Surface/原件路径，不能从 Library 元数据响应夹带 PDF 字节。
 - 应用已嵌入普通签名 `org.qusor.library` 包，`LibraryHost.page` 通过 0.6 permit 和 `LibraryReadBridge` 读取真实 Core；初始资料库工作区只显示元数据。
 - 资料库项可进入文字层阅读视图，支持上一页/下一页和 Core 文本分块；无文字层页面明确提示，不伪造正文。
+- 正文使用 NSH 原生 selectable selection，可复制当前选文；尚未把选区提交为 Core 摘录。
 - Reader preview fixture 仍是独立入口，尚未从资料库打开。
 
 ## 验证
