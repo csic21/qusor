@@ -90,7 +90,7 @@ Draft请求至多64KiB、每文本块512bytes、完整响应4KiB、单想法文�
 
 新增 [0.5策略schema](schema/policy-v0.5.schema.json)、`vocab.read`/`vocab.review` 能力与 `vocab_workspace` 贡献类型；0.5是独立词表，不继承0.1–0.4，旧版本语义与测试保持不变。`vocab` 模块提供 `vocab-study-v1`：词书列表（≤6本）、学习队列（≤6张/页，词条/释义/例句分别≤64/96/160 bytes）与一次评分提交；整响应≤4 KiB，请求不自报vault，由Host绑定精确授权。评分的 `request_id` 同时是Core幂等键：重复同一评分返回原结果，换卡片或评分报冲突。见 [ADR 0036](../../docs/architecture/adr/0036-vocabulary-study-capability.md)。wire通过不等于可信后端、普通包、真实SQLite或原生工作区已接通。
 
-新增 [0.6策略schema](schema/policy-v0.6.schema.json)、`library.read` 能力与 `library_workspace` 贡献类型；0.6只承载 PDF Library 元数据读取，不继承0.1–0.5的新增词汇。`library` 模块提供 `library-metadata-v1`：单页最多6份文档，返回标题、摘要/字节数、页数和提取修订，不返回原件/blob/路径/想法；整响应≤4 KiB。请求不自报vault，由Host绑定 `library.read` 精确授权。见 [ADR 0046](../../docs/architecture/adr/0046-library-host-api-0-6.md)。Host后端、普通包与原生Library UI尚未接线。
+新增 [0.6策略schema](schema/policy-v0.6.schema.json)、`library.read`/`capture.propose` 能力与 `library_workspace` 贡献类型；0.6独立承载 PDF Library 元数据、文字层读取和显式选文提交，不继承0.1–0.5的新增词汇。`library` 模块提供 `library-metadata-v1`：单页最多6份文档，返回标题、摘要/字节数、页数和提取修订；文字分块最多2048 bytes；选文提交由用户动作触发并回到Core用例。响应不返回原件/blob/路径/想法；请求不自报vault，由Host绑定精确授权。见 [ADR 0046](../../docs/architecture/adr/0046-library-host-api-0-6.md)。Host后端、普通包与原生Library UI已接线；页图/精确版面仍未完成。
 
 ## 只读段落投影（实施切片）
 

@@ -27,6 +27,8 @@ pub const MAX_LIBRARY_TEXT_CHUNK: u16 = 2048;
 pub const MIN_LIBRARY_TEXT_CHUNK: u16 = 4;
 /// Maximum text start offset in the current Library text profile.
 pub const MAX_LIBRARY_TEXT_OFFSET: u32 = 16 * 1024 * 1024;
+/// Maximum scalar range accepted for one Library selection.
+pub const MAX_LIBRARY_SELECTION_SCALARS: u32 = 100_000;
 
 fn invalid(message: &'static str) -> ApiError {
     ApiError::new(ErrorCode::InvalidRequest, message)
@@ -98,6 +100,13 @@ pub enum LibraryOperation {
         offset: u32,
         max_bytes: u16,
     },
+    /// Capture a scalar range from one stored PDF text layer.
+    CaptureSelection {
+        document_id: i64,
+        page_index: u32,
+        start: u32,
+        end: u32,
+    },
 }
 
 impl LibraryRequest {
@@ -134,6 +143,25 @@ impl LibraryRequest {
                 if !(MIN_LIBRARY_TEXT_CHUNK..=MAX_LIBRARY_TEXT_CHUNK).contains(max_bytes) {
                     return Err(budget(
                         "library text chunk size is outside the supported range",
+                    ));
+                }
+            }
+            LibraryOperation::CaptureSelection {
+                document_id,
+                page_index,
+                start,
+                end,
+            } => {
+                positive(*document_id, "invalid library document id")?;
+                if *page_index >= MAX_LIBRARY_PAGES {
+                    return Err(budget("library page index is outside the supported range"));
+                }
+                if start >= end
+                    || *end > MAX_LIBRARY_SELECTION_SCALARS
+                    || end - start > MAX_LIBRARY_SELECTION_SCALARS
+                {
+                    return Err(budget(
+                        "library selection range is outside the supported range",
                     ));
                 }
             }
@@ -212,6 +240,10 @@ pub enum LibraryResult {
         text: String,
         next_offset: Option<u32>,
     },
+    Capture {
+        capture_id: i64,
+        commit_rev: i64,
+    },
     Error {
         error: ApiError,
     },
@@ -280,6 +312,13 @@ impl LibraryResponse {
                         }
                     }
                 }
+            }
+            LibraryResult::Capture {
+                capture_id,
+                commit_rev,
+            } => {
+                positive(*capture_id, "invalid library capture id")?;
+                positive(*commit_rev, "invalid library commit revision")?;
             }
             LibraryResult::Error { error } => error.validate()?,
         }

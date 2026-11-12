@@ -3,7 +3,12 @@
 //! This query returns metadata only. It never returns original PDF bytes, CAS
 //! blobs, filesystem paths, selections, notes or plugin authority.
 use crate::KnowledgeApplication;
-use core_api::knowledge::{KnowledgeError, KnowledgeErrorCode, PdfDocumentRecord, Result};
+use core_api::{
+    knowledge::{
+        KnowledgeError, KnowledgeErrorCode, PdfDocumentRecord, PdfReceipt, Provenance, Result,
+    },
+    pdf_contract::{PDF_TEXT_UNIT, PdfDraft},
+};
 use learning_ports::KnowledgeStore;
 
 /// Maximum entries in one Library page. Later entries use `next_cursor`.
@@ -40,6 +45,14 @@ pub struct PdfPageTextChunk {
     pub total_bytes: usize,
     pub text: String,
     pub next_offset: Option<usize>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct PdfSelectionRange {
+    pub document_id: i64,
+    pub page_index: u32,
+    pub start: u32,
+    pub end: u32,
 }
 
 fn invalid(message: &'static str) -> KnowledgeError {
@@ -223,5 +236,69 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
             text: text[offset..end].to_owned(),
             next_offset,
         })
+    }
+
+    /// Capture one scalar range from a PDF text layer into Core.
+    ///
+    /// The range is checked against the stored page before a draft is formed;
+    /// the normal application capture transaction owns idempotency, source
+    /// provenance and immutable output.
+    pub fn capture_pdf_selection(
+        &mut self,
+        operation_id: &str,
+        vault: &str,
+        range: PdfSelectionRange,
+        origin: &Provenance,
+        user_note: &str,
+    ) -> Result<PdfReceipt> {
+        validate_vault(vault)?;
+        if range.start >= range.end {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::InvalidInput,
+                "library selection range is empty or inverted",
+            ));
+        }
+        let archive = self.export_all()?;
+        let document = archive
+            .pdf_documents
+            .iter()
+            .find(|document| {
+                document.receipt.document_id == range.document_id && document.vault == vault
+            })
+            .ok_or_else(|| {
+                KnowledgeError::new(KnowledgeErrorCode::NotFound, "library document not found")
+            })?;
+        let page = document
+            .snapshot
+            .pages
+            .get(range.page_index as usize)
+            .ok_or_else(|| {
+                KnowledgeError::new(KnowledgeErrorCode::NotFound, "library page not found")
+            })?;
+        let scalar_count = page.engine_text.chars().count();
+        if u64::from(range.end) > scalar_count as u64 {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::InvalidInput,
+                "library selection exceeds the stored page",
+            ));
+        }
+        let exact = page
+            .engine_text
+            .chars()
+            .skip(range.start as usize)
+            .take((range.end - range.start) as usize)
+            .collect::<String>();
+        let draft = PdfDraft {
+            protocol_version: 1,
+            original_sha256: document.receipt.original_sha256.clone(),
+            extraction_revision: document.receipt.extraction_revision.clone(),
+            page_index: range.page_index,
+            page_text_sha256: page.text_sha256.clone(),
+            unit: PDF_TEXT_UNIT.into(),
+            start: u64::from(range.start),
+            end: u64::from(range.end),
+            exact,
+        };
+        self.capture_pdf(operation_id, range.document_id, &draft, origin, user_note)
     }
 }

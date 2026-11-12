@@ -13,7 +13,8 @@
     "max_minor": 6
   },
   "required_capabilities": [
-    "library.read"
+    "library.read",
+    "capture.propose"
   ],
   "optional_capabilities": [],
   "contributions": [

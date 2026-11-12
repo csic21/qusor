@@ -27,12 +27,18 @@ impl Host {
             ));
         }
         request.validate()?;
+        let capability = match &request.operation {
+            extension_api::library::LibraryOperation::CaptureSelection { .. } => {
+                Capability::CapturePropose
+            }
+            _ => Capability::LibraryRead,
+        };
         self.authorize(
             session,
             CapabilityRequest {
                 api_version: HOST_API_V0_6,
                 request_id: request.request_id.clone(),
-                capability: Capability::LibraryRead,
+                capability,
                 resource: Resource::Vault {
                     vault_id: self.vault_id().to_owned(),
                 },

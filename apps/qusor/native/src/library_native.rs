@@ -17,18 +17,30 @@ impl LibraryRuntime {
     pub(crate) fn mount(store: VaultStore) -> Result<Self, String> {
         profile::require_active(profile::LIBRARY_HOST_ENTRY)?;
         let verified = package_catalog::verify("org.qusor.library")?;
-        let mut host = Host::new("qusor-vault", [Capability::LibraryRead]).map_err(text)?;
+        let mut host = Host::new(
+            "qusor-vault",
+            [Capability::LibraryRead, Capability::CapturePropose],
+        )
+        .map_err(text)?;
         let installation = host
             .register(verified.manifest().clone(), verified.digest())
             .map_err(text)?;
         host.replace_grants(
             installation,
-            vec![Grant {
-                capability: Capability::LibraryRead,
-                resource: Resource::Vault {
-                    vault_id: "qusor-vault".into(),
+            vec![
+                Grant {
+                    capability: Capability::LibraryRead,
+                    resource: Resource::Vault {
+                        vault_id: "qusor-vault".into(),
+                    },
                 },
-            }],
+                Grant {
+                    capability: Capability::CapturePropose,
+                    resource: Resource::Vault {
+                        vault_id: "qusor-vault".into(),
+                    },
+                },
+            ],
         )
         .map_err(text)?;
         host.enable(installation).map_err(text)?;
@@ -49,13 +61,14 @@ impl LibraryRuntime {
             request_id: "workbench-library-page".into(),
             operation: LibraryOperation::Page { cursor, limit },
         };
-        let permit = self
-            .host
-            .authorize_library(&self.session, &request)
-            .map_err(text)?;
-        let response = self
-            .host
-            .dispatch(permit, |_context| Ok(self.bridge.respond(&request)))
+        let Self {
+            host,
+            session,
+            bridge,
+        } = self;
+        let permit = host.authorize_library(session, &request).map_err(text)?;
+        let response = host
+            .dispatch(permit, |context| Ok(bridge.respond(&request, context)))
             .map_err(text)?;
         match response.result {
             LibraryResult::Page {
@@ -66,6 +79,7 @@ impl LibraryRuntime {
                 "next_cursor": next_cursor,
             })),
             LibraryResult::PageText { .. } => Err("unexpected Library text result".into()),
+            LibraryResult::Capture { .. } => Err("unexpected Library capture result".into()),
             LibraryResult::Error { error } => Err(wire_error(error)),
         }
     }
@@ -88,16 +102,18 @@ impl LibraryRuntime {
                 max_bytes,
             },
         };
-        let permit = self
-            .host
-            .authorize_library(&self.session, &request)
-            .map_err(text)?;
-        let response = self
-            .host
-            .dispatch(permit, |_context| Ok(self.bridge.respond(&request)))
+        let Self {
+            host,
+            session,
+            bridge,
+        } = self;
+        let permit = host.authorize_library(session, &request).map_err(text)?;
+        let response = host
+            .dispatch(permit, |context| Ok(bridge.respond(&request, context)))
             .map_err(text)?;
         match response.result {
             LibraryResult::Page { .. } => Err("unexpected Library page result".into()),
+            LibraryResult::Capture { .. } => Err("unexpected Library capture result".into()),
             LibraryResult::PageText {
                 document_id,
                 page_index,
@@ -113,6 +129,48 @@ impl LibraryRuntime {
                 "text": text,
                 "next_offset": next_offset,
             })),
+            LibraryResult::Error { error } => Err(wire_error(error)),
+        }
+    }
+
+    fn capture_selection(
+        &mut self,
+        document_id: i64,
+        page_index: u32,
+        start: u32,
+        end: u32,
+        operation_id: String,
+    ) -> Result<Value, String> {
+        let request = LibraryRequest {
+            library_protocol: LIBRARY_PROTOCOL,
+            api_version: HOST_API_V0_6,
+            request_id: operation_id,
+            operation: LibraryOperation::CaptureSelection {
+                document_id,
+                page_index,
+                start,
+                end,
+            },
+        };
+        let Self {
+            host,
+            session,
+            bridge,
+        } = self;
+        let permit = host.authorize_library(session, &request).map_err(text)?;
+        let response = host
+            .dispatch(permit, |context| Ok(bridge.respond(&request, context)))
+            .map_err(text)?;
+        match response.result {
+            LibraryResult::Capture {
+                capture_id,
+                commit_rev,
+            } => Ok(json!({
+                "capture_id": capture_id,
+                "commit_rev": commit_rev,
+            })),
+            LibraryResult::Page { .. } => Err("unexpected Library page result".into()),
+            LibraryResult::PageText { .. } => Err("unexpected Library text result".into()),
             LibraryResult::Error { error } => Err(wire_error(error)),
         }
     }
@@ -155,6 +213,23 @@ impl LibraryHost {
     ) -> String {
         match runtime::with_library(&sys, |library| {
             library.page_text(document_id, page_index, offset, max_bytes)
+        }) {
+            Ok(value) => json!({"ok": true, "value": value}).to_string(),
+            Err(error) => json!({"ok": false, "error": error}).to_string(),
+        }
+    }
+
+    /// Capture the current scalar range through the trusted Core adapter.
+    pub fn capture_selection(
+        sys: System,
+        document_id: i64,
+        page_index: u32,
+        start: u32,
+        end: u32,
+        operation_id: String,
+    ) -> String {
+        match runtime::with_library(&sys, |library| {
+            library.capture_selection(document_id, page_index, start, end, operation_id)
         }) {
             Ok(value) => json!({"ok": true, "value": value}).to_string(),
             Err(error) => json!({"ok": false, "error": error}).to_string(),

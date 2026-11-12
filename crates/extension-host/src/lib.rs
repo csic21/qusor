@@ -39,6 +39,13 @@ pub struct InstallationId {
     sequence: u64,
 }
 
+impl InstallationId {
+    /// Host-local sequence used for audit provenance, never an authorization token.
+    pub fn sequence(self) -> u64 {
+        self.sequence
+    }
+}
+
 /// The policy state does not claim that a plugin runtime has started.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Status {
@@ -79,6 +86,7 @@ pub struct Permit {
 pub struct AuthorizedContext {
     pub installation_id: InstallationId,
     pub package_id: String,
+    pub publisher_id: String,
     pub package_digest: String,
     pub vault_id: String,
     pub grant_epoch: u64,
@@ -474,6 +482,7 @@ impl Host {
         action(&AuthorizedContext {
             installation_id: connection.installation,
             package_id: installed.manifest.package_id.clone(),
+            publisher_id: installed.manifest.publisher_id.clone(),
             package_digest: installed.digest.clone(),
             vault_id: self.vault_id.clone(),
             grant_epoch: installed.epoch,

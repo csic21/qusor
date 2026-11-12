@@ -16,13 +16,13 @@ fn manifest() -> Manifest {
             min_minor: 6,
             max_minor: 6,
         },
-        required_capabilities: vec![Capability::LibraryRead],
+        required_capabilities: vec![Capability::LibraryRead, Capability::CapturePropose],
         optional_capabilities: vec![],
         contributions: vec![Contribution {
             id: "org.test.library.workspace".into(),
             title: "Library".into(),
             kind: ContributionKind::LibraryWorkspace,
-            required_capabilities: vec![Capability::LibraryRead],
+            required_capabilities: vec![Capability::LibraryRead, Capability::CapturePropose],
         }],
     }
 }
@@ -40,16 +40,28 @@ fn request(cursor: Option<&str>) -> LibraryRequest {
 }
 
 fn grants() -> Vec<Grant> {
-    vec![Grant {
-        capability: Capability::LibraryRead,
-        resource: Resource::Vault {
-            vault_id: "vault".into(),
+    vec![
+        Grant {
+            capability: Capability::LibraryRead,
+            resource: Resource::Vault {
+                vault_id: "vault".into(),
+            },
         },
-    }]
+        Grant {
+            capability: Capability::CapturePropose,
+            resource: Resource::Vault {
+                vault_id: "vault".into(),
+            },
+        },
+    ]
 }
 
 fn setup() -> (Host, InstallationId, Session) {
-    let mut host = Host::new("vault", [Capability::LibraryRead]).unwrap();
+    let mut host = Host::new(
+        "vault",
+        [Capability::LibraryRead, Capability::CapturePropose],
+    )
+    .unwrap();
     let id = host.register(manifest(), "a".repeat(64)).unwrap();
     host.replace_grants(id, grants()).unwrap();
     host.enable(id).unwrap();
@@ -89,6 +101,28 @@ fn library_page_text_uses_the_same_exact_grant() {
     let permit = host.authorize_library(&session, &request).unwrap();
     host.dispatch(permit, |context| {
         assert_eq!(context.request.capability, Capability::LibraryRead);
+        Ok(())
+    })
+    .unwrap();
+}
+
+#[test]
+fn library_capture_requires_capture_propose() {
+    let (mut host, _, session) = setup();
+    let request = LibraryRequest {
+        library_protocol: LIBRARY_PROTOCOL,
+        api_version: HOST_API_V0_6,
+        request_id: "capture-request".into(),
+        operation: LibraryOperation::CaptureSelection {
+            document_id: 1,
+            page_index: 0,
+            start: 0,
+            end: 5,
+        },
+    };
+    let permit = host.authorize_library(&session, &request).unwrap();
+    host.dispatch(permit, |context| {
+        assert_eq!(context.request.capability, Capability::CapturePropose);
         Ok(())
     })
     .unwrap();

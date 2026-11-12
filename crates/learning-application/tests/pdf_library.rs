@@ -3,7 +3,7 @@ mod common;
 
 use core_api::knowledge::KnowledgeErrorCode;
 use learning_application::pdf_library::{
-    MAX_LIBRARY_PAGE, MAX_LIBRARY_TEXT_CHUNK, MAX_LIBRARY_TEXT_OFFSET,
+    MAX_LIBRARY_PAGE, MAX_LIBRARY_TEXT_CHUNK, MAX_LIBRARY_TEXT_OFFSET, PdfSelectionRange,
 };
 
 fn app() -> learning_application::KnowledgeApplication<common::Memory> {
@@ -107,5 +107,44 @@ fn page_text_is_bounded_and_keeps_the_core_source() {
     assert!(
         app.pdf_page_text("vault", 2, 0, MAX_LIBRARY_TEXT_OFFSET + 1, 4)
             .is_err()
+    );
+}
+
+#[test]
+fn a_text_selection_can_be_captured_into_core() {
+    let mut app = app();
+    let receipt = app
+        .capture_pdf_selection(
+            "library-capture",
+            "vault",
+            PdfSelectionRange {
+                document_id: 1,
+                page_index: 0,
+                start: 0,
+                end: 5,
+            },
+            &common::origin(),
+            "",
+        )
+        .unwrap();
+    assert_eq!(receipt.document_id, 1);
+    assert_eq!(receipt.capture_id, 1);
+    let capture = app.query_pdf(receipt.capture_id).unwrap();
+    assert_eq!(capture.draft.exact, "hello");
+    assert_eq!(capture.user_note, "");
+    assert!(
+        app.capture_pdf_selection(
+            "library-capture",
+            "vault",
+            PdfSelectionRange {
+                document_id: 1,
+                page_index: 0,
+                start: 0,
+                end: 4,
+            },
+            &common::origin(),
+            "",
+        )
+        .is_err()
     );
 }

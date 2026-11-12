@@ -74,6 +74,12 @@ fn requests_round_trip_with_canonical_bounds() {
             offset: 0,
             max_bytes: MAX_LIBRARY_TEXT_CHUNK,
         },
+        LibraryOperation::CaptureSelection {
+            document_id: 1,
+            page_index: 0,
+            start: 0,
+            end: 5,
+        },
     ] {
         let request = request(operation);
         assert_eq!(
@@ -143,6 +149,18 @@ fn requests_reject_wrong_versions_budgets_and_cursors() {
             .unwrap_err()
             .code,
             ErrorCode::BudgetExceeded
+        );
+    }
+    for (start, end) in [(2, 2), (2, 1), (0, MAX_LIBRARY_SELECTION_SCALARS + 1)] {
+        assert!(
+            request(LibraryOperation::CaptureSelection {
+                document_id: 1,
+                page_index: 0,
+                start,
+                end,
+            })
+            .validate()
+            .is_err()
         );
     }
     for cursor in [
@@ -247,6 +265,14 @@ fn responses_validate_documents_cursors_and_budgets() {
         bad_text.validate().unwrap_err().code,
         ErrorCode::InvalidRequest
     );
+    let capture = LibraryResponse {
+        request_id: "request".into(),
+        result: LibraryResult::Capture {
+            capture_id: 1,
+            commit_rev: 2,
+        },
+    };
+    assert!(capture.validate().is_ok());
 }
 
 #[test]

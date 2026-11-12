@@ -3065,6 +3065,7 @@ const libraryPageIndex = signal(0);
 const libraryPageText = signal("");
 const libraryPageStatus = signal("");
 const librarySelection = signal("");
+const librarySelectionStart = signal(0);
 let libraryBooted = false;
 
 async function loadLibraryPage(cursor = "") {
@@ -3105,6 +3106,7 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
     libraryPageIndex.set(pageIndex);
     libraryPageText.set("");
     librarySelection.set("");
+    librarySelectionStart.set(0);
     libraryPageStatus.set("正在读取本机文字…");
     let offset = 0;
     let text = "";
@@ -3132,6 +3134,42 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
         );
     } catch (_) {
         libraryPageStatus.set("这一页的文字暂时读不到；资料仍保留在本机。");
+    }
+}
+
+function utf16ToScalar(text: string, offset: number) {
+    let units = 0;
+    let scalars = 0;
+    for (const character of text) {
+        if (units >= offset) return scalars;
+        units += character.length;
+        scalars += 1;
+    }
+    return scalars;
+}
+
+async function captureLibrarySelection(row: LibraryRow, pageIndex: number) {
+    const selected = librarySelection();
+    if (!selected) return;
+    const start = utf16ToScalar(libraryPageText(), librarySelectionStart());
+    const end = start + Array.from(selected).length;
+    const operation = `library-${row.document_id}-${pageIndex}-${Date.now().toString(36)}`;
+    try {
+        const response = JSON.parse(
+            await LibraryHost.captureSelection(
+                row.document_id,
+                pageIndex,
+                start,
+                end,
+                operation,
+            ),
+        );
+        if (!response.ok) throw Error(response.error ?? "capture failed");
+        libraryPageStatus.set("选文已保存到本机 Core。");
+        librarySelection.set("");
+        librarySelectionStart.set(0);
+    } catch (_) {
+        libraryPageStatus.set("选文暂未保存；原选文仍在当前页面。");
     }
 }
 
@@ -3183,7 +3221,10 @@ function LibraryReader(props: { compact: boolean }) {
                 <View
                     selectable
                     accessibilityLabel="可选择的本页文字"
-                    onSelectionChange={({ text }) => librarySelection.set(text)}
+                    onSelectionChange={({ text, start }) => {
+                        librarySelection.set(text);
+                        librarySelectionStart.set(start ?? 0);
+                    }}
                 >
                     <Text
                         style={{
@@ -3207,6 +3248,11 @@ function LibraryReader(props: { compact: boolean }) {
                             onPress={() =>
                                 void Clipboard.writeText(librarySelection())
                             }
+                        />
+                        <Tool
+                            label="保存当前选文到 Core"
+                            text="保存摘录"
+                            onPress={() => void captureLibrarySelection(row, libraryPageIndex())}
                         />
                     </View>
                 </If>

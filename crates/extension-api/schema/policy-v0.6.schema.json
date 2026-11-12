@@ -111,12 +111,13 @@
     },
     "capability": {
       "enum": [
-        "library.read"
+        "library.read",
+        "capture.propose"
       ]
     },
     "capabilities": {
       "type": "array",
-      "maxItems": 1,
+      "maxItems": 2,
       "uniqueItems": true,
       "items": {
         "$ref": "#/$defs/capability"

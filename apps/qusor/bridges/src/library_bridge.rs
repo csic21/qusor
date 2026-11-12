@@ -3,7 +3,7 @@
 //! The Host binds the vault and authorizes `library.read`; this adapter maps
 //! bounded metadata requests onto `learning-application` and never exposes PDF
 //! bytes, paths, notes or database handles.
-use core_api::knowledge::{KnowledgeError, KnowledgeErrorCode};
+use core_api::knowledge::{KnowledgeError, KnowledgeErrorCode, Provenance};
 use extension_api::{
     ApiError, ErrorCode,
     library::{
@@ -11,8 +11,12 @@ use extension_api::{
         MAX_LIBRARY_TITLE_BYTES,
     },
 };
-use learning_application::{KnowledgeApplication, pdf_library::PdfDocumentSummary};
+use learning_application::{
+    KnowledgeApplication,
+    pdf_library::{PdfDocumentSummary, PdfSelectionRange},
+};
 use learning_ports::KnowledgeStore;
+use extension_host::AuthorizedContext;
 
 pub struct LibraryReadBridge<S: KnowledgeStore> {
     app: KnowledgeApplication<S>,
@@ -31,7 +35,11 @@ impl<S: KnowledgeStore> LibraryReadBridge<S> {
         &self.vault
     }
 
-    pub fn respond(&self, request: &LibraryRequest) -> LibraryResponse {
+    pub fn respond(
+        &mut self,
+        request: &LibraryRequest,
+        context: &AuthorizedContext,
+    ) -> LibraryResponse {
         let request_id = request.request_id.clone();
         let result = match &request.operation {
             LibraryOperation::Page { cursor, limit } => self.page(cursor.as_deref(), *limit),
@@ -41,6 +49,19 @@ impl<S: KnowledgeStore> LibraryReadBridge<S> {
                 offset,
                 max_bytes,
             } => self.page_text(*document_id, *page_index, *offset, *max_bytes),
+            LibraryOperation::CaptureSelection {
+                document_id,
+                page_index,
+                start,
+                end,
+            } => self.capture_selection(
+                request.request_id.as_str(),
+                *document_id,
+                *page_index,
+                *start,
+                *end,
+                context,
+            ),
         };
         let response = LibraryResponse { request_id, result };
         if response.to_json().is_ok() {
@@ -96,6 +117,48 @@ impl<S: KnowledgeStore> LibraryReadBridge<S> {
                 next_offset: chunk
                     .next_offset
                     .and_then(|value| u32::try_from(value).ok()),
+            },
+            Err(error) => LibraryResult::Error {
+                error: map_error(&error),
+            },
+        }
+    }
+
+    fn capture_selection(
+        &mut self,
+        operation_id: &str,
+        document_id: i64,
+        page_index: u32,
+        start: u32,
+        end: u32,
+        context: &AuthorizedContext,
+    ) -> LibraryResult {
+        let Ok(installation_id) = i64::try_from(context.installation_id.sequence()) else {
+            return LibraryResult::Error {
+                error: ApiError::new(ErrorCode::InvalidState, "installation id is unsupported"),
+            };
+        };
+        let origin = Provenance {
+            package_id: context.package_id.clone(),
+            publisher_id: context.publisher_id.clone(),
+            package_digest: context.package_digest.clone(),
+            installation_id,
+        };
+        match self.app.capture_pdf_selection(
+            operation_id,
+            &self.vault,
+            PdfSelectionRange {
+                document_id,
+                page_index,
+                start,
+                end,
+            },
+            &origin,
+            "",
+        ) {
+            Ok(receipt) => LibraryResult::Capture {
+                capture_id: receipt.capture_id,
+                commit_rev: receipt.commit_rev,
             },
             Err(error) => LibraryResult::Error {
                 error: map_error(&error),

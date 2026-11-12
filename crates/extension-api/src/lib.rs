@@ -167,7 +167,9 @@ pub fn capability_available_in(capability: Capability, version: ApiVersion) -> b
         Capability::ReaderSurface => version == HOST_API_V0_2,
         Capability::SelectionRead
         | Capability::DocumentMetadataRead
-        | Capability::CapturePropose => version == HOST_API || version == HOST_API_V0_2,
+        | Capability::CapturePropose => {
+            matches!(version, HOST_API | HOST_API_V0_2 | HOST_API_V0_6)
+        }
     }
 }
 
