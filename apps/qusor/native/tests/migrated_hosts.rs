@@ -207,6 +207,39 @@ fn packaged_host_initializers_read_one_migrated_core() {
     assert_eq!(decks.len(), 1);
     assert_eq!(decks[0]["title"], "Legacy deck");
 
+    let import = json!({
+        "title": "Imported words",
+        "description": "A user-selected worksheet",
+        "words": [
+            {
+                "term": "portable",
+                "meaning": "便携的",
+                "example": "The wordbook is portable between the app and its export."
+            },
+            {
+                "term": "retain",
+                "meaning": "保留"
+            }
+        ]
+    })
+    .to_string();
+    let imported = value(VocabHost::import_wordbook(system.clone(), import.clone()));
+    assert_eq!(imported["ok"], true, "{imported}");
+    assert_eq!(imported["value"]["title"], "Imported words");
+    assert_eq!(imported["value"]["total"], 2);
+    let decks = value(VocabHost::decks(system.clone()));
+    let decks = decks["value"]["decks"].as_array().unwrap();
+    assert_eq!(decks.len(), 2);
+    assert!(decks.iter().any(|deck| deck["title"] == "Imported words"));
+    let duplicate = value(VocabHost::import_wordbook(system.clone(), import));
+    assert_eq!(duplicate["ok"], false, "{duplicate}");
+    assert!(
+        duplicate["error"]
+            .as_str()
+            .unwrap()
+            .contains("already exists")
+    );
+
     let composition = value(CompositionHost::dump());
     assert_eq!(composition["ok"], true);
     assert!(

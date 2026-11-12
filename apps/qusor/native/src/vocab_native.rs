@@ -1,15 +1,18 @@
 use crate::{package_catalog, runtime, vault::VaultStore};
+use core_api::vocab::{NewWord, WordbookSeed};
 use extension_api::{vocab::*, *};
 use extension_host::{Grant, Host, Session};
 use learning_application::study::StudyApplication;
 use nsh_core::prelude::*;
 use qusor_app_bridges::vocab_bridge::VocabBridge;
+use serde::Deserialize;
 use serde_json::{Value, json};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub(crate) struct VocabRuntime {
     host: Host,
     session: Session,
+    store: VaultStore,
     bridge: VocabBridge<VaultStore>,
 }
 
@@ -51,6 +54,7 @@ impl VocabRuntime {
         Ok(Self {
             host,
             session,
+            store: store.clone(),
             bridge: VocabBridge::new(
                 StudyApplication::new(store),
                 "qusor-vault",
@@ -77,6 +81,7 @@ impl VocabRuntime {
             host,
             session,
             bridge,
+            ..
         } = self;
         let permit = host.authorize_vocab(session, &request).map_err(text)?;
         let response = host
@@ -102,6 +107,7 @@ impl VocabRuntime {
             host,
             session,
             bridge,
+            ..
         } = self;
         let permit = host.authorize_vocab(session, &request).map_err(text)?;
         let response = host
@@ -141,6 +147,7 @@ impl VocabRuntime {
             host,
             session,
             bridge,
+            ..
         } = self;
         let permit = host.authorize_vocab(session, &request).map_err(text)?;
         let response = host
@@ -159,6 +166,108 @@ impl VocabRuntime {
             VocabResult::Queue { .. } => Err("unexpected queue response".into()),
             VocabResult::Error { error } => Err(wire_error(error)),
         }
+    }
+
+    fn import_wordbook(&mut self, document: String) -> Result<Value, String> {
+        let seed = parse_import_wordbook(&document)?;
+        let title = seed.title.clone();
+        let total = seed.words.len();
+        let now = now_ms();
+        let mut study = StudyApplication::new(self.store.clone());
+        if study
+            .decks("qusor-vault", now)
+            .map_err(text)?
+            .iter()
+            .any(|deck| deck.wordbook.title == title)
+        {
+            return Err("a wordbook with this title already exists".into());
+        }
+        let wordbook = study
+            .seed_wordbook("qusor-vault", &seed, now)
+            .map_err(text)?;
+        Ok(json!({
+            "wordbook_id": wordbook.id,
+            "title": wordbook.title,
+            "total": total,
+        }))
+    }
+}
+
+const MAX_WORDBOOK_IMPORT_BYTES: usize = 2 * 1024 * 1024;
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ImportWordbook {
+    title: String,
+    description: Option<String>,
+    words: Vec<ImportWord>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ImportWord {
+    term: String,
+    meaning: String,
+    example: Option<String>,
+}
+
+fn parse_import_wordbook(document: &str) -> Result<WordbookSeed, String> {
+    if document.is_empty() || document.len() > MAX_WORDBOOK_IMPORT_BYTES {
+        return Err(format!(
+            "wordbook JSON must be 1 to {MAX_WORDBOOK_IMPORT_BYTES} bytes"
+        ));
+    }
+    let imported: ImportWordbook =
+        serde_json::from_str(document).map_err(|_| "invalid wordbook JSON".to_string())?;
+    let title = imported.title.trim().to_string();
+    if title.is_empty() {
+        return Err("wordbook title is required".into());
+    }
+    Ok(WordbookSeed {
+        title,
+        description: imported.description.unwrap_or_default(),
+        words: imported
+            .words
+            .into_iter()
+            .map(|word| NewWord {
+                term: word.term,
+                meaning: word.meaning,
+                example: word.example.unwrap_or_default(),
+            })
+            .collect(),
+    })
+}
+
+#[cfg(test)]
+mod import_tests {
+    use super::*;
+
+    #[test]
+    fn import_shape_defaults_optional_fields() {
+        let seed = parse_import_wordbook(
+            r#"{"title":"  My words  ","words":[{"term":"term","meaning":"词"}]}"#,
+        )
+        .unwrap();
+        assert_eq!(seed.title, "My words");
+        assert_eq!(seed.description, "");
+        assert_eq!(seed.words[0].example, "");
+    }
+
+    #[test]
+    fn import_rejects_unknown_empty_or_oversized_input() {
+        assert_eq!(
+            parse_import_wordbook(r#"{"title":"x","words":[],"path":"/tmp/a"}"#).unwrap_err(),
+            "invalid wordbook JSON"
+        );
+        assert_eq!(
+            parse_import_wordbook(r#"{"title":"  ","words":[]}"#).unwrap_err(),
+            "wordbook title is required"
+        );
+        assert!(
+            parse_import_wordbook(&" ".repeat(MAX_WORDBOOK_IMPORT_BYTES + 1))
+                .unwrap_err()
+                .contains("must be 1 to")
+        );
     }
 }
 
@@ -379,6 +488,15 @@ impl VocabHost {
     pub fn review(sys: System, card_id: i64, rating: String, operation_id: String) -> String {
         answer(runtime::with_vocab(&sys, |vocab| {
             vocab.review(card_id, rating, operation_id)
+        }))
+    }
+
+    /// Import a user-selected, bounded JSON wordbook through the trusted app
+    /// runtime. This is a host import action; study reads and reviews continue
+    /// through the ordinary package capability path.
+    pub fn import_wordbook(sys: System, document: String) -> String {
+        answer(runtime::with_vocab(&sys, |vocab| {
+            vocab.import_wordbook(document)
         }))
     }
 

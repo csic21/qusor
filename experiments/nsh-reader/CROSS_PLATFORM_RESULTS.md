@@ -12,7 +12,7 @@
 | Linux | [既有实窗与关闭记录](evidence/native-editor-shutdown-gui-default/README.md)保留；新增共享库的 aarch64 Linux 交叉检查通过 | 此次改动后的 Linux 原生应用全量复验；历史 x86_64 记录不证明 ARM 窗口 |
 | Windows | 共享 Core/API/策略/包/解释器库的 x86_64 GNU 交叉检查通过；原生入口已有条件装配 | Windows 私有存储 ACL、进程 profile、Unix 文件操作适配、PDF 工件、MSVC 应用构建与实窗 |
 | iOS | 共享库及 NSH 原生 Rust 桥接库的 arm64 Simulator 交叉检查通过 | UIKit 应用链接/启动、文件选择与原件冻结、合格的文档 provider、移动解释器 profile、设备及渠道资格 |
-| Android | 调试签名 arm64 APK 实际构建、安装、启动；API 36 模拟器显示手机单栏、全宽导航和返回键；空学习库播种 12 词入门词书，真实 Core 评分“认识”后回执 3 天、重开仍为新词 11；工件和截图见 [APK/界面记录](evidence/android-package-launch/README.md) | 真机与平板、商店签名/渠道、用户词书导入、PDF/EPUB 阅读与选文保存、IME/触摸选文、性能与耗电 |
+| Android | 调试签名 arm64 APK 实际构建、安装、启动；API 36 模拟器显示手机单栏、全宽导航和返回键；空学习库播种 12 词入门词书，真实 Core 评分“认识”后回执 3 天、重开保持新词 11；系统文件选择器导入 2 词 JSON 后重开仍在；工件和截图见 [APK/界面记录](evidence/android-package-launch/README.md) | 真机与平板、商店签名/渠道、公开插件导入 wire/覆盖/删除、PDF/EPUB 阅读与选文保存、IME/触摸选文、性能与耗电 |
 | Web | 共享库的 wasm32 交叉检查通过；兼容契约显式区分 Web | 浏览器宿主调用、worker、持久存储/恢复、文档 provider 与实际阅读流程 |
 
 交叉检查覆盖 `extension-api`、`extension-host`、`core-api`、`learning-application`、`runtime-wasm`、`extension-package` 的 **library 编译**。不覆盖平台适配器或可安装应用，也未在目标 OS 执行解释器。2026-11-11 核对 run 42813342829：`portable-libraries` 的五个 target 全部在远端通过；同一运行的 `Core foundation` ubuntu 与 windows 失败（ubuntu 为 Linux 专用测试的 Host API 数量断言过期，windows 为 `Store::open_for_host` 失败，见 [发行与更新](../../docs/product/release-and-update.md)）。

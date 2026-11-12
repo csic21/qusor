@@ -1,4 +1,4 @@
-import { Canvas, Clipboard, effect, keymap, Path2D, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
+import { Canvas, Clipboard, effect, keymap, Path2D, Picker, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
 import { Button, Input, Menu, MenuItem, MenuSeparator, TextView } from "nsh/base";
 import { Menu as DesktopMenu, type MenuItem as DesktopMenuItem } from "nsh/desktop";
 import { BackHandler } from "nsh/mobile";
@@ -2065,6 +2065,7 @@ const vocabRevealed = signal(false);
 const vocabAccent = signal("us");
 /// The text the system voice is reading right now (drives the speaker state).
 const vocabSpeaking = signal("");
+const MAX_WORDBOOK_IMPORT_BYTES = 2 * 1024 * 1024;
 
 function vocabDeckOf(id: number) {
     return vocabDecks().find((deck) => deck.id === id);
@@ -2285,6 +2286,50 @@ function retryVocabDecks() {
     vocabLoading.set(true);
     void loadVocabDecks(true);
 }
+
+async function importVocabWordbook() {
+    if (vocabBusy()) return;
+    vocabError.set("");
+    vocabNotice.set("");
+    vocabBusy.set(true);
+    try {
+        const picked = await Picker.pickFiles({
+            multiple: false,
+            filters: [{ name: "QUSOR 词书", extensions: ["json"] }],
+        });
+        if (picked.length === 0) {
+            vocabBusy.set(false);
+            return;
+        }
+        const file = picked[0].file;
+        if (file.size > MAX_WORDBOOK_IMPORT_BYTES) {
+            throw new Error("词书 JSON 不能超过 2 MiB");
+        }
+        const wordbookJson = await file.text();
+        if (!wordbookJson.trim()) throw new Error("词书 JSON 是空的");
+        const value = vocabAnswer(
+            await VocabHost.importWordbook(wordbookJson),
+        );
+        await loadVocabDecks();
+        if (!vocabLive()) {
+            vocabBusy.set(false);
+            vocabNotice.set("词书已写入 Core，但列表读取失败；可重试读取。");
+            return;
+        }
+        const wordbookId = Number(value.wordbook_id);
+        vocabBusy.set(false);
+        if (Number.isSafeInteger(wordbookId) && wordbookId > 0) {
+            selectVocabDeck(wordbookId);
+        }
+        vocabNotice.set(
+            `已导入「${String(value.title ?? "词书")}」 · ${Number(value.total ?? 0)} 张卡`,
+        );
+    } catch (error) {
+        vocabBusy.set(false);
+        vocabError.set(`导入词书失败：${vocabFailureText(error)}`);
+    }
+}
+
 async function loadVocabQueue(id: number) {
     try {
         const value = vocabAnswer(await VocabHost.queue(id, 6));
@@ -2534,6 +2579,14 @@ function VocabDeckList(props: { compact: boolean }) {
                     <Copy size={11} muted>
                         {`${vocabDecks().length} 本词书`}
                     </Copy>
+                <Tool
+                    label="导入词书 JSON"
+                    icon="plus"
+                    text="导入"
+                    size="compact"
+                    disabled={vocabBusy()}
+                    onPress={() => void importVocabWordbook()}
+                />
                 </View>
                 <Rule />
             </If>
@@ -2562,6 +2615,14 @@ function VocabDeckList(props: { compact: boolean }) {
                             <VocabDeckRow deck={deck()} compact={true} />
                         )}
                     </Each>
+                    <Tool
+                        label="导入词书 JSON"
+                        icon="plus"
+                        text="导入词书"
+                        size="compact"
+                        disabled={vocabBusy()}
+                        onPress={() => void importVocabWordbook()}
+                    />
                 </View>
             </If>
             <If when={!props.compact}>

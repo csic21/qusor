@@ -8,7 +8,7 @@
 - Android Studio JBR 25.0.2、Android SDK 35/36、NDK `27.2.12479018`。
 - Rust stable `1.99.1`（`aarch64-linux-android` target）。
 - 模拟器：Android Emulator `35.4.9.0`，AVD `Medium_Phone_API_36`，Android 16 / API 36，arm64-v8a。
-- APK：`/private/tmp/qusor-android-final/QUSOR.apk`；48,882,432 bytes；SHA-256 `153a8a5ff182725733559725c76a4665102fca990662ce199119c32f68206d5e`。
+- APK：`/private/tmp/qusor-android-import-final/QUSOR.apk`；48,894,720 bytes；SHA-256 `1711353a3a80c4607621277ae13d5360114211325289855f0de9139a28238e66`。
 - 包：`org.qusor.app` 0.1.0（versionCode 1），minSdk 28，targetSdk 35，启动 Activity `com.longbridge.nsh.AppActivity`，debug key 签名。
 
 构建命令：
@@ -22,13 +22,13 @@ env RUSTUP_TOOLCHAIN=stable \
   ANDROID_HOME='/Users/karl/Library/Android/sdk' \
   ANDROID_NDK_HOME='/Users/karl/Library/Android/sdk/ndk/27.2.12479018' \
   ../../experiments/nsh-reader/target/nsh/target/debug/nsh package \
-    --target android --abi arm64-v8a --out /private/tmp/qusor-android-final
+    --target android --abi arm64-v8a --out /private/tmp/qusor-android-import-final
 ```
 
 安装与启动：
 
 ```sh
-adb install -r /private/tmp/qusor-android-final/QUSOR.apk
+adb install -r /private/tmp/qusor-android-import-final/QUSOR.apk
 adb shell monkey -p org.qusor.app -c android.intent.category.LAUNCHER 1
 ```
 
@@ -54,6 +54,8 @@ mis-aligned LINKEDIT string pool
 | 真实 Core 读取 | 想法工作区显示“本机 Core · 由 notes 插件读取”；空 Core 显示诚实的 0 条空态 |
 | 背单词真实 Core | 首次启动在空学习库中幂等安装自编“QUSOR 入门 12 词”；词书标注“本机 Core · 由 vocab 插件读取”，学习卡、揭晓和四档评分可触控 |
 | Core 评分持久化 | 对 `abandon` 选择“认识”，回执显示“下次 3.0 天后”，词书新词从 12 降为 11；强制停止并重开应用后仍为 11，没有重复词书或重复评分 |
+| 用户词书导入 | 通过 Android 系统文件选择器选择 2 词 JSON，成功新增“我的英语笔记”，来源仍为本机 Core，并自动进入 `portable` 学习卡 |
+| 导入持久化 | 强制停止并重开应用后，词书列表仍为“QUSOR 入门 12 词”与“我的英语笔记”两本，来源为本机 Core |
 | 横屏 | 学习卡内容在独立滚动区中可达；横屏时滚动后能查看释义、例句和评分区 |
 | 崩溃检查 | 本轮操作后进程仍存在；筛过的 logcat 未见 `FATAL` / `AndroidRuntime` / Rust panic |
 
@@ -71,6 +73,9 @@ mis-aligned LINKEDIT string pool
 | [vocab-core.png](vocab-core.png) | 首次启动后由 Core 读出“QUSOR 入门 12 词” |
 | [vocab-core-reviewed.png](vocab-core-reviewed.png) | “认识”评分回执、下一张卡与新词 11 |
 | [vocab-core-restart.png](vocab-core-restart.png) | 强制停止并重开后的同一 Core 词书与新词 11 |
+| [vocab-import-picker.png](vocab-import-picker.png) | Android 系统文件选择器中的词书 JSON |
+| [vocab-imported.png](vocab-imported.png) | 导入“我的英语笔记”后的词书列表与学习卡 |
+| [vocab-import-restart.png](vocab-import-restart.png) | 重开应用后两本词书仍由本机 Core 读取 |
 | [vocab-landscape-scrolled.png](vocab-landscape-scrolled.png) | 横屏滚动后的学习卡内容 |
 
 ## 代码修复
@@ -81,13 +86,14 @@ mis-aligned LINKEDIT string pool
 - 想法详情和资料库阅读页各自注册更内层的返回监听，先返回列表，再退出插件。
 - 主体内容显式声明 `flexDirection: "column"`，避免 Android 上标签栏与正文被错误横排。
 - 应用首次挂载 Core 时，只有在学习库完全为空的情况下才幂等安装入门词书；已有用户词书不会额外追加。
+- 背单词工作区提供“导入词书”，读取不超过 2 MiB 的用户 JSON；原生导入器拒绝未知字段、无效结构、同名词书和超预算内容，再由 Core 一次提交整本词书。当前是应用侧可信导入动作，普通插件公开导入 wire 尚未定义。
 
 ## 未验证
 
 - 没有 Android 真机、折叠屏、平板、软键盘/中文 IME、触摸选文或性能/电量数据。
 - APK 是 debug key 签名，不是商店分发工件；没有 bundle、签名升级键或 Play 渠道。
 - 没有向 Android Core 注入资料并验证 PDF 阅读、选文保存、重开恢复；本轮想法 Core 为空。
-- 入门词书是应用自编内容，不是考试词表或用户导入；自定义词书导入仍未实现。
+- 入门词书是应用自编内容，不是考试词表；用户词书导入已可用，但还没有覆盖、删除、导入预览、来源许可元数据或公开插件导入能力。
 - release APK 不可 `run-as`，本轮没有检查应用私有目录内容；文件布局由成功 Host/空态与包运行间接证明。
 
 机器可读记录见 [record.json](record.json)。

@@ -1,0 +1,16 @@
+{
+  "title": "我的英语笔记",
+  "description": "从阅读中整理的词条；仅本机使用。",
+  "words": [
+    {
+      "term": "portable",
+      "meaning": "便携的；可迁移的",
+      "example": "The wordbook file is portable between devices."
+    },
+    {
+      "term": "retain",
+      "meaning": "保留；记住",
+      "example": "Spaced review helps retain what you read."
+    }
+  ]
+}

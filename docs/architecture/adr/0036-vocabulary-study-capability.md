@@ -73,7 +73,8 @@ SQLite schema 从 3 迁移到 4，新增四张 Core 表（同一 `core.sqlite`�
 - 0.1–0.4 的 manifest、请求、签名、Surface 与 notes 路径不变；`policy-v0.5.schema.json` 独立描述 0.5 词汇。
 - 0.5 不继承旧能力：同时需要阅读/想法与词汇的包当前无法在同一个会话版本内声明；应拆包或等待后续合并词表。
 - 原生工作台样例 UI 已按 [想法工作区](../../design/notes-workspace.md) 相同模式接入 `VocabHost`（`VocabBridge` + 真实 SQLite Core），见[实窗记录](../../../experiments/nsh-reader/evidence/vocab-workspace-live/README.md)；它仍不是正式产品工作区或安装界面，不能据此声明产品旅程完成。
-- 工作台样例仍可使用合成示例；产品应用在第一次打开且学习库完全为空时，由可信应用播种自编“QUSOR 入门 12 词”。已有任意词书时不追加；它不是考试词表或授权词库。用户词书导入、随包正式词库与“从阅读收词”仍需要新的数据文件/导入能力和对应授权。
+- 工作台样例仍可使用合成示例；产品应用在第一次打开且学习库完全为空时，由可信应用播种自编“QUSOR 入门 12 词”。已有任意词书时不追加；它不是考试词表或授权词库。公开的插件导入能力、随包正式词库与“从阅读收词”仍需要新的数据文件和授权。
+- 产品工作区已有应用侧 JSON 导入：文件上限 2 MiB，结构为 `title`/可选 `description`/`words[]`（`term`、`meaning`、可选 `example`），由原生适配器验证后调用 `StudyApplication::seed_wordbook`；同名词书拒绝，避免静默覆盖。此项尚未形成普通插件公开 wire/能力，不能外推为第三方导入已支持。
 - 没有 AI、云同步、提醒、网络、账号或外部词库；Android 仅有 debug APK 模拟器资格，没有真机、商店或渠道资格。
 
 ## 验证
@@ -88,7 +89,7 @@ SQLite schema 从 3 迁移到 4，新增四张 Core 表（同一 `core.sqlite`�
 - `experiments/capture-core`：普通签名包端到端 3 项；`plugins/vocab/build.py` 在仓库外生成 `vocab.qpk`（sha256 `4ce99011…dd0823`，2149 bytes，固定测试发布键不是生产密钥）。
 - 工作区排除 `runtime-process` 合计 282 项通过；`cargo fmt --all -- --check`、`cargo clippy --workspace --all-targets -- -D warnings`、架构守卫/依赖闭包、42 项 Python 边界测试与 188 份 Markdown 本地链接通过。
 - 原生工作台：`nsh check App.tsx` 通过；`vocab-workspace` headless 10 项、`notes-workspace` 回归 6 项通过；`vocab_native` 模块测试 1 项通过；`prepare.py --evidence vocab` 在真实 NSWindow 内捕获 decks/study/revealed/reviewed/done 五张，并在同一 Core 重启后补两张恢复图（见[实窗记录](../../../experiments/nsh-reader/evidence/vocab-workspace-live/record.json)）。
-- 产品应用原生测试 13 项通过，其中入门词书安装验证空学习库播种 12 卡、重复调用不重复，旧迁移词书存在时不追加；Android API 36 模拟器对真实 Core 词书完成“认识”评分，回执为 3 天后，强制停止重开后新词计数保持 11，见 [Android 资格](../../../experiments/nsh-reader/evidence/android-package-launch/README.md)。
+- 产品应用原生测试 15 项通过：入门词书安装验证空学习库播种 12 卡、重复调用不重复、旧迁移词书存在时不追加；JSON 导入验证可选字段、未知字段、超预算与同名词书拒绝，并在真实迁移 Core 上新增词书。Android API 36 模拟器对真实 Core 词书完成“认识”评分，回执为 3 天后，强制停止重开后新词计数保持 11；随后经系统文件选择器导入 2 词 JSON，重开后两本词书仍由本机 Core 读取，见 [Android 资格](../../../experiments/nsh-reader/evidence/android-package-launch/README.md)。
 - 已知环境问题：本机 `runtime-process --test controller` 在干净树（stash 后）同样失败，属 macOS 进程监督用例，与本变更无关；该包未被本变更修改，因此不宣称本机全工作区整体通过。
 - 机器可读记录见 [词汇包记录](../../../experiments/capture-core/evidence/vocab-package/record.json) 与 [author-proof](../../../experiments/capture-core/evidence/vocab-package/author-proof.json)。
 

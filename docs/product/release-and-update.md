@@ -76,7 +76,7 @@
 | macOS | ad hoc 签名 `.app` | Developer ID 签名 + notarize；否则用户需手动放行 |
 | Windows | 目录 / `.zip` | MSVC 构建与实窗；当前 store 测试仍失败 |
 | Linux | 目录 / `.tar.gz` | GTK 依赖与实窗复验 |
-| Android | 调试签名 arm64 APK；API 36 模拟器已安装、启动并操作手机布局与返回键；空学习库会安装自编入门词书，真实 Core 评分与重启恢复通过 | 真机/平板、商店签名与渠道、用户词书导入、PDF/IME/选文、性能与耗电 |
+| Android | 调试签名 arm64 APK；API 36 模拟器已安装、启动并操作手机布局与返回键；空学习库安装自编入门词书，真实 Core 评分与重启恢复通过，系统文件选择器导入 JSON 词书后重开仍在 | 真机/平板、商店签名与渠道、公开插件导入能力、PDF/IME/选文、性能与耗电 |
 | iOS | 模拟器 `.app` | Apple 账号、设备 `.ipa`、真机与 TestFlight/商店 |
 | Web | 静态站点 | 浏览器宿主、持久存储与真实阅读流程 |
 
