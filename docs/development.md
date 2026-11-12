@@ -17,6 +17,13 @@ cargo run -p extension-host --example policy_walkthrough --locked --offline
 cargo doc --workspace --no-deps --locked --offline
 ```
 
+能力组合内核与桌面 profile 的专项检查：
+
+```sh
+cargo test -p capability-composition --offline
+cargo test --manifest-path apps/qusor/native/Cargo.toml --lib --offline
+```
+
 原生 Windows 环境使用 python 替代 python3。首次安装固定 Rust 工具链/组件及下载 serde/serde_json 的锁定依赖需要网络；先运行 cargo fetch --locked，缓存就绪后执行上述离线检查。CI 在准备阶段下载锁定依赖，验证阶段仍使用 --locked --offline。
 
 Cargo.lock 已纳入工程。当前配置变更需要重新生成锁文件时使用 cargo generate-lockfile --offline；不要为了绕过 --locked 检查忽略锁文件。

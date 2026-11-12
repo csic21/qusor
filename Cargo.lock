@@ -84,6 +84,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
 
 [[package]]
+name = "capability-composition"
+version = "0.0.0"
+
+[[package]]
 name = "cc"
 version = "1.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

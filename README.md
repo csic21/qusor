@@ -50,6 +50,7 @@ QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Cor
 
 - Cargo Workspace，固定 Rust 1.97.1；该版本是本机已有工具链，不代表已验证所有 NSH 依赖兼容。
 - learning-domain 保持无业务类型、零外部依赖。
+- capability-composition 保持零外部依赖，负责版本化 service 接缝、分层 profile、确定性激活顺序与冲突诊断；它不执行插件、不授予权限，桌面 profile 在 `apps/qusor`。
 - core-api 承接已验证的文本/PDF/复合捕获与来源锚点契约，供实验及 SDK 导出共同使用。
 - learning-application 经 learning-ports 生成完整提交计划；storage-sqlite/blob-store 负责 SQLite/CAS 耐久，现有捕获实验实际消费这套实现，迁移后完整插件/崩溃/恢复回归通过。
 - extension-package 提供有界签名包/文件清单/键绑定验证；extension-runtime-api 与 runtime-wasm 提供不自带授权的有界执行，已有实验通过同一实现复验。extension-store 已落位持久安装内核，runtime-process 已落位 Linux 身份/父死守卫/pidfd；完整安装界面、通用持续权限和进程监督装配仍待完成。

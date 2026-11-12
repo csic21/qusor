@@ -1,0 +1,70 @@
+{
+  "protocol_version": 1,
+  "profile": "desktop",
+  "layers": [
+    {
+      "name": "base",
+      "entries": [
+        {
+          "id": "app.qusor.notes.host",
+          "package": "org.qusor.notes",
+          "provides": [
+            {
+              "service": "notes.read",
+              "major": 0,
+              "minor": 4
+            }
+          ]
+        },
+        {
+          "id": "app.qusor.vocab.host",
+          "package": "org.qusor.vocab",
+          "provides": [
+            {
+              "service": "vocab.read",
+              "major": 0,
+              "minor": 5
+            },
+            {
+              "service": "vocab.review",
+              "major": 0,
+              "minor": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "features",
+      "entries": [
+        {
+          "id": "app.qusor.notes.workspace",
+          "package": "org.qusor.notes",
+          "requires": [
+            {
+              "service": "notes.read",
+              "major": 0,
+              "min_minor": 4
+            }
+          ]
+        },
+        {
+          "id": "app.qusor.vocab.workspace",
+          "package": "org.qusor.vocab",
+          "requires": [
+            {
+              "service": "vocab.read",
+              "major": 0,
+              "min_minor": 5
+            },
+            {
+              "service": "vocab.review",
+              "major": 0,
+              "min_minor": 5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

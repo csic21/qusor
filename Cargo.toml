@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/learning-domain", "crates/core-api", "crates/extension-api", "crates/extension-package", "crates/extension-host", "crates/learning-ports", "crates/learning-application", "adapters/blob-store", "adapters/storage-sqlite", "crates/extension-runtime-api", "adapters/runtime-wasm", "adapters/extension-store", "adapters/runtime-process"]
+members = ["crates/learning-domain", "crates/core-api", "crates/capability-composition", "crates/extension-api", "crates/extension-package", "crates/extension-host", "crates/learning-ports", "crates/learning-application", "adapters/blob-store", "adapters/storage-sqlite", "crates/extension-runtime-api", "adapters/runtime-wasm", "adapters/extension-store", "adapters/runtime-process"]
 resolver = "3"
 
 [workspace.package]

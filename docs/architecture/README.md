@@ -12,6 +12,7 @@
 Cargo workspace
 ├── learning-domain      FSRS-5 词汇调度内核；无外部依赖
 ├── core-api             捕获/来源/锚点、知识记录、词汇学习契约与纯归档不变量
+├── capability-composition 能力接缝、分层 profile 与确定性激活规划；零外部依赖
 ├── learning-ports       一致快照/原子提交恢复与词汇学习端口
 ├── learning-application 文本/PDF/复合知识用例与词汇学习用例
 ├── blob-store           Unix私有目录、单writer与耐久CAS适配器
@@ -34,6 +35,8 @@ experiments/             Wasm、签名包/安装事务证据、NSH 环境/构建
 ```
 
 learning-domain 已从空壳变为 FSRS-5 词汇调度内核，仍保持独立核心边界与零外部依赖；extension-api/extension-host 承接已授权的实际协议与策略职责（当前 0.5），词汇学习切片见 [ADR 0036](adr/0036-vocabulary-study-capability.md)。core-api 随 C3 后续落位捕获/来源/锚点契约，见 [ADR 0018](adr/0018-core-api-contract-source.md)。不引入与原计划重叠的 qusor-core 大模块，也不一次创建全部空业务 crate。
+
+`capability-composition` 只规划服务提供/消费、profile 层与启动顺序，不执行插件、不授予权限、不持有 Core。桌面 profile 的解析和 Host 启用门在 `apps/qusor`，见 [ADR 0038](adr/0038-capability-composition.md)。
 
 ## 未来依赖方向
 
@@ -95,6 +98,8 @@ extension-host 策略本身不写知识；新增 application 经 ports 调用真
 ## 决策与研究的关系
 
 - [ADR 0028](adr/0028-extensible-native-workspace.md)：原生工作区区域、组件角色与提供者分离，兼容替换和数据保留；[设计工作基线](../design/README.md) 给出布局、视觉与UX验收，通用组合协议尚未实现。
+
+- [ADR 0038](adr/0038-capability-composition.md)：能力接缝、分层 profile、版本化 provides/requires 与确定性激活规划；当前完成规划和 Host 启用门，通用挂载/卸载、用户 profile 和服务发现未完成。
 
 - [ADR 0034](adr/0034-note-read-model.md)：想法读取的 keyset 分页、范围绑定游标与有界正文分块；应用层与 SQLite 重开已通过，公开 SDK wire、插件授权与窗口接线未完成。
 

@@ -26,6 +26,7 @@
 | [12 原生软件作品研究](./12-native-software-design-study.md) | 具体软件作品、作者与原生视觉候选；不替代整体布局和交互研究 |
 | [13 基座布局与交互研究](./13-shell-layout-interaction-study.md) | 最新界面证据、设计skill筛选、四种外壳比较、导航/对象/工具/活动及下一步验证 |
 | [14 UI 细节与原生参考](./14-ui-craft-and-native-references.md) | 用户指定的 T3 Code/macOS/Plannotator、社区 UI skill 的固定源码、原生工作台及书库仅属阅读插件的边界 |
+| [15 dsh 插件组合研究](./15-dsh-composition-study.md) | dsh 的能力接缝、Profile/Bundle、可逆注册与事件分层；QUSOR 的采用/不采用边界与首批真实能力 |
 
 协议冲突时：来源定位与实体定义以03为准；云同步wire/服务端表以05为准；运行支持承诺以06的设备证据为准。实施前按M-1结果统一修改并冻结v1，不能各模块独立解释同一字段。
 

@@ -126,6 +126,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "capability-composition"
+version = "0.0.0"
+
+[[package]]
 name = "cc"
 version = "1.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -923,6 +927,7 @@ dependencies = [
 name = "qusor-app-native"
 version = "0.1.0"
 dependencies = [
+ "capability-composition",
  "core-api",
  "extension-api",
  "extension-host",
@@ -931,6 +936,7 @@ dependencies = [
  "learning-ports",
  "nsh-core",
  "qusor-app-bridges",
+ "serde",
  "serde_json",
  "storage-sqlite",
 ]

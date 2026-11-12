@@ -23,6 +23,7 @@ static RUNTIME: Mutex<Option<Runtime>> = Mutex::new(None);
 /// signed package shipped inside this app. TSX never sees a path, a key or Host
 /// authority.
 pub fn initialize(sys: &System) -> Result<(), String> {
+    crate::profile::require_active(crate::profile::NOTES_HOST_ENTRY)?;
     let data_dir = sys
         .data_dir
         .clone()

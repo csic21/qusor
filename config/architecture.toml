@@ -36,7 +36,7 @@ allowed_dependencies = ["core-api", "extension-api", "extension-host", "learning
 
 [apps.qusor.packages.qusor-app-native]
 manifest = "apps/qusor/native/Cargo.toml"
-allowed_dependencies = ["core-api", "extension-api", "extension-host", "extension-package", "learning-application", "learning-ports", "nsh-core", "qusor-app-bridges", "serde_json", "storage-sqlite"]
+allowed_dependencies = ["capability-composition", "core-api", "extension-api", "extension-host", "extension-package", "learning-application", "learning-ports", "nsh-core", "qusor-app-bridges", "serde", "serde_json", "storage-sqlite"]
 
 # See ADR 0004: the policy kernel does not execute plugins or write knowledge.
 [packages.learning-domain]
@@ -58,6 +58,12 @@ manifest = "crates/core-api/Cargo.toml"
 allowed_dependencies = ["base64", "serde", "serde_json", "sha2", "unicode-segmentation"]
 allowed_transitive_dependencies = ["base64", "block-buffer", "cfg-if", "cpufeatures", "crypto-common", "digest", "generic-array", "itoa", "libc", "memchr", "proc-macro2", "quote", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "syn", "typenum", "unicode-ident", "unicode-segmentation", "version_check", "zmij"]
 
+# ADR 0038: pure capability seams and layered activation planning.
+# This crate must remain independent of Host authority, package formats, storage,
+# runtimes, NSH and platform APIs.
+[packages.capability-composition]
+manifest = "crates/capability-composition/Cargo.toml"
+allowed_dependencies = []
 
 [packages.extension-host]
 manifest = "crates/extension-host/Cargo.toml"
