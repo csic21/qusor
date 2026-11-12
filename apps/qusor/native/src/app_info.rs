@@ -32,6 +32,14 @@ struct Config {
     id: String,
     version: String,
     build: Option<u64>,
+    /// Where the update source points: the GitHub repository, or the manifest
+    /// URL of an own host. `None` when the app has no updater.
+    source: Option<Source>,
+}
+
+struct Source {
+    github: Option<String>,
+    url: Option<String>,
 }
 
 fn config() -> Option<Config> {
@@ -43,10 +51,18 @@ fn config() -> Option<Config> {
         .join("assets")
         .join("nsh-updater.json");
     let value: Value = serde_json::from_slice(&fs::read(asset).ok()?).ok()?;
+    let source = Some(Source {
+        github: value
+            .get("github")
+            .and_then(Value::as_str)
+            .map(str::to_owned),
+        url: value.get("url").and_then(Value::as_str).map(str::to_owned),
+    });
     Some(Config {
         id: value.get("id")?.as_str()?.to_owned(),
         version: value.get("version")?.as_str()?.to_owned(),
         build: value.get("build").and_then(Value::as_u64),
+        source,
     })
 }
 
@@ -60,21 +76,52 @@ fn marker_path(sys: &System) -> Result<PathBuf, String> {
     Ok(data_dir(sys)?.join(MARKER))
 }
 
+/// A marker counts only while it is fresh and names another build: a leftover
+/// marker from an interrupted self-test must not turn a later normal launch into
+/// an evidence run.
+const MARKER_MAX_AGE_MS: u64 = 15 * 60 * 1000;
+
+fn marker_value(sys: &System) -> Option<(PathBuf, Value)> {
+    let path = marker_path(sys).ok()?;
+    let value: Value = serde_json::from_slice(&fs::read(path).ok()?).ok()?;
+    Some((PathBuf::from(value.get("dir")?.as_str()?), value))
+}
+
+fn marker_is_live_at(value: &Value, current: Option<&Config>, now: u64) -> bool {
+    let fresh = value
+        .get("at_ms")
+        .and_then(Value::as_u64)
+        .is_some_and(|at| now.saturating_sub(at) <= MARKER_MAX_AGE_MS);
+    let another_build = current.is_some_and(|config| {
+        value
+            .get("from_version")
+            .and_then(Value::as_str)
+            .is_some_and(|from| from != config.version)
+            || value
+                .get("from_build")
+                .and_then(Value::as_u64)
+                .is_some_and(|from| Some(from) != config.build)
+    });
+    fresh && another_build
+}
+
+fn marker_is_live(value: &Value) -> bool {
+    marker_is_live_at(value, config().as_ref(), now_ms())
+}
+
 /// Where this run reports evidence: `None` when the run is not an evidence run.
 fn evidence(sys: &System) -> Option<PathBuf> {
     if let Some(dir) = std::env::var_os(EVIDENCE_ENV).filter(|dir| !dir.is_empty()) {
         return Some(PathBuf::from(dir));
     }
-    let path = marker_path(sys).ok()?;
-    let value: Value = serde_json::from_slice(&fs::read(path).ok()?).ok()?;
-    let dir = value.get("dir")?.as_str()?;
-    (!dir.is_empty()).then(|| PathBuf::from(dir))
+    let (dir, value) = marker_value(sys)?;
+    (marker_is_live(&value) && dir.is_dir()).then_some(dir)
 }
 
 /// Whether a previous evidence build armed this one: it reports the restarted
 /// state once and removes the marker through `consume`.
 fn restarted(sys: &System) -> bool {
-    marker_path(sys).is_ok_and(|path| path.is_file())
+    marker_value(sys).is_some_and(|(dir, value)| marker_is_live(&value) && dir.is_dir())
 }
 
 fn now_ms() -> u64 {
@@ -115,6 +162,11 @@ impl AppInfo {
                 "id": shipped.as_ref().map(|config| config.id.clone()),
                 "version": shipped.as_ref().map(|config| config.version.clone()).unwrap_or_else(|| "dev".into()),
                 "build": shipped.as_ref().and_then(|config| config.build),
+                "source": shipped.as_ref().and_then(|config| config.source.as_ref()).map(|source| match (&source.github, &source.url) {
+                    (Some(repo), _) => json!({"kind": "github", "value": repo}),
+                    (_, Some(url)) => json!({"kind": "url", "value": url}),
+                    _ => json!({"kind": "none"}),
+                }),
                 "data_dir": data_dir(&sys)?,
                 "evidence": match evidence(&sys) {
                     Some(dir) => json!({
@@ -144,8 +196,11 @@ impl AppInfo {
             fs::create_dir_all(&dir).map_err(|error| error.to_string())?;
             let receipt = json!({"at_ms": now_ms(), "step": step, "payload": payload});
             let path = dir.join(format!("{step}.json"));
-            fs::write(&path, serde_json::to_vec_pretty(&receipt).map_err(|error| error.to_string())?)
-                .map_err(|error| error.to_string())?;
+            fs::write(
+                &path,
+                serde_json::to_vec_pretty(&receipt).map_err(|error| error.to_string())?,
+            )
+            .map_err(|error| error.to_string())?;
             Ok(json!({"path": path}))
         })())
     }
@@ -159,12 +214,16 @@ impl AppInfo {
             let marker = json!({
                 "dir": dir,
                 "from_version": shipped.as_ref().map(|config| config.version.clone()),
+                "from_build": shipped.as_ref().and_then(|config| config.build),
                 "at_ms": now_ms(),
             });
             let path = marker_path(&sys)?;
             fs::create_dir_all(data_dir(&sys)?).map_err(|error| error.to_string())?;
-            fs::write(&path, serde_json::to_vec(&marker).map_err(|error| error.to_string())?)
-                .map_err(|error| error.to_string())?;
+            fs::write(
+                &path,
+                serde_json::to_vec(&marker).map_err(|error| error.to_string())?,
+            )
+            .map_err(|error| error.to_string())?;
             Ok(json!({"path": path}))
         })())
     }
@@ -191,5 +250,53 @@ impl AppInfo {
             nsh_core::element::desktop::quit();
             Ok(json!({"quitting": true}))
         })())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn marker(age_ms: u64, version: &str, build: Option<u64>) -> Value {
+        json!({
+            "at_ms": 1_000_000u64.saturating_sub(age_ms),
+            "from_version": version,
+            "from_build": build,
+        })
+    }
+
+    fn current(version: &str, build: Option<u64>) -> Config {
+        Config {
+            id: "org.qusor.app".into(),
+            version: version.into(),
+            build,
+            source: None,
+        }
+    }
+
+    #[test]
+    fn live_marker_requires_a_fresh_other_build() {
+        let current = current("0.1.1", Some(2));
+
+        assert!(marker_is_live_at(
+            &marker(10_000, "0.1.0", Some(1)),
+            Some(&current),
+            1_000_000
+        ));
+        assert!(marker_is_live_at(
+            &marker(10_000, "0.1.1", Some(1)),
+            Some(&current),
+            1_000_000
+        ));
+        assert!(!marker_is_live_at(
+            &marker(10_000, "0.1.1", Some(2)),
+            Some(&current),
+            1_000_000
+        ));
+        assert!(!marker_is_live_at(
+            &marker(MARKER_MAX_AGE_MS + 1, "0.1.0", Some(1)),
+            Some(&current),
+            1_000_000
+        ));
     }
 }

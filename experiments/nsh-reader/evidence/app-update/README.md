@@ -1,6 +1,6 @@
 # 应用内自动更新本机记录
 
-日期：2026-11-11。关联 C-17、F-PLAT-01；方案见[发行与更新](../../../../docs/product/release-and-update.md)，设计见[软件更新面板](../../../../docs/design/update-dialog.md)，装配见 [ADR 0037](../../../../docs/architecture/adr/0037-production-app-assembly.md)。
+日期：2026-11-12。关联 C-17、F-PLAT-01；方案见[发行与更新](../../../../docs/product/release-and-update.md)，设计见[软件更新面板](../../../../docs/design/update-dialog.md)，装配见 [ADR 0037](../../../../docs/architecture/adr/0037-production-app-assembly.md)。
 
 ## 这次验证的是什么
 
@@ -20,7 +20,7 @@ python3 apps/qusor/update-selftest.py --install-evidence
 
 ## 结果
 
-机器记录见 [record.json](record.json)，17 项断言全部通过，整轮 97.9 秒：
+机器记录见 [record.json](record.json)，17 项断言全部通过，整轮 98.6 秒：
 
 | 范围 | 实际结果 |
 |---|---|
@@ -35,17 +35,17 @@ python3 apps/qusor/update-selftest.py --install-evidence
 
 | 工件 | 值 |
 |---|---|
-| 0.1.0 归档 SHA-256 | `92e8788793316a6dad9a6cb2d02605842009bc21da75bf50b7443a129e7aded8` |
-| 0.1.1 归档 SHA-256 | `45207227c82c57735885a6a56078a414a6f2ff4ca1dc8d9d2e3974d9a24475a2` |
-| 清单 SHA-256 | `bdbfd32c6cc48acd85f40966fda10f48264b2c671851ef1435b3eeed346b3803` |
-| 清单签名 | `tDIJrGgUGLIo/E6PtISkk0okBZk1/eWuQqZ4+LxUwYHBJImw4B/KlaYAe2jmcse2ZkzkmA1cSLdQ5kUjWMQDBQ==` |
+| 0.1.0 归档 SHA-256 | `d3594ea6d78ed8a4bc8a203b08ba4eed1f5cddf31ed08afaaf362df5875b96a7` |
+| 0.1.1 归档 SHA-256 | `07742ec32560d0241c68ff4d522ad98678a77a3f5f83aab7f913f43ffc53eaf7` |
+| 清单 SHA-256 | `63c556e41ea526e6d4dc5552c944500c8addd17021a46968e244d04c556987d2` |
+| 清单签名 | `915aWClHX72Pctx5HyIBDzQ3/WYXJKqUK9hfMS6q5SfQ4YaWIUEWeXxfEWPVBGUnwBhXLP5vktc0Cd7x7P/wAw==` |
 | 源码约束 | 两个归档都由同一工作树打包，只有临时 `nsh.json` 的 `version`/`build`/`updater` 不同；`nsh.json` 的 SHA-256 见 record |
 
 截图：
 
 | 文件 | 内容 |
 |---|---|
-| [available.png](available.png) | 面板显示“发现新版本 0.1.1”、版本说明与“下载并安装”；侧栏行尾版本为 0.1.0 |
+| [available.png](available.png) | 面板显示“发现新版本 0.1.1”、版本说明、实际回环更新源与“下载并安装”；侧栏行尾版本为 0.1.0 |
 | [installing.png](installing.png) | “下载完成，正在安装并重启…”，进度条满，“正在安装…”禁用状态 |
 | [restarted.png](restarted.png) | 重启后的 0.1.1 窗口：侧栏“软件更新”行尾已是 0.1.1，面板不在前台 |
 

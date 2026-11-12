@@ -1,0 +1,88 @@
+{
+  "tested_at": "2026-11-12T10:15:24+0800",
+  "feature_ids": ["C-17", "F-PLAT-02"],
+  "repository": "csic21/qusor",
+  "workflow_run": {
+    "id": 43136573631,
+    "event": "workflow_dispatch",
+    "conclusion": "success",
+    "head_sha": "e1c025e4648af7c60a023a82a91ae9c8e20b0252",
+    "url": "https://github.com/csic21/qusor/actions/runs/43136573631"
+  },
+  "previous_failure": {
+    "run_id": 42995272099,
+    "head_sha": "1d188746d6dc6e2ef36192648939c0831630b6b4",
+    "reason": "literal *.zip reached nsh update-manifest",
+    "fixed_by": "e1c025e"
+  },
+  "release": {
+    "tag": "v0.1.0",
+    "name": "QUSOR 0.1.0",
+    "draft": true,
+    "prerelease": false,
+    "target_commitish": "main",
+    "url": "https://github.com/csic21/qusor/releases/tag/untagged-2f00b29ec84e29b0cfd8"
+  },
+  "assets": {
+    "archive": {
+      "name": "QUSOR-0.1.0-macos-aarch64.tar.gz",
+      "size": 21781955,
+      "sha256": "0f483e2c75eac23416dce5438eee181f083b6b96db23306e9d023cad4e52b118"
+    },
+    "manifest": {
+      "name": "latest.json",
+      "size": 312,
+      "sha256": "f622e2ba9468c1d0accdbea5882468975d81f2a17b640ca33bd88e5974a67c4c"
+    },
+    "signature": {
+      "name": "latest.json.sig",
+      "size": 89,
+      "sha256": "dd7a546417d39438a441e64f5e08c71f73560935ad0e59e972516643f8faa256"
+    }
+  },
+  "manifest": {
+    "id": "org.qusor.app",
+    "version": "0.1.0",
+    "platform": "macos-aarch64",
+    "archive_matches": true,
+    "signature_verified": true,
+    "signature_verifier": "OpenSSL 3 Ed25519",
+    "signature_domain_prefix": "nsh-updater-manifest\\u0000"
+  },
+  "bundle": {
+    "id": "org.qusor.app",
+    "short_version": "0.1.0",
+    "build": "1",
+    "architecture": "arm64",
+    "minimum_macos": "14.0",
+    "codesign_verified": true,
+    "signature": "adhoc",
+    "team_identifier": null,
+    "updater": {
+      "github": "csic21/qusor",
+      "public_key": "jNQjrdXXjWxkRfpWH5UKQRXPZc5suyJeyF+saPJsqb0=",
+      "public_key_spki_sha256": "2991fd33dfbdd7c9df16bb66ecf156465a6049e1bf0d3d112e65983b47ac8057"
+    }
+  },
+  "launch": {
+    "process_id": 70450,
+    "window_id": 4715,
+    "window_created": true,
+    "sidebar_version": "0.1.0",
+    "exited": true,
+    "capture": {
+      "file": "release-app.png",
+      "sha256": "5576f71d7402ae3483fbf5f961e8e81588e6b13af9356dba99e75edf5cb8566e"
+    }
+  },
+  "not_verified": [
+    "public latest release download",
+    "published-channel self-update",
+    "Developer ID signing",
+    "notarization",
+    "Gatekeeper acceptance",
+    "Windows and Linux release",
+    "iOS and Android distribution",
+    "independent rerun of this exact draft artifact"
+  ]
+}

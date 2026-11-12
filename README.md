@@ -9,6 +9,7 @@ QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Cor
 | 目的 | 文档 |
 |---|---|
 | 在 macOS 启动原生阅读预览，查看六端真实资格 | [跨平台结果与启动](experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md) |
+| 查看生产 macOS 应用、应用内更新与首次 GitHub draft | [发行与更新](docs/product/release-and-update.md) · [draft 验收](experiments/nsh-reader/evidence/github-release/README.md) |
 | 确认我们做什么、哪些尚未决定 | [功能范围与确认记录](docs/product/scope.md) |
 | 运行本轮无界面基座与查看验收范围 | [插件宿主策略规格](docs/product/foundation.md) |
 | 复现独立插件执行及权限/资源实验 | [Wasm 实验与结果](experiments/extension-wasm/README.md) |

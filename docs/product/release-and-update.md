@@ -1,6 +1,6 @@
 # 发行、自动更新与移动端交付
 
-2026-11-11；关联 C-17、C-15、F-PLAT-01/02、F-DATA-01；承接 [跨平台结果](../../experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md) 与 [ADR 0033](../architecture/adr/0033-cross-platform-runtime.md)。状态：方向已由用户确认，应用形态与流水线尚未实现；本文的 CI、密钥与发布步骤均**未在远端执行**，不构成已交付。
+2026-11-12；关联 C-17、C-15、F-PLAT-01/02、F-DATA-01；承接 [跨平台结果](../../experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md) 与 [ADR 0033](../architecture/adr/0033-cross-platform-runtime.md)。状态：生产应用、本机自动更新和 GitHub Actions 的 macOS draft 构建已验证；draft 尚未公开为 latest，Developer ID/公证与其它平台发行仍未完成。
 
 ## 用户决定（2026-11-11）
 
@@ -12,15 +12,17 @@
 
 2026-11-11 同日执行：公开前隐私检查通过后，仓库已由 private 转为 public（`https://github.com/csic21/qusor`），历史已按下列规则重写。此后 `releases/latest/download/` 可免认证读取，自动更新的更新源前提成立。
 
-## 现状（2026-11-11 核对）
+2026-11-12 首次云端发行验收：Release workflow [run 43136573631](https://github.com/csic21/qusor/actions/runs/43136573631) 在 `main@e1c025e` 成功完成 macOS 打包、签名清单与 draft 创建。draft `v0.1.0` 含 21,781,955 字节的 arm64 归档、`latest.json` 与 `latest.json.sig`；清单大小/SHA-256、Ed25519 域隔离签名、ad hoc code signature 和实际窗口启动均已复核。此前 run 42995272099 的空 `*.zip` glob 失败已由 `e1c025e` 修复。详见 [GitHub draft Release 验收](../../experiments/nsh-reader/evidence/github-release/README.md)。
+
+## 现状（2026-11-12 核对）
 
 | 能力 | 当前状态 | 证据 |
 |---|---|---|
 | 更新接线 | **已接线**：`apps/qusor/nsh.json` 有 `version`/`build`/`updater.github`；应用有更新面板（侧栏入口、检查/下载/安装、不能自替换时打开下载页）；本机回环自测走通检查→下载→替换→重启，见[更新记录](../../experiments/nsh-reader/evidence/app-update/README.md)。实验目录的 `nsh.json` 仍无这些字段 | `apps/qusor/nsh.json`、`apps/qusor/update.tsx`、`apps/qusor/native/src/app_info.rs` |
-| 版本号 | 应用有 `0.1.0`/`build 1`；仓库仍无 tag，GitHub 仍无 Release（发版流水线未运行过） | `gh release list` 为空 |
-| 更新签名密钥 | **无**。没有 `keys/`，未运行 `nsh keygen` | — |
-| 打包 | **自建**。`dynamic-pdf/run.py` 生成按 exe 摘要命名的 `QUSOR Preview.app`，`bundle.nshc` 由 `nsh build` 生成，不是 `nsh package` 产物 | `experiments/nsh-reader/dynamic-pdf/run.py` |
-| CI | `foundation.yml`（Core 测试 + 库交叉检查）三个 OS 全部通过；仍**没有打包或发布任务**。Windows 的失败改为显式拒绝：真实 store 场景只在 Unix 运行，Windows 任务用一项测试固定“无合格文件系统 profile 时拒绝打开 store” | run 42987643346；[平台缺口](../../adapters/extension-store/tests/platform_profile.rs) |
+| 版本号 | 应用为 `0.1.0`/`build 1`；已创建 draft `v0.1.0`，尚未发布 | [Release 验收](../../experiments/nsh-reader/evidence/github-release/record.json) |
+| 更新签名密钥 | 更新公钥已内置；私钥保存在本机 `.local/keys` 与 GitHub secret `NSH_UPDATE_KEY`，未提交。draft 清单已用该密钥签名并由独立 OpenSSL 复算通过 | 同左 |
+| 打包 | 生产入口使用 `nsh package --target macos`，产出 ad hoc `QUSOR.app` 和归档；实验目录仍有早期自建 Preview 包装 | `apps/qusor`、[Release 验收](../../experiments/nsh-reader/evidence/github-release/README.md) |
+| CI | `foundation.yml` 三 OS Core/库任务通过；`release.yml` 的 macOS package 与 publish 在 run 43136573631 首次完整通过并创建 draft | run 43136573631；[平台缺口](../../adapters/extension-store/tests/platform_profile.rs) |
 | 移动端 | 仅 5 个 target 的**库交叉编译**通过；无 iOS/Android 宿主、无设备运行、无分发 | 同 run 的 `portable-libraries` 全部通过 |
 
 ### CI 失败根因与处理（2026-11-11）
@@ -134,16 +136,16 @@ cd apps/qusor && CARGO_PROFILE_RELEASE_STRIP=none \
 - 版本来自应用包内 `nsh-updater.json` 资产（`nsh package` 写出），不读环境变量、不读仓库文件。
 - 证据模式（`QUSOR_UPDATE_EVIDENCE` 或它留下的一次性标记）只用于本机自测：自动走同一套检查/安装路径、每个状态写 JSON 收据、重启后的构建报告版本与 Core 可读性后退出；普通启动没有该开关。
 
-本机自测 `python3 apps/qusor/update-selftest.py --install-evidence`：从同一工作树打包 0.1.0 与 0.1.1（临时把更新源指向 `127.0.0.1`，`nsh.json` 结束后恢复），用 `.local/keys/update.secret` 生成签名清单，启动 0.1.0 走完整更新链。17 项断言全部通过、整轮 97.9 秒：签名清单被接受；下载的归档 SHA-256/大小与清单一致；0.1.0 退出后平台启动 0.1.1；安装后的应用资产为 `version=0.1.1`、`build=2`；重启构建报告同一数据目录、`VocabHost.decks` 与 `NotesHost.page` 读取同一 Core 成功；一次性标记被消费。三张窗口截图（发现更新/安装中/重启后 0.1.1）与机器记录见[更新记录](../../experiments/nsh-reader/evidence/app-update/README.md)。
+本机自测 `python3 apps/qusor/update-selftest.py --install-evidence`：从同一工作树打包 0.1.0 与 0.1.1（临时把更新源指向 `127.0.0.1`，`nsh.json` 结束后恢复），用 `.local/keys/update.secret` 生成签名清单，启动 0.1.0 走完整更新链。2026-11-12 最终复跑 17 项断言全部通过、整轮 98.6 秒：签名清单被接受；下载的归档 SHA-256/大小与清单一致；0.1.0 退出后平台启动 0.1.1；安装后的应用资产为 `version=0.1.1`、`build=2`；重启构建报告同一数据目录、`VocabHost.decks` 与 `NotesHost.page` 读取同一 Core 成功；带版本与 build 的一次性标记被消费。三张窗口截图（发现更新/安装中/重启后 0.1.1）与机器记录见[更新记录](../../experiments/nsh-reader/evidence/app-update/README.md)。
 
 同时修正一处 TSX 反应式写法：NSH 组件只运行一次，信号必须在 JSX 绑定里读取（`when={updateState() === …}`），先放进局部变量会冻结；首轮截图暴露了“文案已更新、按钮/进度条没更新”的混合状态，修正后三个状态各自稳定。
 
-未验证：GitHub Releases 实际拉取、拒绝路径（签名错误、应用 id 不符、旧清单、篡改归档）、Developer ID/公证、Windows/Linux 替换、移动端商店/OTA 语义、下载中断恢复、只读安装位置的下载页跳转。
+未验证：已发布 GitHub Releases 的 `releases/latest/download` 实际拉取（当前仅为 draft）、拒绝路径（签名错误、应用 id 不符、旧清单、篡改归档）、Developer ID/公证、Windows/Linux 替换、移动端商店/OTA 语义、下载中断恢复、只读安装位置的下载页跳转。
 
 ## 未验证范围
 
-- 未创建 tag 或 Release，发版流水线仍未运行过；更新私钥已在 `.local/keys`（未提交），仓库 secret `NSH_UPDATE_KEY` 已配置。仓库可见性已于 2026-11-11 转为 public，见上节。
-- 应用内更新只在本机回环源上通过；GitHub Releases 源、拒绝路径与其它平台未验证（见上节）。
+- draft `v0.1.0` 已创建但未发布，GitHub 的 `releases/latest` 不提供 draft；更新私钥已在 `.local/keys`（未提交），仓库 secret `NSH_UPDATE_KEY` 已配置并完成云端签名。仓库可见性已于 2026-11-11 转为 public。
+- 应用内更新在本机回环源上通过；已发布 GitHub Releases 源的在线拉取、拒绝路径与其它平台未验证。
 - 上述 CI 失败修复未在远端重跑，Windows 缺口未修。
 
 ## 实施顺序
@@ -151,8 +153,8 @@ cd apps/qusor && CARGO_PROFILE_RELEASE_STRIP=none \
 1. ~~修 Windows store 测试（或显式标记平台跳过并记录缺口），让 CI 恢复绿。~~ 已完成：Windows 任务显式固定拒绝路径，run 42987643346 三 OS 通过；Windows 能力缺口保留。
 2. ~~新建 `apps/qusor` 入口，跑通 `nsh package --target macos` 实窗。~~ 已完成（ad hoc `.app`，见下方“生产应用首次打包”）。
 3. ~~写 `version`/`build`/`updater`/图标，本地用 `nsh update-manifest` 与本地 HTTP 自测一次更新流程。~~ 更新 UI 与本地回环自测已实现，实测结果见下方“应用内自动更新本机实测”。
-4. 加发版 workflow（先 `workflow_dispatch` 出 draft Release，人工核对后再由 tag 触发）。
-5. 仓库转 public 并做首次发布。**首个发布必须已内置 updater 配置**，否则后续版本收不到自动更新。
+4. ~~加发版 workflow，先 `workflow_dispatch` 出 draft Release。~~ 已完成：run 43136573631 的 macOS draft 与产物验收通过。
+5. 仓库已转 public；人工复核 draft 后发布，并用公开 `releases/latest/download` 验证真实在线更新。**首个发布必须已内置 updater 配置**，否则已装版本收不到自动更新。
 6. 再推进 Android/iOS 打包与真机资格。
 
 ## 关键约束与风险

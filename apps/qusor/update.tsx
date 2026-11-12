@@ -27,6 +27,9 @@ export const updateState = signal<UpdateState>("idle");
 export const updateMessage = signal("");
 export const updateFound = signal<AppUpdate | null>(null);
 export const updateProgress = signal(0);
+/// The source named by the app's own `nsh-updater.json`: the GitHub repository
+/// or the manifest URL of an own host. `null` when the app has no updater.
+export const updateSource = signal<{ kind: string; value: string } | null>(null);
 
 const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
@@ -38,6 +41,12 @@ export async function loadAppInfo(): Promise<any | null> {
         appVersion.set(String(raw.value.version ?? "dev"));
         appBuild.set(
             typeof raw.value.build === "number" ? raw.value.build : null,
+        );
+        const source = raw.value.source;
+        updateSource.set(
+            source && typeof source.value === "string"
+                ? { kind: String(source.kind ?? ""), value: String(source.value) }
+                : null,
         );
         return raw.value;
     } catch (_) {
@@ -158,6 +167,13 @@ function ActionButton(props: {
             </Copy>
         </Button>
     );
+}
+
+function sourceLabel(source: { kind: string; value: string } | null): string {
+    if (!source) return "未配置更新源";
+    if (source.kind === "github") return `更新源 ${source.value} · GitHub Releases`;
+    if (source.kind === "url") return `更新源 ${source.value}`;
+    return "未配置更新源";
 }
 
 export function UpdateDialog(props: { frameWidth: number }) {
@@ -292,7 +308,7 @@ export function UpdateDialog(props: { frameWidth: number }) {
                 </If>
                 <View style={{ flex: 1 }} />
                 <Copy size={11} muted>
-                    更新源 csic21/qusor · GitHub Releases
+                    {sourceLabel(updateSource())}
                 </Copy>
             </View>
         </Dialog>

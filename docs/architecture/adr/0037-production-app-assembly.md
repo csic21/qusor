@@ -1,7 +1,7 @@
 # ADR 0037：生产应用装配与自动更新发布
 
-- 日期：2026-11-11
-- 状态：应用中；桌面 macOS 打包与自动更新已实测（回环源），Windows/Linux 与移动端未验证
+- 日期：2026-11-12
+- 状态：应用中；macOS `nsh package`、应用内回环更新、GitHub Actions draft 与下载产物验收已通过；正式发布、Windows/Linux 与移动端未验证
 - 关联：C-17、C-15、F-PLAT-01/02、F-EXT-01/03、F-DATA-01
 - 承接：[发行与更新方案](../../product/release-and-update.md)、[ADR 0003](0003-plugin-first-delivery.md)、[ADR 0006](0006-plugin-workspace-layout.md)、[ADR 0033](0033-cross-platform-runtime.md)
 
@@ -31,11 +31,11 @@
 - 生产目录出现与实验目录的**临时重复**（provider、三个桥接模块、两个 native 模块）。后续应把实验侧改为依赖生产 crate，或把实验冻结为归档；此前的实验证据路径保持不变，但重跑脚本仍指向实验副本。
 - 生产应用尚未接入 PDF 阅读/编辑 UI：`App.tsx` 当前是工作台外壳（想法/背单词真实 Core，其余为窗口内 fixture）。阅读器 UI 依赖的 `ReaderSurface`/`DynamicReader`/`NativeEditor` 原生模块仍在实验宿主，接入需要一个单独的界面积分切片。
 - 缺少应用 workspace 的依赖图校验、Windows/Linux 交叉打包实测、真机与商店签名资格。
-- 自动更新只在本机回环源上验证接受路径；GitHub Releases 实际拉取、拒绝路径、Developer ID/公证、其它平台替换与移动端商店/OTA 语义都未验证。发版流水线仍未在 GitHub Actions 运行。
+- 自动更新在本机回环源上验证接受路径；GitHub Actions run 43136573631 已成功构建并创建 draft `v0.1.0`，下载产物完成清单 SHA-256、Ed25519 签名、ad hoc code signature 与实窗启动验收。draft 尚不是 latest，拒绝路径、Developer ID/公证、其它平台替换与移动端商店/OTA 语义未验证。
 
 ## 未验证
 
 - macOS 打包命令链之外的任何平台；Windows 的 `pdfium-render` 与 Unix-only 文件操作路径未验证。
-- 发布 workflow 从未在 GitHub Actions 运行；更新清单签名没有独立校验器复算。
-- `checkForUpdate`/`installAndRestart` 已由真实打包应用在回环源上调用并通过（[更新记录](../../../experiments/nsh-reader/evidence/app-update/README.md)），但未对 GitHub Releases 调用。
+- 发布 workflow 的 macOS draft 路径已运行；更新清单签名已由 OpenSSL 按固定 NSH 的域隔离 framing 独立复算（[draft 记录](../../../experiments/nsh-reader/evidence/github-release/README.md)）。
+- `checkForUpdate`/`installAndRestart` 已由真实打包应用在回环源上调用并通过（[更新记录](../../../experiments/nsh-reader/evidence/app-update/README.md)），但尚未对已公开的 GitHub Releases latest 调用。
 - 无 Apple Developer ID / Android keystore，产物是 ad hoc 签名。
