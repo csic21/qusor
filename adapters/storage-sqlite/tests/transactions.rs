@@ -415,6 +415,49 @@ fn note_index_survives_sqlite_reopen_with_bounded_preview() {
         long_note
     );
 }
+
+#[test]
+fn library_index_survives_sqlite_reopen_with_stable_pages() {
+    let scratch = Scratch::new();
+    let (original, snapshot, _) = pdf_fixture();
+    {
+        let mut app = KnowledgeApplication::new(scratch.store());
+        app.import_document("library-first", "vault", "First", &original, &snapshot)
+            .unwrap();
+        app.import_document("library-second", "vault", "Second", &original, &snapshot)
+            .unwrap();
+        app.import_document(
+            "library-other",
+            "other-vault",
+            "Other",
+            &original,
+            &snapshot,
+        )
+        .unwrap();
+    }
+
+    let reopened = KnowledgeApplication::new(scratch.store());
+    let first = reopened.pdf_documents_page("vault", None, 1).unwrap();
+    assert_eq!(first.documents[0].title, "Second");
+    assert_eq!(first.documents[0].original_bytes, original.len() as u64);
+    let cursor = first.next_cursor.unwrap();
+    let second = reopened
+        .pdf_documents_page("vault", Some(&cursor), 1)
+        .unwrap();
+    assert_eq!(second.documents[0].title, "First");
+    assert!(second.next_cursor.is_none());
+    assert!(
+        reopened
+            .pdf_documents_page("vault", Some(&cursor), 1)
+            .is_ok()
+    );
+    assert!(
+        reopened
+            .pdf_documents_page("other-vault", Some(&cursor), 1)
+            .is_err()
+    );
+}
+
 #[test]
 fn oversized_restore_is_a_budget_failure_before_json_parsing() {
     let scratch = Scratch::new();
