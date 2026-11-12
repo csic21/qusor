@@ -79,12 +79,37 @@ fn requests_round_trip_with_canonical_bounds() {
             page_index: 0,
             start: 0,
             end: 5,
+            note: "mark this thought".into(),
         },
     ] {
         let request = request(operation);
         assert_eq!(
             LibraryRequest::from_json(&request.to_json().unwrap()).unwrap(),
             request
+        );
+    }
+}
+
+#[test]
+fn capture_note_accepts_newlines_and_rejects_controls_and_oversize() {
+    let capture = |note: String| {
+        request(LibraryOperation::CaptureSelection {
+            document_id: 1,
+            page_index: 0,
+            start: 0,
+            end: 5,
+            note,
+        })
+    };
+    assert!(capture("first line\nsecond line".into()).validate().is_ok());
+    for note in [
+        "\t".into(),
+        "\r".into(),
+        "x".repeat(MAX_LIBRARY_NOTE_BYTES + 1),
+    ] {
+        assert_eq!(
+            capture(note).validate().unwrap_err().code,
+            ErrorCode::InvalidRequest
         );
     }
 }
@@ -158,6 +183,7 @@ fn requests_reject_wrong_versions_budgets_and_cursors() {
                 page_index: 0,
                 start,
                 end,
+                note: String::new(),
             })
             .validate()
             .is_err()

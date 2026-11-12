@@ -139,6 +139,7 @@ impl LibraryRuntime {
         page_index: u32,
         start: u32,
         end: u32,
+        note: String,
         operation_id: String,
     ) -> Result<Value, String> {
         let request = LibraryRequest {
@@ -150,6 +151,7 @@ impl LibraryRuntime {
                 page_index,
                 start,
                 end,
+                note,
             },
         };
         let Self {
@@ -226,10 +228,11 @@ impl LibraryHost {
         page_index: u32,
         start: u32,
         end: u32,
+        note: String,
         operation_id: String,
     ) -> String {
         match runtime::with_library(&sys, |library| {
-            library.capture_selection(document_id, page_index, start, end, operation_id)
+            library.capture_selection(document_id, page_index, start, end, note, operation_id)
         }) {
             Ok(value) => json!({"ok": true, "value": value}).to_string(),
             Err(error) => json!({"ok": false, "error": error}).to_string(),

@@ -124,14 +124,14 @@ fn a_text_selection_can_be_captured_into_core() {
                 end: 5,
             },
             &common::origin(),
-            "",
+            "remember this",
         )
         .unwrap();
     assert_eq!(receipt.document_id, 1);
     assert_eq!(receipt.capture_id, 1);
     let capture = app.query_pdf(receipt.capture_id).unwrap();
     assert_eq!(capture.draft.exact, "hello");
-    assert_eq!(capture.user_note, "");
+    assert_eq!(capture.user_note, "remember this");
     assert!(
         app.capture_pdf_selection(
             "library-capture",

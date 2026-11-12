@@ -3066,6 +3066,7 @@ const libraryPageText = signal("");
 const libraryPageStatus = signal("");
 const librarySelection = signal("");
 const librarySelectionStart = signal(0);
+const librarySelectionNote = signal("");
 let libraryBooted = false;
 
 async function loadLibraryPage(cursor = "") {
@@ -3107,6 +3108,7 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
     libraryPageText.set("");
     librarySelection.set("");
     librarySelectionStart.set(0);
+    librarySelectionNote.set("");
     libraryPageStatus.set("正在读取本机文字…");
     let offset = 0;
     let text = "";
@@ -3151,6 +3153,7 @@ function utf16ToScalar(text: string, offset: number) {
 async function captureLibrarySelection(row: LibraryRow, pageIndex: number) {
     const selected = librarySelection();
     if (!selected) return;
+    const note = librarySelectionNote();
     const start = utf16ToScalar(libraryPageText(), librarySelectionStart());
     const end = start + Array.from(selected).length;
     const operation = `library-${row.document_id}-${pageIndex}-${Date.now().toString(36)}`;
@@ -3161,6 +3164,7 @@ async function captureLibrarySelection(row: LibraryRow, pageIndex: number) {
                 pageIndex,
                 start,
                 end,
+                note,
                 operation,
             ),
         );
@@ -3168,6 +3172,7 @@ async function captureLibrarySelection(row: LibraryRow, pageIndex: number) {
         libraryPageStatus.set("选文已保存到本机 Core。");
         librarySelection.set("");
         librarySelectionStart.set(0);
+        librarySelectionNote.set("");
     } catch (_) {
         libraryPageStatus.set("选文暂未保存；原选文仍在当前页面。");
     }
@@ -3222,6 +3227,7 @@ function LibraryReader(props: { compact: boolean }) {
                     selectable
                     accessibilityLabel="可选择的本页文字"
                     onSelectionChange={({ text, start }) => {
+                        if (!text) return;
                         librarySelection.set(text);
                         librarySelectionStart.set(start ?? 0);
                     }}
@@ -3238,21 +3244,63 @@ function LibraryReader(props: { compact: boolean }) {
                     </Text>
                 </View>
                 <If when={!!librarySelection()}>
-                    <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
-                        <Copy size={11} muted>
-                            已选 {Array.from(librarySelection()).length} 字
-                        </Copy>
-                        <Tool
-                            label="复制当前选文"
-                            text="复制选文"
-                            onPress={() =>
-                                void Clipboard.writeText(librarySelection())
-                            }
-                        />
-                        <Tool
-                            label="保存当前选文到 Core"
-                            text="保存摘录"
-                            onPress={() => void captureLibrarySelection(row, libraryPageIndex())}
+                    <View
+                        style={{
+                            gap: 10,
+                            padding: 14,
+                            backgroundColor: ink("surface-inset"),
+                            borderRadius: 8,
+                        }}
+                    >
+                        <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+                            <Copy size={11} muted>
+                                已选 {Array.from(librarySelection()).length} 字
+                            </Copy>
+                            <Tool
+                                label="复制当前选文"
+                                text="复制选文"
+                                onPress={() =>
+                                    void Clipboard.writeText(librarySelection())
+                                }
+                            />
+                            <Tool
+                                label="保存当前选文和想法到 Core"
+                                text="保存摘录"
+                                onPress={() =>
+                                    void captureLibrarySelection(
+                                        row,
+                                        libraryPageIndex(),
+                                    )
+                                }
+                            />
+                            <Tool
+                                label="取消当前选文"
+                                text="取消"
+                                onPress={() => {
+                                    librarySelection.set("");
+                                    librarySelectionStart.set(0);
+                                    librarySelectionNote.set("");
+                                }}
+                            />
+                        </View>
+                        <Input
+                            accessibilityLabel="为摘录写下想法"
+                            multiline
+                            value={librarySelectionNote()}
+                            onChange={({ value }) => librarySelectionNote.set(value)}
+                            placeholder="写下自己的想法（可选）"
+                            style={{
+                                minHeight: 72,
+                                padding: 10,
+                                fontSize: 14,
+                                lineHeight: 23,
+                                color: ink("text-primary"),
+                                backgroundColor: ink("surface-base"),
+                                borderWidth: 1,
+                                borderColor: ink("border-subtle"),
+                                borderRadius: 7,
+                            }}
+                            focusStyle={focus()}
                         />
                     </View>
                 </If>

@@ -54,12 +54,14 @@ impl<S: KnowledgeStore> LibraryReadBridge<S> {
                 page_index,
                 start,
                 end,
+                note,
             } => self.capture_selection(
                 request.request_id.as_str(),
                 *document_id,
                 *page_index,
                 *start,
                 *end,
+                note,
                 context,
             ),
         };
@@ -131,6 +133,7 @@ impl<S: KnowledgeStore> LibraryReadBridge<S> {
         page_index: u32,
         start: u32,
         end: u32,
+        note: &str,
         context: &AuthorizedContext,
     ) -> LibraryResult {
         let Ok(installation_id) = i64::try_from(context.installation_id.sequence()) else {
@@ -154,7 +157,7 @@ impl<S: KnowledgeStore> LibraryReadBridge<S> {
                 end,
             },
             &origin,
-            "",
+            note,
         ) {
             Ok(receipt) => LibraryResult::Capture {
                 capture_id: receipt.capture_id,

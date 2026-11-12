@@ -29,6 +29,8 @@ pub const MIN_LIBRARY_TEXT_CHUNK: u16 = 4;
 pub const MAX_LIBRARY_TEXT_OFFSET: u32 = 16 * 1024 * 1024;
 /// Maximum scalar range accepted for one Library selection.
 pub const MAX_LIBRARY_SELECTION_SCALARS: u32 = 100_000;
+/// Maximum UTF-8 bytes of the user's note attached to one selection.
+pub const MAX_LIBRARY_NOTE_BYTES: usize = 1024 * 1024;
 
 fn invalid(message: &'static str) -> ApiError {
     ApiError::new(ErrorCode::InvalidRequest, message)
@@ -106,6 +108,7 @@ pub enum LibraryOperation {
         page_index: u32,
         start: u32,
         end: u32,
+        note: String,
     },
 }
 
@@ -151,6 +154,7 @@ impl LibraryRequest {
                 page_index,
                 start,
                 end,
+                note,
             } => {
                 positive(*document_id, "invalid library document id")?;
                 if *page_index >= MAX_LIBRARY_PAGES {
@@ -163,6 +167,13 @@ impl LibraryRequest {
                     return Err(budget(
                         "library selection range is outside the supported range",
                     ));
+                }
+                if note.len() > MAX_LIBRARY_NOTE_BYTES
+                    || note
+                        .chars()
+                        .any(|character| character.is_control() && character != '\n')
+                {
+                    return Err(invalid("library selection note is invalid"));
                 }
             }
         }

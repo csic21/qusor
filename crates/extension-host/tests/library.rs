@@ -118,6 +118,7 @@ fn library_capture_requires_capture_propose() {
             page_index: 0,
             start: 0,
             end: 5,
+            note: String::new(),
         },
     };
     let permit = host.authorize_library(&session, &request).unwrap();
