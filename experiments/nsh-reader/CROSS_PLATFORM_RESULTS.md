@@ -1,5 +1,7 @@
 # 六端推进与实际资格
 
+2026-11-12 Android 打包预检：临时安装 NDK 27.2 并使用 Android Studio JBR 后，QUSOR 的 Rust app 与 TSX bundle 均构建通过，NSH Android runtime 也进入实际编译；最终在固定 NSH `quickjs-jit 0.14.2` 的 `rquickjs_macro` target 组合失败，未生成 APK。复现条件与输出见[预检记录](evidence/android-packaging-preflight/README.md)。这条结果把阻断定位到固定 NSH runtime，而不是当前 Library/Reader 代码；Android 设备、私有存储、IME、阅读/词汇和分发仍未验证。
+
 2026-11-09；关联 C-15、F-PLAT-01、F-EXT-07、F-READ-01/03、F-NOTE-01、F-DATA-01；决策见 [ADR 0033](../../docs/architecture/adr/0033-cross-platform-runtime.md)。**全平台目标已确认，完整六端应用支持尚未完成。**
 
 ## 当前结果
