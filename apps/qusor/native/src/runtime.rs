@@ -6,6 +6,7 @@
 //! mounted here yet; their rows remain declared for the shell stage.
 use crate::{
     extension_preferences::Preferences,
+    library_native::LibraryRuntime,
     notes_native::NotesRuntime,
     package_catalog, profile,
     vault::{self, VaultStore},
@@ -24,6 +25,7 @@ enum AppService {
     Core(VaultStore),
     Notes(NotesRuntime),
     Vocab(VocabRuntime),
+    Library(LibraryRuntime),
 }
 
 struct AppRuntime {
@@ -73,6 +75,15 @@ impl AppRuntime {
                     let runtime = VocabRuntime::mount(store)?;
                     scope
                         .mount(&entry, AppService::Vocab(runtime))
+                        .map_err(|error| error.to_string())?;
+                }
+                profile::LIBRARY_HOST_ENTRY => {
+                    let store = core
+                        .clone()
+                        .ok_or("the Library Host was not preceded by the Core provider")?;
+                    let runtime = LibraryRuntime::mount(store)?;
+                    scope
+                        .mount(&entry, AppService::Library(runtime))
                         .map_err(|error| error.to_string())?;
                 }
                 _ => {}
@@ -185,5 +196,17 @@ pub(crate) fn with_vocab<T>(
         Some(AppService::Vocab(vocab)) => operation(vocab),
         Some(_) => Err("composition entry does not mount a vocabulary runtime".into()),
         None => Err("vocabulary runtime is not mounted".into()),
+    })
+}
+
+pub(crate) fn with_library<T>(
+    sys: &System,
+    operation: impl FnOnce(&mut LibraryRuntime) -> Result<T, String>,
+) -> Result<T, String> {
+    let entry = EntryId::parse(profile::LIBRARY_HOST_ENTRY).map_err(|error| error.to_string())?;
+    with_runtime(sys, |runtime| match runtime.scope.get_mut(&entry) {
+        Some(AppService::Library(library)) => operation(library),
+        Some(_) => Err("composition entry does not mount a Library runtime".into()),
+        None => Err("Library runtime is not mounted".into()),
     })
 }

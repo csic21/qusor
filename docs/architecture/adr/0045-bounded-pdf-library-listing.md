@@ -2,7 +2,7 @@
 
 日期：2026-11-12
 
-状态：应用层只读查询已实现；Host API、插件 wire、Library UI 和 Reader 打开链路未完成。
+状态：应用层只读查询、Host API 0.6 与初始 Library UI 已实现；PDF 打开和 Reader 链路未完成。
 
 ## 背景
 
@@ -18,7 +18,7 @@ Core 已保存 PDF 文档记录和原件 blob，但应用层只有按 ID 的 `qu
 
 ## 后果
 
-- Library 插件可以后续通过版本化 Host wire 消费这一读模型，而不是直接拿 Core 归档。
+- Library 插件通过版本化 Host wire 消费这一读模型，而不是直接拿 Core 归档。
 - 正式打开阅读仍需按 `document_id` 取受控原件/Surface；本 ADR 不提供该通路。
 - 文档标题来自导入时的 Core 记录；排序不使用文件名或文件系统时间。
 

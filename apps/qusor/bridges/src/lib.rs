@@ -14,5 +14,6 @@
 //! `core-api`、`extension-api`、`extension-host`、`learning-application`、
 //! `learning-ports`。
 pub mod component_edit;
+pub mod library_bridge;
 pub mod notes_bridge;
 pub mod vocab_bridge;

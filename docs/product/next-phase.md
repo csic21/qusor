@@ -1,3 +1,5 @@
+2026-11-12 Library Host API 0.6：新增 `library.read`、`library_workspace` 与 `library-metadata-v1` wire。请求只含分页游标/limit，Host 绑定 vault 并检查安装 grant；响应最多6份 PDF 元数据，不含原件、blob、路径或想法。应用又嵌入普通签名 `org.qusor.library` 包，新增 `LibraryHost.page`/`LibraryReadBridge`，从真实 Core 读取元数据并提供初始原生资料库列表。根 Workspace 308项、扩展协议/策略/包/存储179项、应用12项、`nsh check` 通过。PDF 打开、Reader Surface、完整 Library 旅程和真实窗口仍未完成，见 [ADR 0046](../architecture/adr/0046-library-host-api-0-6.md)。
+
 2026-11-12 Library 读取模型：`learning-application::pdf_library` 新增 vault 内 PDF 文档元数据分页，按 commit/document 倒序，最多 200 条，返回标题、摘要/字节数、页数和提取修订；不返回原件、blob、路径或想法。游标绑定过滤后的 vault 序列，跨 vault/伪造游标拒绝。学习应用 46 项测试通过；Host wire、Library UI、真实 Reader 打开链路仍未完成，见 [ADR 0045](../architecture/adr/0045-bounded-pdf-library-listing.md)。
 
 2026-11-12 阅读预览贡献：新增仓库外构建的普通签名包 `plugins/reader`（`org.qusor.reader.preview`），Manifest 声明 `reader_workspace`；应用 profile 以 `app.qusor.reader.preview` 提供 `reader.surface` 0.2，目录通过 Manifest、profile 依赖和原生 renderer 发现阅读入口。包入口为空 Wasm 且不执行，界面仍明确标注窗口内样例、不读写 Core；这不是正式 reader/library 纵切。应用 12 项测试、`nsh check`、架构/原生 UI 守卫通过，见 [ADR 0044](../architecture/adr/0044-reader-preview-contribution.md)。

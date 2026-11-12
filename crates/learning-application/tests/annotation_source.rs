@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 mod common;
 use common::*;
 use learning_application::annotation_source::FrozenPdfSource;

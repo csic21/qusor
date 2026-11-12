@@ -6,6 +6,7 @@
 pub mod app_info;
 pub mod composition_native;
 pub mod extension_preferences;
+pub mod library_native;
 pub mod notes_native;
 pub mod package_catalog;
 pub mod profile;
@@ -21,4 +22,5 @@ fn native(registry: &mut Registry) {
     registry.module::<composition_native::CompositionHost>();
     registry.module::<notes_native::NotesHost>();
     registry.module::<vocab_native::VocabHost>();
+    registry.module::<library_native::LibraryHost>();
 }

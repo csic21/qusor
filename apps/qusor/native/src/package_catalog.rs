@@ -30,7 +30,17 @@ const READER_PACKAGE: EmbeddedPackage = EmbeddedPackage {
     bytes: include_bytes!("../assets/reader.qpk"),
     key: include_str!("../assets/reader.pub"),
 };
-const PACKAGES: [&EmbeddedPackage; 3] = [&NOTES_PACKAGE, &VOCAB_PACKAGE, &READER_PACKAGE];
+const LIBRARY_PACKAGE: EmbeddedPackage = EmbeddedPackage {
+    package_id: "org.qusor.library",
+    bytes: include_bytes!("../assets/library.qpk"),
+    key: include_str!("../assets/library.pub"),
+};
+const PACKAGES: [&EmbeddedPackage; 4] = [
+    &NOTES_PACKAGE,
+    &VOCAB_PACKAGE,
+    &READER_PACKAGE,
+    &LIBRARY_PACKAGE,
+];
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WorkspaceDescriptor {
@@ -95,6 +105,7 @@ fn workspace_kind(kind: ContributionKind) -> Option<&'static str> {
         ContributionKind::NotesWorkspace => Some("notes_workspace"),
         ContributionKind::VocabWorkspace => Some("vocab_workspace"),
         ContributionKind::ReaderWorkspace => Some("reader_workspace"),
+        ContributionKind::LibraryWorkspace => Some("library_workspace"),
         ContributionKind::Command
         | ContributionKind::SelectionAction
         | ContributionKind::ComponentProvider => None,
@@ -159,7 +170,7 @@ mod tests {
     #[test]
     fn workspace_contributions_are_manifest_backed_and_profile_gated() {
         let workspaces = workspace_contributions().unwrap();
-        assert_eq!(workspaces.len(), 3);
+        assert_eq!(workspaces.len(), 4);
         assert!(workspaces.iter().any(|workspace| {
             workspace.id == "org.qusor.notes.workspace"
                 && workspace.kind == "notes_workspace"
@@ -175,6 +186,11 @@ mod tests {
                 && workspace.kind == "reader_workspace"
                 && workspace.package == "org.qusor.reader.preview"
         }));
+        assert!(workspaces.iter().any(|workspace| {
+            workspace.id == "org.qusor.library.workspace"
+                && workspace.kind == "library_workspace"
+                && workspace.package == "org.qusor.library"
+        }));
     }
 
     #[test]
@@ -182,7 +198,7 @@ mod tests {
         let disabled = std::collections::BTreeSet::from(["org.qusor.vocab".into()]);
         let plan = profile::plan_with_disabled(&disabled).unwrap();
         let workspaces = workspace_contributions_for(&plan).unwrap();
-        assert_eq!(workspaces.len(), 2);
+        assert_eq!(workspaces.len(), 3);
         assert!(
             workspaces
                 .iter()
@@ -192,6 +208,11 @@ mod tests {
             workspaces
                 .iter()
                 .any(|workspace| workspace.package == "org.qusor.reader.preview")
+        );
+        assert!(
+            workspaces
+                .iter()
+                .any(|workspace| workspace.package == "org.qusor.library")
         );
     }
 }

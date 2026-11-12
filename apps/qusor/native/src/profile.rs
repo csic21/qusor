@@ -15,6 +15,7 @@ const PROFILE_JSON: &str = include_str!("../../desktop-profile.json");
 pub const CORE_ENTRY: &str = "app.qusor.core";
 pub const NOTES_HOST_ENTRY: &str = "app.qusor.notes.host";
 pub const VOCAB_HOST_ENTRY: &str = "app.qusor.vocab.host";
+pub const LIBRARY_HOST_ENTRY: &str = "app.qusor.library.host";
 static PROFILE: OnceLock<Result<CompositionPlan, String>> = OnceLock::new();
 
 #[derive(Deserialize)]
@@ -198,7 +199,7 @@ mod tests {
     fn embedded_desktop_profile_resolves_its_real_consumers() {
         let plan = plan().unwrap();
         assert_eq!(plan.profile().as_str(), "desktop");
-        assert_eq!(plan.entries().len(), 7);
+        assert_eq!(plan.entries().len(), 9);
         assert!(
             plan.provider(&capability_composition::ServiceId::parse("vault.read").unwrap())
                 .is_some()
@@ -213,6 +214,10 @@ mod tests {
         );
         assert!(
             plan.entry(&EntryId::parse("org.qusor.reader.preview.workspace").unwrap())
+                .is_some()
+        );
+        assert!(
+            plan.entry(&EntryId::parse("org.qusor.library.workspace").unwrap())
                 .is_some()
         );
         assert!(
@@ -255,7 +260,7 @@ mod tests {
         let receipt: serde_json::Value = serde_json::from_str(&report_json()).unwrap();
         assert_eq!(receipt["ok"], true);
         assert_eq!(receipt["value"]["profile"], "desktop");
-        assert_eq!(receipt["value"]["entries"].as_array().unwrap().len(), 7);
+        assert_eq!(receipt["value"]["entries"].as_array().unwrap().len(), 9);
         assert!(receipt["value"]["dump"].as_str().unwrap().contains("base"));
         assert!(receipt.get("grants").is_none());
         assert!(receipt.get("paths").is_none());

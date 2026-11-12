@@ -8,7 +8,7 @@
 
 当前已有 [无界面插件策略基座](docs/product/foundation.md) 与 [Wasm 本机实验](experiments/extension-wasm/RESULTS.md)。用户随后同意按最小本地阅读闭环推进，并明确阅读及其他核心用户功能全部插件化、目录/架构清晰。签名包、持久授权／迁移与监督恢复已有本机子项，生产安装界面、完整监督装配和发行门槛仍未完成。固定NSH借隔离本地依赖前缀已通过Linux原生构建、实窗选文／编辑／保存、正常关闭及Core重开／空库恢复；最新[默认界面资格](experiments/nsh-reader/evidence/native-editor-shutdown-gui-default/README.md)与[进程回收资格](experiments/nsh-reader/evidence/native-editor-shutdown/README.md)分别记录工件和范围。图像任务退休仍在整合，原生资源释放ACK、B原生替换、长书／EPUB、正式功能包及其他平台门槛尚未通过。当前落实 [目录边界](docs/architecture/workspace-layout.md)、[包生命周期](docs/architecture/plugin-lifecycle.md) 与 [NSH 前置实验](experiments/nsh-reader/README.md)，阶段顺序见 [下一阶段计划](docs/product/next-phase.md)。
 
-已授权的目录设计、前置实验及按相应技术门槛推进的本地闭环无需重复审批；2026-11-11 用户要求开发背单词插件；首个词汇学习切片（Host API 0.5、Core 学习数据与 FSRS-5、普通签名包、真实 SQLite 端到端测试）已落地，见 [词汇插件规格](docs/product/vocab-plugin.md)；工作台样例随后补音标、词性、系统语音读音与美/英切换（样例词书资源与实验宿主能力，不改 0.5 wire/Core），并加自动朗读/慢速两项读音偏好（存应用自身存储），见[实窗记录](experiments/nsh-reader/evidence/vocab-workspace-live/README.md)。正式产品工作区与生产安装界面仍未完成。当前尚无正式阅读／知识功能插件及完整产品装配；已验证的Core保存／恢复实现不等于正式用户旅程交付。首版 AI/画布/同步范围、云默认行为和首发平台仍待确定，不因功能归属规划而自动全部开工。后续明确指令优先，并更新范围记录。
+已授权的目录设计、前置实验及按相应技术门槛推进的本地闭环无需重复审批；2026-11-11 用户要求开发背单词插件；首个词汇学习切片（Host API 0.5、Core 学习数据与 FSRS-5、普通签名包、真实 SQLite 端到端测试）已落地，见 [词汇插件规格](docs/product/vocab-plugin.md)；工作台样例随后补音标、词性、系统语音读音与美/英切换（样例词书资源与实验宿主能力，不改 0.5 wire/Core），并加自动朗读/慢速两项读音偏好（存应用自身存储），见[实窗记录](experiments/nsh-reader/evidence/vocab-workspace-live/README.md)。2026-11-12 又落地 Host API 0.6 的 Library 元数据 wire、应用层 PDF 元数据分页、真实 Core 后端适配、初始原生资料库列表和阅读 preview 包；正式 Reader 打开/选文/保存链路仍未完成。正式产品工作区与生产安装界面仍未完成。当前尚无正式阅读／知识功能插件及完整产品装配；已验证的Core保存／恢复实现不等于正式用户旅程交付。首版 AI/画布/同步范围、云默认行为和首发平台仍待确定，不因功能归属规划而自动全部开工。后续明确指令优先，并更新范围记录。
 
 先读 [项目入口](README.md)、[功能范围](docs/product/scope.md) 和 [架构边界](docs/architecture/README.md)。按任务再读取相关研究，避免每次加载所有报告。
 
@@ -40,7 +40,7 @@
 - NSH 更新跟踪（用户于 2026-11-08 确认）：每次开展 NSH 相关设计、实现或验证前，核对官方仓库的发布记录、近期提交和文档；记录核对日期、上游版本/提交及对当前方案的影响。旧报告中的能力缺口须重新核实，尤其关注原生控件、输入法、文本/文档 Surface、插件桥接和平台支持。新能力先在隔离实验中验证，再决定升级；保留可复现的固定版本及回归证据。此约定在相关任务执行时落实，后台定时监控需另行配置。
 - apps 只装配，crates 保留 Core/协议/策略，adapters 实现基础设施，plugins 放独立功能包，sdk 从公开契约发行，experiments 留存隔离验证；详情以 [目录架构](docs/architecture/workspace-layout.md) 为准。功能插件不加入生产根 Workspace、不依赖内部源码；普通身份与仓库外构建须实测。
 
-- learning-domain 已有首个真实业务实现（FSRS-5 词汇调度内核，仍零外部依赖）；extension-api/extension-host 承担协议与宿主策略实际职责，公开能力已到 Host API 0.5。继续按职责拆分，不提前创建所有空业务 crate。
+- learning-domain 已有首个真实业务实现（FSRS-5 词汇调度内核，仍零外部依赖）；extension-api/extension-host 承担协议与宿主策略实际职责，公开能力已到 Host API 0.6（Library 元数据）。继续按职责拆分，不提前创建所有空业务 crate。
 - 新依赖或 Workspace member 必须更新 [依赖策略](config/architecture.toml) 并说明理由。检查覆盖 normal/dev/build 和目标平台声明。
 - [开发指南](docs/development.md) 是本地检查命令的入口。
 - 插件manifest、签名或独立进程不单独构成安全沙箱；动态代码的运行隔离与移动分发分别验证。具体契约与任务见 [插件架构](docs/architecture/extensions.md)。

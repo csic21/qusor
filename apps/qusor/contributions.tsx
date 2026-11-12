@@ -1,7 +1,7 @@
 import { Canvas, Clipboard, keymap, Path2D, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
 import { Button, Input, Menu, MenuItem, MenuSeparator, TextView } from "nsh/base";
 import { Menu as DesktopMenu, type MenuItem as DesktopMenuItem } from "nsh/desktop";
-import { CompositionHost, NotesHost, VocabHost } from "qusor/pdf-surface";
+import { CompositionHost, LibraryHost, NotesHost, VocabHost } from "qusor/pdf-surface";
 import {
     Badge,
     Copy,
@@ -3049,6 +3049,121 @@ function VocabWorkspace(props: { compact: boolean }) {
     );
 }
 
+type LibraryRow = {
+    document_id: number;
+    title: string;
+    page_count: number;
+    original_bytes: number;
+    commit_rev: number;
+};
+
+const libraryRows = signal<LibraryRow[]>([]);
+const libraryStatus = signal("正在读取本机资料库…");
+const libraryNext = signal("");
+let libraryBooted = false;
+
+async function loadLibraryPage(cursor = "") {
+    libraryStatus.set("正在读取本机资料库…");
+    try {
+        const response = JSON.parse(await LibraryHost.page(cursor, 6));
+        if (!response.ok || !Array.isArray(response.value?.documents))
+            throw Error();
+        libraryRows.set(
+            response.value.documents.filter(
+                (row: any) =>
+                    typeof row?.document_id === "number" &&
+                    typeof row?.title === "string" &&
+                    typeof row?.page_count === "number" &&
+                    typeof row?.original_bytes === "number" &&
+                    typeof row?.commit_rev === "number",
+            ),
+        );
+        libraryNext.set(
+            typeof response.value.next_cursor === "string"
+                ? response.value.next_cursor
+                : "",
+        );
+        libraryStatus.set(
+            response.value.documents.length
+                ? "本机 Core · 只显示资料元数据"
+                : "本机 Core 还没有 PDF 资料",
+        );
+    } catch (_) {
+        libraryRows.set([]);
+        libraryNext.set("");
+        libraryStatus.set("本机资料库暂不可用；已收录内容没有被删除");
+    }
+}
+
+function LibraryWorkspace(props: { compact: boolean }) {
+    if (!libraryBooted) {
+        libraryBooted = true;
+        void loadLibraryPage();
+    }
+    return (
+        <Scroll style={{ flex: 1 }}>
+            <View
+                accessibilityLabel="资料库插件工作区"
+                style={{
+                    padding: props.compact ? 24 : 40,
+                    maxWidth: 900,
+                    width: "100%",
+                    alignSelf: "center",
+                    gap: 20,
+                }}
+            >
+                <Copy size={25} strong>
+                    资料库
+                </Copy>
+                <Copy size={12} muted>
+                    {libraryStatus()}
+                </Copy>
+                <Each of={libraryRows()}>
+                    {(row) => (
+                        <View
+                            style={{
+                                paddingVertical: 16,
+                                borderBottomWidth: 1,
+                                borderColor: ink("border-subtle"),
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: 14,
+                            }}
+                        >
+                            <Badge icon="book" size={38} />
+                            <View style={{ flex: 1, gap: 4 }}>
+                                <Copy size={15} strong>
+                                    {row().title}
+                                </Copy>
+                                <Copy size={11} muted>
+                                    {row().page_count} 页 ·{" "}
+                                    {Math.max(
+                                        1,
+                                        Math.round(row().original_bytes / 1024),
+                                    )}{" "}
+                                    KiB · 提交 {row().commit_rev}
+                                </Copy>
+                            </View>
+                        </View>
+                    )}
+                </Each>
+                <If when={!libraryRows().length && libraryStatus().includes("没有")}>
+                    <Copy muted>
+                        导入 PDF 后，资料会出现在这里；当前不会上传原文件。
+                    </Copy>
+                </If>
+                <If when={!!libraryNext()}>
+                    <Tool
+                        label="加载更多资料"
+                        text="加载更多"
+                        onPress={() => void loadLibraryPage(libraryNext())}
+                    />
+                </If>
+            </View>
+        </Scroll>
+    );
+}
+
 export const entries: Entry[] = [
     {
         id: "note",
@@ -3112,6 +3227,12 @@ const workspaceRenderers: Record<string, WorkspaceRenderer> = {
         icon: "book",
         description: "原生阅读界面资格；窗口内样例不写入 Core",
         render: (props) => <ReadingWorkspace compact={props.compact} />,
+    },
+    library_workspace: {
+        kind: "资料库",
+        icon: "book",
+        description: "本机 Core 的 PDF 元数据列表",
+        render: (props) => <LibraryWorkspace compact={props.compact} />,
     },
 };
 

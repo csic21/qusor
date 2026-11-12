@@ -219,7 +219,7 @@ fn packaged_host_initializers_read_one_migrated_core() {
     let workspaces = value(CompositionHost::workspaces(system.clone()));
     assert_eq!(workspaces["ok"], true, "{workspaces}");
     let workspaces = workspaces["value"]["workspaces"].as_array().unwrap();
-    assert_eq!(workspaces.len(), 3);
+    assert_eq!(workspaces.len(), 4);
     assert!(workspaces.iter().any(|workspace| {
         workspace["id"] == "org.qusor.notes.workspace"
             && workspace["title"] == "想法"
@@ -235,6 +235,24 @@ fn packaged_host_initializers_read_one_migrated_core() {
             && workspace["title"] == "阅读"
             && workspace["kind"] == "reader_workspace"
     }));
+    assert!(workspaces.iter().any(|workspace| {
+        workspace["id"] == "org.qusor.library.workspace"
+            && workspace["title"] == "资料库"
+            && workspace["kind"] == "library_workspace"
+    }));
+    let library = value(qusor_app_native::library_native::LibraryHost::page(
+        system.clone(),
+        String::new(),
+        6,
+    ));
+    assert_eq!(library["ok"], true, "{library}");
+    assert!(
+        library["value"]["documents"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|document| document["title"] == "Legacy note")
+    );
     let packages = value(CompositionHost::packages(system.clone()));
     assert_eq!(packages["ok"], true, "{packages}");
     assert!(
@@ -258,7 +276,7 @@ fn packaged_host_initializers_read_one_migrated_core() {
     let state = fs::read_to_string(scratch.0.join("extensions/preferences.json")).unwrap();
     assert_eq!(
         disabled["value"]["workspaces"].as_array().unwrap().len(),
-        2,
+        3,
         "state={state} response={disabled}"
     );
     assert!(scratch.0.join("extensions/preferences.json").is_file());
@@ -291,7 +309,7 @@ fn packaged_host_initializers_read_one_migrated_core() {
             .as_array()
             .unwrap()
             .len(),
-        2
+        3
     );
 
     let enabled = value(CompositionHost::set_package_enabled(
@@ -300,7 +318,7 @@ fn packaged_host_initializers_read_one_migrated_core() {
         true,
     ));
     assert_eq!(enabled["ok"], true, "{enabled}");
-    assert_eq!(enabled["value"]["workspaces"].as_array().unwrap().len(), 3);
+    assert_eq!(enabled["value"]["workspaces"].as_array().unwrap().len(), 4);
     let decks_after_enable = value(VocabHost::decks(system.clone()));
     assert_eq!(decks_after_enable["ok"], true, "{decks_after_enable}");
     assert_eq!(

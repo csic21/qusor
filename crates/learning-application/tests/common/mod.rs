@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 //! Shared synthetic Core fixture and explicitly injected lost-reply store.
 use core_api::knowledge::*;
 use learning_application::KnowledgeApplication;

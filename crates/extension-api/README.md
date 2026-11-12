@@ -90,6 +90,8 @@ Draft请求至多64KiB、每文本块512bytes、完整响应4KiB、单想法文�
 
 新增 [0.5策略schema](schema/policy-v0.5.schema.json)、`vocab.read`/`vocab.review` 能力与 `vocab_workspace` 贡献类型；0.5是独立词表，不继承0.1–0.4，旧版本语义与测试保持不变。`vocab` 模块提供 `vocab-study-v1`：词书列表（≤6本）、学习队列（≤6张/页，词条/释义/例句分别≤64/96/160 bytes）与一次评分提交；整响应≤4 KiB，请求不自报vault，由Host绑定精确授权。评分的 `request_id` 同时是Core幂等键：重复同一评分返回原结果，换卡片或评分报冲突。见 [ADR 0036](../../docs/architecture/adr/0036-vocabulary-study-capability.md)。wire通过不等于可信后端、普通包、真实SQLite或原生工作区已接通。
 
+新增 [0.6策略schema](schema/policy-v0.6.schema.json)、`library.read` 能力与 `library_workspace` 贡献类型；0.6只承载 PDF Library 元数据读取，不继承0.1–0.5的新增词汇。`library` 模块提供 `library-metadata-v1`：单页最多6份文档，返回标题、摘要/字节数、页数和提取修订，不返回原件/blob/路径/想法；整响应≤4 KiB。请求不自报vault，由Host绑定 `library.read` 精确授权。见 [ADR 0046](../../docs/architecture/adr/0046-library-host-api-0-6.md)。Host后端、普通包与原生Library UI尚未接线。
+
 ## 只读段落投影（实施切片）
 
 `projection`与`paragraph-projection-v1.schema.json`提供独立API0.3/protocol1的own context、query、CAS/checkpoint及最多8行的span窗口。没有文本effect；`window`必须显式给出对象或null。窗口ready由context推导，UTF-8边界/前态推进/fresh权限由应用与协调器继续校验；结构不证明段落语义或EOF诚实。Host/应用局部检查不等于普通guest或原生界面已接通，详见[ADR0030](../../docs/architecture/adr/0030-readonly-paragraph-projection.md)。

@@ -1,4 +1,4 @@
-//! UI-independent extension policy wire: legacy 0.1 and explicitly negotiated 0.2/0.3/0.4.
+//! UI-independent extension policy wire: legacy 0.1 and explicitly negotiated 0.2–0.6.
 //!
 //! These DTOs describe requested capabilities, contribution registration, and an
 //! authorization query. They do not execute plugin code or read/write knowledge.
@@ -23,13 +23,16 @@ pub const HOST_API_V0_3: ApiVersion = ApiVersion { major: 0, minor: 3 };
 pub const HOST_API_V0_4: ApiVersion = ApiVersion { major: 0, minor: 4 };
 /// Explicit opt-in protocol for bounded vocabulary study and review.
 pub const HOST_API_V0_5: ApiVersion = ApiVersion { major: 0, minor: 5 };
+/// Explicit opt-in protocol for bounded PDF Library metadata reads.
+pub const HOST_API_V0_6: ApiVersion = ApiVersion { major: 0, minor: 6 };
 /// Implemented versions; support alone grants no authority.
-pub const SUPPORTED_HOST_APIS: [ApiVersion; 5] = [
+pub const SUPPORTED_HOST_APIS: [ApiVersion; 6] = [
     HOST_API,
     HOST_API_V0_2,
     HOST_API_V0_3,
     HOST_API_V0_4,
     HOST_API_V0_5,
+    HOST_API_V0_6,
 ];
 
 pub mod component_invocation;
@@ -37,6 +40,7 @@ pub mod composition;
 pub mod continuation;
 pub mod draft;
 pub mod invocation;
+pub mod library;
 pub mod notes;
 pub mod platform;
 pub mod projection;
@@ -136,6 +140,8 @@ pub enum Capability {
     VocabRead,
     #[serde(rename = "vocab.review")]
     VocabReview,
+    #[serde(rename = "library.read")]
+    LibraryRead,
 }
 
 /// Declarative entry types currently understood by the policy registry.
@@ -148,6 +154,7 @@ pub enum ContributionKind {
     ComponentProvider,
     NotesWorkspace,
     VocabWorkspace,
+    LibraryWorkspace,
 }
 
 /// Version availability is checked even when a capability is declared optional.
@@ -156,6 +163,7 @@ pub fn capability_available_in(capability: Capability, version: ApiVersion) -> b
         Capability::NoteDraftEdit => version == HOST_API_V0_3,
         Capability::NotesRead => version == HOST_API_V0_4,
         Capability::VocabRead | Capability::VocabReview => version == HOST_API_V0_5,
+        Capability::LibraryRead => version == HOST_API_V0_6,
         Capability::ReaderSurface => version == HOST_API_V0_2,
         Capability::SelectionRead
         | Capability::DocumentMetadataRead
@@ -184,7 +192,9 @@ pub fn capability_resource_valid(
         Capability::CapturePropose => matches!(resource, Resource::Vault { .. }),
         Capability::ReaderSurface => matches!(resource, Resource::Document { .. }),
         Capability::NoteDraftEdit => matches!(resource, Resource::Draft { .. }),
-        Capability::NotesRead => matches!(resource, Resource::Vault { .. }),
+        Capability::NotesRead | Capability::LibraryRead => {
+            matches!(resource, Resource::Vault { .. })
+        }
         Capability::VocabRead | Capability::VocabReview => {
             matches!(resource, Resource::Vault { .. })
         }
@@ -297,6 +307,26 @@ impl Manifest {
                 "Host API0.5 requires a vocab capability declaration",
             ));
         }
+        let library_vocabulary = declared.contains(&Capability::LibraryRead)
+            || self
+                .contributions
+                .iter()
+                .any(|c| c.kind == ContributionKind::LibraryWorkspace);
+        if library_vocabulary && (self.host_api.major != 0 || self.host_api.min_minor < 6) {
+            return Err(ApiError::new(
+                code,
+                "library vocabulary requires minimum Host API0.6",
+            ));
+        }
+        if self.host_api.major == 0
+            && self.host_api.min_minor == 6
+            && !declared.contains(&Capability::LibraryRead)
+        {
+            return Err(ApiError::new(
+                code,
+                "Host API0.6 requires library.read declaration",
+            ));
+        }
         if self.host_api.major == 0
             && self.host_api.min_minor == 3
             && !declared.contains(&Capability::NoteDraftEdit)
@@ -367,6 +397,16 @@ impl Manifest {
             {
                 return Err(ApiError::new(code, "vocab workspace requires vocab.read"));
             }
+            if contribution.kind == ContributionKind::LibraryWorkspace
+                && !contribution
+                    .required_capabilities
+                    .contains(&Capability::LibraryRead)
+            {
+                return Err(ApiError::new(
+                    code,
+                    "library workspace requires library.read",
+                ));
+            }
             for capability in validate_capabilities(&contribution.required_capabilities, code)? {
                 if !declared.contains(&capability) {
                     return Err(ApiError::new(
@@ -397,6 +437,7 @@ impl Manifest {
                     ContributionKind::ComponentProvider => version == HOST_API_V0_3,
                     ContributionKind::NotesWorkspace => version == HOST_API_V0_4,
                     ContributionKind::VocabWorkspace => version == HOST_API_V0_5,
+                    ContributionKind::LibraryWorkspace => version == HOST_API_V0_6,
                     ContributionKind::Command | ContributionKind::SelectionAction => {
                         version != HOST_API_V0_3
                     }

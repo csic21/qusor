@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 mod common;
 
 use core_api::knowledge::KnowledgeErrorCode;
