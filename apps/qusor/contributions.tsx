@@ -3107,6 +3107,12 @@ const workspaceRenderers: Record<string, WorkspaceRenderer> = {
         description: "词书、复习安排与四档评分",
         render: (props) => <VocabWorkspace compact={props.compact} />,
     },
+    reader_workspace: {
+        kind: "阅读",
+        icon: "book",
+        description: "原生阅读界面资格；窗口内样例不写入 Core",
+        render: (props) => <ReadingWorkspace compact={props.compact} />,
+    },
 };
 
 const installedWorkspaces = signal<PluginWorkspace[]>([]);
@@ -3202,16 +3208,3 @@ export function pluginWorkspaces(): PluginWorkspace[] {
 export function pluginPackages(): PluginPackage[] {
     return installedPackages();
 }
-
-export const sampleWorkspaces: PluginWorkspace[] = [
-    {
-        id: "fixture.reading",
-        package: "fixture",
-        title: "阅读",
-        kind: "阅读",
-        role: "reader_workspace",
-        icon: "book",
-        description: "书库、阅读和工具由插件组织",
-        render: (props) => <ReadingWorkspace compact={props.compact} />,
-    },
-];

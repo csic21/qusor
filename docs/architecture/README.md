@@ -46,6 +46,8 @@ learning-domain 已从空壳变为 FSRS-5 词汇调度内核，仍保持独立�
 
 随应用普通包的启停偏好现已持久化到应用本地 `extensions/preferences.json`；切换时重建 Host 作用域并刷新工作区目录，Core 句柄与数据保留。该切片不是用户包安装/卸载，见 [ADR 0043](adr/0043-persistent-package-enable-intent.md)。
 
+阅读入口已有普通签名 preview 包和 Manifest `reader_workspace` 贡献；原生 renderer 仍是窗口内样例，不执行包入口、不读写 Core，见 [ADR 0044](adr/0044-reader-preview-contribution.md)。
+
 ## 未来依赖方向
 
 ```mermaid
@@ -118,6 +120,8 @@ extension-host 策略本身不写知识；新增 application 经 ports 调用真
 - [ADR 0042](adr/0042-native-only-plugin-ui.md)：插件 UI 原生 NSH-only 边界、Web/DOM 禁止项与检查脚本；第三方原生 TSX UI 运行器未完成。
 
 - [ADR 0043](adr/0043-persistent-package-enable-intent.md)：随应用包的持久启停、Host 作用域重建与工作区刷新；任意用户包的安装/卸载未完成。
+
+- [ADR 0044](adr/0044-reader-preview-contribution.md)：阅读预览包的 `reader_workspace` 目录与 `reader.surface` 依赖门；正式 Reader 与包内 UI 未完成。
 
 - [ADR 0034](adr/0034-note-read-model.md)：想法读取的 keyset 分页、范围绑定游标与有界正文分块；应用层与 SQLite 重开已通过，公开 SDK wire、插件授权与窗口接线未完成。
 

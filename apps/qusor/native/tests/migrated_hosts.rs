@@ -219,7 +219,7 @@ fn packaged_host_initializers_read_one_migrated_core() {
     let workspaces = value(CompositionHost::workspaces(system.clone()));
     assert_eq!(workspaces["ok"], true, "{workspaces}");
     let workspaces = workspaces["value"]["workspaces"].as_array().unwrap();
-    assert_eq!(workspaces.len(), 2);
+    assert_eq!(workspaces.len(), 3);
     assert!(workspaces.iter().any(|workspace| {
         workspace["id"] == "org.qusor.notes.workspace"
             && workspace["title"] == "想法"
@@ -229,6 +229,11 @@ fn packaged_host_initializers_read_one_migrated_core() {
         workspace["id"] == "org.qusor.vocab.workspace"
             && workspace["title"] == "背单词"
             && workspace["kind"] == "vocab_workspace"
+    }));
+    assert!(workspaces.iter().any(|workspace| {
+        workspace["id"] == "org.qusor.reader.preview.workspace"
+            && workspace["title"] == "阅读"
+            && workspace["kind"] == "reader_workspace"
     }));
     let packages = value(CompositionHost::packages(system.clone()));
     assert_eq!(packages["ok"], true, "{packages}");
@@ -253,7 +258,7 @@ fn packaged_host_initializers_read_one_migrated_core() {
     let state = fs::read_to_string(scratch.0.join("extensions/preferences.json")).unwrap();
     assert_eq!(
         disabled["value"]["workspaces"].as_array().unwrap().len(),
-        1,
+        2,
         "state={state} response={disabled}"
     );
     assert!(scratch.0.join("extensions/preferences.json").is_file());
@@ -286,7 +291,7 @@ fn packaged_host_initializers_read_one_migrated_core() {
             .as_array()
             .unwrap()
             .len(),
-        1
+        2
     );
 
     let enabled = value(CompositionHost::set_package_enabled(
@@ -295,7 +300,7 @@ fn packaged_host_initializers_read_one_migrated_core() {
         true,
     ));
     assert_eq!(enabled["ok"], true, "{enabled}");
-    assert_eq!(enabled["value"]["workspaces"].as_array().unwrap().len(), 2);
+    assert_eq!(enabled["value"]["workspaces"].as_array().unwrap().len(), 3);
     let decks_after_enable = value(VocabHost::decks(system.clone()));
     assert_eq!(decks_after_enable["ok"], true, "{decks_after_enable}");
     assert_eq!(

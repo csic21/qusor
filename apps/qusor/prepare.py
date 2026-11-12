@@ -21,7 +21,7 @@ ASSETS = APP / "native" / "assets"
 
 def main() -> int:
     ASSETS.mkdir(parents=True, exist_ok=True)
-    for name in ("notes", "vocab"):
+    for name in ("notes", "vocab", "reader"):
         builder = ROOT / "plugins" / name / "build.py"
         subprocess.run([sys.executable, str(builder)], cwd=ROOT, check=True)
         target = ROOT / "plugins" / name / "target"

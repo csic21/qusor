@@ -25,7 +25,12 @@ const VOCAB_PACKAGE: EmbeddedPackage = EmbeddedPackage {
     bytes: include_bytes!("../assets/vocab.qpk"),
     key: include_str!("../assets/vocab.pub"),
 };
-const PACKAGES: [&EmbeddedPackage; 2] = [&NOTES_PACKAGE, &VOCAB_PACKAGE];
+const READER_PACKAGE: EmbeddedPackage = EmbeddedPackage {
+    package_id: "org.qusor.reader.preview",
+    bytes: include_bytes!("../assets/reader.qpk"),
+    key: include_str!("../assets/reader.pub"),
+};
+const PACKAGES: [&EmbeddedPackage; 3] = [&NOTES_PACKAGE, &VOCAB_PACKAGE, &READER_PACKAGE];
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WorkspaceDescriptor {
@@ -154,7 +159,7 @@ mod tests {
     #[test]
     fn workspace_contributions_are_manifest_backed_and_profile_gated() {
         let workspaces = workspace_contributions().unwrap();
-        assert_eq!(workspaces.len(), 2);
+        assert_eq!(workspaces.len(), 3);
         assert!(workspaces.iter().any(|workspace| {
             workspace.id == "org.qusor.notes.workspace"
                 && workspace.kind == "notes_workspace"
@@ -165,6 +170,11 @@ mod tests {
                 && workspace.kind == "vocab_workspace"
                 && workspace.title == "背单词"
         }));
+        assert!(workspaces.iter().any(|workspace| {
+            workspace.id == "org.qusor.reader.preview.workspace"
+                && workspace.kind == "reader_workspace"
+                && workspace.package == "org.qusor.reader.preview"
+        }));
     }
 
     #[test]
@@ -172,7 +182,16 @@ mod tests {
         let disabled = std::collections::BTreeSet::from(["org.qusor.vocab".into()]);
         let plan = profile::plan_with_disabled(&disabled).unwrap();
         let workspaces = workspace_contributions_for(&plan).unwrap();
-        assert_eq!(workspaces.len(), 1);
-        assert_eq!(workspaces[0].package, "org.qusor.notes");
+        assert_eq!(workspaces.len(), 2);
+        assert!(
+            workspaces
+                .iter()
+                .any(|workspace| workspace.package == "org.qusor.notes")
+        );
+        assert!(
+            workspaces
+                .iter()
+                .any(|workspace| workspace.package == "org.qusor.reader.preview")
+        );
     }
 }

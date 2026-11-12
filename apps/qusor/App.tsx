@@ -9,7 +9,6 @@ import {
     entries,
     pluginPackages,
     pluginWorkspaces,
-    sampleWorkspaces,
     setWorkspacePackageEnabled,
     Diagram,
     type Entry,
@@ -105,7 +104,7 @@ function openPluginWorkspace(id: string) {
     searchOpen.set(false);
 }
 function allWorkspaces() {
-    return [...pluginWorkspaces(), ...sampleWorkspaces];
+    return pluginWorkspaces();
 }
 function togglePluginPackage(packageId: string, enabled: boolean) {
     const activePackage = currentPlugin()?.package;
@@ -169,7 +168,7 @@ function NewMenu() {
         >
             <View style={{ padding: 9 }}>
                 <Copy size={11} muted>
-                    打开界面样例
+                    打开内容样例
                 </Copy>
             </View>
             <Each of={entries}>
@@ -305,25 +304,6 @@ function Sidebar() {
                                     openPluginWorkspace(workspace().id)
                                 }
                                 trailing="插件"
-                            />
-                        )}
-                    </Each>
-                </View>
-                <View style={{ gap: 5 }}>
-                    <View style={{ paddingHorizontal: 10, paddingBottom: 3 }}>
-                        <Copy size={11} muted strong>
-                            界面样例
-                        </Copy>
-                    </View>
-                    <Each of={sampleWorkspaces}>
-                        {(workspace) => (
-                            <SidebarRow
-                                title={workspace().title}
-                                icon={workspace().icon}
-                                onPress={() =>
-                                    openPluginWorkspace(workspace().id)
-                                }
-                                trailing="样例"
                             />
                         )}
                     </Each>
@@ -796,7 +776,7 @@ function Library() {
                 </Copy>
                 <Copy muted>选择一种适合当前工作的视图</Copy>
                 <Copy size={12} muted>
-                    扩展工作区来自已验签的普通插件包；界面样例不写入 Core。
+                    扩展工作区来自已验签的普通插件包；阅读预览包仍使用窗口内样例。
                 </Copy>
                 <Each of={pluginWorkspaces()}>
                     {(workspace) => (
@@ -833,49 +813,6 @@ function Library() {
                             <Tool
                                 label={`打开${workspace().title}工作区`}
                                 text="打开工作区"
-                                raised
-                                onPress={() =>
-                                    openPluginWorkspace(workspace().id)
-                                }
-                            />
-                        </View>
-                    )}
-                </Each>
-                <Each of={sampleWorkspaces}>
-                    {(workspace) => (
-                        <View
-                            style={{
-                                paddingVertical: 18,
-                                borderBottomWidth: 1,
-                                borderColor: ink("border-subtle"),
-                                flexDirection: "row",
-                                alignItems: "center",
-                                gap: 15,
-                            }}
-                        >
-                            <Badge icon={workspace().icon} size={42} />
-                            <View style={{ flex: 1, gap: 4 }}>
-                                <View
-                                    style={{
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        gap: 8,
-                                    }}
-                                >
-                                    <Copy size={15} strong>
-                                        {workspace().title}
-                                    </Copy>
-                                    <Copy size={11} muted>
-                                        界面样例
-                                    </Copy>
-                                </View>
-                                <Copy size={12} muted>
-                                    {workspace().description}
-                                </Copy>
-                            </View>
-                            <Tool
-                                label={`打开${workspace().title}界面样例`}
-                                text="打开样例"
                                 raised
                                 onPress={() =>
                                     openPluginWorkspace(workspace().id)

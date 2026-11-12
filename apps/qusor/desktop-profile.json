@@ -67,6 +67,17 @@
               "minor": 5
             }
           ]
+        },
+        {
+          "id": "app.qusor.reader.preview",
+          "package": "org.qusor.reader.preview",
+          "provides": [
+            {
+              "service": "reader.surface",
+              "major": 0,
+              "minor": 2
+            }
+          ]
         }
       ]
     },
@@ -97,6 +108,17 @@
               "service": "vocab.review",
               "major": 0,
               "min_minor": 5
+            }
+          ]
+        },
+        {
+          "id": "org.qusor.reader.preview.workspace",
+          "package": "org.qusor.reader.preview",
+          "requires": [
+            {
+              "service": "reader.surface",
+              "major": 0,
+              "min_minor": 2
             }
           ]
         }

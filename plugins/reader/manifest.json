@@ -1,0 +1,29 @@
+{
+  "manifest_version": 1,
+  "package_id": "org.qusor.reader.preview",
+  "publisher_id": "org.qusor",
+  "package_version": {
+    "major": 0,
+    "minor": 1,
+    "patch": 0
+  },
+  "host_api": {
+    "major": 0,
+    "min_minor": 2,
+    "max_minor": 2
+  },
+  "required_capabilities": [
+    "reader.surface"
+  ],
+  "optional_capabilities": [],
+  "contributions": [
+    {
+      "id": "org.qusor.reader.preview.workspace",
+      "title": "阅读",
+      "kind": "reader_workspace",
+      "required_capabilities": [
+        "reader.surface"
+      ]
+    }
+  ]
+}
