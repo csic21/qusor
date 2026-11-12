@@ -1,43 +1,43 @@
 {
-  "tested_at": "2026-11-12T10:15:24+0800",
+  "tested_at": "2026-11-12T11:06:34+0800",
   "feature_ids": ["C-17", "F-PLAT-02"],
   "repository": "csic21/qusor",
   "workflow_run": {
-    "id": 43136573631,
+    "id": 43142491761,
     "event": "workflow_dispatch",
     "conclusion": "success",
-    "head_sha": "e1c025e4648af7c60a023a82a91ae9c8e20b0252",
-    "url": "https://github.com/csic21/qusor/actions/runs/43136573631"
+    "head_sha": "62a82e6ef5ae27e5f57f83a62a4b9e25e2eb7813",
+    "url": "https://github.com/csic21/qusor/actions/runs/43142491761"
   },
   "previous_failure": {
     "run_id": 42995272099,
-    "head_sha": "1d188746d6dc6e2ef36192648939c0831630b6b4",
+    "normalized_head_sha": "3c77408ca23caae9a9636a082ad7e2d71216828a",
     "reason": "literal *.zip reached nsh update-manifest",
-    "fixed_by": "e1c025e"
+    "fixed_by": "71bc69019e0962e7190c01a973ffff2ac28a9209"
   },
   "release": {
     "tag": "v0.1.0",
     "name": "QUSOR 0.1.0",
     "draft": true,
     "prerelease": false,
-    "target_commitish": "main",
-    "url": "https://github.com/csic21/qusor/releases/tag/untagged-2f00b29ec84e29b0cfd8"
+    "target_commitish": "62a82e6ef5ae27e5f57f83a62a4b9e25e2eb7813",
+    "url": "https://github.com/csic21/qusor/releases/tag/untagged-5fd5e6305149607151e7"
   },
   "assets": {
     "archive": {
       "name": "QUSOR-0.1.0-macos-aarch64.tar.gz",
-      "size": 21781955,
-      "sha256": "0f483e2c75eac23416dce5438eee181f083b6b96db23306e9d023cad4e52b118"
+      "size": 21786549,
+      "sha256": "bbac070c482e7464ba963499db2b63b06c1db746294ea7b9452c771da82155e1"
     },
     "manifest": {
       "name": "latest.json",
       "size": 312,
-      "sha256": "f622e2ba9468c1d0accdbea5882468975d81f2a17b640ca33bd88e5974a67c4c"
+      "sha256": "a46cdbe005ad9df5a389fb5319f12dc2cb71f73db10218ee2be3aea9eab07e43"
     },
     "signature": {
       "name": "latest.json.sig",
       "size": 89,
-      "sha256": "dd7a546417d39438a441e64f5e08c71f73560935ad0e59e972516643f8faa256"
+      "sha256": "d25be11166c4bee384813ce88cac82ae21d5ff2e8724db54ccbb95aa90d193aa"
     }
   },
   "manifest": {
@@ -65,14 +65,14 @@
     }
   },
   "launch": {
-    "process_id": 70450,
-    "window_id": 4715,
+    "process_id": 38840,
+    "window_id": 4837,
     "window_created": true,
     "sidebar_version": "0.1.0",
     "exited": true,
     "capture": {
       "file": "release-app.png",
-      "sha256": "5576f71d7402ae3483fbf5f961e8e81588e6b13af9356dba99e75edf5cb8566e"
+      "sha256": "ac2cd25d42040645e3adb9ff25bab5b1f4b4af8fdbfd80029f07fbba31614771"
     }
   },
   "not_verified": [

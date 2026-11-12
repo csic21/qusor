@@ -1,4 +1,4 @@
-# 发行流水线（C-17）。macOS draft 路径已在 run 43136573631 验证；每次运行前仍须确认：
+# 发行流水线（C-17）。macOS draft 路径已在 run 43142491761 验证；每次运行前仍须确认：
 #   - 仓库 secret NSH_UPDATE_KEY（.local/keys/update.secret 的内容，勿提交）；
 #   - 固定 NSH_SHA 与本地基线一致；
 #   - macOS 只有 ad hoc 签名，Gatekeeper 未放行；Linux/Windows 打包未实测，

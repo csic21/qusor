@@ -1,6 +1,6 @@
 # QUSOR 功能基线与范围确认
 
-2026-11-12，生产应用与首次云端发行继续推进：`apps/qusor/` 保持独立 workspace（provider/bridges/native），NSH 以 Git revision 固定，随包插件资产由 `prepare.py` 生成，`nsh.json` 内置 updater。Release workflow run 43136573631 已在 GitHub Actions 成功产出 macOS arm64 `QUSOR-0.1.0` 归档、签名 `latest.json` 并创建 draft `v0.1.0`；下载产物通过清单摘要、Ed25519 独立验签、ad hoc code signature 与实窗启动检查。决策见 [ADR 0037](../architecture/adr/0037-production-app-assembly.md)，机器记录见 [draft 验收](../../experiments/nsh-reader/evidence/github-release/README.md)。draft 尚未公开为 latest，线上自动更新拉取、PDF 阅读/编辑生产 UI、Windows/Linux 打包与签名账号仍未完成。
+2026-11-12，生产应用与首次云端发行继续推进：`apps/qusor/` 保持独立 workspace（provider/bridges/native），NSH 以 Git revision 固定，随包插件资产由 `prepare.py` 生成，`nsh.json` 内置 updater。Release workflow run 43142491761 已在 GitHub Actions 成功产出 macOS arm64 `QUSOR-0.1.0` 归档、签名 `latest.json` 并创建固定到源码 SHA 的 draft `v0.1.0`；下载产物通过清单摘要、Ed25519 独立验签、ad hoc code signature 与实窗启动检查。决策见 [ADR 0037](../architecture/adr/0037-production-app-assembly.md)，机器记录见 [draft 验收](../../experiments/nsh-reader/evidence/github-release/README.md)。draft 尚未公开为 latest，线上自动更新拉取、PDF 阅读/编辑生产 UI、Windows/Linux 打包与签名账号仍未完成。
 
 2026-11-11，用户询问自动更新与手机端进度，并建议“通过 GitHub Release 发版本、GitHub Actions 构建”。新增 C-17、F-PLAT-02（发行与自动更新），关联 C-15、F-PLAT-01、F-DATA-01：确认更新源使用主仓库 GitHub Releases（仓库转 public，`updater.github`，免认证的 `releases/latest/download/`）；应用先改造成 `nsh package` 形态（`apps/` 生产入口），一次取得桌面打包、自动更新、OTA 与 Android/iOS 打包；当前既无 Apple Developer Program 账号也无 Android 发布 keystore，只能产出 ad hoc／调试签名产物。现状核对与流水线设计见 [发行与更新](release-and-update.md)。本轮不创建 tag 或 Release、不改仓库可见性、不生成生产密钥；移动端仍只有库交叉编译，不构成支持。
 

@@ -31,7 +31,7 @@
 - 生产目录出现与实验目录的**临时重复**（provider、三个桥接模块、两个 native 模块）。后续应把实验侧改为依赖生产 crate，或把实验冻结为归档；此前的实验证据路径保持不变，但重跑脚本仍指向实验副本。
 - 生产应用尚未接入 PDF 阅读/编辑 UI：`App.tsx` 当前是工作台外壳（想法/背单词真实 Core，其余为窗口内 fixture）。阅读器 UI 依赖的 `ReaderSurface`/`DynamicReader`/`NativeEditor` 原生模块仍在实验宿主，接入需要一个单独的界面积分切片。
 - 缺少应用 workspace 的依赖图校验、Windows/Linux 交叉打包实测、真机与商店签名资格。
-- 自动更新在本机回环源上验证接受路径；GitHub Actions run 43136573631 已成功构建并创建 draft `v0.1.0`，下载产物完成清单 SHA-256、Ed25519 签名、ad hoc code signature 与实窗启动验收。draft 尚不是 latest，拒绝路径、Developer ID/公证、其它平台替换与移动端商店/OTA 语义未验证。
+- 自动更新在本机回环源上验证接受路径；GitHub Actions run 43142491761 已成功构建并创建固定到 `62a82e6` 的 draft `v0.1.0`，下载产物完成清单 SHA-256、Ed25519 签名、ad hoc code signature 与实窗启动验收。draft 尚不是 latest，拒绝路径、Developer ID/公证、其它平台替换与移动端商店/OTA 语义未验证。
 
 ## 未验证
 

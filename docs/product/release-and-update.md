@@ -12,7 +12,7 @@
 
 2026-11-11 同日执行：公开前隐私检查通过后，仓库已由 private 转为 public（`https://github.com/csic21/qusor`），历史已按下列规则重写。此后 `releases/latest/download/` 可免认证读取，自动更新的更新源前提成立。
 
-2026-11-12 首次云端发行验收：Release workflow [run 43136573631](https://github.com/csic21/qusor/actions/runs/43136573631) 在 `main@e1c025e` 成功完成 macOS 打包、签名清单与 draft 创建。draft `v0.1.0` 含 21,781,955 字节的 arm64 归档、`latest.json` 与 `latest.json.sig`；清单大小/SHA-256、Ed25519 域隔离签名、ad hoc code signature 和实际窗口启动均已复核。此前 run 42995272099 的空 `*.zip` glob 失败已由 `e1c025e` 修复。详见 [GitHub draft Release 验收](../../experiments/nsh-reader/evidence/github-release/README.md)。
+2026-11-12 首次云端发行验收：Release workflow [run 43142491761](https://github.com/csic21/qusor/actions/runs/43142491761) 在 `main@62a82e6` 成功完成 macOS 打包、签名清单与 draft 创建，draft 的 `targetCommitish` 固定为该 SHA。draft `v0.1.0` 含 21,786,549 字节的 arm64 归档、`latest.json` 与 `latest.json.sig`；清单大小/SHA-256、Ed25519 域隔离签名、ad hoc code signature 和实际窗口启动均已复核。此前 run 42995272099 的空 `*.zip` glob 失败已由后续提交修复。详见 [GitHub draft Release 验收](../../experiments/nsh-reader/evidence/github-release/README.md)。
 
 ## 现状（2026-11-12 核对）
 
@@ -22,15 +22,15 @@
 | 版本号 | 应用为 `0.1.0`/`build 1`；已创建 draft `v0.1.0`，尚未发布 | [Release 验收](../../experiments/nsh-reader/evidence/github-release/record.json) |
 | 更新签名密钥 | 更新公钥已内置；私钥保存在本机 `.local/keys` 与 GitHub secret `NSH_UPDATE_KEY`，未提交。draft 清单已用该密钥签名并由独立 OpenSSL 复算通过 | 同左 |
 | 打包 | 生产入口使用 `nsh package --target macos`，产出 ad hoc `QUSOR.app` 和归档；实验目录仍有早期自建 Preview 包装 | `apps/qusor`、[Release 验收](../../experiments/nsh-reader/evidence/github-release/README.md) |
-| CI | `foundation.yml` 三 OS Core/库任务通过；`release.yml` 的 macOS package 与 publish 在 run 43136573631 首次完整通过并创建 draft | run 43136573631；[平台缺口](../../adapters/extension-store/tests/platform_profile.rs) |
+| CI | `foundation.yml` 三 OS Core/库任务通过；`release.yml` 的 macOS package 与 publish 在 run 43142491761 首次完整通过并创建固定 SHA 的 draft | run 43142491761；[平台缺口](../../adapters/extension-store/tests/platform_profile.rs) |
 | 移动端 | 仅 5 个 target 的**库交叉编译**通过；无 iOS/Android 宿主、无设备运行、无分发 | 同 run 的 `portable-libraries` 全部通过 |
 
 ### CI 失败根因与处理（2026-11-11）
 
 - **ubuntu**：`adapters/extension-store/src/verified_cache_tests.rs` 的断言停在“支持 3 个 Host API”，实际已是 4（未提交工作树为 5）。该文件带 `#![cfg(target_os = "linux")]`，macOS 本机不编译，所以长期没被发现。
 - **windows**：`adapters/extension-store/tests/component.rs` 三例在 `Store::open_for_host` 处失败，对应 [跨平台结果](../../experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md) 已记录的 Windows 私有存储/文件适配缺口。
-- **ubuntu**：`adapters/extension-store/src/verified_cache_tests.rs` 的 Host API 数量断言已改为预算断言（`<= 8`），“不支持版本”改用 `u16::MAX`（提交 `12519cd`），不再随 API 增加失效。
-- **windows**：`adapters/extension-store/tests/component.rs` 的三例真实 store 场景只在 Unix 有合格文件系统 profile（0700 目录、no-follow 包读取、单一 writer lease）。Windows 的私有存储 ACL 与 SQLite/blob 适配器仍未实现，因此测试按平台跳过（`#![cfg(unix)]`），另加 `tests/platform_profile.rs`：Unix 断言能打开并持有 writer lease，Windows 断言 `StoreErrorCode::Unsupported` 且诊断含 `qualified native filesystem profile`。这样 Windows 任务仍然运行并固定“故意拒绝”，而不是把跳过当成能力覆盖（提交 `8851c10`、`78f0666`）。
+- **ubuntu**：`adapters/extension-store/src/verified_cache_tests.rs` 的 Host API 数量断言已改为预算断言（`<= 8`），“不支持版本”改用 `u16::MAX`（提交 `113950b`），不再随 API 增加失效。
+- **windows**：`adapters/extension-store/tests/component.rs` 的三例真实 store 场景只在 Unix 有合格文件系统 profile（0700 目录、no-follow 包读取、单一 writer lease）。Windows 的私有存储 ACL 与 SQLite/blob 适配器仍未实现，因此测试按平台跳过（`#![cfg(unix)]`），另加 `tests/platform_profile.rs`：Unix 断言能打开并持有 writer lease，Windows 断言 `StoreErrorCode::Unsupported` 且诊断含 `qualified native filesystem profile`。这样 Windows 任务仍然运行并固定“故意拒绝”，而不是把跳过当成能力覆盖（提交 `8391d9c`、`ff5045b`）。
 - 结果：2026-11-11 run 42987643346 三个 OS 的 `Core foundation` 与五个 `portable-libraries` 全部通过。Windows 仍不能运行 store/知识库；CI 绿不代表 Windows 产品资格。
 
 ## 固定 NSH 基线已有能力
@@ -153,7 +153,7 @@ cd apps/qusor && CARGO_PROFILE_RELEASE_STRIP=none \
 1. ~~修 Windows store 测试（或显式标记平台跳过并记录缺口），让 CI 恢复绿。~~ 已完成：Windows 任务显式固定拒绝路径，run 42987643346 三 OS 通过；Windows 能力缺口保留。
 2. ~~新建 `apps/qusor` 入口，跑通 `nsh package --target macos` 实窗。~~ 已完成（ad hoc `.app`，见下方“生产应用首次打包”）。
 3. ~~写 `version`/`build`/`updater`/图标，本地用 `nsh update-manifest` 与本地 HTTP 自测一次更新流程。~~ 更新 UI 与本地回环自测已实现，实测结果见下方“应用内自动更新本机实测”。
-4. ~~加发版 workflow，先 `workflow_dispatch` 出 draft Release。~~ 已完成：run 43136573631 的 macOS draft 与产物验收通过。
+4. ~~加发版 workflow，先 `workflow_dispatch` 出 draft Release。~~ 已完成：run 43142491761 的 macOS draft 与产物验收通过，且 draft 固定到源码 SHA。
 5. 仓库已转 public；人工复核 draft 后发布，并用公开 `releases/latest/download` 验证真实在线更新。**首个发布必须已内置 updater 配置**，否则已装版本收不到自动更新。
 6. 再推进 Android/iOS 打包与真机资格。
 
