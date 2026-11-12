@@ -48,6 +48,8 @@ learning-domain 已从空壳变为 FSRS-5 词汇调度内核，仍保持独立�
 
 阅读入口已有普通签名 preview 包和 Manifest `reader_workspace` 贡献；原生 renderer 仍是窗口内样例，不执行包入口、不读写 Core，见 [ADR 0044](adr/0044-reader-preview-contribution.md)。
 
+Library 的第一层 Core 读模型按 vault 返回有界 PDF 元数据和 opaque keyset 游标，不暴露原件/blob；Host wire 与 UI 尚未接线，见 [ADR 0045](adr/0045-bounded-pdf-library-listing.md)。
+
 ## 未来依赖方向
 
 ```mermaid
@@ -122,6 +124,8 @@ extension-host 策略本身不写知识；新增 application 经 ports 调用真
 - [ADR 0043](adr/0043-persistent-package-enable-intent.md)：随应用包的持久启停、Host 作用域重建与工作区刷新；任意用户包的安装/卸载未完成。
 
 - [ADR 0044](adr/0044-reader-preview-contribution.md)：阅读预览包的 `reader_workspace` 目录与 `reader.surface` 依赖门；正式 Reader 与包内 UI 未完成。
+
+- [ADR 0045](adr/0045-bounded-pdf-library-listing.md)：vault 内 PDF 元数据分页、稳定排序与 keyset 游标；Host API/UI/Reader 未完成。
 
 - [ADR 0034](adr/0034-note-read-model.md)：想法读取的 keyset 分页、范围绑定游标与有界正文分块；应用层与 SQLite 重开已通过，公开 SDK wire、插件授权与窗口接线未完成。
 

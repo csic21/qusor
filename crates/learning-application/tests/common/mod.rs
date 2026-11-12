@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 //! Shared synthetic Core fixture and explicitly injected lost-reply store.
 use core_api::knowledge::*;
 use learning_application::KnowledgeApplication;
@@ -7,7 +9,7 @@ pub struct Memory {
     pub lose_reply: bool,
 }
 impl Memory {
-    fn new() -> Self {
+    pub fn empty() -> Self {
         Self {
             archive: ArchiveV2 {
                 schema_version: 2,
@@ -80,7 +82,7 @@ pub fn imported() -> (
     core_api::pdf_contract::PdfDraft,
 ) {
     let (original, snapshot, draft) = pdf_fixture();
-    let mut app = KnowledgeApplication::new(Memory::new());
+    let mut app = KnowledgeApplication::new(Memory::empty());
     app.import_document("import", "vault", "Source", &original, &snapshot)
         .unwrap();
     (app, draft)
