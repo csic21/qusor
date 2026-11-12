@@ -65,6 +65,54 @@ impl LibraryRuntime {
                 "documents": documents,
                 "next_cursor": next_cursor,
             })),
+            LibraryResult::PageText { .. } => Err("unexpected Library text result".into()),
+            LibraryResult::Error { error } => Err(wire_error(error)),
+        }
+    }
+
+    fn page_text(
+        &mut self,
+        document_id: i64,
+        page_index: u32,
+        offset: u32,
+        max_bytes: u16,
+    ) -> Result<Value, String> {
+        let request = LibraryRequest {
+            library_protocol: LIBRARY_PROTOCOL,
+            api_version: HOST_API_V0_6,
+            request_id: "workbench-library-page-text".into(),
+            operation: LibraryOperation::PageText {
+                document_id,
+                page_index,
+                offset,
+                max_bytes,
+            },
+        };
+        let permit = self
+            .host
+            .authorize_library(&self.session, &request)
+            .map_err(text)?;
+        let response = self
+            .host
+            .dispatch(permit, |_context| Ok(self.bridge.respond(&request)))
+            .map_err(text)?;
+        match response.result {
+            LibraryResult::Page { .. } => Err("unexpected Library page result".into()),
+            LibraryResult::PageText {
+                document_id,
+                page_index,
+                offset,
+                total_bytes,
+                text,
+                next_offset,
+            } => Ok(json!({
+                "document_id": document_id,
+                "page_index": page_index,
+                "offset": offset,
+                "total_bytes": total_bytes,
+                "text": text,
+                "next_offset": next_offset,
+            })),
             LibraryResult::Error { error } => Err(wire_error(error)),
         }
     }
@@ -92,6 +140,22 @@ impl LibraryHost {
             Some(cursor)
         };
         match runtime::with_library(&sys, |library| library.page(cursor, limit)) {
+            Ok(value) => json!({"ok": true, "value": value}).to_string(),
+            Err(error) => json!({"ok": false, "error": error}).to_string(),
+        }
+    }
+
+    /// One bounded text-layer chunk for a Library document page.
+    pub fn page_text(
+        sys: System,
+        document_id: i64,
+        page_index: u32,
+        offset: u32,
+        max_bytes: u16,
+    ) -> String {
+        match runtime::with_library(&sys, |library| {
+            library.page_text(document_id, page_index, offset, max_bytes)
+        }) {
             Ok(value) => json!({"ok": true, "value": value}).to_string(),
             Err(error) => json!({"ok": false, "error": error}).to_string(),
         }

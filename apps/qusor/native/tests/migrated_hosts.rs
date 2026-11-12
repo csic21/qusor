@@ -253,6 +253,20 @@ fn packaged_host_initializers_read_one_migrated_core() {
             .iter()
             .any(|document| document["title"] == "Legacy note")
     );
+    let page_text = value(qusor_app_native::library_native::LibraryHost::page_text(
+        system.clone(),
+        1,
+        0,
+        0,
+        2048,
+    ));
+    assert_eq!(page_text["ok"], true, "{page_text}");
+    assert!(
+        page_text["value"]["text"]
+            .as_str()
+            .unwrap()
+            .contains("迁移核心想法")
+    );
     let packages = value(CompositionHost::packages(system.clone()));
     assert_eq!(packages["ok"], true, "{packages}");
     assert!(

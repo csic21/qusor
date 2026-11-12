@@ -73,6 +73,28 @@ fn library_read_requires_its_grant_and_dispatches_the_bound_vault() {
 }
 
 #[test]
+fn library_page_text_uses_the_same_exact_grant() {
+    let (mut host, _, session) = setup();
+    let request = LibraryRequest {
+        library_protocol: LIBRARY_PROTOCOL,
+        api_version: HOST_API_V0_6,
+        request_id: "text-request".into(),
+        operation: LibraryOperation::PageText {
+            document_id: 1,
+            page_index: 0,
+            offset: 0,
+            max_bytes: 4,
+        },
+    };
+    let permit = host.authorize_library(&session, &request).unwrap();
+    host.dispatch(permit, |context| {
+        assert_eq!(context.request.capability, Capability::LibraryRead);
+        Ok(())
+    })
+    .unwrap();
+}
+
+#[test]
 fn old_sessions_and_wire_versions_are_rejected() {
     let (mut host, id, session) = setup();
     assert_eq!(
@@ -96,8 +118,11 @@ fn old_sessions_and_wire_versions_are_rejected() {
         ErrorCode::UnsupportedVersion
     );
     let mut bad_budget = request(None);
-    let LibraryOperation::Page { limit, .. } = &mut bad_budget.operation;
-    *limit = 0;
+    if let LibraryOperation::Page { limit, .. } = &mut bad_budget.operation {
+        *limit = 0;
+    } else {
+        panic!("expected page request");
+    }
     assert_eq!(
         host.authorize_library(&session, &bad_budget)
             .unwrap_err()

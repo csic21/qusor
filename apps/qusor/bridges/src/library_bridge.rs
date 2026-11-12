@@ -35,6 +35,12 @@ impl<S: KnowledgeStore> LibraryReadBridge<S> {
         let request_id = request.request_id.clone();
         let result = match &request.operation {
             LibraryOperation::Page { cursor, limit } => self.page(cursor.as_deref(), *limit),
+            LibraryOperation::PageText {
+                document_id,
+                page_index,
+                offset,
+                max_bytes,
+            } => self.page_text(*document_id, *page_index, *offset, *max_bytes),
         };
         let response = LibraryResponse { request_id, result };
         if response.to_json().is_ok() {
@@ -60,6 +66,36 @@ impl<S: KnowledgeStore> LibraryReadBridge<S> {
             Ok(page) => LibraryResult::Page {
                 documents: page.documents.iter().map(document).collect(),
                 next_cursor: page.next_cursor,
+            },
+            Err(error) => LibraryResult::Error {
+                error: map_error(&error),
+            },
+        }
+    }
+
+    fn page_text(
+        &self,
+        document_id: i64,
+        page_index: u32,
+        offset: u32,
+        max_bytes: u16,
+    ) -> LibraryResult {
+        match self.app.pdf_page_text(
+            &self.vault,
+            document_id,
+            page_index,
+            usize::try_from(offset).unwrap_or(usize::MAX),
+            usize::from(max_bytes),
+        ) {
+            Ok(chunk) => LibraryResult::PageText {
+                document_id: chunk.document_id,
+                page_index: chunk.page_index,
+                offset: u32::try_from(chunk.offset).unwrap_or(u32::MAX),
+                total_bytes: chunk.total_bytes as u64,
+                text: chunk.text,
+                next_offset: chunk
+                    .next_offset
+                    .and_then(|value| u32::try_from(value).ok()),
             },
             Err(error) => LibraryResult::Error {
                 error: map_error(&error),

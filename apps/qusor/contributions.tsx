@@ -3060,6 +3060,10 @@ type LibraryRow = {
 const libraryRows = signal<LibraryRow[]>([]);
 const libraryStatus = signal("正在读取本机资料库…");
 const libraryNext = signal("");
+const libraryOpenDoc = signal<LibraryRow | null>(null);
+const libraryPageIndex = signal(0);
+const libraryPageText = signal("");
+const libraryPageStatus = signal("");
 let libraryBooted = false;
 
 async function loadLibraryPage(cursor = "") {
@@ -3095,11 +3099,107 @@ async function loadLibraryPage(cursor = "") {
     }
 }
 
+async function loadLibraryText(row: LibraryRow, pageIndex: number) {
+    libraryOpenDoc.set(row);
+    libraryPageIndex.set(pageIndex);
+    libraryPageText.set("");
+    libraryPageStatus.set("正在读取本机文字…");
+    let offset = 0;
+    let text = "";
+    try {
+        for (let chunk = 0; chunk < 64; chunk += 1) {
+            const response = JSON.parse(
+                await LibraryHost.pageText(row.document_id, pageIndex, offset, 2048),
+            );
+            if (!response.ok || !response.value)
+                throw Error(response.error ?? "page text failed");
+            if (response.value.document_id !== row.document_id)
+                throw Error("stale library document");
+            text += String(response.value.text ?? "");
+            if (response.value.next_offset == null) break;
+            const next = Number(response.value.next_offset);
+            if (!Number.isFinite(next) || next <= offset)
+                throw Error("invalid page offset");
+            offset = next;
+        }
+        libraryPageText.set(text);
+        libraryPageStatus.set(
+            text
+                ? "本机 Core · 文字层阅读（页图/版面尚未接入）"
+                : "这一页没有可提取的文字层。",
+        );
+    } catch (_) {
+        libraryPageStatus.set("这一页的文字暂时读不到；资料仍保留在本机。");
+    }
+}
+
+function LibraryReader(props: { compact: boolean }) {
+    const row = libraryOpenDoc();
+    if (!row) return <View />;
+    const pages = Math.max(1, row.page_count);
+    return (
+        <Scroll style={{ flex: 1 }}>
+            <View
+                accessibilityLabel="资料库阅读视图"
+                style={{
+                    padding: props.compact ? 24 : 40,
+                    maxWidth: 900,
+                    width: "100%",
+                    alignSelf: "center",
+                    gap: 18,
+                }}
+            >
+                <Tool
+                    label="返回资料库列表"
+                    icon="back"
+                    text="资料库"
+                    onPress={() => libraryOpenDoc.set(null)}
+                />
+                <Copy size={25} strong>
+                    {row.title}
+                </Copy>
+                <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+                    <Tool
+                        label="上一页"
+                        text="上一页"
+                        disabled={libraryPageIndex() === 0}
+                        onPress={() => void loadLibraryText(row, libraryPageIndex() - 1)}
+                    />
+                    <Copy muted>
+                        {libraryPageIndex() + 1} / {pages}
+                    </Copy>
+                    <Tool
+                        label="下一页"
+                        text="下一页"
+                        disabled={libraryPageIndex() + 1 >= pages}
+                        onPress={() => void loadLibraryText(row, libraryPageIndex() + 1)}
+                    />
+                </View>
+                <Copy size={12} muted>
+                    {libraryPageStatus()}
+                </Copy>
+                <Text
+                    accessibilityLabel="当前页文字"
+                    style={{
+                        fontSize: 16,
+                        lineHeight: 29,
+                        color: ink("text-primary"),
+                        userSelect: "text",
+                    }}
+                >
+                    {libraryPageText()}
+                </Text>
+            </View>
+        </Scroll>
+    );
+}
+
 function LibraryWorkspace(props: { compact: boolean }) {
     if (!libraryBooted) {
         libraryBooted = true;
         void loadLibraryPage();
     }
+    if (libraryOpenDoc()) return <LibraryReader compact={props.compact} />;
     return (
         <Scroll style={{ flex: 1 }}>
             <View
@@ -3144,6 +3244,11 @@ function LibraryWorkspace(props: { compact: boolean }) {
                                     KiB · 提交 {row().commit_rev}
                                 </Copy>
                             </View>
+                            <Tool
+                                label={`阅读${row().title}`}
+                                text="阅读"
+                                onPress={() => void loadLibraryText(row(), 0)}
+                            />
                         </View>
                     )}
                 </Each>

@@ -2,7 +2,9 @@
 mod common;
 
 use core_api::knowledge::KnowledgeErrorCode;
-use learning_application::pdf_library::MAX_LIBRARY_PAGE;
+use learning_application::pdf_library::{
+    MAX_LIBRARY_PAGE, MAX_LIBRARY_TEXT_CHUNK, MAX_LIBRARY_TEXT_OFFSET,
+};
 
 fn app() -> learning_application::KnowledgeApplication<common::Memory> {
     let (original, snapshot, _) = common::pdf_fixture();
@@ -77,5 +79,33 @@ fn query_limits_and_vault_are_validated() {
             .unwrap_err()
             .code,
         KnowledgeErrorCode::InvalidInput
+    );
+}
+
+#[test]
+fn page_text_is_bounded_and_keeps_the_core_source() {
+    let app = app();
+    let first = app.pdf_page_text("vault", 2, 0, 0, 2048).unwrap();
+    assert_eq!(first.document_id, 2);
+    assert_eq!(first.page_index, 0);
+    assert_eq!(first.offset, 0);
+    assert_eq!(first.text, "hello");
+    assert_eq!(first.total_bytes, 5);
+    assert_eq!(first.next_offset, None);
+
+    let chunk = app
+        .pdf_page_text("vault", 2, 0, 0, MAX_LIBRARY_TEXT_CHUNK)
+        .unwrap();
+    assert_eq!(chunk.text, "hello");
+    assert!(app.pdf_page_text("other-vault", 2, 0, 0, 4).is_err());
+    assert!(
+        app.pdf_page_text("vault", 2, 0, 6, 4)
+            .unwrap_err()
+            .message
+            .contains("UTF-8")
+    );
+    assert!(
+        app.pdf_page_text("vault", 2, 0, MAX_LIBRARY_TEXT_OFFSET + 1, 4)
+            .is_err()
     );
 }

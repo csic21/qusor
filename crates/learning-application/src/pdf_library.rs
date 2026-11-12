@@ -8,6 +8,9 @@ use learning_ports::KnowledgeStore;
 
 /// Maximum entries in one Library page. Later entries use `next_cursor`.
 pub const MAX_LIBRARY_PAGE: usize = 200;
+pub const MAX_LIBRARY_TEXT_CHUNK: usize = 2048;
+pub const MIN_LIBRARY_TEXT_CHUNK: usize = 4;
+pub const MAX_LIBRARY_TEXT_OFFSET: usize = 16 * 1024 * 1024;
 const CURSOR_PREFIX: &str = "l1";
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -27,6 +30,16 @@ pub struct PdfDocumentPage {
     pub documents: Vec<PdfDocumentSummary>,
     /// Opaque keyset cursor for the next page. `None` means this page is last.
     pub next_cursor: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PdfPageTextChunk {
+    pub document_id: i64,
+    pub page_index: u32,
+    pub offset: usize,
+    pub total_bytes: usize,
+    pub text: String,
+    pub next_offset: Option<usize>,
 }
 
 fn invalid(message: &'static str) -> KnowledgeError {
@@ -146,6 +159,69 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 .map(|document| summary(document))
                 .collect(),
             next_cursor,
+        })
+    }
+
+    /// Read one bounded UTF-8 chunk of a PDF page's stored text layer.
+    ///
+    /// This is Core text, not a renderer. It is available for text-layer PDFs
+    /// even when a native page renderer is not mounted; image-only pages remain
+    /// an explicit empty-text case.
+    pub fn pdf_page_text(
+        &self,
+        vault: &str,
+        document_id: i64,
+        page_index: u32,
+        offset: usize,
+        max_bytes: usize,
+    ) -> Result<PdfPageTextChunk> {
+        validate_vault(vault)?;
+        if !(MIN_LIBRARY_TEXT_CHUNK..=MAX_LIBRARY_TEXT_CHUNK).contains(&max_bytes) {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::BudgetExceeded,
+                "library text chunk size is outside the supported range",
+            ));
+        }
+        if offset > MAX_LIBRARY_TEXT_OFFSET {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::BudgetExceeded,
+                "library text offset is outside the supported range",
+            ));
+        }
+        let archive = self.export_all()?;
+        let document = archive
+            .pdf_documents
+            .iter()
+            .find(|document| document.receipt.document_id == document_id && document.vault == vault)
+            .ok_or_else(|| {
+                KnowledgeError::new(KnowledgeErrorCode::NotFound, "library document not found")
+            })?;
+        let page = document
+            .snapshot
+            .pages
+            .get(page_index as usize)
+            .ok_or_else(|| {
+                KnowledgeError::new(KnowledgeErrorCode::NotFound, "library page not found")
+            })?;
+        let text = &page.engine_text;
+        if offset > text.len() || !text.is_char_boundary(offset) {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::InvalidInput,
+                "library text offset is not a UTF-8 boundary",
+            ));
+        }
+        let mut end = (offset + max_bytes).min(text.len());
+        while end > offset && !text.is_char_boundary(end) {
+            end -= 1;
+        }
+        let next_offset = (end < text.len()).then_some(end);
+        Ok(PdfPageTextChunk {
+            document_id,
+            page_index,
+            offset,
+            total_bytes: text.len(),
+            text: text[offset..end].to_owned(),
+            next_offset,
         })
     }
 }

@@ -55,7 +55,7 @@ QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Cor
 - 应用 `runtime.rs` 现按 composition 顺序挂载 Core/Notes/Vocab Host，并以 `RuntimeScope` 逆序释放；模块级 Host 静态 runtime 已移除，见 [ADR 0040](docs/architecture/adr/0040-runtime-mount-scope.md)。
 - 普通包的 `notes_workspace`/`vocab_workspace` Manifest 贡献现已驱动 shell 的“扩展工作区”列表；阅读 fixture 单独标为界面样例，见 [ADR 0041](docs/architecture/adr/0041-manifest-workspace-contributions.md)。
 - 随应用 Notes/Vocab 包已支持持久停用/启用：功能目录可切换，Host 与工作区作用域重建，共享 Core 与已收录数据保留；任意用户包安装/卸载仍未实现，见 [ADR 0043](docs/architecture/adr/0043-persistent-package-enable-intent.md)。
-- 随应用 Library 包已通过 Host API 0.6 读取真实 Core 的 PDF 元数据并在原生资料库工作区列出；不返回原件/blob，Reader 打开仍未接通，见 [ADR 0046](docs/architecture/adr/0046-library-host-api-0-6.md)。
+- 随应用 Library 包已通过 Host API 0.6 读取真实 Core 的 PDF 元数据并在原生资料库工作区列出；资料项可读取文字层并翻页，页图/精确版面与选文仍未接通，见 [ADR 0046](docs/architecture/adr/0046-library-host-api-0-6.md)。
 - 插件 UI 明确只走 NSH 原生 Surface/组件；`scripts/check_native_ui.py` 阻止 WebView、HTML/DOM、Electron/Node 页面进入应用或插件 UI，见 [ADR 0042](docs/architecture/adr/0042-native-only-plugin-ui.md)。
 - core-api 承接已验证的文本/PDF/复合捕获与来源锚点契约，供实验及 SDK 导出共同使用。
 - learning-application 经 learning-ports 生成完整提交计划；storage-sqlite/blob-store 负责 SQLite/CAS 耐久，现有捕获实验实际消费这套实现，迁移后完整插件/崩溃/恢复回归通过。

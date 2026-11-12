@@ -21,6 +21,12 @@ pub const MAX_LIBRARY_CURSOR_BYTES: usize = 128;
 pub const MAX_LIBRARY_ORIGINAL_BYTES: u64 = 16 * 1024 * 1024;
 /// Maximum pages in this first Library profile.
 pub const MAX_LIBRARY_PAGES: u32 = 16;
+/// Maximum UTF-8 bytes in one Library text chunk.
+pub const MAX_LIBRARY_TEXT_CHUNK: u16 = 2048;
+/// Minimum text chunk keeps progress for every UTF-8 scalar.
+pub const MIN_LIBRARY_TEXT_CHUNK: u16 = 4;
+/// Maximum text start offset in the current Library text profile.
+pub const MAX_LIBRARY_TEXT_OFFSET: u32 = 16 * 1024 * 1024;
 
 fn invalid(message: &'static str) -> ApiError {
     ApiError::new(ErrorCode::InvalidRequest, message)
@@ -85,6 +91,13 @@ pub struct LibraryRequest {
 pub enum LibraryOperation {
     /// Newest-first PDF metadata page inside the Host-bound vault.
     Page { cursor: Option<String>, limit: u16 },
+    /// One bounded UTF-8 text chunk from a stored PDF text layer.
+    PageText {
+        document_id: i64,
+        page_index: u32,
+        offset: u32,
+        max_bytes: u16,
+    },
 }
 
 impl LibraryRequest {
@@ -101,6 +114,27 @@ impl LibraryRequest {
                 }
                 if let Some(after) = after {
                     cursor(after)?;
+                }
+            }
+            LibraryOperation::PageText {
+                document_id,
+                page_index,
+                offset,
+                max_bytes,
+            } => {
+                positive(*document_id, "invalid library document id")?;
+                if *page_index >= MAX_LIBRARY_PAGES {
+                    return Err(budget("library page index is outside the supported range"));
+                }
+                if *offset > MAX_LIBRARY_TEXT_OFFSET {
+                    return Err(invalid(
+                        "library text offset is outside the supported range",
+                    ));
+                }
+                if !(MIN_LIBRARY_TEXT_CHUNK..=MAX_LIBRARY_TEXT_CHUNK).contains(max_bytes) {
+                    return Err(budget(
+                        "library text chunk size is outside the supported range",
+                    ));
                 }
             }
         }
@@ -170,6 +204,14 @@ pub enum LibraryResult {
         documents: Vec<LibraryDocument>,
         next_cursor: Option<String>,
     },
+    PageText {
+        document_id: i64,
+        page_index: u32,
+        offset: u32,
+        total_bytes: u64,
+        text: String,
+        next_offset: Option<u32>,
+    },
     Error {
         error: ApiError,
     },
@@ -199,6 +241,44 @@ impl LibraryResponse {
                 }
                 if let Some(next) = next_cursor {
                     cursor(next)?;
+                }
+            }
+            LibraryResult::PageText {
+                document_id,
+                page_index,
+                offset,
+                total_bytes,
+                text,
+                next_offset,
+            } => {
+                positive(*document_id, "invalid library document id")?;
+                if *page_index >= MAX_LIBRARY_PAGES || *offset > MAX_LIBRARY_TEXT_OFFSET {
+                    return Err(invalid(
+                        "library text position is outside the supported range",
+                    ));
+                }
+                if text.len() > usize::from(MAX_LIBRARY_TEXT_CHUNK) {
+                    return Err(budget("library text chunk exceeds its budget"));
+                }
+                let end = u64::from(*offset)
+                    .checked_add(
+                        u64::try_from(text.len()).map_err(|_| invalid("invalid library text"))?,
+                    )
+                    .ok_or_else(|| invalid("invalid library text"))?;
+                if end > *total_bytes {
+                    return Err(invalid("library text chunk exceeds the stored page"));
+                }
+                match next_offset {
+                    Some(next) => {
+                        if u64::from(*next) != end || end >= *total_bytes {
+                            return Err(invalid("library text next offset is inconsistent"));
+                        }
+                    }
+                    None => {
+                        if end != *total_bytes {
+                            return Err(invalid("library text end is inconsistent"));
+                        }
+                    }
                 }
             }
             LibraryResult::Error { error } => error.validate()?,

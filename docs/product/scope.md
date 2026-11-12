@@ -1,6 +1,6 @@
 # QUSOR 功能基线与范围确认
 
-2026-11-12 Library Host API 0.6：公开 `library.read`、`library_workspace` 和 `library-metadata-v1`，只返回 vault 内 PDF 元数据；请求不自报 vault，Host 绑定精确 grant。应用已有分页读模型、普通签名 Library 包、真实 Core 后端和初始资料库列表；Reader 打开/选文/保存仍未交付，这不改变 F-LIB-01、F-READ-01/02/03 的完整验收门槛。见 [ADR 0046](../architecture/adr/0046-library-host-api-0-6.md)。
+2026-11-12 Library Host API 0.6：公开 `library.read`、`library_workspace` 和 `library-metadata-v1`，只返回 vault 内 PDF 元数据和文字层分块；请求不自报 vault，Host 绑定精确 grant。应用已有分页读模型、普通签名 Library 包、真实 Core 后端、初始资料库列表和文字层翻页；PDF 页图/精确版面、选文保存仍未交付，这不改变 F-LIB-01、F-READ-01/02/03 的完整验收门槛。见 [ADR 0046](../architecture/adr/0046-library-host-api-0-6.md)。
 
 2026-11-12 插件 UI 载体确认：用户明确指出集成插件不能采用 dsh 的 Web 形态，不接受插件集成后呈现网页 UI。新增 C-18，关联 C-09、F-EXT-04、F-UX-01/02：插件入口、工作区、工具栏和面板只使用 NSH 原生 Surface/组件或声明式原生描述；禁止 WebView、iframe、HTML/DOM、Electron/Node 页面作为插件 UI。文档格式内容引擎如使用浏览器内核，必须单独评审且不能扩张成插件外壳。核对与防回归见 [ADR 0042](../architecture/adr/0042-native-only-plugin-ui.md) 与 `scripts/check_native_ui.py`。
 

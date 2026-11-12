@@ -68,6 +68,12 @@ fn requests_round_trip_with_canonical_bounds() {
             cursor: Some("l1:7:3".into()),
             limit: 1,
         },
+        LibraryOperation::PageText {
+            document_id: 2,
+            page_index: 0,
+            offset: 0,
+            max_bytes: MAX_LIBRARY_TEXT_CHUNK,
+        },
     ] {
         let request = request(operation);
         assert_eq!(
@@ -104,6 +110,34 @@ fn requests_reject_wrong_versions_budgets_and_cursors() {
             request(LibraryOperation::Page {
                 cursor: None,
                 limit
+            })
+            .validate()
+            .unwrap_err()
+            .code,
+            ErrorCode::BudgetExceeded
+        );
+    }
+    for max_bytes in [0, MIN_LIBRARY_TEXT_CHUNK - 1, MAX_LIBRARY_TEXT_CHUNK + 1] {
+        assert_eq!(
+            request(LibraryOperation::PageText {
+                document_id: 1,
+                page_index: 0,
+                offset: 0,
+                max_bytes,
+            })
+            .validate()
+            .unwrap_err()
+            .code,
+            ErrorCode::BudgetExceeded
+        );
+    }
+    for page_index in [MAX_LIBRARY_PAGES, MAX_LIBRARY_PAGES + 1] {
+        assert_eq!(
+            request(LibraryOperation::PageText {
+                document_id: 1,
+                page_index,
+                offset: 0,
+                max_bytes: 4,
             })
             .validate()
             .unwrap_err()
@@ -191,6 +225,26 @@ fn responses_validate_documents_cursors_and_budgets() {
             .validate()
             .unwrap_err()
             .code,
+        ErrorCode::InvalidRequest
+    );
+    let text = LibraryResponse {
+        request_id: "request".into(),
+        result: LibraryResult::PageText {
+            document_id: 1,
+            page_index: 0,
+            offset: 0,
+            total_bytes: 5,
+            text: "hello".into(),
+            next_offset: None,
+        },
+    };
+    assert!(text.validate().is_ok());
+    let mut bad_text = text.clone();
+    if let LibraryResult::PageText { text, .. } = &mut bad_text.result {
+        *text = "hello!".into();
+    }
+    assert_eq!(
+        bad_text.validate().unwrap_err().code,
         ErrorCode::InvalidRequest
     );
 }
