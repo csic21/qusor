@@ -1,7 +1,7 @@
 # ADR 0037：生产应用装配与自动更新发布
 
 - 日期：2026-11-12
-- 状态：应用中；macOS `nsh package`、应用内回环更新、GitHub Actions draft 与下载产物验收已通过；正式发布、Windows/Linux 与移动端未验证
+- 状态：应用中；macOS `nsh package`、应用内回环更新、GitHub Actions draft 与下载产物验收已通过；Android arm64 debug APK 已在 API 36 模拟器安装、启动并完成手机布局、返回键、想法 Core 空态和背单词触控验证；正式发布、Windows/Linux、Android 真机/商店与 iOS 未验证
 - 关联：C-17、C-15、F-PLAT-01/02、F-EXT-01/03、F-DATA-01
 - 承接：[发行与更新方案](../../product/release-and-update.md)、[ADR 0003](0003-plugin-first-delivery.md)、[ADR 0006](0006-plugin-workspace-layout.md)、[ADR 0033](0033-cross-platform-runtime.md)
 
@@ -39,3 +39,4 @@
 - 发布 workflow 的 macOS draft 路径已运行；更新清单签名已由 OpenSSL 按固定 NSH 的域隔离 framing 独立复算（[draft 记录](../../../experiments/nsh-reader/evidence/github-release/README.md)）。
 - `checkForUpdate`/`installAndRestart` 已由真实打包应用在回环源上调用并通过（[更新记录](../../../experiments/nsh-reader/evidence/app-update/README.md)），但尚未对已公开的 GitHub Releases latest 调用。
 - 无 Apple Developer ID / Android keystore，产物是 ad hoc 签名。
+- Android 使用 Rust stable 1.99.1 打包，因为本机 Rust 1.97.1 在 release 下会生成无法加载的 proc-macro dylib；没有修改 NSH 源码或移动业务架构，记录见 [Android APK 资格](../../../experiments/nsh-reader/evidence/android-package-launch/README.md)。

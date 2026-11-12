@@ -1,7 +1,17 @@
-import { mount, Scroll, setColorScheme, signal, Text, View } from "nsh";
+import {
+    effect,
+    mount,
+    Scroll,
+    setColorScheme,
+    signal,
+    Text,
+    View,
+    windowSize,
+} from "nsh";
 import { NotesHost, VocabHost } from "qusor/pdf-surface";
 import { Button, Command, Dialog, Menu, MenuItem, Tab, Tabs } from "nsh/base";
 import { titleBar } from "nsh/desktop";
+import { BackHandler } from "nsh/mobile";
 import {
     captureNotesEvidence,
     captureVocabEvidence,
@@ -38,15 +48,13 @@ import {
 const active = signal("overview"),
     opened = signal(["overview", "note", "canvas"]),
     activePlugin = signal("");
-const sidebar = signal(true),
+const sidebar = signal(windowSize().width >= 1120),
     inspector = signal(false),
     library = signal(false),
     dark = signal(false);
 const searchOpen = signal(false),
     query = signal("");
-const narrow = signal(false),
-    frameWidth = signal(1280),
-    navigationScope = signal("space");
+const navigationScope = signal("space");
 const pluginOrigin = signal<{
     active: string;
     library: boolean;
@@ -57,6 +65,12 @@ const pluginOrigin = signal<{
 function showSearch() {
     query.set("");
     searchOpen.set(true);
+}
+function narrow() {
+    return windowSize().width < 1120;
+}
+function frameWidth() {
+    return windowSize().width;
 }
 const showSidebar = () =>
     !activePlugin() &&
@@ -507,7 +521,7 @@ function CollectionPane() {
         </View>
     );
 }
-function NavigationPane() {
+function NavigationPane(props: { compact: boolean }) {
     return (
         <View
             accessibilityLabel="工作区导航"
@@ -515,7 +529,7 @@ function NavigationPane() {
             importantForAccessibility={
                 searchOpen() ? "no-hide-descendants" : "auto"
             }
-            style={{ width: 248, flexShrink: 0 }}
+            style={{ width: props.compact ? "100%" : 248, flexShrink: 0 }}
         >
             <Tabs
                 style={{
@@ -1203,18 +1217,39 @@ function HostToolbar() {
     );
 }
 function App() {
+    effect(() => {
+        BackHandler.on("press", () => {
+            if (searchOpen()) {
+                searchOpen.set(false);
+                return true;
+            }
+            if (activePlugin()) {
+                closePluginWorkspace();
+                return true;
+            }
+            if (library()) {
+                openEntry("overview");
+                return true;
+            }
+            if (narrow() && sidebar()) {
+                sidebar.set(false);
+                return true;
+            }
+            if (active() !== "overview") {
+                openEntry("overview");
+                return true;
+            }
+            return false;
+        });
+    });
     return (
         <View
-            onLayout={({ bounds }) => {
-                narrow.set(bounds.size.width < 1120);
-                frameWidth.set(bounds.size.width);
-            }}
             style={{ flex: 1, backgroundColor: ink("surface-frame") }}
         >
             <HostToolbar />
             <View style={{ flex: 1, flexDirection: "row", minHeight: 0 }}>
                 <If when={showSidebar()}>
-                    <NavigationPane />
+                    <NavigationPane compact={narrow()} />
                 </If>
                 <View
                     accessibilityElementsHidden={searchOpen()}
@@ -1222,6 +1257,7 @@ function App() {
                     style={{
                         flex: 1,
                         minWidth: 0,
+                        flexDirection: "column",
                         marginLeft: showSidebar() ? 0 : 8,
                         marginRight: 8,
                         marginBottom: 8,
@@ -1231,6 +1267,7 @@ function App() {
                         borderColor: ink("border-subtle"),
                         overflow: "hidden",
                         backgroundColor: ink("surface-base"),
+                        display: narrow() && showSidebar() ? "none" : "flex",
                     }}
                 >
                 <If when={!library() && !activePlugin()}>

@@ -87,6 +87,21 @@ cd apps/qusor && CARGO_PROFILE_RELEASE_STRIP=none \
 
 `CARGO_PROFILE_RELEASE_STRIP=none` 是必需项：默认 `strip=debuginfo` 在固定基线上会产出畸形的 proc-macro dylib。发行清单与 GitHub Actions 流程见 [发行与更新](product/release-and-update.md)；`apps/qusor` 是独立 workspace，不在根 `cargo test --workspace` 范围内，需单独跑 `cargo check --manifest-path apps/qusor/native/Cargo.toml`。
 
+Android debug APK 的本机打包入口（需 Android Studio JBR、SDK 与 NDK 27.2；Rust 1.97.1 在 release 下有已知 proc-macro dylib 缺陷，因此显式用 stable）：
+
+```sh
+cd apps/qusor
+export JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home'
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018"
+export PATH="$JAVA_HOME/bin:$HOME/.cargo/bin:$ANDROID_HOME/platform-tools:/usr/bin:/bin:/usr/sbin:/sbin"
+export RUSTUP_TOOLCHAIN=stable
+../../experiments/nsh-reader/target/nsh/target/debug/nsh package \
+  --target android --abi arm64-v8a --out /tmp/qusor-android
+```
+
+这不是商店签名。APK 在 API 36 模拟器的安装、单栏导航、返回键、想法 Core 空态和背单词触控结果见 [Android 资格记录](../experiments/nsh-reader/evidence/android-package-launch/README.md)。
+
 应用内自动更新（检查→下载→替换→重启）的本机自测：
 
 ```sh

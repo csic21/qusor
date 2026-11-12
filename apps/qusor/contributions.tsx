@@ -1,6 +1,7 @@
-import { Canvas, Clipboard, keymap, Path2D, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
+import { Canvas, Clipboard, effect, keymap, Path2D, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
 import { Button, Input, Menu, MenuItem, MenuSeparator, TextView } from "nsh/base";
 import { Menu as DesktopMenu, type MenuItem as DesktopMenuItem } from "nsh/desktop";
+import { BackHandler } from "nsh/mobile";
 import { CompositionHost, LibraryHost, NotesHost, VocabHost } from "qusor/pdf-surface";
 import {
     Badge,
@@ -1865,6 +1866,29 @@ function NoteDetail() {
 }
 
 function NotesWorkspace(props: { compact: boolean }) {
+    effect(() => {
+        if (
+            !props.compact ||
+            (!notesSelected() && !notesNavigation() && !notesSelection())
+        )
+            return;
+        BackHandler.on("press", () => {
+            if (notesSelection()) {
+                notesSelection.set("");
+                return true;
+            }
+            if (notesSelected()) {
+                notesSelected.set("");
+                notesCopyStatus.set("");
+                return true;
+            }
+            if (notesNavigation()) {
+                notesNavigation.set(false);
+                return true;
+            }
+            return false;
+        });
+    });
     keymap.bind({
         up: () => moveNoteSelection(-1),
         down: () => moveNoteSelection(1),
@@ -3275,6 +3299,13 @@ async function captureLibrarySelection(row: LibraryRow, pageIndex: number) {
 
 function LibraryReader(props: { compact: boolean }) {
     const row = libraryOpenDoc();
+    effect(() => {
+        if (!row) return;
+        BackHandler.on("press", () => {
+            libraryOpenDoc.set(null);
+            return true;
+        });
+    });
     if (!row) return <View />;
     const pages = Math.max(1, row.page_count);
     return (

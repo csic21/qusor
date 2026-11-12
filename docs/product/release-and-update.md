@@ -1,6 +1,6 @@
 # 发行、自动更新与移动端交付
 
-2026-11-12；关联 C-17、C-15、F-PLAT-01/02、F-DATA-01；承接 [跨平台结果](../../experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md) 与 [ADR 0033](../architecture/adr/0033-cross-platform-runtime.md)。状态：生产应用、本机自动更新和 GitHub Actions 的 macOS draft 构建已验证；draft 尚未公开为 latest，Developer ID/公证与其它平台发行仍未完成。
+2026-11-12；关联 C-17、C-15、F-PLAT-01/02、F-DATA-01；承接 [跨平台结果](../../experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md) 与 [ADR 0033](../architecture/adr/0033-cross-platform-runtime.md)。状态：生产应用、本机自动更新、GitHub Actions 的 macOS draft 构建以及 Android debug APK/模拟器启动已验证；draft 尚未公开为 latest，Developer ID/公证、Android 商店签名与其它平台发行仍未完成。
 
 ## 用户决定（2026-11-11）
 
@@ -23,7 +23,7 @@
 | 更新签名密钥 | 更新公钥已内置；私钥保存在本机 `.local/keys` 与 GitHub secret `NSH_UPDATE_KEY`，未提交。draft 清单已用该密钥签名并由独立 OpenSSL 复算通过 | 同左 |
 | 打包 | 生产入口使用 `nsh package --target macos`，产出 ad hoc `QUSOR.app` 和归档；实验目录仍有早期自建 Preview 包装 | `apps/qusor`、[Release 验收](../../experiments/nsh-reader/evidence/github-release/README.md) |
 | CI | `foundation.yml` 三 OS Core/库任务通过；`release.yml` 的 macOS package 与 publish 在 run 43142491761 首次完整通过并创建固定 SHA 的 draft | run 43142491761；[平台缺口](../../adapters/extension-store/tests/platform_profile.rs) |
-| 移动端 | 仅 5 个 target 的**库交叉编译**通过；无 iOS/Android 宿主、无设备运行、无分发 | 同 run 的 `portable-libraries` 全部通过 |
+| 移动端 | 5 个 target 的库交叉编译通过；另有 Android arm64 debug APK 在 API 36 模拟器实际安装、启动并完成手机布局/返回键/想法与背单词界面验证 | [Android APK/界面记录](../../experiments/nsh-reader/evidence/android-package-launch/README.md) |
 
 ### CI 失败根因与处理（2026-11-11）
 
@@ -76,7 +76,7 @@
 | macOS | ad hoc 签名 `.app` | Developer ID 签名 + notarize；否则用户需手动放行 |
 | Windows | 目录 / `.zip` | MSVC 构建与实窗；当前 store 测试仍失败 |
 | Linux | 目录 / `.tar.gz` | GTK 依赖与实窗复验 |
-| Android | 调试签名 APK | NDK、真机运行、渠道/商店资格 |
+| Android | 调试签名 arm64 APK；API 36 模拟器已安装、启动并操作手机布局、返回键、想法 Core 空态与背单词学习卡 | 真机/平板、商店签名与渠道、持久数据播种、PDF/IME/选文、性能与耗电 |
 | iOS | 模拟器 `.app` | Apple 账号、设备 `.ipa`、真机与 TestFlight/商店 |
 | Web | 静态站点 | 浏览器宿主、持久存储与真实阅读流程 |
 

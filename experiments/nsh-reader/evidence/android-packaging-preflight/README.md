@@ -32,6 +32,8 @@ env JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' \
 
 这证明 QUSOR 应用本体已进入 Android 工具链；阻断是固定 NSH Android runtime 的上游依赖/target 组合，而不是当前 Library/Reader 业务代码。
 
+2026-11-12 后续更正：最小 Rust 工程复现出同一错误时，`dlopen` 指向 Rust 1.97.1 release 生成的畸形 proc-macro dylib（`mis-aligned LINKEDIT string pool`）；改用 Rust 1.99.1 后 APK 实际构建、安装并启动。因此阻断不是 NSH Android 源码缺失，而是本机打包工具链组合。完整后续结果见 [Android APK 构建与实机界面资格](../android-package-launch/README.md)。
+
 ## 下一步门槛
 
 - 先修复或固定一个能在 `aarch64-linux-android` 编译的 NSH/QuickJS 组合，再重跑同一命令。
