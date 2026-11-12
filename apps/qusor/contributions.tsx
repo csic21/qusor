@@ -44,6 +44,12 @@ export type PluginPackage = {
     version: string;
     enabled: boolean;
 };
+let pluginWorkspaceOpener: ((role: string) => boolean) | null = null;
+export function setPluginWorkspaceOpener(
+    opener: (role: string) => boolean,
+) {
+    pluginWorkspaceOpener = opener;
+}
 export const draft = signal(
     "让工作区围绕正在处理的内容展开。工具可以随时加入，也可以安静地退到一旁。",
 );
@@ -443,7 +449,8 @@ type Note = {
     starred: boolean;
     missingOriginal: boolean;
     captureId?: number;
-    sourceUnavailable?: "reader";
+    documentId?: number;
+    quoteTruncated?: boolean;
 };
 const notesFixture: Note[] = [
     {
@@ -524,13 +531,15 @@ async function loadLiveNotes() {
             full: wire.note_truncated ? undefined : wire.note_preview,
             date: `提交 ${wire.commit_rev}`,
             scope:
-                wire.document_id === page.current_document_id
+                wire.document_id ===
+                (libraryOpenDoc()?.document_id ?? page.current_document_id)
                     ? "当前资料"
                     : "其他资料",
             starred: false,
             missingOriginal: false,
             captureId: wire.capture_id,
-            sourceUnavailable: "reader",
+            documentId: wire.document_id,
+            quoteTruncated: wire.quote_truncated === true,
         }));
         notesData.set(mapped);
         notesLive.set(true);
@@ -544,7 +553,9 @@ async function loadLiveNotes() {
     }
 }
 
-void loadLiveNotes();
+export function refreshNotes() {
+    void loadLiveNotes();
+}
 
 /// Evidence-only, driven by App when the host was started with
 /// QUSOR_WORKBENCH_EVIDENCE. Captures the rendered window through NotesHost so
@@ -1090,11 +1101,10 @@ function noteMenuItems(note: Note): DesktopMenuItem[] {
     return [
         {
             label:
-                note.sourceUnavailable === "reader"
-                    ? "打开所在页（阅读窗口未接入）"
+                note.captureId === undefined
+                    ? "打开所在页（样例）"
                     : "打开所在页",
-            disabled:
-                note.missingOriginal || note.sourceUnavailable === "reader",
+            disabled: note.missingOriginal,
             onSelect: () => openNoteSource(note),
         },
         { label: "复制引文", onSelect: () => noteCopy(note.quote, "引文") },
@@ -1126,12 +1136,23 @@ function noteCopy(text: string, label: string) {
 }
 
 function openNoteSource(note: Note) {
-    if (note.sourceUnavailable === "reader") {
-        notesCopyStatus.set("阅读窗口尚未接入，无法回源；引文与想法仍可复制。");
-        return;
-    }
     if (note.missingOriginal) {
         notesCopyStatus.set("原件缺失，无法定位到这一页。");
+        return;
+    }
+    if (note.documentId !== undefined) {
+        const opened = openLibrarySource({
+            documentId: note.documentId,
+            pageIndex: note.page - 1,
+            title: note.document,
+            quote: note.quote,
+            quoteTruncated: note.quoteTruncated === true,
+        });
+        if (!opened) {
+            notesCopyStatus.set(
+                "资料库插件当前不可用；引文与想法仍保留在本机 Core。",
+            );
+        }
         return;
     }
     if (note.scope !== "当前资料") {
@@ -1482,15 +1503,9 @@ function NotesList(props: { compact: boolean }) {
                                                         原件缺失
                                                     </Copy>
                                                 </If>
-                                                <If
-                                                    when={
-                                                        note()
-                                                            .sourceUnavailable ===
-                                                        "reader"
-                                                    }
-                                                >
+                                                <If when={note().documentId !== undefined}>
                                                     <Copy size={11} muted>
-                                                        阅读未接入
+                                                        可回源
                                                     </Copy>
                                                 </If>
                                             </View>
@@ -1584,8 +1599,8 @@ function NoteDetail() {
     const canOpen = () =>
         !!note() &&
         !note()!.missingOriginal &&
-        !note()!.sourceUnavailable &&
-        note()!.scope === "当前资料";
+        (note()!.documentId !== undefined ||
+            note()!.scope === "当前资料");
     return (
         <View style={{ flex: 1, minWidth: 0 }}>
             <View
@@ -1617,11 +1632,9 @@ function NoteDetail() {
                     label={
                         canOpen()
                             ? "打开所在页"
-                            : note()?.sourceUnavailable === "reader"
-                              ? "阅读窗口未接入，无法回源"
-                              : note()?.missingOriginal
+                            : note()?.missingOriginal
                                 ? "原件缺失，无法定位"
-                                : "先打开来源资料后可定位"
+                                : "来源信息不足"
                     }
                     text="打开所在页"
                     icon="book"
@@ -1828,15 +1841,10 @@ function NoteDetail() {
                                 原件缺失，无法定位到这一页；引文与想法仍可复制。
                             </Copy>
                         </If>
-                        <If when={note()?.sourceUnavailable === "reader"}>
-                            <Copy size={11} muted>
-                                阅读窗口尚未接入，无法回源；引文与想法仍可复制。
-                            </Copy>
-                        </If>
                         <If
                             when={
                                 !note()?.missingOriginal &&
-                                !note()?.sourceUnavailable &&
+                                note()?.documentId === undefined &&
                                 note()?.scope !== "当前资料"
                             }
                         >
@@ -1846,7 +1854,7 @@ function NoteDetail() {
                         </If>
                         <If when={canOpen()}>
                             <Copy size={11} muted>
-                                真实回源由 Core 与阅读插件承接；上方“打开所在页”执行。
+                                通过资料库插件打开已保存的来源页；不可用时会明确反馈。
                             </Copy>
                         </If>
                     </View>
@@ -3056,6 +3064,14 @@ type LibraryRow = {
     original_bytes: number;
     commit_rev: number;
 };
+type LibrarySourceTarget = {
+    serial: number;
+    documentId: number;
+    pageIndex: number;
+    title: string;
+    quote: string;
+    quoteTruncated: boolean;
+};
 
 const libraryRows = signal<LibraryRow[]>([]);
 const libraryStatus = signal("正在读取本机资料库…");
@@ -3067,7 +3083,40 @@ const libraryPageStatus = signal("");
 const librarySelection = signal("");
 const librarySelectionStart = signal(0);
 const librarySelectionNote = signal("");
+const librarySourceTarget = signal<LibrarySourceTarget | null>(null);
+const librarySourceQuote = signal<{
+    text: string;
+    truncated: boolean;
+} | null>(null);
 let libraryBooted = false;
+let nextLibrarySourceTarget = 0;
+let handledLibrarySourceTarget = 0;
+
+function libraryRow(raw: any): LibraryRow | null {
+    if (
+        typeof raw?.document_id !== "number" ||
+        typeof raw?.title !== "string" ||
+        typeof raw?.page_count !== "number" ||
+        typeof raw?.original_bytes !== "number" ||
+        typeof raw?.commit_rev !== "number"
+    ) {
+        return null;
+    }
+    return raw;
+}
+
+function openLibrarySource(
+    target: Omit<LibrarySourceTarget, "serial">,
+): boolean {
+    const previous = librarySourceTarget();
+    librarySourceTarget.set({
+        ...target,
+        serial: ++nextLibrarySourceTarget,
+    });
+    if (pluginWorkspaceOpener?.("library_workspace")) return true;
+    librarySourceTarget.set(previous);
+    return false;
+}
 
 async function loadLibraryPage(cursor = "") {
     libraryStatus.set("正在读取本机资料库…");
@@ -3075,16 +3124,12 @@ async function loadLibraryPage(cursor = "") {
         const response = JSON.parse(await LibraryHost.page(cursor, 6));
         if (!response.ok || !Array.isArray(response.value?.documents))
             throw Error();
-        libraryRows.set(
-            response.value.documents.filter(
-                (row: any) =>
-                    typeof row?.document_id === "number" &&
-                    typeof row?.title === "string" &&
-                    typeof row?.page_count === "number" &&
-                    typeof row?.original_bytes === "number" &&
-                    typeof row?.commit_rev === "number",
-            ),
-        );
+        const rows: LibraryRow[] = [];
+        for (const raw of response.value.documents) {
+            const row = libraryRow(raw);
+            if (row) rows.push(row);
+        }
+        libraryRows.set(rows);
         libraryNext.set(
             typeof response.value.next_cursor === "string"
                 ? response.value.next_cursor
@@ -3109,6 +3154,7 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
     librarySelection.set("");
     librarySelectionStart.set(0);
     librarySelectionNote.set("");
+    librarySourceQuote.set(null);
     libraryPageStatus.set("正在读取本机文字…");
     let offset = 0;
     let text = "";
@@ -3137,6 +3183,54 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
     } catch (_) {
         libraryPageStatus.set("这一页的文字暂时读不到；资料仍保留在本机。");
     }
+}
+
+async function openLibrarySourceTarget(target: LibrarySourceTarget) {
+    libraryStatus.set(`正在定位《${target.title}》…`);
+    let cursor = "";
+    const seen = new Set<string>();
+    try {
+        for (;;) {
+            if (seen.has(cursor)) throw Error("library cursor cycle");
+            seen.add(cursor);
+            const response = JSON.parse(await LibraryHost.page(cursor, 6));
+            if (!response.ok || !Array.isArray(response.value?.documents))
+                throw Error(response.error ?? "library page failed");
+            const row = response.value.documents
+                .map(libraryRow)
+                .find(
+                    (candidate: LibraryRow | null) =>
+                        candidate?.document_id === target.documentId,
+                );
+            if (row) {
+                if (target.pageIndex >= row.page_count) {
+                    await loadLibraryText(row, 0);
+                    libraryPageStatus.set(
+                        `想法记录在第 ${target.pageIndex + 1} 页，但当前资料只有 ${row.page_count} 页；未定位到相似内容。`,
+                    );
+                    return;
+                }
+                await loadLibraryText(row, target.pageIndex);
+                librarySourceQuote.set({
+                    text: target.quote,
+                    truncated: target.quoteTruncated,
+                });
+                libraryPageStatus.set(
+                    `已从想法定位到《${target.title}》第 ${target.pageIndex + 1} 页。`,
+                );
+                return;
+            }
+            const next = response.value.next_cursor;
+            if (typeof next !== "string" || !next) break;
+            cursor = next;
+        }
+    } catch (_) {
+        // Fall through to the normal list with an explicit locator failure.
+    }
+    await loadLibraryPage();
+    libraryStatus.set(
+        `没有找到《${target.title}》当前可读的原件；没有用相似内容代替。`,
+    );
 }
 
 function utf16ToScalar(text: string, offset: number) {
@@ -3170,6 +3264,7 @@ async function captureLibrarySelection(row: LibraryRow, pageIndex: number) {
         );
         if (!response.ok) throw Error(response.error ?? "capture failed");
         libraryPageStatus.set("选文已保存到本机 Core。");
+        void loadLiveNotes();
         librarySelection.set("");
         librarySelectionStart.set(0);
         librarySelectionNote.set("");
@@ -3223,6 +3318,27 @@ function LibraryReader(props: { compact: boolean }) {
                 <Copy size={12} muted>
                     {libraryPageStatus()}
                 </Copy>
+                <If when={!!librarySourceQuote()}>
+                    <View
+                        style={{
+                            gap: 5,
+                            padding: 12,
+                            borderLeftWidth: 3,
+                            borderColor: ink("text-accent"),
+                            backgroundColor: ink("surface-inset"),
+                        }}
+                    >
+                        <Copy size={11} muted>
+                            从想法回到此页 ·{" "}
+                            {librarySourceQuote()?.truncated
+                                ? "引文预览"
+                                : "保存的引文"}
+                        </Copy>
+                        <Copy size={13} lines={3}>
+                            {librarySourceQuote()?.text}
+                        </Copy>
+                    </View>
+                </If>
                 <View
                     selectable
                     accessibilityLabel="可选择的本页文字"
@@ -3310,9 +3426,14 @@ function LibraryReader(props: { compact: boolean }) {
 }
 
 function LibraryWorkspace(props: { compact: boolean }) {
+    const target = librarySourceTarget();
     if (!libraryBooted) {
         libraryBooted = true;
-        void loadLibraryPage();
+        if (!target) void loadLibraryPage();
+    }
+    if (target && target.serial !== handledLibrarySourceTarget) {
+        handledLibrarySourceTarget = target.serial;
+        void openLibrarySourceTarget(target);
     }
     if (libraryOpenDoc()) return <LibraryReader compact={props.compact} />;
     return (

@@ -1,6 +1,6 @@
 # ADR 0035：想法读取的公开能力（协议 0.4）
 
-日期：2026-11-10。状态：wire、能力、Host 策略、真实 Core 适配器、`plugins/notes` 普通签名包、服务层安装/停用/卸载、工作台 `NotesHost` 原生桥、工作台 live 实窗与重启恢复已通过；生产安装界面、真实回源与编辑仍未完成。关联 C-08/C-09/C-12、F-NOTE-01、F-SRC-01、F-EXT-01/03/04/05/06。承接 [ADR 0034](0034-note-read-model.md) 与 [D 阶段计划](../../product/d-phase-plan.md)，不扩大 AI、云或平台范围。
+日期：2026-11-10。状态：wire、能力、Host 策略、真实 Core 适配器、`plugins/notes` 普通签名包、服务层安装/停用/卸载、工作台 `NotesHost` 原生桥、工作台 live 实窗与重启恢复已通过；应用已能按 Core 资料 ID/页码把想法交给资料库工作区做页级回源，精确高亮与生产安装界面仍未完成。关联 C-08/C-09/C-12、F-NOTE-01、F-SRC-01、F-EXT-01/03/04/05/06。承接 [ADR 0034](0034-note-read-model.md) 与 [D 阶段计划](../../product/d-phase-plan.md)，不扩大 AI、云或平台范围。
 
 ## 问题
 

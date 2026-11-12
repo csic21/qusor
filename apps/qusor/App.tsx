@@ -9,6 +9,8 @@ import {
     entries,
     pluginPackages,
     pluginWorkspaces,
+    refreshNotes,
+    setPluginWorkspaceOpener,
     setWorkspacePackageEnabled,
     Diagram,
     type Entry,
@@ -88,7 +90,8 @@ function currentPlugin() {
     return allWorkspaces().find((workspace) => workspace.id === activePlugin());
 }
 function openPluginWorkspace(id: string) {
-    if (!allWorkspaces().some((workspace) => workspace.id === id)) return;
+    const workspace = allWorkspaces().find((candidate) => candidate.id === id);
+    if (!workspace) return;
     if (!activePlugin()) {
         pluginOrigin.set({
             active: active(),
@@ -102,6 +105,7 @@ function openPluginWorkspace(id: string) {
     library.set(false);
     inspector.set(false);
     searchOpen.set(false);
+    if (workspace.role === "notes_workspace") refreshNotes();
 }
 function allWorkspaces() {
     return pluginWorkspaces();
@@ -119,6 +123,7 @@ function openPluginWorkspaceByRole(role: string) {
     openPluginWorkspace(workspace.id);
     return true;
 }
+setPluginWorkspaceOpener(openPluginWorkspaceByRole);
 function closePluginWorkspace() {
     activePlugin.set("");
     const origin = pluginOrigin();
