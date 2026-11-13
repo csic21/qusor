@@ -1,4 +1,4 @@
-import { Canvas, Clipboard, effect, keymap, Path2D, Picker, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
+import { Canvas, Clipboard, effect, Image, keymap, Path2D, Picker, Scroll, signal, Text, View, type InputRef, type JSX } from "nsh";
 import { Button, Input, Menu, MenuItem, MenuSeparator, TextView } from "nsh/base";
 import { Menu as DesktopMenu, type MenuItem as DesktopMenuItem } from "nsh/desktop";
 import { BackHandler } from "nsh/mobile";
@@ -3167,9 +3167,20 @@ const libraryRows = signal<LibraryRow[]>([]);
 const libraryPositions = signal<Record<number, ReadingPosition>>({});
 const libraryStatus = signal("正在读取本机资料库…");
 const libraryNext = signal("");
+const libraryImporting = signal(false);
 const libraryOpenDoc = signal<LibraryRow | null>(null);
 const libraryPageIndex = signal(0);
 const libraryPageText = signal("");
+const libraryPageImage = signal<{
+    documentId: number;
+    pageIndex: number;
+    url: string;
+    width: number;
+    height: number;
+} | null>(null);
+const libraryPageImageState = signal<"idle" | "loading" | "ready" | "failed">(
+    "idle",
+);
 const libraryPageStatus = signal("");
 const libraryResumeNotice = signal("");
 const librarySelection = signal("");
@@ -3183,6 +3194,8 @@ const librarySourceQuote = signal<{
 let libraryBooted = false;
 let nextLibrarySourceTarget = 0;
 let handledLibrarySourceTarget = 0;
+let libraryImageRequest = 0;
+const MAX_PDF_IMPORT_BYTES = 16 * 1024 * 1024;
 
 function libraryRow(raw: any): LibraryRow | null {
     if (
@@ -3263,16 +3276,71 @@ async function loadLibraryPage(cursor = "") {
     }
 }
 
+function clearLibraryPageImage() {
+    ++libraryImageRequest;
+    const previous = libraryPageImage();
+    libraryPageImage.set(null);
+    libraryPageImageState.set("idle");
+    if (previous?.url) URL.revokeObjectURL(previous.url);
+}
+
+async function loadLibraryPageImage(row: LibraryRow, pageIndex: number) {
+    const request = ++libraryImageRequest;
+    const previous = libraryPageImage();
+    if (previous?.url) URL.revokeObjectURL(previous.url);
+    libraryPageImage.set(null);
+    libraryPageImageState.set("loading");
+    try {
+        const frame = await LibraryHost.pageImage(row.document_id, pageIndex);
+        if (request !== libraryImageRequest) return;
+        const info = JSON.parse(frame.info);
+        if (
+            !info.ok ||
+            !frame.file ||
+            info.document_id !== row.document_id ||
+            info.page_index !== pageIndex ||
+            typeof info.width !== "number" ||
+            typeof info.height !== "number"
+        ) {
+            throw Error(info.error ?? "PDF page rendering failed");
+        }
+        libraryPageImage.set({
+            documentId: row.document_id,
+            pageIndex,
+            url: URL.createObjectURL(frame.file),
+            width: info.width,
+            height: info.height,
+        });
+        libraryPageImageState.set("ready");
+        libraryPageStatus.set(
+            libraryPageText()
+                ? "本机 Core · 原生页图 + 文字层"
+                : "页图已加载；正在读取文字层…",
+        );
+    } catch (error) {
+        if (request === libraryImageRequest) {
+            libraryPageImageState.set("failed");
+            libraryPageStatus.set(
+                `页图暂时无法渲染：${
+                    error instanceof Error ? error.message : "未知错误"
+                }。文字层仍可阅读。`,
+            );
+        }
+    }
+}
+
 async function loadLibraryText(row: LibraryRow, pageIndex: number) {
     libraryOpenDoc.set(row);
     libraryPageIndex.set(pageIndex);
     libraryPageText.set("");
+    clearLibraryPageImage();
     librarySelection.set("");
     librarySelectionStart.set(0);
     librarySelectionNote.set("");
     librarySourceQuote.set(null);
     libraryResumeNotice.set("");
-    libraryPageStatus.set("正在读取本机文字…");
+    libraryPageStatus.set("正在读取本机页图与文字…");
+    void loadLibraryPageImage(row, pageIndex);
     let offset = 0;
     let text = "";
     try {
@@ -3292,9 +3360,14 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
             offset = next;
         }
         libraryPageText.set(text);
+        const imageState = libraryPageImageState();
         libraryPageStatus.set(
             text
-                ? "本机 Core · 文字层阅读（页图/版面尚未接入）"
+                ? imageState === "ready"
+                    ? "本机 Core · 原生页图 + 文字层"
+                    : imageState === "failed"
+                      ? "本机 Core · 文字层可用；页图暂未渲染"
+                      : "本机 Core · 正在加载页图，文字层已可用"
                 : "这一页没有可提取的文字层。",
         );
         const saved = await saveReadingPosition(
@@ -3309,11 +3382,75 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
             });
         }
     } catch (_) {
-        libraryPageStatus.set("这一页的文字暂时读不到；资料仍保留在本机。");
+        libraryPageStatus.set("这一页的文字暂时读不到；页图或资料仍在本机。");
+    }
+}
+
+async function importLibraryPdf() {
+    if (libraryImporting()) return;
+    libraryImporting.set(true);
+    libraryStatus.set("请选择本地 PDF；原文件只写入本机 Core。");
+    try {
+        const picked = await Picker.pickFiles({
+            multiple: false,
+            filters: [{ name: "PDF 文档", extensions: ["pdf"] }],
+        });
+        if (picked.length === 0) {
+            libraryStatus.set("已取消导入；当前资料库没有变化。");
+            return;
+        }
+        const file = picked[0].file;
+        if (file.size > MAX_PDF_IMPORT_BYTES) {
+            throw new Error("PDF 不能超过 16 MiB");
+        }
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        const response = JSON.parse(
+            await LibraryHost.importPdf(file.name, bytes),
+        );
+        if (!response.ok || !response.value) {
+            throw new Error(response.error ?? "PDF import failed");
+        }
+        await loadLibraryPage();
+        const documentId = Number(response.value.document_id);
+        const imported =
+            libraryRows().find((row) => row.document_id === documentId) ??
+            ({
+                document_id: documentId,
+                title: String(response.value.title ?? file.name),
+                page_count: Number(response.value.page_count),
+                original_bytes: file.size,
+                commit_rev: 0,
+            } satisfies LibraryRow);
+        if (
+            Number.isSafeInteger(imported.document_id) &&
+            imported.page_count > 0
+        ) {
+            await loadLibraryText(imported, 0);
+            libraryResumeNotice.set("PDF 已写入本机 Core，并打开第一页。");
+        } else {
+            libraryStatus.set("PDF 已写入本机 Core；刷新列表后可阅读。");
+        }
+    } catch (error) {
+        libraryStatus.set(
+            `PDF 未导入：${
+                error instanceof Error ? error.message : "未知错误"
+            }。原资料库没有被删除。`,
+        );
+    } finally {
+        libraryImporting.set(false);
     }
 }
 
 async function openLibraryDocument(row: LibraryRow) {
+    libraryOpenDoc.set(row);
+    libraryPageIndex.set(0);
+    libraryPageText.set("");
+    clearLibraryPageImage();
+    librarySelection.set("");
+    librarySelectionStart.set(0);
+    librarySelectionNote.set("");
+    librarySourceQuote.set(null);
+    libraryPageStatus.set("正在恢复上次阅读位置…");
     const position = await loadReadingPosition(
         row.document_id,
         row.page_count,
@@ -3442,7 +3579,10 @@ function LibraryReader(props: { compact: boolean }) {
                     label="返回资料库列表"
                     icon="back"
                     text="资料库"
-                    onPress={() => libraryOpenDoc.set(null)}
+                    onPress={() => {
+                        clearLibraryPageImage();
+                        libraryOpenDoc.set(null);
+                    }}
                 />
                 <Copy size={25} strong>
                     {row.title}
@@ -3471,6 +3611,36 @@ function LibraryReader(props: { compact: boolean }) {
                     <Copy size={11} muted>
                         {libraryResumeNotice()}
                     </Copy>
+                </If>
+                <If when={!!libraryPageImage()}>
+                    <View
+                        style={{
+                            width: "100%",
+                            maxWidth: 760,
+                            alignSelf: "center",
+                            padding: 10,
+                            borderRadius: 8,
+                            backgroundColor: ink("surface-inset"),
+                            borderWidth: 1,
+                            borderColor: ink("border-subtle"),
+                        }}
+                    >
+                        <Image
+                            accessibilityLabel={`《${row.title}》第 ${
+                                libraryPageIndex() + 1
+                            } 页原生页图`}
+                            src={libraryPageImage()!.url}
+                            fadeDuration={0}
+                            style={{
+                                width: "100%",
+                                objectFit: "contain",
+                                aspectRatio:
+                                    libraryPageImage()!.width /
+                                    libraryPageImage()!.height,
+                                backgroundColor: ink("surface-base"),
+                            }}
+                        />
+                    </View>
                 </If>
                 <If when={!!librarySourceQuote()}>
                     <View
@@ -3579,7 +3749,7 @@ function LibraryReader(props: { compact: boolean }) {
     );
 }
 
-function LibraryWorkspace(props: { compact: boolean }) {
+export function LibraryWorkspace(props: { compact: boolean }) {
     const target = librarySourceTarget();
     if (!libraryBooted) {
         libraryBooted = true;
@@ -3589,7 +3759,19 @@ function LibraryWorkspace(props: { compact: boolean }) {
         handledLibrarySourceTarget = target.serial;
         void openLibrarySourceTarget(target);
     }
-    if (libraryOpenDoc()) return <LibraryReader compact={props.compact} />;
+    return (
+        <View style={{ flex: 1 }}>
+            <If when={!!libraryOpenDoc()}>
+                <LibraryReader compact={props.compact} />
+            </If>
+            <If when={!libraryOpenDoc()}>
+                <LibraryList compact={props.compact} />
+            </If>
+        </View>
+    );
+}
+
+function LibraryList(props: { compact: boolean }) {
     return (
         <Scroll style={{ flex: 1 }}>
             <View
@@ -3602,23 +3784,58 @@ function LibraryWorkspace(props: { compact: boolean }) {
                     gap: 20,
                 }}
             >
-                <Copy size={25} strong>
-                    资料库
-                </Copy>
+                <View
+                    style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 12,
+                    }}
+                >
+                    <Copy size={25} strong>
+                        资料库
+                    </Copy>
+                    <View style={{ flex: 1 }} />
+                    <Tool
+                        label="导入本地 PDF"
+                        icon="plus"
+                        text={
+                            libraryImporting()
+                                ? "正在导入…"
+                                : "导入 PDF"
+                        }
+                        disabled={libraryImporting()}
+                        onPress={() => void importLibraryPdf()}
+                    />
+                </View>
                 <Copy size={12} muted>
                     {libraryStatus()}
                 </Copy>
                 <Each of={libraryRows()}>
                     {(row) => (
-                        <View
+                        <Button
+                            accessibilityLabel={`${
+                                libraryPositionOf(row())
+                                    ? "继续阅读"
+                                    : "阅读"
+                            }${row().title}`}
+                            onPress={() => void openLibraryDocument(row())}
                             style={{
                                 paddingVertical: 16,
+                                paddingHorizontal: 8,
                                 borderBottomWidth: 1,
                                 borderColor: ink("border-subtle"),
                                 flexDirection: "row",
                                 alignItems: "center",
                                 gap: 14,
+                                borderRadius: 8,
                             }}
+                            hoverStyle={{
+                                backgroundColor: ink("surface-hover"),
+                            }}
+                            activeStyle={{
+                                backgroundColor: ink("surface-pressed"),
+                            }}
+                            focusStyle={focus()}
                         >
                             <Badge icon="book" size={38} />
                             <View style={{ flex: 1, gap: 4 }}>
@@ -3635,22 +3852,20 @@ function LibraryWorkspace(props: { compact: boolean }) {
                                     {libraryPositionLabel(row())}
                                 </Copy>
                             </View>
-                            <Tool
-                                label={`${
-                                    libraryPositionOf(row())
-                                        ? "继续阅读"
-                                        : "阅读"
-                                }${row().title}`}
-                                text={
-                                    libraryPositionOf(row())
-                                        ? "继续"
-                                        : "阅读"
-                                }
-                                onPress={() =>
-                                    void openLibraryDocument(row())
-                                }
+                            <Copy
+                                size={12}
+                                muted
+                            >
+                                {libraryPositionOf(row())
+                                    ? "继续"
+                                    : "阅读"}
+                            </Copy>
+                            <Glyph
+                                name="arrow"
+                                size={15}
+                                color={ink("text-secondary")}
                             />
-                        </View>
+                        </Button>
                     )}
                 </Each>
                 <If when={!libraryRows().length && libraryStatus().includes("没有")}>

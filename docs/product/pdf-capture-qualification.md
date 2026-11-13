@@ -1,10 +1,10 @@
 # PDF 原件、提取与收录资格切片
 
-状态：[独立本机资格子项通过](../../experiments/capture-core/PDF_RESULTS.md)，未计作正式阅读 UI 或阶段 D。关联 C-08/C-09、F-LIB-01、F-READ-02/03、F-NOTE-01、F-SRC-01、F-DATA-01、F-EXT-01/02/03/05/06。
+状态：[独立本机资格子项通过](../../experiments/capture-core/PDF_RESULTS.md)；应用已有真实 PDF 导入、Core 持久化与原生页图本机子项（macOS/Android arm64），仍未计作正式 Reader Surface 或阶段 D。关联 C-08/C-09、F-LIB-01、F-READ-02/03、F-NOTE-01、F-SRC-01、F-DATA-01、F-EXT-01/02/03/05/06。
 
 ## 用户旅程及数据归属
 
-先由可信本地文档服务冻结原件并生成版本化页映射，再验证统一 Core 的原件保留和选段保存。当前导入入口是隔离实验的原生服务供给，不代表独立 library 插件已经完成。reader/notes 的选段收录路径必须使用普通签名包、公开 SelectionRead/CapturePropose 能力及原生批准门，不允许插件提交自报可信的页映射或直接写数据库。
+先由可信本地文档服务冻结原件并生成版本化页映射，再由统一 Core 保留和渲染。应用当前提供用户选择的本地 PDF 导入入口与 Core 页图，但仍不代表独立 library 插件获得导入能力或正式 Reader Surface 已完成。reader/notes 的选段收录路径必须使用普通签名包、公开 SelectionRead/CapturePropose 能力及原生批准门，不允许插件提交自报可信的页映射或直接写数据库。
 
 用户看到来源标题、页码、摘录及自己的备注后确认保存。预览或取消不产生摘录；“已保存”必须对应持久化凭据。旧文档版本、提取版本、页文本或引用不一致时明确失败，不能跳到相似文本。重复句使用具体页内范围区分位置。
 
@@ -14,7 +14,7 @@ Core 保留原件二进制及原始 hash、提取身份/语义版本、页文本
 
 ## 阅读顺序与原生体验
 
-遵守原生优先：PDFium 在受控原生服务中提取/渲染，普通插件贡献行为，NSH 后续提供原生阅读 Surface。原生服务不可成为官方插件的私有业务通道。
+遵守原生优先：PDFium 在受控原生串行服务中提取/渲染，普通插件贡献行为，NSH 以 native `ImageData`/`File` 显示页图。当前服务线程与应用同进程，资源隔离不等于崩溃沙箱；原生服务不可成为官方插件的私有业务通道。macOS 与 Android arm64 的本机结果见 [页图证据](../../experiments/nsh-reader/evidence/pdf-page-import/README.md)。
 
 本轮保存明确标识的 PDFium engine character stream，不宣称它是可靠 canonical reading text。旋转页的行序问题保持显式未验证；用户确认的页内明确范围可依原件/提取/页版本和字符几何重新解析，不以整页排序推测选段。未知 Unicode 和不完整映射拒绝精确文字引用。
 

@@ -430,11 +430,11 @@ fn speak_now(text: &str, accent: &str) -> Result<Option<String>, String> {
         sync::Mutex,
     };
     static SPEAKER: Mutex<Option<Child>> = Mutex::new(None);
-    if let Ok(mut speaker) = SPEAKER.lock() {
-        if let Some(mut previous) = speaker.take() {
-            let _ = previous.kill();
-            let _ = previous.try_wait();
-        }
+    if let Ok(mut speaker) = SPEAKER.lock()
+        && let Some(mut previous) = speaker.take()
+    {
+        let _ = previous.kill();
+        let _ = previous.try_wait();
     }
     let voice = speech_voice(accent, installed_voices());
     let mut command = Command::new("/usr/bin/say");

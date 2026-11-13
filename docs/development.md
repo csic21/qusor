@@ -98,9 +98,18 @@ export PATH="$JAVA_HOME/bin:$HOME/.cargo/bin:$ANDROID_HOME/platform-tools:/usr/b
 export RUSTUP_TOOLCHAIN=stable
 ../../experiments/nsh-reader/target/nsh/target/debug/nsh package \
   --target android --abi arm64-v8a --out /tmp/qusor-android
+python3 package_android_pdfium.py /tmp/qusor-android/QUSOR.apk --abi arm64-v8a
 ```
 
-这不是商店签名。APK 在 API 36 模拟器的安装、单栏导航、返回键、想法 Core 空态和背单词触控结果见 [Android 资格记录](../experiments/nsh-reader/evidence/android-package-launch/README.md)。
+`nsh package` 只写 `libnsh.so`；最后一步把固定 PDFium 注入 `lib/arm64-v8a/`，按 16 KB 页面要求对齐并重新签名。这不是商店签名。APK 在 API 36 模拟器的安装、单栏导航、返回键、想法 Core 空态和背单词触控结果见 [Android 资格记录](../experiments/nsh-reader/evidence/android-package-launch/README.md)；真实 PDF 导入、重开恢复与旋转页图见 [PDF 页图证据](../experiments/nsh-reader/evidence/pdf-page-import/README.md)。
+
+PDF 导入与页图的 mac 真窗口回归：
+
+```sh
+cd apps/qusor
+../../experiments/nsh-reader/target/nsh/target/debug/nsh test --target macos tests/pdf-import.test.tsx
+cargo test --manifest-path native/Cargo.toml --locked --offline
+```
 
 资料库页级继续阅读偏好的无界面回归：
 

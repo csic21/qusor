@@ -9,6 +9,11 @@ pub mod extension_preferences;
 pub mod library_native;
 pub mod notes_native;
 pub mod package_catalog;
+pub mod pdf_page;
+#[cfg(unix)]
+pub mod pdf_reader;
+#[cfg(unix)]
+mod pdf_service;
 pub mod profile;
 mod runtime;
 pub mod vault;
@@ -18,6 +23,7 @@ use nsh_core::prelude::*;
 
 #[native_module("qusor/pdf-surface")]
 fn native(registry: &mut Registry) {
+    registry.assets(assets!());
     registry.module::<app_info::AppInfo>();
     registry.module::<composition_native::CompositionHost>();
     registry.module::<notes_native::NotesHost>();

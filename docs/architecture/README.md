@@ -52,6 +52,8 @@ Library 的第一层 Core 读模型按 vault 返回有界 PDF 元数据和 opaqu
 
 Library Host API 0.6 已提供 `library.read`、`library_workspace` 和 `library-metadata-v1` 元数据 wire；Host 绑定 vault/grant，响应不含原件或 blob。应用已接 `LibraryHost.page`、真实 Core 后端适配和初始原生列表，见 [ADR 0046](adr/0046-library-host-api-0-6.md)。
 
+应用现已接通可信 PDF 导入与页图：用户选择的字节只在原生层进入冻结 provider/Core，PDFium 在单一线程串行工作，页图以 native `ImageData`/`File` 显示；macOS arm64 与 Android arm64 有本机实窗/模拟器证据。该线程不是崩溃隔离，其它平台运行库与正式 Reader Surface 仍未完成，见 [ADR 0047](adr/0047-native-pdf-import-and-page-images.md)。
+
 ## 未来依赖方向
 
 ```mermaid

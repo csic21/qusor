@@ -10,6 +10,7 @@ use serde_json::{Value, json};
 pub(crate) struct LibraryRuntime {
     host: Host,
     session: Session,
+    store: VaultStore,
     bridge: LibraryReadBridge<VaultStore>,
 }
 
@@ -50,8 +51,30 @@ impl LibraryRuntime {
         Ok(Self {
             host,
             session,
+            store: store.clone(),
             bridge: LibraryReadBridge::new(KnowledgeApplication::new(store), "qusor-vault"),
         })
+    }
+
+    #[cfg(unix)]
+    pub(crate) fn import_pdf(
+        &self,
+        sys: &System,
+        title: String,
+        bytes: Vec<u8>,
+    ) -> Result<Value, String> {
+        let imported = crate::pdf_reader::import(sys, self.store.clone(), title, bytes)?;
+        Ok(crate::pdf_reader::import_value(imported))
+    }
+
+    #[cfg(unix)]
+    pub(crate) fn render_pdf_page(
+        &self,
+        sys: &System,
+        document_id: i64,
+        page_index: u32,
+    ) -> Result<crate::pdf_page::PdfPageData, String> {
+        crate::pdf_reader::render_page(sys, self.store.clone(), document_id, page_index)
     }
 
     fn page(&mut self, cursor: Option<String>, limit: u16) -> Result<Value, String> {
@@ -65,6 +88,7 @@ impl LibraryRuntime {
             host,
             session,
             bridge,
+            ..
         } = self;
         let permit = host.authorize_library(session, &request).map_err(text)?;
         let response = host
@@ -106,6 +130,7 @@ impl LibraryRuntime {
             host,
             session,
             bridge,
+            ..
         } = self;
         let permit = host.authorize_library(session, &request).map_err(text)?;
         let response = host
@@ -158,6 +183,7 @@ impl LibraryRuntime {
             host,
             session,
             bridge,
+            ..
         } = self;
         let permit = host.authorize_library(session, &request).map_err(text)?;
         let response = host
@@ -192,6 +218,49 @@ pub struct LibraryHost;
 
 #[module]
 impl LibraryHost {
+    /// Import one user-selected PDF into the local Core.
+    pub fn import_pdf(sys: System, title: String, bytes: Vec<u8>) -> Later<String> {
+        #[cfg(unix)]
+        {
+            Later::new(crate::pdf_service::import(sys.data_dir, title, bytes))
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = (sys, title, bytes);
+            Later::new(async {
+                Ok(
+                    json!({"ok": false, "error": "PDF import is not available on this platform yet"})
+                        .to_string(),
+                )
+            })
+        }
+    }
+
+    /// Render one page from the retained original as a native image.
+    pub fn page_image(
+        sys: System,
+        document_id: i64,
+        page_index: u32,
+    ) -> Later<crate::pdf_page::PdfPageFile> {
+        #[cfg(unix)]
+        {
+            Later::new(crate::pdf_service::render(
+                sys.data_dir,
+                document_id,
+                page_index,
+            ))
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = (sys, document_id, page_index);
+            Later::new(async {
+                Ok(crate::pdf_page::failed_page(
+                    "PDF page rendering is not available on this platform yet".into(),
+                ))
+            })
+        }
+    }
+
     /// One newest-first page of PDF metadata in the current vault.
     pub fn page(sys: System, cursor: String, limit: u16) -> String {
         let cursor = if cursor.is_empty() {

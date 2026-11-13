@@ -1,0 +1,41 @@
+apk /private/tmp/qusor-android-pdf-final4/QUSOR.apk
+7aae534efaf7502626d4a0200e1077d7d9741f75a96383d2f8cf8ed379d74061  /private/tmp/qusor-android-pdf-final4/QUSOR.apk
+-rw-r--r--@ 1 karl  staff  65564806 Nov 13 09:26 /private/tmp/qusor-android-pdf-final4/QUSOR.apk
+ 51905416  01-01-1980 00:00   lib/arm64-v8a/libnsh.so
+     1177  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/LICENSE
+    11361  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/abseil.txt
+      725  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/agg23.txt
+     1483  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/catapult.txt
+    12876  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/cpu_features.txt
+    12262  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/dragonbox-Apache2-LLVM.txt
+     1338  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/dragonbox-Boost.txt
+     1079  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/fast_float.txt
+     6741  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/freetype.txt
+     1971  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/harfbuzz.txt
+    11357  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/highway.txt
+    27718  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/icu.txt
+     1353  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/lcms.txt
+    12799  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/libjpeg_turbo.ijg
+     5620  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/libjpeg_turbo.md
+     1794  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/libopenjpeg.txt
+     5345  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/libpng.txt
+    16706  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/libunwind.txt
+    15140  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/llvm-libc.txt
+    12818  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/pdfium.txt
+     1059  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/simdutf.txt
+     1332  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/zlib.txt
+  6598376  01-01-1981 00:00   lib/arm64-v8a/libpdfium.so
+zipalign: 16 KB shared-library alignment verified
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::loadLibrary has been called by org.conscrypt.NativeLibraryUtil in an unnamed module (file:/Users/karl/Library/Android/sdk/build-tools/36.0.0/lib/apksigner.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): false
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1

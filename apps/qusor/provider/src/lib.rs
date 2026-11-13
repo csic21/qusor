@@ -130,20 +130,43 @@ fn read_bounded(path: &Path, max: usize) -> Result<Vec<u8>> {
 
 /// Call only in the dedicated serial worker. The parent owns its deadline.
 pub fn inspect(library: &Path, input: &Path, output: &Path) -> Result<DocumentReport> {
+    let library_bytes = read_bounded(library, 64 * 1024 * 1024)?;
+    inspect_with_library_sha256(library, &sha256(&library_bytes), input, output)
+}
+
+/// Inspect with an already verified runtime digest. Android loads PDFium from
+/// the APK's native-library directory, where a plain filesystem path is not the
+/// loader identity; the application supplies the pinned digest it shipped.
+pub fn inspect_with_library_sha256(
+    library: &Path,
+    library_sha256: &str,
+    input: &Path,
+    output: &Path,
+) -> Result<DocumentReport> {
     let bytes = read_bounded(input, MAX_PDF_BYTES)?;
     if !bytes.starts_with(b"%PDF-") {
         return Err("not a PDF header".into());
     }
-    let library_bytes = read_bounded(library, 64 * 1024 * 1024)?;
+    if library_sha256.len() != 64
+        || !library_sha256
+            .bytes()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+    {
+        return Err("invalid PDFium runtime digest".into());
+    }
     let extractor = ExtractorProfile {
         algorithm: PROFILE.into(),
         wrapper: "pdfium-render-0.9.5".into(),
         abi: "pdfium_8125".into(),
-        library_sha256: sha256(&library_bytes),
+        library_sha256: library_sha256.into(),
         mapping_check: "unicode_scalar_validity_only".into(),
         normalization: "pdfium-char-stream-raw-v1".into(),
     };
-    let pdfium = Pdfium::new(Pdfium::bind_to_library(library)?);
+    let pdfium = match Pdfium::bind_to_library(library) {
+        Ok(bindings) => Pdfium::new(bindings),
+        Err(PdfiumError::PdfiumLibraryBindingsAlreadyInitialized) => Pdfium::default(),
+        Err(error) => return Err(error.into()),
+    };
     let document = pdfium.load_pdf_from_byte_slice(&bytes, None)?;
     let pages_count = usize::try_from(document.pages().len())?;
     if pages_count == 0 || pages_count > MAX_PAGES {

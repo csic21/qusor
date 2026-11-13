@@ -130,7 +130,7 @@ impl BlobStore {
         file.sync_all()?;
         observe(BlobStage::AfterWrite);
         observe(BlobStage::BeforePublish);
-        match fs::hard_link(&tmp, &target) {
+        match publish_noreplace(&tmp, &target) {
             Ok(()) => (),
             Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
                 self.read_inner(&hash)?;
@@ -138,12 +138,35 @@ impl BlobStore {
             Err(e) => return Err(e.into()),
         };
         File::open(self.root.join("blobs"))?.sync_all()?;
-        fs::remove_file(tmp)?;
+        match fs::remove_file(tmp) {
+            Ok(()) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error.into()),
+        }
         File::open(self.root.join("staging"))?.sync_all()?;
         observe(BlobStage::AfterPublish);
         Ok(())
     }
 }
+
+#[cfg(any(target_os = "linux", target_os = "android"))]
+fn publish_noreplace(source: &Path, target: &Path) -> std::io::Result<()> {
+    use rustix::fs::{CWD, RenameFlags, renameat_with};
+
+    match renameat_with(CWD, source, CWD, target, RenameFlags::NOREPLACE) {
+        Ok(()) => Ok(()),
+        Err(error) if error == rustix::io::Errno::EXIST => {
+            Err(std::io::Error::from(std::io::ErrorKind::AlreadyExists))
+        }
+        Err(error) => Err(std::io::Error::from_raw_os_error(error.raw_os_error())),
+    }
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "android")))]
+fn publish_noreplace(source: &Path, target: &Path) -> std::io::Result<()> {
+    fs::hard_link(source, target)
+}
+
 fn directory(path: &Path) -> Internal<()> {
     if !path.exists() {
         fs::create_dir(path)?;

@@ -1,6 +1,6 @@
 # 公开阅读 Surface 能力验收
 
-状态：C-08/C-09 已授权闭环的接口实施规格；公开契约与 Host registry 已实现，原生普通插件消费者已有 [本机集成资格](../../experiments/nsh-reader/plugin-surface/RESULTS.md)，不是已经发布的 SDK或正式阅读工作区。关联 F-READ-01/03、F-SRC-01、F-EXT-01/03/04/05/06 和 F-DATA-01。已有 [原生 Surface 探针](../../experiments/nsh-reader/pdf-surface/README.md) 只证明受控原生服务子项，不能作为官方插件的私有接口。
+状态：C-08/C-09 已授权闭环的接口实施规格；公开契约与 Host registry 已实现，原生普通插件消费者已有 [本机集成资格](../../experiments/nsh-reader/plugin-surface/RESULTS.md)，不是已经发布的 SDK或正式阅读工作区。应用当前已有真实 PDF 导入、Core 页图和文字层阅读的 macOS/Android 本机子项，但尚无 opaque Surface handle、page-ready 协议或插件页图授权。关联 F-READ-01/03、F-SRC-01、F-EXT-01/03/04/05/06 和 F-DATA-01。[PDF 页图证据](../../experiments/nsh-reader/evidence/pdf-page-import/README.md)不替代正式 Surface；已有 [原生 Surface 探针](../../experiments/nsh-reader/pdf-surface/README.md) 只证明受控原生服务子项，不能作为官方插件的私有接口。
 
 ## 用户流程与功能归属
 
