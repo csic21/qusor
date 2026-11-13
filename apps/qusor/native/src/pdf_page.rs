@@ -9,6 +9,7 @@ use nsh_core::{
 pub(crate) struct PdfPageData {
     pub info: String,
     pub image: Option<ImageData>,
+    pub geometry: String,
 }
 
 pub struct PdfPageFile(PdfPageData);
@@ -22,7 +23,7 @@ impl From<PdfPageData> for PdfPageFile {
 impl JsValue for PdfPageFile {
     fn ts_type(types: &mut TsTypes) -> String {
         types.declare("LibraryPdfPage", |_| {
-            "export interface LibraryPdfPage { info: string; file: File | null; }".into()
+            "export interface LibraryPdfPage { info: string; file: File | null; geometry: string; }".into()
         })
     }
 
@@ -34,6 +35,7 @@ impl JsValue for PdfPageFile {
         let owned = JsOwned::new(host, host.new_object()?);
         let object = owned.get().raw();
         host.set_field(object, "info", host.new_string(&self.0.info)?)?;
+        host.set_field(object, "geometry", host.new_string(&self.0.geometry)?)?;
         let file = match &self.0.image {
             Some(image) => host.new_file(image, "image/png", "qusor-page.png", None)?,
             None => host.null(),
@@ -47,6 +49,7 @@ pub(crate) fn failed_page(error: String) -> PdfPageFile {
     PdfPageData {
         info: serde_json::json!({"ok": false, "error": error}).to_string(),
         image: None,
+        geometry: String::new(),
     }
     .into()
 }

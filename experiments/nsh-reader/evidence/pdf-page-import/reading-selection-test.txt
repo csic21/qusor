@@ -1,0 +1,6 @@
+✓ built the Rust crate qusor-app-native (531ms)
+✓ built the headless runner of qusor-app-native (8.4s, 1 warning: -v shows it)
+✓ tests/reading-selection.test.tsx › geometry is accepted only for the rendered page size (0ms)
+✓ tests/reading-selection.test.tsx › display points map to the smallest containing glyph (0ms)
+✓ tests/reading-selection.test.tsx › glyph order produces the exact scalar range and page boxes (0ms)
+✓ 3 tests: 3 passed, 0 failed (10.4s)

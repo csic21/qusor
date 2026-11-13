@@ -1,7 +1,7 @@
-apk /private/tmp/qusor-android-cache/QUSOR.apk
-a2188a93a023d4752dd8af1280f98776af8067ec557b173fc52251219f79f2b4  /private/tmp/qusor-android-cache/QUSOR.apk
--rw-r--r--@ 1 karl  staff  65581298 Nov 13 09:38 /private/tmp/qusor-android-cache/QUSOR.apk
- 51921544  01-01-1980 00:00   lib/arm64-v8a/libnsh.so
+apk /private/tmp/qusor-android-selection2/QUSOR.apk
+70ca8a7b1b4ea8a7e5c3097af3d1ac7a746906418a83cc0df2e622beecc24d95  /private/tmp/qusor-android-selection2/QUSOR.apk
+-rw-r--r--@ 1 karl  staff  65597682 Nov 13 10:42 /private/tmp/qusor-android-selection2/QUSOR.apk
+ 51921656  01-01-1980 00:00   lib/arm64-v8a/libnsh.so
      1177  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/LICENSE
     12799  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/README.ijg
     11361  01-01-1980 00:00   assets/nsh/assets/@qusor-app-native/pdfium/licenses/abseil.txt

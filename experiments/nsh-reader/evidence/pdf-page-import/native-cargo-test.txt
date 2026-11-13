@@ -1,1 +1,1 @@
-cargo test: 19 passed, 1 ignored (3 suites, 2.75s)
+cargo test: 19 passed, 1 ignored (3 suites, 2.83s)

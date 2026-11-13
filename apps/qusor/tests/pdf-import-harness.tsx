@@ -1,6 +1,10 @@
 import { mount, signal, Text, View } from "nsh";
 import { Button } from "nsh/base";
 import { LibraryHost } from "qusor/pdf-surface";
+import {
+    parsePageGeometry,
+    selectionBetween,
+} from "../reading_selection";
 
 const fixture = Uint8Array.from(
     atob(
@@ -21,16 +25,37 @@ async function importPdf() {
     }
     const documentId = Number(imported.value.document_id);
     const page = await LibraryHost.pageImage(documentId, 0);
+    const rotated = await LibraryHost.pageImage(documentId, 1);
     const info = JSON.parse(page.info);
+    const geometry = page.geometry ? JSON.parse(page.geometry) : null;
     const text = JSON.parse(
         await LibraryHost.pageText(documentId, 0, 0, 256),
     );
+    const parsed = parsePageGeometry(
+        page.geometry,
+        info.width,
+        info.height,
+    );
+    const selection = parsed
+        ? selectionBetween(
+              parsed,
+              String(text.value?.text ?? ""),
+              0,
+              Math.min(4, parsed.glyphs.length - 1),
+          )
+        : null;
     details.set(
         JSON.stringify({
             page_count: imported.value.page_count,
             image_ok: info.ok,
             image_width: info.width,
             file_bytes: page.file?.size ?? 0,
+            glyphs_page1: geometry?.glyphs?.length ?? 0,
+            glyphs_page2:
+                typeof rotated.geometry === "string" && rotated.geometry
+                    ? JSON.parse(rotated.geometry).glyphs?.length ?? 0
+                    : 0,
+            selected_text: selection?.text ?? "",
             text_ok: text.ok,
             text: text.value?.text ?? "",
         }),

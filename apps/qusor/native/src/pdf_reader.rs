@@ -11,7 +11,7 @@ use core_api::contract::sha256;
 use core_api::pdf_contract::PdfSnapshot;
 use learning_application::KnowledgeApplication;
 use nsh_core::{ImageData, element::System};
-use qusor_pdf_provider::{DocumentReport, MAX_PDF_BYTES};
+use qusor_pdf_provider::{DocumentReport, MAX_PDF_BYTES, PageReport};
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -23,6 +23,8 @@ use std::{
 
 const PDFIUM_VERSION: &str = "chromium/8125";
 const MAX_TITLE_BYTES: usize = 1024;
+const MAX_GEOMETRY_BYTES: usize = 512 * 1024;
+const MAX_GEOMETRY_GLYPHS: usize = 20_000;
 static JOB_SEQUENCE: AtomicU64 = AtomicU64::new(1);
 
 pub(crate) struct PdfImport {
@@ -320,6 +322,44 @@ fn png_from_ppm(bytes: &[u8]) -> Result<Vec<u8>, String> {
     Ok(png)
 }
 
+fn page_geometry(page: &PageReport) -> String {
+    if page.rotation != "None"
+        || page.text_status != "mapped"
+        || page.characters.len() > MAX_GEOMETRY_GLYPHS
+    {
+        return String::new();
+    }
+    let glyphs = page
+        .characters
+        .iter()
+        .filter_map(|character| {
+            let quad = character.pixel_quad?;
+            let left = quad.iter().map(|point| point[0]).min()?;
+            let top = quad.iter().map(|point| point[1]).min()?;
+            let right = quad.iter().map(|point| point[0]).max()?;
+            let bottom = quad.iter().map(|point| point[1]).max()?;
+            (right > left && bottom > top).then_some(json!([
+                character.scalar_start,
+                left,
+                top,
+                right - left,
+                bottom - top
+            ]))
+        })
+        .collect::<Vec<_>>();
+    let geometry = json!({
+        "width": page.pixel_width,
+        "height": page.pixel_height,
+        "glyphs": glyphs,
+    })
+    .to_string();
+    if geometry.len() <= MAX_GEOMETRY_BYTES {
+        geometry
+    } else {
+        String::new()
+    }
+}
+
 pub(crate) fn render_page(
     sys: &System,
     store: VaultStore,
@@ -362,6 +402,7 @@ pub(crate) fn render_page(
         })
         .to_string(),
         image: Some(ImageData::new(png)),
+        geometry: page_geometry(page),
     })
 }
 
@@ -422,6 +463,7 @@ mod tests {
         assert_eq!(info["ok"], true);
         assert_eq!(info["page_index"], 0);
         assert!(page.image.is_some());
+        assert!(page.geometry.contains("\"glyphs\""));
     }
 
     #[test]

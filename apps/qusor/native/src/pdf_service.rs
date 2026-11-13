@@ -337,6 +337,7 @@ mod tests {
         PdfPageData {
             info: "{}".into(),
             image: Some(ImageData::new(vec![0; bytes])),
+            geometry: String::new(),
         }
     }
 

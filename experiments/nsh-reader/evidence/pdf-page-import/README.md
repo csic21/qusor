@@ -9,6 +9,7 @@
 - PDFium 调用集中在进程内单一线程 `qusor-pdf-service`，不阻塞 UI；这不是崩溃隔离或安全沙箱。
 - 阅读视图从 Core 原件重新渲染当前页，经 `ImageData -> File -> URL.createObjectURL` 显示原生页图；文字层继续用于选文、复制和“选文 + 想法”保存。
 - 原生 PDF 服务保留最多 3 页、32 MiB 编码页图的 LRU，并在页图显示后预取下一页；命中缓存时不重复运行整份 PDFium 报告。
+- `PdfPageFile.geometry` 只对 `Rotate 0`、`text_status=mapped` 且几何预算内的页返回字符像素框。资料库用原生 Canvas 命中这些框、显示选区，并把同一 scalar range 接入现有“复制/保存摘录”Core 事务；旋转或不完整映射页不伪造页图选区，继续使用下方文字层。
 - 页图、临时路径、PDFium 句柄和像素坐标不进入 Core、不导出，也不成为永久来源地址。
 
 ## 验收结果
@@ -29,12 +30,15 @@ cargo test --manifest-path apps/qusor/native/Cargo.toml --locked --offline
 cargo test: 19 passed, 1 ignored
 ```
 
+页图选区纯函数回归 3 项通过：尺寸绑定、最小包含字形命中、glyph 顺序到精确 scalar range/像素框的映射。
+
 Android API 36 arm64 模拟器实际验证：
 
 - 系统文件选择器选中 1,292 bytes、两页普通文本 PDF。
 - 导入后显示“本机 Core · 原生页图 + 文字层”，第一页页图和文字层一致。
 - 强制停止重开，同一 PDF 与“已继续上次阅读 · 第 2 页”恢复。
 - 第二页为 `Rotate 90`，原生页图与文字层均显示；进程保持存活。
+- 在第一页页图上真实拖动，选中 `QUSOR native PDF qualification`（30 字），Canvas 高亮、工具条与 scalar range 一致；点击“保存摘录”后界面显示“选文已保存到本机 Core。”
 
 截图：
 
@@ -43,11 +47,15 @@ Android API 36 arm64 模拟器实际验证：
 - [android-restart-page2.png](android-restart-page2.png)：强制停止重开后的第二页与继续位置。
 - [android-page2-rotated.png](android-page2-rotated.png)：旋转第二页。
 - [android-library-with-pdf.png](android-library-with-pdf.png)：回列表后的 Core 资料元数据。
+- [android-page-selection.png](android-page-selection.png)：页图上的原生选区高亮。
+- [android-selection-tools.png](android-selection-tools.png)：选区进入复制/保存工具条，显示“已选 30 字”。
+- [android-selection-saved.png](android-selection-saved.png)：选文成功提交到 Core。
 
 测试日志：
 
 - [macos-nsh-test.txt](macos-nsh-test.txt)
 - [native-cargo-test.txt](native-cargo-test.txt)
+- [reading-selection-test.txt](reading-selection-test.txt)
 - [android-artifact.txt](android-artifact.txt)：APK 哈希、原生库条目、16 KB 对齐与 v3 签名核对。
 
 ## 构建与工件
@@ -65,8 +73,8 @@ PDFium 的 `LICENSE` 与对应第三方 `licenses/` 随应用资源保留。
 Android APK：
 
 ```text
-/private/tmp/qusor-android-cache/QUSOR.apk
-sha256 a2188a93a023d4752dd8af1280f98776af8067ec557b173fc52251219f79f2b4
+/private/tmp/qusor-android-selection2/QUSOR.apk
+sha256 70ca8a7b1b4ea8a7e5c3097af3d1ac7a746906418a83cc0df2e622beecc24d95
 debug key, arm64-v8a
 ```
 
@@ -83,6 +91,7 @@ debug key, arm64-v8a
 
 - PDFium 仍未在独立 OS 进程运行；恶意/损坏 PDF 崩溃应用的风险未消除，不构成安全沙箱。
 - 仅验证普通文本 PDF，两页、`Rotate 90`；未验证长书、扫描件、OCR、复杂字体、表单、注释、中文排版或页数/字节超预算拒绝的 UI。
+- 页图选文当前只支持未旋转且映射完整的页；尚未实现跨行有序多段、拖动把手、键盘扩选、几何高亮持久化或源页精确回显。
 - 未在 Android 真机、平板、折叠屏或商店签名包验证；APK 使用 debug key。
 - Android 触摸选文、IME、摘录保存和从想法回源本轮未逐项截图。
 - macOS/Linux/Windows/iOS 仍缺各自的运行库打包与签名流水线；当前只登记 macOS arm64 与 Android arm64。

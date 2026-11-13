@@ -14,17 +14,17 @@ PDF 字节、临时路径与 PDFium 句柄不能进入普通插件，页图不�
 2. **Core 只收版本化结果。** 原生 provider 在私有 job 目录写入冻结原件、生成 `DocumentReport`，应用把报告投影成 `PdfSnapshot`，再由 `KnowledgeApplication::import_document` 在一个 Core 事务中提交原件、提取身份、页/字符映射、回执、审计、outbox 和索引任务。
 3. **PDFium 服务串行且离开 UI 线程。** 应用进程内只有一个 `qusor-pdf-service` 线程；导入与按页渲染都排队执行，主线程只等待 Promise。该线程隔离资源与阻塞，不是安全沙箱，也不等于独立 OS 进程。
 4. **页图按需从 Core 原件重渲染。** `LibraryHost.pageImage(documentId, pageIndex)` 重新核对报告 hash 与 Core `engine_report_sha256`，把 PNG 作为 `ImageData`/native `File` 返回给可信 TSX。原生服务保留最多 3 页、32 MiB 编码页图的 LRU；`prefetchPage` 在后台预取下一页，命中时不重复运行整份 PDFium 报告。像素/File/URL/缓存是显示资源，不写 Core、不导出、不作为来源锚点。
-5. **页图与文字层并存。** 页图负责版面确认，现有 `engine_text` 继续用于显式 scalar range 选文和摘录保存；不以页图像素或视图坐标替代 PDF user-space 字符几何。
+5. **页图与文字层并存。** 页图负责版面确认；对 `Rotate 0` 且映射完整的页，原生层提供最多 20,000 个字符/512 KiB 的像素框，可信 TSX 用 Canvas 命中和显示选区，再把同一 scalar range 交给现有 Core 摘录事务。旋转页、不完整映射或超预算页不提供页图选区，继续使用文字层。不以页图像素或视图坐标替代 PDF user-space 字符几何。
 6. **运行库按平台显式打包。** 固定 PDFium `chromium/8125`。macOS arm64 从应用资源加载 `.dylib`；Android arm64 由 `package_android_pdfium.py` 向 APK `lib/arm64-v8a/` 注入 `.so`，16 KB 页对齐并重新签名。未登记的平台明确返回不可用，不静默退回系统库。
 7. **Android CAS 使用不可覆盖原子重命名。** Linux/Android 的 blob 发布由 `hard_link` 改为 `renameat2(RENAME_NOREPLACE)`；其它 Unix 保持硬链接。发布成功后的临时文件缺失不构成完整性错误。
 8. **资料库视图使用声明式分支。** NSH 信号更新不会重新执行组件顶部的 `if (signal())`；列表/阅读切换使用 `<If>`，资料行整行可点击。
 
 ## 后果
 
-- 用户可在 macOS 和 Android arm64 选择真实 PDF，看到 Core 持久化的页图与文字层；重开应用后仍可恢复。
+- 用户可在 macOS 和 Android arm64 选择真实 PDF，看到 Core 持久化的页图与文字层；重开应用后仍可恢复。Android 已实际在页图上选中 30 字并提交 Core。
 - Core/插件边界不变：插件看不到 PDF 字节、路径、PDFium 句柄或页图像素；文档事实仍归 Core。
 - 页面渲染失败不删除已导入原件；文字层仍可读，错误明确反馈。
-- 进程内 PDFium 崩溃仍会终止应用。恶意文件、扫描件、OCR、复杂字体、长书、拖选高亮、缩放/页窗缓存和正式 Reader Surface 仍是后续门槛。
+- 进程内 PDFium 崩溃仍会终止应用。恶意文件、扫描件、OCR、复杂字体、长书、跨行有序多段、拖动把手、缩放、选区持久高亮和正式 Reader Surface 仍是后续门槛。
 - 当前只登记 macOS arm64 与 Android arm64；Linux、Windows、iOS、Android x86_64 和商店/公证签名尚未完成。
 - 未命中缓存时仍会重新执行有界 provider 报告；后续仍需要按文档缓存、取消、资源回收 ACK 和独立 worker。
 

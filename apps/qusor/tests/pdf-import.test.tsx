@@ -9,6 +9,9 @@ test("a real PDF enters Core and renders its first page", async () => {
     expect(details.image_ok).toBe(true);
     expect(details.image_width).toBeGreaterThan(0);
     expect(details.file_bytes).toBeGreaterThan(0);
+    expect(details.glyphs_page1).toBeGreaterThan(0);
+    expect(details.glyphs_page2).toBe(0);
+    expect(details.selected_text).toContain("QUSOR");
     expect(details.text_ok).toBe(true);
     expect(details.text).toContain("QUSOR");
 }, 45000);

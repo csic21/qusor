@@ -21,6 +21,12 @@ import {
     saveReadingPosition,
     type ReadingPosition,
 } from "./reading_position";
+import {
+    glyphAt,
+    parsePageGeometry,
+    selectionBetween,
+    type PageGeometry,
+} from "./reading_selection";
 
 // Content fixtures plus the manifest-backed workspace contribution catalog.
 // This module owns rendering and local draft state; the shell owns composition
@@ -3181,10 +3187,14 @@ const libraryPageImage = signal<{
 const libraryPageImageState = signal<"idle" | "loading" | "ready" | "failed">(
     "idle",
 );
+const libraryPageGeometry = signal<PageGeometry | null>(null);
 const libraryPageStatus = signal("");
 const libraryResumeNotice = signal("");
 const librarySelection = signal("");
 const librarySelectionStart = signal(0);
+const librarySelectionBoxes = signal<
+    [number, number, number, number][]
+>([]);
 const librarySelectionNote = signal("");
 const librarySourceTarget = signal<LibrarySourceTarget | null>(null);
 const librarySourceQuote = signal<{
@@ -3195,6 +3205,9 @@ let libraryBooted = false;
 let nextLibrarySourceTarget = 0;
 let handledLibrarySourceTarget = 0;
 let libraryImageRequest = 0;
+let librarySelectionAnchor: number | null = null;
+let librarySelectionPointer: number | null = null;
+let libraryPageDisplay = { width: 0, height: 0 };
 const MAX_PDF_IMPORT_BYTES = 16 * 1024 * 1024;
 
 function libraryRow(raw: any): LibraryRow | null {
@@ -3281,7 +3294,86 @@ function clearLibraryPageImage() {
     const previous = libraryPageImage();
     libraryPageImage.set(null);
     libraryPageImageState.set("idle");
+    libraryPageGeometry.set(null);
+    libraryPageDisplay = { width: 0, height: 0 };
+    clearLibrarySelection();
     if (previous?.url) URL.revokeObjectURL(previous.url);
+}
+
+function clearLibrarySelection() {
+    librarySelection.set("");
+    librarySelectionStart.set(0);
+    librarySelectionBoxes.set([]);
+    librarySelectionAnchor = null;
+    librarySelectionPointer = null;
+}
+
+function librarySelectionGeometry(
+    displayX: number,
+    displayY: number,
+): { geometry: PageGeometry; glyph: number } | null {
+    const geometry = libraryPageGeometry();
+    if (!geometry) return null;
+    const glyph = glyphAt(geometry, libraryPageDisplay, displayX, displayY);
+    return glyph === null ? null : { geometry, glyph };
+}
+
+function beginLibrarySelection(
+    pointer: number,
+    displayX: number,
+    displayY: number,
+): boolean {
+    const hit = librarySelectionGeometry(displayX, displayY);
+    if (!hit) return false;
+    librarySelectionPointer = pointer;
+    librarySelectionAnchor = hit.glyph;
+    return selectLibraryGlyphs(hit.geometry, hit.glyph, hit.glyph);
+}
+
+function moveLibrarySelection(
+    pointer: number,
+    displayX: number,
+    displayY: number,
+) {
+    if (
+        librarySelectionPointer !== pointer ||
+        librarySelectionAnchor === null
+    ) {
+        return;
+    }
+    const hit = librarySelectionGeometry(displayX, displayY);
+    if (hit) {
+        selectLibraryGlyphs(
+            hit.geometry,
+            librarySelectionAnchor,
+            hit.glyph,
+        );
+    }
+}
+
+function selectLibraryGlyphs(
+    geometry: PageGeometry,
+    first: number,
+    last: number,
+): boolean {
+    const selection = selectionBetween(
+        geometry,
+        libraryPageText(),
+        first,
+        last,
+    );
+    if (!selection) return false;
+    librarySelection.set(selection.text);
+    librarySelectionStart.set(selection.start);
+    librarySelectionBoxes.set(selection.boxes);
+    return true;
+}
+
+function endLibrarySelection(pointer: number) {
+    if (librarySelectionPointer === pointer) {
+        librarySelectionPointer = null;
+        librarySelectionAnchor = null;
+    }
 }
 
 async function loadLibraryPageImage(row: LibraryRow, pageIndex: number) {
@@ -3290,6 +3382,7 @@ async function loadLibraryPageImage(row: LibraryRow, pageIndex: number) {
     if (previous?.url) URL.revokeObjectURL(previous.url);
     libraryPageImage.set(null);
     libraryPageImageState.set("loading");
+    libraryPageGeometry.set(null);
     try {
         const frame = await LibraryHost.pageImage(row.document_id, pageIndex);
         if (request !== libraryImageRequest) return;
@@ -3311,6 +3404,13 @@ async function loadLibraryPageImage(row: LibraryRow, pageIndex: number) {
             width: info.width,
             height: info.height,
         });
+        libraryPageGeometry.set(
+            parsePageGeometry(
+                frame.geometry,
+                info.width,
+                info.height,
+            ),
+        );
         libraryPageImageState.set("ready");
         libraryPageStatus.set(
             libraryPageText()
@@ -3340,8 +3440,7 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
     libraryPageIndex.set(pageIndex);
     libraryPageText.set("");
     clearLibraryPageImage();
-    librarySelection.set("");
-    librarySelectionStart.set(0);
+    clearLibrarySelection();
     librarySelectionNote.set("");
     librarySourceQuote.set(null);
     libraryResumeNotice.set("");
@@ -3452,8 +3551,7 @@ async function openLibraryDocument(row: LibraryRow) {
     libraryPageIndex.set(0);
     libraryPageText.set("");
     clearLibraryPageImage();
-    librarySelection.set("");
-    librarySelectionStart.set(0);
+    clearLibrarySelection();
     librarySelectionNote.set("");
     librarySourceQuote.set(null);
     libraryPageStatus.set("正在恢复上次阅读位置…");
@@ -3550,8 +3648,7 @@ async function captureLibrarySelection(row: LibraryRow, pageIndex: number) {
         if (!response.ok) throw Error(response.error ?? "capture failed");
         libraryPageStatus.set("选文已保存到本机 Core。");
         void loadLiveNotes();
-        librarySelection.set("");
-        librarySelectionStart.set(0);
+        clearLibrarySelection();
         librarySelectionNote.set("");
     } catch (_) {
         libraryPageStatus.set("选文暂未保存；原选文仍在当前页面。");
@@ -3631,21 +3728,88 @@ function LibraryReader(props: { compact: boolean }) {
                             borderColor: ink("border-subtle"),
                         }}
                     >
-                        <Image
-                            accessibilityLabel={`《${row.title}》第 ${
-                                libraryPageIndex() + 1
-                            } 页原生页图`}
-                            src={libraryPageImage()!.url}
-                            fadeDuration={0}
+                        <View
                             style={{
                                 width: "100%",
-                                objectFit: "contain",
                                 aspectRatio:
                                     libraryPageImage()!.width /
                                     libraryPageImage()!.height,
                                 backgroundColor: ink("surface-base"),
+                                position: "relative",
                             }}
-                        />
+                        >
+                            <Image
+                                accessibilityLabel={`《${row.title}》第 ${
+                                    libraryPageIndex() + 1
+                                } 页原生页图`}
+                                src={libraryPageImage()!.url}
+                                fadeDuration={0}
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "contain",
+                                }}
+                            />
+                            <Canvas
+                                accessibilityLabel="页图选文层"
+                                focusable={false}
+                                onStartShouldSetResponder={(event) =>
+                                    librarySelectionGeometry(
+                                        event.locationX,
+                                        event.locationY,
+                                    ) !== null
+                                }
+                                onResponderGrant={(event) => {
+                                    librarySelectionNote.set("");
+                                    beginLibrarySelection(
+                                        event.identifier,
+                                        event.locationX,
+                                        event.locationY,
+                                    );
+                                }}
+                                onResponderMove={(event) =>
+                                    moveLibrarySelection(
+                                        event.identifier,
+                                        event.locationX,
+                                        event.locationY,
+                                    )
+                                }
+                                onResponderRelease={(event) =>
+                                    endLibrarySelection(event.identifier)
+                                }
+                                onResponderTerminate={(event) =>
+                                    endLibrarySelection(event.identifier)
+                                }
+                                onResponderTerminationRequest={() => true}
+                                draw={(context, size) => {
+                                    const geometry = libraryPageGeometry();
+                                    if (!geometry) return;
+                                    libraryPageDisplay = {
+                                        width: size.width,
+                                        height: size.height,
+                                    };
+                                    const scaleX = size.width / geometry.width;
+                                    const scaleY = size.height / geometry.height;
+                                    context.fillStyle = ink("pdf-selection");
+                                    for (const [x, y, width, height] of
+                                        librarySelectionBoxes()) {
+                                        context.fillRect(
+                                            x * scaleX,
+                                            y * scaleY,
+                                            width * scaleX,
+                                            height * scaleY,
+                                        );
+                                    }
+                                }}
+                                style={{
+                                    position: "absolute",
+                                    left: 0,
+                                    top: 0,
+                                    width: "100%",
+                                    height: "100%",
+                                }}
+                            />
+                        </View>
                     </View>
                 </If>
                 <If when={!!librarySourceQuote()}>
@@ -3723,8 +3887,7 @@ function LibraryReader(props: { compact: boolean }) {
                                 label="取消当前选文"
                                 text="取消"
                                 onPress={() => {
-                                    librarySelection.set("");
-                                    librarySelectionStart.set(0);
+                                    clearLibrarySelection();
                                     librarySelectionNote.set("");
                                 }}
                             />
