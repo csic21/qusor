@@ -261,6 +261,28 @@ impl LibraryHost {
         }
     }
 
+    /// Render a page into the bounded native cache without crossing an image.
+    pub fn prefetch_page(sys: System, document_id: i64, page_index: u32) -> Later<String> {
+        #[cfg(unix)]
+        {
+            Later::new(crate::pdf_service::prefetch(
+                sys.data_dir,
+                document_id,
+                page_index,
+            ))
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = (sys, document_id, page_index);
+            Later::new(async {
+                Ok(
+                    json!({"ok": false, "error": "PDF prefetch is not available on this platform"})
+                        .to_string(),
+                )
+            })
+        }
+    }
+
     /// One newest-first page of PDF metadata in the current vault.
     pub fn page(sys: System, cursor: String, limit: u16) -> String {
         let cursor = if cursor.is_empty() {

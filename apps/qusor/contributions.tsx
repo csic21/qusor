@@ -3317,6 +3317,12 @@ async function loadLibraryPageImage(row: LibraryRow, pageIndex: number) {
                 ? "本机 Core · 原生页图 + 文字层"
                 : "页图已加载；正在读取文字层…",
         );
+        if (pageIndex + 1 < row.page_count) {
+            void LibraryHost.prefetchPage(
+                row.document_id,
+                pageIndex + 1,
+            ).catch(() => {});
+        }
     } catch (error) {
         if (request === libraryImageRequest) {
             libraryPageImageState.set("failed");

@@ -5,6 +5,7 @@ use nsh_core::{
     element::{JsHost, JsIn, JsOwned, JsValue, PropError, TsTypes},
 };
 
+#[derive(Clone)]
 pub(crate) struct PdfPageData {
     pub info: String,
     pub image: Option<ImageData>,

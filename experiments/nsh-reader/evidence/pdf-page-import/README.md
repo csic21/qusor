@@ -8,6 +8,7 @@
 - 原生层把原件写入私有 job 目录，调用固定 PDFium `chromium/8125` 生成有界报告，投影为 Core `PdfSnapshot`，再由 `KnowledgeApplication::import_document` 一次写入原件 CAS、映射、回执、审计、outbox 与索引任务。
 - PDFium 调用集中在进程内单一线程 `qusor-pdf-service`，不阻塞 UI；这不是崩溃隔离或安全沙箱。
 - 阅读视图从 Core 原件重新渲染当前页，经 `ImageData -> File -> URL.createObjectURL` 显示原生页图；文字层继续用于选文、复制和“选文 + 想法”保存。
+- 原生 PDF 服务保留最多 3 页、32 MiB 编码页图的 LRU，并在页图显示后预取下一页；命中缓存时不重复运行整份 PDFium 报告。
 - 页图、临时路径、PDFium 句柄和像素坐标不进入 Core、不导出，也不成为永久来源地址。
 
 ## 验收结果
@@ -21,11 +22,11 @@ macOS 真窗口测试 3/3 通过：
 3 tests: 3 passed, 0 failed
 ```
 
-应用原生回归 17 项通过、1 项忽略，包括真实 PDF 导入、Core 重读和页图 PNG 生成：
+应用原生回归 19 项通过、1 项忽略，包括真实 PDF 导入、Core 重读、页图 PNG 生成和页缓存有界/LRU：
 
 ```text
 cargo test --manifest-path apps/qusor/native/Cargo.toml --locked --offline
-cargo test: 17 passed, 1 ignored
+cargo test: 19 passed, 1 ignored
 ```
 
 Android API 36 arm64 模拟器实际验证：
@@ -64,8 +65,8 @@ PDFium 的 `LICENSE` 与对应第三方 `licenses/` 随应用资源保留。
 Android APK：
 
 ```text
-/private/tmp/qusor-android-pdf-final4/QUSOR.apk
-sha256 7aae534efaf7502626d4a0200e1077d7d9741f75a96383d2f8cf8ed379d74061
+/private/tmp/qusor-android-cache/QUSOR.apk
+sha256 a2188a93a023d4752dd8af1280f98776af8067ec557b173fc52251219f79f2b4
 debug key, arm64-v8a
 ```
 
