@@ -134,7 +134,7 @@ jobs:
   publish:
     name: Publish the release
     needs: package
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
@@ -157,6 +157,8 @@ jobs:
         with:
           path: experiments/nsh-reader/target/nsh/target
           key: nsh-cli-${{ runner.os }}-${{ env.NSH_SHA }}
+          restore-keys: |
+            nsh-cli-${{ runner.os }}-
       - name: Build the NSH CLI
         env:
           CARGO_BUILD_JOBS: "1"
