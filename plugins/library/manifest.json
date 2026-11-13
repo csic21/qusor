@@ -9,8 +9,8 @@
   },
   "host_api": {
     "major": 0,
-    "min_minor": 6,
-    "max_minor": 6
+    "min_minor": 7,
+    "max_minor": 7
   },
   "required_capabilities": [
     "library.read",

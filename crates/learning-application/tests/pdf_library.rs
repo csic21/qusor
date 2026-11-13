@@ -3,7 +3,8 @@ mod common;
 
 use core_api::knowledge::KnowledgeErrorCode;
 use learning_application::pdf_library::{
-    MAX_LIBRARY_PAGE, MAX_LIBRARY_TEXT_CHUNK, MAX_LIBRARY_TEXT_OFFSET, PdfSelectionRange,
+    MAX_LIBRARY_PAGE, MAX_LIBRARY_TEXT_CHUNK, MAX_LIBRARY_TEXT_OFFSET, PdfSavedSelection,
+    PdfSelectionRange,
 };
 
 fn app() -> learning_application::KnowledgeApplication<common::Memory> {
@@ -146,5 +147,122 @@ fn a_text_selection_can_be_captured_into_core() {
             "",
         )
         .is_err()
+    );
+}
+
+#[test]
+fn saved_selection_ranges_are_read_back_for_the_exact_page() {
+    let mut app = app();
+    let receipt = app
+        .capture_pdf_selection(
+            "library-saved-range",
+            "vault",
+            PdfSelectionRange {
+                document_id: 1,
+                page_index: 0,
+                start: 1,
+                end: 4,
+            },
+            &common::origin(),
+            "",
+        )
+        .unwrap();
+    assert_eq!(
+        app.pdf_saved_selections("vault", 1, 0).unwrap(),
+        vec![learning_application::pdf_library::PdfSavedSelection {
+            capture_id: receipt.capture_id,
+            start: 1,
+            end: 4,
+        }]
+    );
+    assert!(
+        app.pdf_saved_selections("other-vault", 1, 0)
+            .unwrap_err()
+            .code
+            == KnowledgeErrorCode::NotFound
+    );
+    assert!(
+        app.pdf_saved_selections("vault", 1, 1).unwrap_err().code == KnowledgeErrorCode::NotFound
+    );
+}
+
+#[test]
+fn saved_ranges_deduplicate_and_split_compound_captures() {
+    let mut app = app();
+    let first = app
+        .capture_pdf_selection(
+            "saved-repeat-1",
+            "vault",
+            PdfSelectionRange {
+                document_id: 1,
+                page_index: 0,
+                start: 1,
+                end: 4,
+            },
+            &common::origin(),
+            "",
+        )
+        .unwrap();
+    app.capture_pdf_selection(
+        "saved-repeat-2",
+        "vault",
+        PdfSelectionRange {
+            document_id: 1,
+            page_index: 0,
+            start: 1,
+            end: 4,
+        },
+        &common::origin(),
+        "separate intent",
+    )
+    .unwrap();
+
+    use core_api::pdf_compound::{PDF_COMPOUND_PROTOCOL_VERSION, PDF_SELECTION_PROFILE};
+    let (_, _, base) = common::pdf_fixture();
+    let mut first_segment = base.clone();
+    first_segment.start = 0;
+    first_segment.end = 2;
+    first_segment.exact = "he".into();
+    let mut second_segment = base.clone();
+    second_segment.start = 3;
+    second_segment.end = 5;
+    second_segment.exact = "lo".into();
+    let compound = app
+        .capture_pdf_compound(
+            "saved-compound",
+            1,
+            &core_api::pdf_compound::PdfCompoundDraft {
+                protocol_version: PDF_COMPOUND_PROTOCOL_VERSION,
+                original_sha256: base.original_sha256,
+                extraction_revision: base.extraction_revision,
+                selection_profile: PDF_SELECTION_PROFILE.into(),
+                separator: "\n".into(),
+                segments: vec![first_segment, second_segment],
+                exact: "he\nlo".into(),
+            },
+            &common::origin(),
+            "",
+        )
+        .unwrap();
+
+    assert_eq!(
+        app.pdf_saved_selections("vault", 1, 0).unwrap(),
+        vec![
+            PdfSavedSelection {
+                capture_id: compound.capture_id,
+                start: 0,
+                end: 2,
+            },
+            PdfSavedSelection {
+                capture_id: first.capture_id,
+                start: 1,
+                end: 4,
+            },
+            PdfSavedSelection {
+                capture_id: compound.capture_id,
+                start: 3,
+                end: 5,
+            },
+        ]
     );
 }

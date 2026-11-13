@@ -1,0 +1,10 @@
+apk /private/tmp/qusor-android-saved-highlight-final/QUSOR.apk
+018bf2440b3221e44a8c179093fb75484addff6d6e29cd3f117768e0d76c4c24  /private/tmp/qusor-android-saved-highlight-final/QUSOR.apk
+8d2a466adcaabe89661cdb264188d4cf8fe99f7065b6368132bf9af31987c2cf  bundled filesystem assets/nsh/assets/@qusor-app-native/library.qpk
+
+6919133e37507f82bed23e5be0a5d5749553d9f75b94a5c30293a06cd185c999  reopened.png
+502c4244da9873984598da8c95a59754a867ef5eea3f8c3f0882be1701a440ab  saved-highlight-restart.png
+
+device Android API 36 arm64 emulator
+sequence rebuild current source -> install -> open saved document -> force-stop -> relaunch -> open page -> screenshot
+observed first-line saved scalar range restored on the native page image after process restart

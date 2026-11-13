@@ -31,6 +31,19 @@ async function importPdf() {
     const text = JSON.parse(
         await LibraryHost.pageText(documentId, 0, 0, 256),
     );
+    const captured = JSON.parse(
+        await LibraryHost.captureSelection(
+            documentId,
+            0,
+            0,
+            5,
+            "",
+            `library-saved-${Date.now()}`,
+        ),
+    );
+    const saved = JSON.parse(
+        await LibraryHost.savedSelections(documentId, 0),
+    );
     const parsed = parsePageGeometry(
         page.geometry,
         info.width,
@@ -56,6 +69,8 @@ async function importPdf() {
                     ? JSON.parse(rotated.geometry).glyphs?.length ?? 0
                     : 0,
             selected_text: selection?.text ?? "",
+            saved_ok: captured.ok === true && saved.ok === true,
+            saved_ranges: saved.value?.ranges ?? [],
             text_ok: text.ok,
             text: text.value?.text ?? "",
         }),

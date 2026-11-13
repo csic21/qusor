@@ -1,4 +1,4 @@
-//! UI-independent extension policy wire: legacy 0.1 and explicitly negotiated 0.2–0.6.
+//! UI-independent extension policy wire: legacy 0.1 and explicitly negotiated 0.2–0.7.
 //!
 //! These DTOs describe requested capabilities, contribution registration, and an
 //! authorization query. They do not execute plugin code or read/write knowledge.
@@ -25,14 +25,17 @@ pub const HOST_API_V0_4: ApiVersion = ApiVersion { major: 0, minor: 4 };
 pub const HOST_API_V0_5: ApiVersion = ApiVersion { major: 0, minor: 5 };
 /// Explicit opt-in protocol for bounded PDF Library metadata reads.
 pub const HOST_API_V0_6: ApiVersion = ApiVersion { major: 0, minor: 6 };
+/// Explicit opt-in protocol for saved Library selection ranges.
+pub const HOST_API_V0_7: ApiVersion = ApiVersion { major: 0, minor: 7 };
 /// Implemented versions; support alone grants no authority.
-pub const SUPPORTED_HOST_APIS: [ApiVersion; 6] = [
+pub const SUPPORTED_HOST_APIS: [ApiVersion; 7] = [
     HOST_API,
     HOST_API_V0_2,
     HOST_API_V0_3,
     HOST_API_V0_4,
     HOST_API_V0_5,
     HOST_API_V0_6,
+    HOST_API_V0_7,
 ];
 
 pub mod component_invocation;
@@ -163,12 +166,15 @@ pub fn capability_available_in(capability: Capability, version: ApiVersion) -> b
         Capability::NoteDraftEdit => version == HOST_API_V0_3,
         Capability::NotesRead => version == HOST_API_V0_4,
         Capability::VocabRead | Capability::VocabReview => version == HOST_API_V0_5,
-        Capability::LibraryRead => version == HOST_API_V0_6,
+        Capability::LibraryRead => matches!(version, HOST_API_V0_6 | HOST_API_V0_7),
         Capability::ReaderSurface => version == HOST_API_V0_2,
         Capability::SelectionRead
         | Capability::DocumentMetadataRead
         | Capability::CapturePropose => {
-            matches!(version, HOST_API | HOST_API_V0_2 | HOST_API_V0_6)
+            matches!(
+                version,
+                HOST_API | HOST_API_V0_2 | HOST_API_V0_6 | HOST_API_V0_7
+            )
         }
     }
 }
@@ -321,12 +327,12 @@ impl Manifest {
             ));
         }
         if self.host_api.major == 0
-            && self.host_api.min_minor == 6
+            && matches!(self.host_api.min_minor, 6 | 7)
             && !declared.contains(&Capability::LibraryRead)
         {
             return Err(ApiError::new(
                 code,
-                "Host API0.6 requires library.read declaration",
+                "Host API0.6+ requires library.read declaration",
             ));
         }
         if self.host_api.major == 0
@@ -439,7 +445,9 @@ impl Manifest {
                     ContributionKind::ComponentProvider => version == HOST_API_V0_3,
                     ContributionKind::NotesWorkspace => version == HOST_API_V0_4,
                     ContributionKind::VocabWorkspace => version == HOST_API_V0_5,
-                    ContributionKind::LibraryWorkspace => version == HOST_API_V0_6,
+                    ContributionKind::LibraryWorkspace => {
+                        matches!(version, HOST_API_V0_6 | HOST_API_V0_7)
+                    }
                     ContributionKind::Command | ContributionKind::SelectionAction => {
                         version != HOST_API_V0_3
                     }

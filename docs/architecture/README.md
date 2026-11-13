@@ -20,7 +20,7 @@ Cargo workspace
 ├── extension-package    有界签名容器、内容/发布者键绑定验证
 ├── extension-runtime-api 无授权副作用的执行端口/预算
 ├── runtime-wasm         Wasmi执行适配器；不创建Host或读取包路径
-├── extension-api        0.6 JSON 策略协议、manifest 投影与能力校验
+├── extension-api        0.7 JSON 策略协议、manifest 投影与能力校验
 └── extension-host       内存安装元数据、授权、会话、生命周期与贡献查询
 
 config/architecture.toml  当前成员与依赖允许清单
@@ -34,7 +34,7 @@ plugins/ sdk/            plugins/vocab 普通包资格切片；SDK 尚未发行
 experiments/             Wasm、签名包/安装事务证据、NSH 环境/构建记录
 ```
 
-learning-domain 已从空壳变为 FSRS-5 词汇调度内核，仍保持独立核心边界与零外部依赖；extension-api/extension-host 承接已授权的实际协议与策略职责（当前 0.6），词汇学习切片见 [ADR 0036](adr/0036-vocabulary-study-capability.md)，Library 元数据切片见 [ADR 0046](adr/0046-library-host-api-0-6.md)。core-api 随 C3 后续落位捕获/来源/锚点契约，见 [ADR 0018](adr/0018-core-api-contract-source.md)。不引入与原计划重叠的 qusor-core 大模块，也不一次创建全部空业务 crate。
+learning-domain 已从空壳变为 FSRS-5 词汇调度内核，仍保持独立核心边界与零外部依赖；extension-api/extension-host 承接已授权的实际协议与策略职责（当前 0.7），词汇学习切片见 [ADR 0036](adr/0036-vocabulary-study-capability.md)，Library 元数据与保存范围切片见 [ADR 0046](adr/0046-library-host-api-0-6.md)。core-api 随 C3 后续落位捕获/来源/锚点契约，见 [ADR 0018](adr/0018-core-api-contract-source.md)。不引入与原计划重叠的 qusor-core 大模块，也不一次创建全部空业务 crate。
 
 `capability-composition` 只规划服务提供/消费、profile 层与启动顺序，不执行插件、不授予权限、不持有 Core。桌面 profile 的解析和 Host 启用门在 `apps/qusor`，见 [ADR 0038](adr/0038-capability-composition.md)；应用级单一 Core writer 与旧分库迁移见 [ADR 0039](adr/0039-single-core-provider.md)。
 
@@ -48,11 +48,11 @@ learning-domain 已从空壳变为 FSRS-5 词汇调度内核，仍保持独立�
 
 阅读入口已有普通签名 preview 包和 Manifest `reader_workspace` 贡献；原生 renderer 仍是窗口内样例，不执行包入口、不读写 Core，见 [ADR 0044](adr/0044-reader-preview-contribution.md)。
 
-Library 的第一层 Core 读模型按 vault 返回有界 PDF 元数据和 opaque keyset 游标，不暴露原件/blob；Host wire 与 UI 尚未接线，见 [ADR 0045](adr/0045-bounded-pdf-library-listing.md)。
+Library 的第一层 Core 读模型按 vault 返回有界 PDF 元数据和 opaque keyset 游标，不暴露原件/blob；后续 Host wire/UI 已接线，见 [ADR 0045](adr/0045-bounded-pdf-library-listing.md) 与 [ADR 0046](adr/0046-library-host-api-0-6.md)。
 
-Library Host API 0.6 已提供 `library.read`、`library_workspace` 和 `library-metadata-v1` 元数据 wire；Host 绑定 vault/grant，响应不含原件或 blob。应用已接 `LibraryHost.page`、真实 Core 后端适配和初始原生列表，见 [ADR 0046](adr/0046-library-host-api-0-6.md)。
+Library Host API 0.6 已提供 `library.read`、`library_workspace` 和 `library-metadata-v1` 元数据 wire；0.7 增加每页最多 64 个已保存 scalar 范围的只读投影。Host 绑定 vault/grant，响应不含原件、blob、路径或想法正文；应用已接 `LibraryHost.page`/`savedSelections`、真实 Core 后端适配和原生保存范围高亮，见 [ADR 0046](adr/0046-library-host-api-0-6.md) 与 [ADR 0047](adr/0047-native-pdf-import-and-page-images.md)。
 
-应用现已接通可信 PDF 导入与页图：用户选择的字节只在原生层进入冻结 provider/Core，PDFium 在单一线程串行工作，页图以 native `ImageData`/`File` 显示；macOS arm64 与 Android arm64 有本机实窗/模拟器证据。该线程不是崩溃隔离，其它平台运行库与正式 Reader Surface 仍未完成，见 [ADR 0047](adr/0047-native-pdf-import-and-page-images.md)。
+应用现已接通可信 PDF 导入与页图：用户选择的字节只在原生层进入冻结 provider/Core，PDFium 在单一线程串行工作，页图以 native `ImageData`/`File` 显示；保存摘录的 scalar 范围可在页图上重开恢复高亮。macOS arm64 与 Android arm64 有本机实窗/模拟器证据。该线程不是崩溃隔离，其它平台运行库与正式 Reader Surface 仍未完成，见 [ADR 0047](adr/0047-native-pdf-import-and-page-images.md)。
 
 ## 未来依赖方向
 
@@ -129,9 +129,11 @@ extension-host 策略本身不写知识；新增 application 经 ports 调用真
 
 - [ADR 0044](adr/0044-reader-preview-contribution.md)：阅读预览包的 `reader_workspace` 目录与 `reader.surface` 依赖门；正式 Reader 与包内 UI 未完成。
 
-- [ADR 0045](adr/0045-bounded-pdf-library-listing.md)：vault 内 PDF 元数据分页、稳定排序与 keyset 游标；Host API/UI/Reader 未完成。
+- [ADR 0045](adr/0045-bounded-pdf-library-listing.md)：vault 内 PDF 元数据分页、稳定排序与 keyset 游标；后续 Host/UI 切片见 ADR 0046。
 
-- [ADR 0046](adr/0046-library-host-api-0-6.md)：公开 Library 元数据 wire、`library.read` 精确授权、真实 Core 后端与初始原生列表；Reader 打开未完成。
+- [ADR 0046](adr/0046-library-host-api-0-6.md)：公开 Library 元数据、文字层与选文提交 wire、`library.read` 精确授权、真实 Core 后端与原生列表；正式 Reader Surface 未完成。
+
+- [ADR 0047](adr/0047-native-pdf-import-and-page-images.md)：可信 PDF 导入、原生页图/选区、保存范围重开高亮与 Android PDFium 打包；崩溃隔离、其它平台和正式 Reader Surface 未完成。
 
 - [ADR 0034](adr/0034-note-read-model.md)：想法读取的 keyset 分页、范围绑定游标与有界正文分块；应用层与 SQLite 重开已通过，公开 SDK wire、插件授权与窗口接线未完成。
 

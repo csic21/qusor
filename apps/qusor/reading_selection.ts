@@ -18,6 +18,12 @@ export type PageSelection = {
     boxes: [number, number, number, number][];
 };
 
+export type SavedSelectionRange = {
+    capture_id: number;
+    start: number;
+    end: number;
+};
+
 const MAX_GEOMETRY_GLYPHS = 20_000;
 
 function finite(value: unknown): value is number {
@@ -133,4 +139,65 @@ export function selectionBetween(
             .slice(low, high + 1)
             .map(([, x, y, width, height]) => [x, y, width, height]),
     };
+}
+
+export function boxesForScalarRange(
+    geometry: PageGeometry,
+    start: number,
+    end: number,
+): [number, number, number, number][] {
+    if (
+        !Number.isSafeInteger(start) ||
+        !Number.isSafeInteger(end) ||
+        start < 0 ||
+        start >= end
+    ) {
+        return [];
+    }
+    return geometry.glyphs
+        .filter(([scalar]) => scalar >= start && scalar < end)
+        .map(([, x, y, width, height]) => [x, y, width, height]);
+}
+
+export function boxesForSavedRanges(
+    geometry: PageGeometry,
+    ranges: readonly SavedSelectionRange[],
+): [number, number, number, number][] {
+    const merged: [number, number][] = [];
+    for (const { start, end } of ranges
+        .filter(
+            ({ start, end }) =>
+                Number.isSafeInteger(start) &&
+                Number.isSafeInteger(end) &&
+                start >= 0 &&
+                start < end,
+        )
+        .sort((left, right) => left.start - right.start || left.end - right.end)) {
+        const previous = merged[merged.length - 1];
+        if (previous && start <= previous[1]) {
+            previous[1] = Math.max(previous[1], end);
+        } else {
+            merged.push([start, end]);
+        }
+    }
+    if (!merged.length) return [];
+
+    const boxes: [number, number, number, number][] = [];
+    let rangeIndex = 0;
+    for (const [scalar, x, y, width, height] of geometry.glyphs) {
+        while (
+            rangeIndex < merged.length &&
+            scalar >= merged[rangeIndex][1]
+        ) {
+            rangeIndex += 1;
+        }
+        if (rangeIndex >= merged.length) break;
+        if (
+            scalar >= merged[rangeIndex][0] &&
+            scalar < merged[rangeIndex][1]
+        ) {
+            boxes.push([x, y, width, height]);
+        }
+    }
+    return boxes;
 }

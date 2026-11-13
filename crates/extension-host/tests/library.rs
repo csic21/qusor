@@ -107,6 +107,36 @@ fn library_page_text_uses_the_same_exact_grant() {
 }
 
 #[test]
+fn saved_selections_use_library_read_on_api_0_7() {
+    let mut host = Host::new(
+        "vault",
+        [Capability::LibraryRead, Capability::CapturePropose],
+    )
+    .unwrap();
+    let mut manifest = manifest();
+    manifest.host_api.max_minor = 7;
+    let id = host.register(manifest, "a".repeat(64)).unwrap();
+    host.replace_grants(id, grants()).unwrap();
+    host.enable(id).unwrap();
+    let session = host.open_session_for_api(id, HOST_API_V0_7).unwrap();
+    let request = LibraryRequest {
+        library_protocol: LIBRARY_PROTOCOL,
+        api_version: HOST_API_V0_7,
+        request_id: "saved-request".into(),
+        operation: LibraryOperation::SavedSelections {
+            document_id: 1,
+            page_index: 0,
+        },
+    };
+    let permit = host.authorize_library(&session, &request).unwrap();
+    host.dispatch(permit, |context| {
+        assert_eq!(context.request.capability, Capability::LibraryRead);
+        Ok(())
+    })
+    .unwrap();
+}
+
+#[test]
 fn library_capture_requires_capture_propose() {
     let (mut host, _, session) = setup();
     let request = LibraryRequest {

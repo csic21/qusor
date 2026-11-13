@@ -1,11 +1,12 @@
 //! Versioned bounded PDF Library metadata wire for ordinary plugins.
 //!
 //! The guest asks for one newest-first page inside the vault bound by its exact
-//! `library.read` grant. Responses contain document metadata only: no original
-//! PDF bytes, CAS blobs, filesystem paths, notes, selections or authority.
+//! `library.read` grant. Responses contain document metadata or bounded saved
+//! scalar ranges only: no original PDF bytes, CAS blobs, filesystem paths,
+//! note bodies or authority.
 use crate::{
-    ApiError, ApiVersion, ErrorCode, HOST_API_V0_6, MAX_REQUEST_BYTES, decode_json, encode_json,
-    validate_opaque_id,
+    ApiError, ApiVersion, ErrorCode, HOST_API_V0_6, HOST_API_V0_7, MAX_REQUEST_BYTES, decode_json,
+    encode_json, validate_opaque_id,
 };
 use serde::{Deserialize, Serialize};
 
@@ -31,6 +32,8 @@ pub const MAX_LIBRARY_TEXT_OFFSET: u32 = 16 * 1024 * 1024;
 pub const MAX_LIBRARY_SELECTION_SCALARS: u32 = 100_000;
 /// Maximum UTF-8 bytes of the user's note attached to one selection.
 pub const MAX_LIBRARY_NOTE_BYTES: usize = 1024 * 1024;
+/// Maximum saved scalar ranges returned for one page.
+pub const MAX_LIBRARY_SAVED_SELECTIONS: usize = 64;
 
 fn invalid(message: &'static str) -> ApiError {
     ApiError::new(ErrorCode::InvalidRequest, message)
@@ -41,10 +44,11 @@ fn budget(message: &'static str) -> ApiError {
 }
 
 fn protocol(library_protocol: u16, api_version: ApiVersion) -> Result<(), ApiError> {
-    if library_protocol != LIBRARY_PROTOCOL || api_version != HOST_API_V0_6 {
+    if library_protocol != LIBRARY_PROTOCOL || !matches!(api_version, HOST_API_V0_6 | HOST_API_V0_7)
+    {
         return Err(ApiError::new(
             ErrorCode::UnsupportedVersion,
-            "library requires protocol1 and Host API0.6",
+            "library requires protocol1 and Host API0.6 or 0.7",
         ));
     }
     Ok(())
@@ -110,6 +114,8 @@ pub enum LibraryOperation {
         end: u32,
         note: String,
     },
+    /// Saved scalar ranges on one stored page. Added in Host API 0.7.
+    SavedSelections { document_id: i64, page_index: u32 },
 }
 
 impl LibraryRequest {
@@ -176,6 +182,21 @@ impl LibraryRequest {
                     return Err(invalid("library selection note is invalid"));
                 }
             }
+            LibraryOperation::SavedSelections {
+                document_id,
+                page_index,
+            } => {
+                if self.api_version != HOST_API_V0_7 {
+                    return Err(ApiError::new(
+                        ErrorCode::UnsupportedVersion,
+                        "saved Library selections require Host API0.7",
+                    ));
+                }
+                positive(*document_id, "invalid library document id")?;
+                if *page_index >= MAX_LIBRARY_PAGES {
+                    return Err(budget("library page index is outside the supported range"));
+                }
+            }
         }
         Ok(())
     }
@@ -237,6 +258,27 @@ impl LibraryDocument {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SavedSelectionRange {
+    pub capture_id: i64,
+    pub start: u32,
+    pub end: u32,
+}
+
+impl SavedSelectionRange {
+    fn validate(&self) -> Result<(), ApiError> {
+        positive(self.capture_id, "invalid saved selection capture id")?;
+        if self.start >= self.end
+            || self.end > MAX_LIBRARY_SELECTION_SCALARS
+            || self.end - self.start > MAX_LIBRARY_SELECTION_SCALARS
+        {
+            return Err(invalid("saved selection range is invalid"));
+        }
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum LibraryResult {
     Page {
@@ -254,6 +296,11 @@ pub enum LibraryResult {
     Capture {
         capture_id: i64,
         commit_rev: i64,
+    },
+    SavedSelections {
+        document_id: i64,
+        page_index: u32,
+        ranges: Vec<SavedSelectionRange>,
     },
     Error {
         error: ApiError,
@@ -330,6 +377,22 @@ impl LibraryResponse {
             } => {
                 positive(*capture_id, "invalid library capture id")?;
                 positive(*commit_rev, "invalid library commit revision")?;
+            }
+            LibraryResult::SavedSelections {
+                document_id,
+                page_index,
+                ranges,
+            } => {
+                positive(*document_id, "invalid library document id")?;
+                if *page_index >= MAX_LIBRARY_PAGES {
+                    return Err(budget("library page index is outside the supported range"));
+                }
+                if ranges.len() > MAX_LIBRARY_SAVED_SELECTIONS {
+                    return Err(budget("saved Library selections exceed their budget"));
+                }
+                for range in ranges {
+                    range.validate()?;
+                }
             }
             LibraryResult::Error { error } => error.validate()?,
         }

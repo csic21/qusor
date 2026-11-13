@@ -9,6 +9,15 @@ fn request(operation: LibraryOperation) -> LibraryRequest {
     }
 }
 
+fn request_v7(operation: LibraryOperation) -> LibraryRequest {
+    LibraryRequest {
+        library_protocol: LIBRARY_PROTOCOL,
+        api_version: HOST_API_V0_7,
+        request_id: "request".into(),
+        operation,
+    }
+}
+
 fn document(id: i64) -> LibraryDocument {
     LibraryDocument {
         document_id: id,
@@ -44,7 +53,7 @@ fn manifest(min_minor: u16) -> Manifest {
         host_api: ApiRange {
             major: 0,
             min_minor,
-            max_minor: 6,
+            max_minor: 7,
         },
         required_capabilities: vec![Capability::LibraryRead],
         optional_capabilities: vec![],
@@ -88,6 +97,70 @@ fn requests_round_trip_with_canonical_bounds() {
             request
         );
     }
+}
+
+#[test]
+fn saved_selections_round_trip_only_with_api_0_7() {
+    let operation = LibraryOperation::SavedSelections {
+        document_id: 1,
+        page_index: 0,
+    };
+    let v7 = request_v7(operation.clone());
+    assert_eq!(
+        LibraryRequest::from_json(&v7.to_json().unwrap()).unwrap(),
+        v7
+    );
+    let mut old = request(operation);
+    old.api_version = HOST_API_V0_6;
+    assert_eq!(
+        old.validate().unwrap_err().code,
+        ErrorCode::UnsupportedVersion
+    );
+
+    let response = LibraryResponse {
+        request_id: "request".into(),
+        result: LibraryResult::SavedSelections {
+            document_id: 1,
+            page_index: 0,
+            ranges: vec![SavedSelectionRange {
+                capture_id: 2,
+                start: 1,
+                end: 4,
+            }],
+        },
+    };
+    assert_eq!(
+        LibraryResponse::from_json(&response.to_json().unwrap()).unwrap(),
+        response
+    );
+    let mut bad = response.clone();
+    if let LibraryResult::SavedSelections { ranges, .. } = &mut bad.result {
+        ranges[0].end = ranges[0].start;
+    }
+    assert_eq!(bad.validate().unwrap_err().code, ErrorCode::InvalidRequest);
+
+    let mut accepted = response.clone();
+    if let LibraryResult::SavedSelections { ranges, .. } = &mut accepted.result {
+        *ranges = (0..MAX_LIBRARY_SAVED_SELECTIONS)
+            .map(|start| SavedSelectionRange {
+                capture_id: start as i64 + 1,
+                start: start as u32,
+                end: start as u32 + 1,
+            })
+            .collect();
+    }
+    accepted.validate().unwrap();
+    if let LibraryResult::SavedSelections { ranges, .. } = &mut accepted.result {
+        ranges.push(SavedSelectionRange {
+            capture_id: 65,
+            start: 64,
+            end: 65,
+        });
+    }
+    assert_eq!(
+        accepted.validate().unwrap_err().code,
+        ErrorCode::BudgetExceeded
+    );
 }
 
 #[test]
@@ -302,32 +375,39 @@ fn responses_validate_documents_cursors_and_budgets() {
 }
 
 #[test]
-fn library_vocabulary_is_api_0_6_only() {
+fn library_vocabulary_supports_api_0_6_and_0_7() {
     assert!(is_supported_api(HOST_API_V0_6));
+    assert!(is_supported_api(HOST_API_V0_7));
     assert!(SUPPORTED_HOST_APIS.contains(&HOST_API_V0_6));
+    assert!(SUPPORTED_HOST_APIS.contains(&HOST_API_V0_7));
     assert!(capability_available_in(
         Capability::LibraryRead,
         HOST_API_V0_6
     ));
+    assert!(capability_available_in(
+        Capability::LibraryRead,
+        HOST_API_V0_7
+    ));
     for version in SUPPORTED_HOST_APIS
         .into_iter()
-        .filter(|version| *version != HOST_API_V0_6)
+        .filter(|version| !matches!(*version, HOST_API_V0_6 | HOST_API_V0_7))
     {
         assert!(!capability_available_in(Capability::LibraryRead, version));
     }
     assert!(manifest(6).supports_api(HOST_API_V0_6));
-    let mut not_06 = manifest(6);
-    not_06.host_api.max_minor = 5;
-    assert!(!not_06.supports_api(HOST_API_V0_6));
+    assert!(manifest(7).supports_api(HOST_API_V0_7));
+    let mut not_07 = manifest(7);
+    not_07.host_api.max_minor = 6;
+    assert!(!not_07.supports_api(HOST_API_V0_7));
     assert_eq!(
-        manifest(6).negotiate_api(&[HOST_API_V0_5, HOST_API_V0_6]),
-        Some(HOST_API_V0_6)
+        manifest(7).negotiate_api(&[HOST_API_V0_5, HOST_API_V0_6, HOST_API_V0_7]),
+        Some(HOST_API_V0_7)
     );
 }
 
 #[test]
 fn manifests_require_the_matching_library_vocabulary() {
-    let valid = manifest(6);
+    let valid = manifest(7);
     valid.validate().unwrap();
 
     let wrong_version = manifest(5);
@@ -335,7 +415,7 @@ fn manifests_require_the_matching_library_vocabulary() {
         wrong_version.validate().unwrap_err().code,
         ErrorCode::InvalidManifest
     );
-    let mut missing_declaration = manifest(6);
+    let mut missing_declaration = manifest(7);
     missing_declaration.required_capabilities.clear();
     missing_declaration.contributions[0]
         .required_capabilities
@@ -344,7 +424,7 @@ fn manifests_require_the_matching_library_vocabulary() {
         missing_declaration.validate().unwrap_err().code,
         ErrorCode::InvalidManifest
     );
-    let mut wrong_contribution = manifest(6);
+    let mut wrong_contribution = manifest(7);
     wrong_contribution.contributions[0]
         .required_capabilities
         .clear();

@@ -1,5 +1,7 @@
 import { expect, test } from "nsh/test";
 import {
+    boxesForSavedRanges,
+    boxesForScalarRange,
     glyphAt,
     parsePageGeometry,
     selectionBetween,
@@ -51,4 +53,32 @@ test("glyph order produces the exact scalar range and page boxes", () => {
     });
     expect(selectionBetween(geometry, "abc def", 0, 2)?.text).toBe("abc");
     expect(selectionBetween(geometry, "ab", 0, 2)).toBeNull();
+});
+
+test("saved scalar ranges map to the same persisted glyph boxes", () => {
+    expect(boxesForScalarRange(geometry, 1, 3)).toEqual([
+        [20, 10, 10, 10],
+        [30, 10, 10, 10],
+    ]);
+    expect(boxesForScalarRange(geometry, 3, 3)).toEqual([]);
+    expect(boxesForScalarRange(geometry, 0, 3)).toHaveLength(3);
+});
+
+test("overlapping saved ranges share one visual highlight", () => {
+    expect(
+        boxesForSavedRanges(geometry, [
+            { capture_id: 2, start: 1, end: 3 },
+            { capture_id: 1, start: 0, end: 2 },
+            { capture_id: 3, start: 3, end: 3 },
+        ]),
+    ).toEqual([
+        [10, 10, 10, 10],
+        [20, 10, 10, 10],
+        [30, 10, 10, 10],
+    ]);
+    expect(
+        boxesForSavedRanges(geometry, [
+            { capture_id: 1, start: 2, end: 3 },
+        ]),
+    ).toEqual([[30, 10, 10, 10]]);
 });

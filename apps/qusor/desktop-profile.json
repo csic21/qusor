@@ -82,7 +82,7 @@
             {
               "service": "library.read",
               "major": 0,
-              "minor": 6
+              "minor": 7
             }
           ]
         },
@@ -147,7 +147,7 @@
             {
               "service": "library.read",
               "major": 0,
-              "min_minor": 6
+              "min_minor": 7
             }
           ]
         }

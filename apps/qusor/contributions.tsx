@@ -22,10 +22,12 @@ import {
     type ReadingPosition,
 } from "./reading_position";
 import {
+    boxesForSavedRanges,
     glyphAt,
     parsePageGeometry,
     selectionBetween,
     type PageGeometry,
+    type SavedSelectionRange,
 } from "./reading_selection";
 
 // Content fixtures plus the manifest-backed workspace contribution catalog.
@@ -3195,6 +3197,7 @@ const librarySelectionStart = signal(0);
 const librarySelectionBoxes = signal<
     [number, number, number, number][]
 >([]);
+const librarySavedSelections = signal<SavedSelectionRange[]>([]);
 const librarySelectionNote = signal("");
 const librarySourceTarget = signal<LibrarySourceTarget | null>(null);
 const librarySourceQuote = signal<{
@@ -3208,6 +3211,7 @@ let libraryImageRequest = 0;
 let librarySelectionAnchor: number | null = null;
 let librarySelectionPointer: number | null = null;
 let libraryPageDisplay = { width: 0, height: 0 };
+let librarySavedSelectionsRequest = 0;
 const MAX_PDF_IMPORT_BYTES = 16 * 1024 * 1024;
 
 function libraryRow(raw: any): LibraryRow | null {
@@ -3296,6 +3300,8 @@ function clearLibraryPageImage() {
     libraryPageImageState.set("idle");
     libraryPageGeometry.set(null);
     libraryPageDisplay = { width: 0, height: 0 };
+    librarySavedSelections.set([]);
+    ++librarySavedSelectionsRequest;
     clearLibrarySelection();
     if (previous?.url) URL.revokeObjectURL(previous.url);
 }
@@ -3435,6 +3441,41 @@ async function loadLibraryPageImage(row: LibraryRow, pageIndex: number) {
     }
 }
 
+async function loadLibrarySavedSelections(
+    row: LibraryRow,
+    pageIndex: number,
+) {
+    const request = ++librarySavedSelectionsRequest;
+    try {
+        const response = JSON.parse(
+            await LibraryHost.savedSelections(row.document_id, pageIndex),
+        );
+        if (
+            request !== librarySavedSelectionsRequest ||
+            !response.ok ||
+            response.value?.document_id !== row.document_id ||
+            response.value?.page_index !== pageIndex ||
+            !Array.isArray(response.value?.ranges)
+        ) {
+            return;
+        }
+        librarySavedSelections.set(
+            response.value.ranges.filter(
+                (range: any) =>
+                    Number.isSafeInteger(range?.capture_id) &&
+                    Number.isSafeInteger(range?.start) &&
+                    Number.isSafeInteger(range?.end) &&
+                    range.start >= 0 &&
+                    range.start < range.end,
+            ),
+        );
+    } catch (_) {
+        if (request === librarySavedSelectionsRequest) {
+            librarySavedSelections.set([]);
+        }
+    }
+}
+
 async function loadLibraryText(row: LibraryRow, pageIndex: number) {
     libraryOpenDoc.set(row);
     libraryPageIndex.set(pageIndex);
@@ -3446,6 +3487,7 @@ async function loadLibraryText(row: LibraryRow, pageIndex: number) {
     libraryResumeNotice.set("");
     libraryPageStatus.set("正在读取本机页图与文字…");
     void loadLibraryPageImage(row, pageIndex);
+    void loadLibrarySavedSelections(row, pageIndex);
     let offset = 0;
     let text = "";
     try {
@@ -3648,6 +3690,7 @@ async function captureLibrarySelection(row: LibraryRow, pageIndex: number) {
         if (!response.ok) throw Error(response.error ?? "capture failed");
         libraryPageStatus.set("选文已保存到本机 Core。");
         void loadLiveNotes();
+        void loadLibrarySavedSelections(row, pageIndex);
         clearLibrarySelection();
         librarySelectionNote.set("");
     } catch (_) {
@@ -3790,6 +3833,21 @@ function LibraryReader(props: { compact: boolean }) {
                                     };
                                     const scaleX = size.width / geometry.width;
                                     const scaleY = size.height / geometry.height;
+                                    context.fillStyle = ink(
+                                        "pdf-saved-selection",
+                                    );
+                                    for (const [x, y, width, height] of
+                                        boxesForSavedRanges(
+                                            geometry,
+                                            librarySavedSelections(),
+                                        )) {
+                                        context.fillRect(
+                                            x * scaleX,
+                                            y * scaleY,
+                                            width * scaleX,
+                                            height * scaleY,
+                                        );
+                                    }
                                     context.fillStyle = ink("pdf-selection");
                                     for (const [x, y, width, height] of
                                         librarySelectionBoxes()) {

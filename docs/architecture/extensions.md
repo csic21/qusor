@@ -22,7 +22,7 @@ SelectionRead、DocumentMetadataRead 与 CapturePropose 在本轮只实施策略
 
 插件负责发现资料、转换内容、提供动作或呈现方式；Core 负责知识实体、来源、事务、审核、撤销、索引和导出。卸载插件不得导致已收录段落、用户笔记、引用和关系不可读。真正新增领域语义仍可能需要受控 Core Schema 升级；不承诺任意新功能永远无需改变核心。
 
-learning-domain 已实现 FSRS-5 词汇调度内核（仍零外部依赖）；extension-api 与 extension-host 已按本轮具体职责创建并将公开能力推进到 0.5。下面其余模块表达未来职责，出现实际用例时再创建 crate。
+learning-domain 已实现 FSRS-5 词汇调度内核（仍零外部依赖）；extension-api 与 extension-host 已按本轮具体职责创建并将公开能力推进到 0.7。下面其余模块表达未来职责，出现实际用例时再创建 crate。
 
 ## 1.1 功能围绕插件开发
 

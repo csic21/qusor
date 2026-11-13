@@ -92,6 +92,8 @@ Draft请求至多64KiB、每文本块512bytes、完整响应4KiB、单想法文�
 
 新增 [0.6策略schema](schema/policy-v0.6.schema.json)、`library.read`/`capture.propose` 能力与 `library_workspace` 贡献类型；0.6独立承载 PDF Library 元数据、文字层读取和显式选文提交，不继承0.1–0.5的新增词汇。`library` 模块提供 `library-metadata-v1`：单页最多6份文档，返回标题、摘要/字节数、页数和提取修订；文字分块最多2048 bytes；选文提交由用户动作触发并回到Core用例。响应不返回原件/blob/路径/想法；请求不自报vault，由Host绑定精确授权。见 [ADR 0046](../../docs/architecture/adr/0046-library-host-api-0-6.md)。Host后端、普通包与原生Library UI已接线；页图/精确版面仍未完成。
 
+新增 [0.7策略schema](schema/policy-v0.7.schema.json)。0.7 保留 Library 的 0.6 请求语义，只增加 `SavedSelections`：按文档 ID 和页索引读取最多 64 个 Core 已保存的 scalar 范围，供可信原生页图绘制重开后的保存高亮。范围按 `(start, end)` 去重并以最小 capture ID 标识；复合摘录按同页 segment 展开。响应不含引文正文、想法、原件、blob 或路径，Host 仍在同一 `library.read` grant 下绑定 vault。旧 0.6 请求不能携带该 operation。
+
 ## 只读段落投影（实施切片）
 
 `projection`与`paragraph-projection-v1.schema.json`提供独立API0.3/protocol1的own context、query、CAS/checkpoint及最多8行的span窗口。没有文本effect；`window`必须显式给出对象或null。窗口ready由context推导，UTF-8边界/前态推进/fresh权限由应用与协调器继续校验；结构不证明段落语义或EOF诚实。Host/应用局部检查不等于普通guest或原生界面已接通，详见[ADR0030](../../docs/architecture/adr/0030-readonly-paragraph-projection.md)。

@@ -6,7 +6,7 @@
 //! knowledge, exposes original bytes or executes guests.
 use crate::{Host, Permit, Session};
 use extension_api::{
-    ApiError, Capability, CapabilityRequest, ErrorCode, HOST_API_V0_6, Resource,
+    ApiError, Capability, CapabilityRequest, ErrorCode, HOST_API_V0_6, HOST_API_V0_7, Resource,
     library::{LIBRARY_PROTOCOL, LibraryRequest},
 };
 
@@ -20,10 +20,12 @@ impl Host {
         session: &Session,
         request: &LibraryRequest,
     ) -> Result<Permit, ApiError> {
-        if request.library_protocol != LIBRARY_PROTOCOL || request.api_version != HOST_API_V0_6 {
+        if request.library_protocol != LIBRARY_PROTOCOL
+            || !matches!(request.api_version, HOST_API_V0_6 | HOST_API_V0_7)
+        {
             return Err(ApiError::new(
                 ErrorCode::UnsupportedVersion,
-                "library requires protocol1 and Host API0.6",
+                "library requires protocol1 and Host API0.6 or 0.7",
             ));
         }
         request.validate()?;
@@ -36,7 +38,7 @@ impl Host {
         self.authorize(
             session,
             CapabilityRequest {
-                api_version: HOST_API_V0_6,
+                api_version: request.api_version,
                 request_id: request.request_id.clone(),
                 capability,
                 resource: Resource::Vault {

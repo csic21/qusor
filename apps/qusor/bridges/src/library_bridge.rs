@@ -8,7 +8,7 @@ use extension_api::{
     ApiError, ErrorCode,
     library::{
         LibraryDocument, LibraryOperation, LibraryRequest, LibraryResponse, LibraryResult,
-        MAX_LIBRARY_TITLE_BYTES,
+        MAX_LIBRARY_TITLE_BYTES, SavedSelectionRange,
     },
 };
 use learning_application::{
@@ -64,6 +64,10 @@ impl<S: KnowledgeStore> LibraryReadBridge<S> {
                 note,
                 context,
             ),
+            LibraryOperation::SavedSelections {
+                document_id,
+                page_index,
+            } => self.saved_selections(*document_id, *page_index),
         };
         let response = LibraryResponse { request_id, result };
         if response.to_json().is_ok() {
@@ -162,6 +166,29 @@ impl<S: KnowledgeStore> LibraryReadBridge<S> {
             Ok(receipt) => LibraryResult::Capture {
                 capture_id: receipt.capture_id,
                 commit_rev: receipt.commit_rev,
+            },
+            Err(error) => LibraryResult::Error {
+                error: map_error(&error),
+            },
+        }
+    }
+
+    fn saved_selections(&self, document_id: i64, page_index: u32) -> LibraryResult {
+        match self
+            .app
+            .pdf_saved_selections(&self.vault, document_id, page_index)
+        {
+            Ok(ranges) => LibraryResult::SavedSelections {
+                document_id,
+                page_index,
+                ranges: ranges
+                    .into_iter()
+                    .map(|range| SavedSelectionRange {
+                        capture_id: range.capture_id,
+                        start: range.start,
+                        end: range.end,
+                    })
+                    .collect(),
             },
             Err(error) => LibraryResult::Error {
                 error: map_error(&error),

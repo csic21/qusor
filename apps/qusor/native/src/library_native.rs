@@ -1,6 +1,6 @@
 //! Trusted Library Host mounted by the application composition runtime.
 use crate::{package_catalog, profile, runtime, vault::VaultStore};
-use extension_api::{ApiError, Capability, HOST_API_V0_6, Resource, library::*};
+use extension_api::{ApiError, Capability, HOST_API_V0_7, Resource, library::*};
 use extension_host::{Grant, Host, Session};
 use learning_application::KnowledgeApplication;
 use nsh_core::prelude::*;
@@ -46,7 +46,7 @@ impl LibraryRuntime {
         .map_err(text)?;
         host.enable(installation).map_err(text)?;
         let session = host
-            .open_session_for_api(installation, HOST_API_V0_6)
+            .open_session_for_api(installation, HOST_API_V0_7)
             .map_err(text)?;
         Ok(Self {
             host,
@@ -80,7 +80,7 @@ impl LibraryRuntime {
     fn page(&mut self, cursor: Option<String>, limit: u16) -> Result<Value, String> {
         let request = LibraryRequest {
             library_protocol: LIBRARY_PROTOCOL,
-            api_version: HOST_API_V0_6,
+            api_version: HOST_API_V0_7,
             request_id: "workbench-library-page".into(),
             operation: LibraryOperation::Page { cursor, limit },
         };
@@ -104,6 +104,9 @@ impl LibraryRuntime {
             })),
             LibraryResult::PageText { .. } => Err("unexpected Library text result".into()),
             LibraryResult::Capture { .. } => Err("unexpected Library capture result".into()),
+            LibraryResult::SavedSelections { .. } => {
+                Err("unexpected Library saved-selection result".into())
+            }
             LibraryResult::Error { error } => Err(wire_error(error)),
         }
     }
@@ -117,7 +120,7 @@ impl LibraryRuntime {
     ) -> Result<Value, String> {
         let request = LibraryRequest {
             library_protocol: LIBRARY_PROTOCOL,
-            api_version: HOST_API_V0_6,
+            api_version: HOST_API_V0_7,
             request_id: "workbench-library-page-text".into(),
             operation: LibraryOperation::PageText {
                 document_id,
@@ -139,6 +142,9 @@ impl LibraryRuntime {
         match response.result {
             LibraryResult::Page { .. } => Err("unexpected Library page result".into()),
             LibraryResult::Capture { .. } => Err("unexpected Library capture result".into()),
+            LibraryResult::SavedSelections { .. } => {
+                Err("unexpected Library saved-selection result".into())
+            }
             LibraryResult::PageText {
                 document_id,
                 page_index,
@@ -169,7 +175,7 @@ impl LibraryRuntime {
     ) -> Result<Value, String> {
         let request = LibraryRequest {
             library_protocol: LIBRARY_PROTOCOL,
-            api_version: HOST_API_V0_6,
+            api_version: HOST_API_V0_7,
             request_id: operation_id,
             operation: LibraryOperation::CaptureSelection {
                 document_id,
@@ -199,6 +205,46 @@ impl LibraryRuntime {
             })),
             LibraryResult::Page { .. } => Err("unexpected Library page result".into()),
             LibraryResult::PageText { .. } => Err("unexpected Library text result".into()),
+            LibraryResult::SavedSelections { .. } => {
+                Err("unexpected Library saved-selection result".into())
+            }
+            LibraryResult::Error { error } => Err(wire_error(error)),
+        }
+    }
+
+    fn saved_selections(&mut self, document_id: i64, page_index: u32) -> Result<Value, String> {
+        let request = LibraryRequest {
+            library_protocol: LIBRARY_PROTOCOL,
+            api_version: HOST_API_V0_7,
+            request_id: "workbench-library-saved-selections".into(),
+            operation: LibraryOperation::SavedSelections {
+                document_id,
+                page_index,
+            },
+        };
+        let Self {
+            host,
+            session,
+            bridge,
+            ..
+        } = self;
+        let permit = host.authorize_library(session, &request).map_err(text)?;
+        let response = host
+            .dispatch(permit, |context| Ok(bridge.respond(&request, context)))
+            .map_err(text)?;
+        match response.result {
+            LibraryResult::SavedSelections {
+                document_id,
+                page_index,
+                ranges,
+            } => Ok(json!({
+                "document_id": document_id,
+                "page_index": page_index,
+                "ranges": ranges,
+            })),
+            LibraryResult::Page { .. } => Err("unexpected Library page result".into()),
+            LibraryResult::PageText { .. } => Err("unexpected Library text result".into()),
+            LibraryResult::Capture { .. } => Err("unexpected Library capture result".into()),
             LibraryResult::Error { error } => Err(wire_error(error)),
         }
     }
@@ -306,6 +352,16 @@ impl LibraryHost {
     ) -> String {
         match runtime::with_library(&sys, |library| {
             library.page_text(document_id, page_index, offset, max_bytes)
+        }) {
+            Ok(value) => json!({"ok": true, "value": value}).to_string(),
+            Err(error) => json!({"ok": false, "error": error}).to_string(),
+        }
+    }
+
+    /// Saved scalar ranges on one PDF page for page-image highlights.
+    pub fn saved_selections(sys: System, document_id: i64, page_index: u32) -> String {
+        match runtime::with_library(&sys, |library| {
+            library.saved_selections(document_id, page_index)
         }) {
             Ok(value) => json!({"ok": true, "value": value}).to_string(),
             Err(error) => json!({"ok": false, "error": error}).to_string(),

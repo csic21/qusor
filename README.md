@@ -55,12 +55,12 @@ QUSOR 是个人学习与知识探索系统，采用 NSH 界面与独立 Rust Cor
 - 应用 `runtime.rs` 现按 composition 顺序挂载 Core/Notes/Vocab Host，并以 `RuntimeScope` 逆序释放；模块级 Host 静态 runtime 已移除，见 [ADR 0040](docs/architecture/adr/0040-runtime-mount-scope.md)。
 - 普通包的 `notes_workspace`/`vocab_workspace` Manifest 贡献现已驱动 shell 的“扩展工作区”列表；阅读 fixture 单独标为界面样例，见 [ADR 0041](docs/architecture/adr/0041-manifest-workspace-contributions.md)。
 - 随应用 Notes/Vocab 包已支持持久停用/启用：功能目录可切换，Host 与工作区作用域重建，共享 Core 与已收录数据保留；任意用户包安装/卸载仍未实现，见 [ADR 0043](docs/architecture/adr/0043-persistent-package-enable-intent.md)。
-- 随应用 Library 包已通过 Host API 0.6 读取真实 Core 的 PDF 元数据并在原生资料库工作区列出；资料项可读取文字层并翻页，页图/精确版面与选文仍未接通，见 [ADR 0046](docs/architecture/adr/0046-library-host-api-0-6.md)。
+- 随应用 Library 包已通过 Host API 0.7 读取真实 Core 的 PDF 元数据、页文字与已保存 scalar 范围；资料项可在原生页图上选文并在重开后恢复保存范围高亮。跨行有序多段、拖动把手和临时选区持久化仍未完成，见 [ADR 0046](docs/architecture/adr/0046-library-host-api-0-6.md) 与 [ADR 0047](docs/architecture/adr/0047-native-pdf-import-and-page-images.md)。
 - 插件 UI 明确只走 NSH 原生 Surface/组件；`scripts/check_native_ui.py` 阻止 WebView、HTML/DOM、Electron/Node 页面进入应用或插件 UI，见 [ADR 0042](docs/architecture/adr/0042-native-only-plugin-ui.md)。
 - core-api 承接已验证的文本/PDF/复合捕获与来源锚点契约，供实验及 SDK 导出共同使用。
 - learning-application 经 learning-ports 生成完整提交计划；storage-sqlite/blob-store 负责 SQLite/CAS 耐久，现有捕获实验实际消费这套实现，迁移后完整插件/崩溃/恢复回归通过。
 - extension-package 提供有界签名包/文件清单/键绑定验证；extension-runtime-api 与 runtime-wasm 提供不自带授权的有界执行，已有实验通过同一实现复验。extension-store 已落位持久安装内核，runtime-process 已落位 Linux 身份/父死守卫/pidfd；完整安装界面、通用持续权限和进程监督装配仍待完成。
-- extension-api 与 extension-host 保留 0.1 JSON 策略入口，并实现显式 0.2–0.6 协商；0.6 新增 `library.read`/`library_workspace` 和有界 Library 元数据 wire。原生普通插件消费者已通过选文/笔记保存及恢复的集成资格。现有职责包括内存安装元数据、资源授权、会话、生命周期和贡献查询。
+- extension-api 与 extension-host 保留 0.1 JSON 策略入口，并实现显式 0.2–0.7 协商；0.6 新增 `library.read`/`library_workspace` 和有界 Library 元数据 wire，0.7 增加每页最多 64 个已保存 scalar 范围。原生普通插件消费者已通过选文/笔记保存及恢复的集成资格。现有职责包括内存安装元数据、资源授权、会话、生命周期和贡献查询。
 - serde/serde_json 用于协议与示例输入，core-api 使用 SHA-256 和 Unicode 分段校验；SQLite 和文件系统依赖限定在存储适配器；业务应用不依赖 NSH、数据库、插件运行时或云服务。
 - 依赖边界检查及反例测试、本地 Markdown 链接检查。
 - 三桌面 Core CI 配置；是否在远端运行以真实流水线结果为准。

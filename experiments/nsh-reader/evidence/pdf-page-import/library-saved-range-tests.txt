@@ -1,0 +1,4 @@
+cargo test: 74 passed (11 suites, 0.00s)
+cargo test: 7 passed (1 suite, 0.05s)
+cargo test: 8 passed (1 suite, 0.00s)
+cargo test: 317 passed (67 suites, 7.22s)
