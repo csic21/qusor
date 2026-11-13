@@ -1,8 +1,9 @@
-# 发行流水线（C-17）。macOS draft 路径已在 run 43142491761 验证；每次运行前仍须确认：
+# 发行流水线（C-17）。tag v* 推送默认创建正式 Release（workflow_dispatch 默认 draft=true）；
+# 每次运行前仍须确认：
 #   - 仓库 secret NSH_UPDATE_KEY（.local/keys/update.secret 的内容，勿提交）；
 #   - 固定 NSH_SHA 与本地基线一致；
-#   - macOS 只有 ad hoc 签名，Gatekeeper 未放行；Linux/Windows 打包未实测，
-#     因此默认只构建 macOS，其它平台在验证后逐项打开。
+#   - macOS 只有 ad hoc 签名、Android 使用 debug keystore 签名，尚未具备商店/公证资格；
+#     Linux/Windows/iOS 打包未实测，在验证后逐项打开。
 name: Release
 
 on:
@@ -37,6 +38,8 @@ jobs:
         include:
           - os: macos-latest
             target: macos
+          - os: ubuntu-latest
+            target: android
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -45,8 +48,33 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
+      - name: Set up Java for Android
+        if: matrix.target == 'android'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install Android SDK components and NDK
+        if: matrix.target == 'android'
+        run: |
+          SDK_ROOT="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          if [ -z "$SDK_ROOT" ]; then
+            echo "ANDROID_HOME / ANDROID_SDK_ROOT is not set on runner" >&2
+            exit 1
+          fi
+          yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-35" \
+            "build-tools;35.0.1" \
+            "ndk;27.2.12479018"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_HOME=$SDK_ROOT/ndk/27.2.12479018" >> "$GITHUB_ENV"
       - name: Install pinned Rust toolchain
-        run: rustup toolchain install 1.97.1 --profile minimal
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal
+          if [ "${{ matrix.target }}" = "android" ]; then
+            rustup toolchain install stable --profile minimal --target aarch64-linux-android
+          fi
       - name: Clone the fixed NSH baseline
         run: |
           git clone --filter=blob:none https://github.com/longbridge/nsh.git experiments/nsh-reader/target/nsh
@@ -55,21 +83,42 @@ jobs:
         uses: actions/cache@v4
         with:
           path: experiments/nsh-reader/target/nsh/target
-          key: nsh-cli-${{ runner.os }}-${{ env.NSH_SHA }}
+          key: nsh-cli-${{ runner.os }}-${{ matrix.target }}-${{ env.NSH_SHA }}
       - name: Build the NSH CLI
         env:
           CARGO_BUILD_JOBS: "1"
         run: cargo build --locked -p nsh-cli --manifest-path experiments/nsh-reader/target/nsh/Cargo.toml
+      - name: Build the NSH Android runtime (arm64-v8a)
+        if: matrix.target == 'android'
+        env:
+          RUSTUP_TOOLCHAIN: stable
+        run: cargo xtask android --release --abi arm64-v8a
+        working-directory: experiments/nsh-reader/target/nsh
       - name: Fetch locked dependencies
         # The plugin builders compile their signer offline against the SDK, so
         # the registry has to hold every lock entry before prepare.py runs.
-        run: cargo fetch --locked
+        run: |
+          cargo fetch --locked
+          cargo fetch --locked --manifest-path apps/qusor/native/Cargo.toml
       - name: Build the packages the app ships
         run: python apps/qusor/prepare.py
-      - name: Package the app
+      - name: Package the app (macOS)
+        if: matrix.target == 'macos'
         run: |
           "$GITHUB_WORKSPACE/experiments/nsh-reader/target/nsh/target/debug/nsh" package \
-            --target ${{ matrix.target }} --out dist
+            --target macos --out dist
+        working-directory: apps/qusor
+      - name: Package the app (Android arm64-v8a)
+        if: matrix.target == 'android'
+        env:
+          RUSTUP_TOOLCHAIN: stable
+          NSH_RUNTIME: ${{ github.workspace }}/experiments/nsh-reader/target/nsh/target
+        run: |
+          "$GITHUB_WORKSPACE/experiments/nsh-reader/target/nsh/target/debug/nsh" package \
+            --target android --abi arm64-v8a --out dist
+          python3 package_android_pdfium.py dist/QUSOR.apk --abi arm64-v8a
+          version="$(python3 -c 'import json; print(json.load(open("nsh.json"))["version"])')"
+          mv dist/QUSOR.apk "dist/QUSOR-${version}-android-arm64-v8a.apk"
         working-directory: apps/qusor
       - uses: actions/upload-artifact@v4
         with:
@@ -167,7 +216,7 @@ jobs:
             echo "no packaged artifact to publish" >&2
             exit 1
           fi
-          draft=true
+          draft=false
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             draft="$REQUESTED_DRAFT"
           fi
