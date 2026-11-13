@@ -517,3 +517,240 @@ fn transaction_rechecks_the_validated_input_hash_history() {
     );
     assert_eq!(store.snapshot().unwrap(), forged);
 }
+
+#[test]
+fn update_pdf_capture_note_validates_scopes_audits_and_persists() {
+    let scratch = Scratch::new();
+    let mut app = KnowledgeApplication::new(scratch.store());
+    let (original, snapshot, draft) = pdf_fixture();
+    let doc = app
+        .import_document("op-pdf-edit-import", "vault", "PDF", &original, &snapshot)
+        .unwrap();
+    let cap = app
+        .capture_pdf(
+            "op-pdf-edit-cap",
+            doc.document_id,
+            &draft,
+            &origin(),
+            "Initial note",
+        )
+        .unwrap();
+
+    // Wrong vault -> NotFound
+    let wrong_vault = app
+        .update_pdf_capture_note("other", cap.capture_id, "Updated")
+        .unwrap_err();
+    assert_eq!(wrong_vault.code, KnowledgeErrorCode::NotFound);
+
+    // Control char -> InvalidInput
+    let ctrl = app
+        .update_pdf_capture_note("vault", cap.capture_id, "bad\u{0000}note")
+        .unwrap_err();
+    assert_eq!(ctrl.code, KnowledgeErrorCode::InvalidInput);
+
+    // Missing capture -> NotFound
+    let missing = app
+        .update_pdf_capture_note("vault", 9999, "Updated")
+        .unwrap_err();
+    assert_eq!(missing.code, KnowledgeErrorCode::NotFound);
+
+    // Valid update persists across reopen and appends knowledge_audit
+    app.update_pdf_capture_note("vault", cap.capture_id, "Revised PDF note")
+        .unwrap();
+    let body = app
+        .pdf_note_body(
+            "vault",
+            cap.capture_id,
+            NoteBodyField::Note,
+            0,
+            MAX_NOTE_CHUNK_BYTES,
+        )
+        .unwrap();
+    assert_eq!(body.text, "Revised PDF note");
+    drop(app);
+
+    let db = rusqlite::Connection::open(scratch.0.join("core.sqlite")).unwrap();
+    let audit_count: i64 = db
+        .query_row(
+            "SELECT count(*) FROM knowledge_audit WHERE vault='vault' AND action='update_pdf_capture_note' AND entity_kind='pdf_capture' AND entity_id=?1",
+            [cap.capture_id],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(audit_count, 1);
+
+    let reopened = KnowledgeApplication::new(scratch.store());
+    let page = reopened.pdf_notes_page("vault", None, None, 10).unwrap();
+    assert_eq!(page.notes.len(), 1);
+    assert_eq!(page.notes[0].note_preview, "Revised PDF note");
+}
+
+#[test]
+fn delete_pdf_capture_audits_exports_and_restores_into_empty_core() {
+    let scratch = Scratch::new();
+    let mut app = KnowledgeApplication::new(scratch.store());
+    let (original, snapshot, draft) = pdf_fixture();
+    let doc = app
+        .import_document("op-pdf-delcap-import", "vault", "PDF", &original, &snapshot)
+        .unwrap();
+    let cap1 = app
+        .capture_pdf(
+            "op-pdf-delcap-1",
+            doc.document_id,
+            &draft,
+            &origin(),
+            "First",
+        )
+        .unwrap();
+    let mut draft2 = draft.clone();
+    draft2.end = 2;
+    draft2.exact = "he".into();
+    let cap2 = app
+        .capture_pdf(
+            "op-pdf-delcap-2",
+            doc.document_id,
+            &draft2,
+            &origin(),
+            "Second",
+        )
+        .unwrap();
+
+    assert_eq!(
+        app.delete_pdf_capture("other", cap1.capture_id)
+            .unwrap_err()
+            .code,
+        KnowledgeErrorCode::NotFound
+    );
+    app.delete_pdf_capture("vault", cap1.capture_id).unwrap();
+    assert_eq!(
+        app.delete_pdf_capture("vault", cap1.capture_id)
+            .unwrap_err()
+            .code,
+        KnowledgeErrorCode::NotFound
+    );
+
+    let page = app.pdf_notes_page("vault", None, None, 10).unwrap();
+    assert_eq!(page.notes.len(), 1);
+    assert_eq!(page.notes[0].capture_id, cap2.capture_id);
+
+    let db = rusqlite::Connection::open(scratch.0.join("core.sqlite")).unwrap();
+    let audit_count: i64 = db
+        .query_row(
+            "SELECT count(*) FROM knowledge_audit WHERE vault='vault' AND action='delete_pdf_capture' AND entity_kind='pdf_capture' AND entity_id=?1",
+            [cap1.capture_id],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(audit_count, 1);
+
+    // Export and restore into empty Core, then capture a third note to prove ID allocation & commit_rev continue cleanly.
+    let exported = app.export_all().unwrap();
+    let scratch2 = Scratch::new();
+    let mut restored = KnowledgeApplication::new(scratch2.store());
+    restored.restore_all(&exported).unwrap();
+    let restored_notes = restored.pdf_notes_page("vault", None, None, 10).unwrap();
+    assert_eq!(restored_notes.notes.len(), 1);
+    assert_eq!(restored_notes.notes[0].capture_id, cap2.capture_id);
+
+    let cap3 = restored
+        .capture_pdf(
+            "op-pdf-delcap-3",
+            doc.document_id,
+            &draft,
+            &origin(),
+            "Third",
+        )
+        .unwrap();
+    assert!(cap3.capture_id > cap2.capture_id);
+}
+
+#[test]
+fn delete_pdf_document_cascades_audits_exports_and_restores_into_empty_core() {
+    let scratch = Scratch::new();
+    let mut app = KnowledgeApplication::new(scratch.store());
+    let (original, snapshot, draft) = pdf_fixture();
+    let doc1 = app
+        .import_document("op-pdf-deldoc-1", "vault", "PDF 1", &original, &snapshot)
+        .unwrap();
+    let _cap1 = app
+        .capture_pdf(
+            "op-pdf-deldoc-cap1",
+            doc1.document_id,
+            &draft,
+            &origin(),
+            "Note 1",
+        )
+        .unwrap();
+    let doc2 = app
+        .import_document("op-pdf-deldoc-2", "other", "PDF 2", &original, &snapshot)
+        .unwrap();
+    let cap2 = app
+        .capture_pdf(
+            "op-pdf-deldoc-cap2",
+            doc2.document_id,
+            &draft,
+            &origin(),
+            "Note 2",
+        )
+        .unwrap();
+
+    assert_eq!(
+        app.delete_pdf_document("other", doc1.document_id)
+            .unwrap_err()
+            .code,
+        KnowledgeErrorCode::NotFound
+    );
+    app.delete_pdf_document("vault", doc1.document_id).unwrap();
+
+    assert!(
+        app.pdf_documents_page("vault", None, 10)
+            .unwrap()
+            .documents
+            .is_empty()
+    );
+    assert!(
+        app.pdf_notes_page("vault", None, None, 10)
+            .unwrap()
+            .notes
+            .is_empty()
+    );
+    assert_eq!(
+        app.pdf_documents_page("other", None, 10)
+            .unwrap()
+            .documents
+            .len(),
+        1
+    );
+    assert_eq!(
+        app.pdf_notes_page("other", None, None, 10)
+            .unwrap()
+            .notes
+            .len(),
+        1
+    );
+
+    let db = rusqlite::Connection::open(scratch.0.join("core.sqlite")).unwrap();
+    let audit_count: i64 = db
+        .query_row(
+            "SELECT count(*) FROM knowledge_audit WHERE vault='vault' AND action='delete_pdf_document' AND entity_kind='pdf_document' AND entity_id=?1",
+            [doc1.document_id],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(audit_count, 1);
+
+    let exported = app.export_all().unwrap();
+    let scratch2 = Scratch::new();
+    let mut restored = KnowledgeApplication::new(scratch2.store());
+    restored.restore_all(&exported).unwrap();
+    assert!(
+        restored
+            .pdf_documents_page("vault", None, 10)
+            .unwrap()
+            .documents
+            .is_empty()
+    );
+    let other_notes = restored.pdf_notes_page("other", None, None, 10).unwrap();
+    assert_eq!(other_notes.notes.len(), 1);
+    assert_eq!(other_notes.notes[0].capture_id, cap2.capture_id);
+}

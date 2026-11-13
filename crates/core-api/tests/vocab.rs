@@ -18,6 +18,8 @@ fn seed() -> WordbookSeed {
             term: "abandon".into(),
             meaning: "放弃".into(),
             example: "Do not abandon it.".into(),
+            pos: "v.".into(),
+            phonetic: "/əˈbændən/".into(),
         }],
     }
 }
@@ -39,6 +41,8 @@ fn archive() -> StudyArchive {
             term: "abandon".into(),
             meaning: "放弃".into(),
             example: "Do not abandon it.".into(),
+            pos: "v.".into(),
+            phonetic: "/əˈbændən/".into(),
         }],
         schedules: vec![CardSchedule {
             card_id: 1,
@@ -196,5 +200,69 @@ fn archives_reject_inconsistent_identity_and_history() {
     assert_eq!(
         validate_archive(&wrong_schema).unwrap_err().code,
         KnowledgeErrorCode::UnsupportedVersion
+    );
+}
+
+#[test]
+fn pos_and_phonetic_validate_bounds_and_deserialize_legacy_json() {
+    use core_api::vocab::{MAX_PHONETIC_BYTES, MAX_POS_BYTES};
+
+    let legacy_seed_json = r#"{
+        "title": "legacy",
+        "description": "no pos or phonetic",
+        "words": [
+            { "term": "alpha", "meaning": "第一个", "example": "Alpha test." }
+        ]
+    }"#;
+    let legacy_seed: WordbookSeed = serde_json::from_str(legacy_seed_json).unwrap();
+    assert_eq!(legacy_seed.words[0].pos, "");
+    assert_eq!(legacy_seed.words[0].phonetic, "");
+    assert!(validate_seed("vault", &legacy_seed).is_ok());
+
+    let legacy_card_json = r#"{
+        "id": 1,
+        "wordbook_id": 1,
+        "position": 0,
+        "term": "alpha",
+        "meaning": "第一个",
+        "example": ""
+    }"#;
+    let legacy_card: StudyCard = serde_json::from_str(legacy_card_json).unwrap();
+    assert_eq!(legacy_card.pos, "");
+    assert_eq!(legacy_card.phonetic, "");
+
+    let mut bad_pos = seed();
+    bad_pos.words[0].pos = "n".repeat(MAX_POS_BYTES + 1);
+    assert_eq!(
+        validate_seed("vault", &bad_pos).unwrap_err().code,
+        KnowledgeErrorCode::InvalidInput
+    );
+
+    let mut bad_pos_ctrl = seed();
+    bad_pos_ctrl.words[0].pos = "n.\n".into();
+    assert_eq!(
+        validate_seed("vault", &bad_pos_ctrl).unwrap_err().code,
+        KnowledgeErrorCode::InvalidInput
+    );
+
+    let mut bad_phonetic = seed();
+    bad_phonetic.words[0].phonetic = "a".repeat(MAX_PHONETIC_BYTES + 1);
+    assert_eq!(
+        validate_seed("vault", &bad_phonetic).unwrap_err().code,
+        KnowledgeErrorCode::InvalidInput
+    );
+
+    let mut bad_phonetic_ctrl = seed();
+    bad_phonetic_ctrl.words[0].phonetic = "/a\t/".into();
+    assert_eq!(
+        validate_seed("vault", &bad_phonetic_ctrl).unwrap_err().code,
+        KnowledgeErrorCode::InvalidInput
+    );
+
+    let mut bad_card_archive = archive();
+    bad_card_archive.cards[0].pos = "x".repeat(MAX_POS_BYTES + 1);
+    assert_eq!(
+        validate_archive(&bad_card_archive).unwrap_err().code,
+        KnowledgeErrorCode::Integrity
     );
 }

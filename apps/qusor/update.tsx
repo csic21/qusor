@@ -179,6 +179,9 @@ function sourceLabel(source: { kind: string; value: string } | null): string {
 export function UpdateDialog(props: { frameWidth: number }) {
     // Read signals in the bindings that use them (`updateState()` inside `when`),
     // never into a local: the component body runs once, so a local freezes.
+    const dialogWidth = () =>
+        Math.min(470, Math.max(280, props.frameWidth - 24));
+    const compact = () => props.frameWidth < 1120;
     return (
         <Dialog
             open={updateOpen()}
@@ -187,10 +190,12 @@ export function UpdateDialog(props: { frameWidth: number }) {
             backdropStyle={{ backgroundColor: ink("surface-scrim") }}
             style={{
                 position: "absolute",
-                top: 120,
-                left: Math.max(18, (props.frameWidth - 470) / 2),
-                width: 470,
-                padding: 22,
+                top: compact() ? 56 : 120,
+                marginTop: compact() ? "env(safe-area-inset-top)" : 0,
+                marginBottom: compact() ? "env(safe-area-inset-bottom)" : 0,
+                left: Math.max(12, (props.frameWidth - dialogWidth()) / 2),
+                width: dialogWidth(),
+                padding: compact() ? 18 : 22,
                 gap: 14,
                 borderRadius: 14,
                 borderCurve: "continuous",
@@ -216,8 +221,8 @@ export function UpdateDialog(props: { frameWidth: number }) {
                     accessibilityLabel="关闭更新"
                     onPress={() => updateOpen.set(false)}
                     style={{
-                        width: 24,
-                        height: 24,
+                        width: compact() ? 36 : 24,
+                        height: compact() ? 36 : 24,
                         borderRadius: 6,
                         alignItems: "center",
                         justifyContent: "center",
@@ -252,6 +257,7 @@ export function UpdateDialog(props: { frameWidth: number }) {
             <View
                 style={{
                     flexDirection: "row",
+                    flexWrap: "wrap",
                     gap: 8,
                     alignItems: "center",
                 }}

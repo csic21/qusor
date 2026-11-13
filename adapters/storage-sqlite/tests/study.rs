@@ -51,16 +51,22 @@ fn seed() -> WordbookSeed {
         words: vec![
             NewWord {
                 term: "abandon".into(),
+                pos: "v.".into(),
+                phonetic: "/əˈbændən/".into(),
                 meaning: "放弃".into(),
                 example: "Do not abandon the plan.".into(),
             },
             NewWord {
                 term: "benefit".into(),
+                pos: "n.".into(),
+                phonetic: "/ˈbenɪfɪt/".into(),
                 meaning: "益处".into(),
                 example: "Reading has many benefits.".into(),
             },
             NewWord {
                 term: "candidate".into(),
+                pos: "n.".into(),
+                phonetic: "/ˈkændɪdət/".into(),
                 meaning: "候选人".into(),
                 example: "The candidate answered well.".into(),
             },
@@ -297,4 +303,240 @@ fn store_rejects_a_stale_review_guard() {
     );
     assert_eq!(store.study_snapshot().unwrap().reviews.len(), 1);
     let _ = book;
+}
+
+#[test]
+fn pos_and_phonetic_roundtrip_across_reopen_and_restore() {
+    let dir = Scratch::new();
+    let store = SqliteStore::open(&dir.0).unwrap();
+    let mut app = StudyApplication::new(store);
+    let book = app.seed_wordbook("main", &seed(), NOW).unwrap();
+    let cards = app.wordbook_cards("main", book.id, 10, 0).unwrap();
+    assert_eq!(cards.len(), 3);
+    assert_eq!(cards[0].pos, "v.");
+    assert_eq!(cards[0].phonetic, "/əˈbændən/");
+    assert_eq!(cards[1].pos, "n.");
+    assert_eq!(cards[1].phonetic, "/ˈbenɪfɪt/");
+    drop(app);
+
+    let reopened = StudyApplication::new(SqliteStore::open(&dir.0).unwrap());
+    let reopened_cards = reopened.wordbook_cards("main", book.id, 10, 0).unwrap();
+    assert_eq!(reopened_cards, cards);
+
+    let archive = reopened.into_store().study_snapshot().unwrap();
+    let dir2 = Scratch::new();
+    let mut restored_store = SqliteStore::open(&dir2.0).unwrap();
+    restored_store.restore_study(&archive).unwrap();
+    let restored_app = StudyApplication::new(restored_store);
+    let restored_cards = restored_app.wordbook_cards("main", book.id, 10, 0).unwrap();
+    assert_eq!(restored_cards, cards);
+}
+
+#[test]
+fn delete_wordbook_cascades_and_rejects_wrong_or_missing_vault() {
+    let dir = Scratch::new();
+    let mut app = StudyApplication::new(SqliteStore::open(&dir.0).unwrap());
+    let main_book = app.seed_wordbook("main", &seed(), NOW).unwrap();
+    let other_book = app.seed_wordbook("other", &seed(), NOW).unwrap();
+
+    // Review one card in main_book so schedule + review rows exist and must cascade.
+    let q = app.queue("main", main_book.id, NOW, NOW - DAY, 10).unwrap();
+    app.review(
+        "main",
+        q.cards[0].card.id,
+        StudyRating::Good,
+        "op-del-1",
+        NOW + HOUR,
+        NOW - DAY,
+    )
+    .unwrap();
+
+    let err_wrong_vault = app.delete_wordbook("other", main_book.id).unwrap_err();
+    assert_eq!(
+        err_wrong_vault.code,
+        core_api::error::KnowledgeErrorCode::NotFound
+    );
+    let err_missing = app.delete_wordbook("main", 9999).unwrap_err();
+    assert_eq!(
+        err_missing.code,
+        core_api::error::KnowledgeErrorCode::NotFound
+    );
+
+    app.delete_wordbook("main", main_book.id).unwrap();
+    assert!(app.decks("main", NOW).unwrap().is_empty());
+
+    let snapshot = app.into_store().study_snapshot().unwrap();
+    assert_eq!(snapshot.wordbooks, vec![other_book.clone()]);
+    assert_eq!(snapshot.cards.len(), 3);
+    assert!(
+        snapshot
+            .cards
+            .iter()
+            .all(|c| c.wordbook_id == other_book.id)
+    );
+    assert!(snapshot.schedules.is_empty());
+    assert!(snapshot.reviews.is_empty());
+
+    // Reopen and confirm deletion persisted.
+    let reopened = StudyApplication::new(SqliteStore::open(&dir.0).unwrap());
+    assert_eq!(reopened.decks("other", NOW).unwrap().len(), 1);
+    assert!(reopened.decks("main", NOW).unwrap().is_empty());
+}
+
+#[test]
+fn wordbook_cards_paginates_and_checks_bounds_and_vault() {
+    let dir = Scratch::new();
+    let mut app = StudyApplication::new(SqliteStore::open(&dir.0).unwrap());
+    let book = app.seed_wordbook("main", &seed(), NOW).unwrap();
+
+    let page1 = app.wordbook_cards("main", book.id, 2, 0).unwrap();
+    let page2 = app.wordbook_cards("main", book.id, 2, 2).unwrap();
+    assert_eq!(page1.len(), 2);
+    assert_eq!(page1[0].term, "abandon");
+    assert_eq!(page1[1].term, "benefit");
+    assert_eq!(page2.len(), 1);
+    assert_eq!(page2[0].term, "candidate");
+
+    assert_eq!(
+        app.wordbook_cards("other", book.id, 2, 0).unwrap_err().code,
+        core_api::error::KnowledgeErrorCode::NotFound
+    );
+    assert_eq!(
+        app.wordbook_cards("main", book.id, 0, 0).unwrap_err().code,
+        core_api::error::KnowledgeErrorCode::BudgetExceeded
+    );
+    assert_eq!(
+        app.wordbook_cards("main", book.id, 201, 0)
+            .unwrap_err()
+            .code,
+        core_api::error::KnowledgeErrorCode::BudgetExceeded
+    );
+}
+
+#[test]
+fn queue_with_limit_clamps_daily_new_limit_and_queue_keeps_default() {
+    let dir = Scratch::new();
+    let mut app = StudyApplication::new(SqliteStore::open(&dir.0).unwrap());
+    let words: Vec<NewWord> = (0..25)
+        .map(|i| NewWord {
+            term: format!("word-{i:02}"),
+            pos: "n.".into(),
+            phonetic: format!("/w{i}/"),
+            meaning: format!("释义-{i}"),
+            example: format!("Example sentence {i}."),
+        })
+        .collect();
+    let book = app
+        .seed_wordbook(
+            "main",
+            &WordbookSeed {
+                title: "25-card deck".into(),
+                description: "Synthetic test deck".into(),
+                words,
+            },
+            NOW,
+        )
+        .unwrap();
+
+    let zero_q = app.queue_with_limit("main", book.id, NOW, 50, 0).unwrap();
+    assert_eq!(zero_q.remaining_new, 0);
+    assert!(zero_q.cards.is_empty());
+
+    let five_q = app.queue_with_limit("main", book.id, NOW, 50, 5).unwrap();
+    assert_eq!(five_q.remaining_new, 0);
+    assert_eq!(five_q.cards.len(), 5);
+
+    // Default `queue` remains pinned to DAILY_NEW_LIMIT (20).
+    let default_q = app.queue("main", book.id, NOW, NOW, 50).unwrap();
+    assert_eq!(default_q.remaining_new, 0);
+    assert_eq!(
+        default_q.cards.len(),
+        core_api::vocab::DAILY_NEW_LIMIT as usize
+    );
+
+    // Values above MAX_DAILY_NEW_LIMIT (200) clamp down to 200; seed 210 words to observe clamping.
+    let big_words: Vec<NewWord> = (0..210)
+        .map(|i| NewWord {
+            term: format!("big-{i:03}"),
+            pos: String::new(),
+            phonetic: String::new(),
+            meaning: format!("m-{i}"),
+            example: String::new(),
+        })
+        .collect();
+    let big_book = app
+        .seed_wordbook(
+            "main",
+            &WordbookSeed {
+                title: "210-card deck".into(),
+                description: "Clamp verification".into(),
+                words: big_words,
+            },
+            NOW,
+        )
+        .unwrap();
+    let clamped_q = app
+        .queue_with_limit("main", big_book.id, NOW, 50, 999)
+        .unwrap();
+    assert_eq!(clamped_q.remaining_new, 150);
+    assert_eq!(clamped_q.cards.len(), 50);
+}
+
+#[test]
+fn schema_v4_migrates_cleanly_to_v5_preserving_cards_and_adding_tables() {
+    let dir = Scratch::new();
+    let db_path = dir.0.join("core.sqlite");
+    {
+        let db = rusqlite::Connection::open(&db_path).unwrap();
+        db.execute_batch(
+            "PRAGMA foreign_keys=ON;
+            BEGIN;
+            CREATE TABLE source(id INTEGER PRIMARY KEY, descriptor TEXT NOT NULL);
+            CREATE TABLE document_version(id INTEGER PRIMARY KEY,source_id INTEGER NOT NULL REFERENCES source(id),snapshot_hash TEXT NOT NULL);
+            CREATE TABLE capture(id INTEGER PRIMARY KEY,source_id INTEGER NOT NULL REFERENCES source(id),version_id INTEGER NOT NULL REFERENCES document_version(id),record TEXT NOT NULL,anchor TEXT NOT NULL);
+            CREATE TABLE operation(id TEXT PRIMARY KEY,capture_id INTEGER UNIQUE NOT NULL REFERENCES capture(id),input_hash TEXT NOT NULL,payload TEXT NOT NULL);
+            CREATE TABLE receipt(operation_id TEXT PRIMARY KEY REFERENCES operation(id),payload TEXT NOT NULL);
+            CREATE TABLE outbox(operation_id TEXT PRIMARY KEY REFERENCES operation(id),payload TEXT NOT NULL);
+            CREATE TABLE index_job(operation_id TEXT PRIMARY KEY REFERENCES operation(id),payload TEXT NOT NULL);
+            CREATE TABLE commit_log(commit_rev INTEGER PRIMARY KEY,operation_id TEXT UNIQUE NOT NULL,kind TEXT NOT NULL CHECK(kind IN('text','pdf_import','pdf_capture')),entity_id INTEGER NOT NULL,input_hash TEXT NOT NULL,receipt TEXT NOT NULL);
+            CREATE TABLE pdf_document(id INTEGER PRIMARY KEY,vault TEXT NOT NULL,title TEXT NOT NULL,original_hash TEXT NOT NULL,original_bytes INTEGER NOT NULL,extraction_revision TEXT NOT NULL,record TEXT NOT NULL);
+            CREATE TABLE pdf_extraction(document_id INTEGER PRIMARY KEY REFERENCES pdf_document(id),snapshot TEXT NOT NULL);
+            CREATE TABLE pdf_capture(id INTEGER PRIMARY KEY,document_id INTEGER NOT NULL REFERENCES pdf_document(id),record TEXT NOT NULL,anchor TEXT NOT NULL);
+            CREATE TABLE pdf_operation(operation_id TEXT PRIMARY KEY REFERENCES commit_log(operation_id),kind TEXT NOT NULL,document_id INTEGER NOT NULL REFERENCES pdf_document(id),capture_id INTEGER UNIQUE REFERENCES pdf_capture(id),input_hash TEXT NOT NULL,payload TEXT NOT NULL);
+            CREATE TABLE pdf_receipt(operation_id TEXT PRIMARY KEY REFERENCES pdf_operation(operation_id),payload TEXT NOT NULL);
+            CREATE TABLE pdf_outbox(operation_id TEXT PRIMARY KEY REFERENCES pdf_operation(operation_id),payload TEXT NOT NULL);
+            CREATE TABLE pdf_index_job(operation_id TEXT PRIMARY KEY REFERENCES pdf_operation(operation_id),payload TEXT NOT NULL);
+            CREATE TABLE vocab_wordbook(id INTEGER PRIMARY KEY,vault TEXT NOT NULL,title TEXT NOT NULL,description TEXT NOT NULL,created_at_ms INTEGER NOT NULL,UNIQUE(vault,title));
+            CREATE TABLE vocab_card(id INTEGER PRIMARY KEY,wordbook_id INTEGER NOT NULL REFERENCES vocab_wordbook(id),position INTEGER NOT NULL,term TEXT NOT NULL,meaning TEXT NOT NULL,example TEXT NOT NULL,UNIQUE(wordbook_id,position));
+            CREATE TABLE vocab_schedule(card_id INTEGER PRIMARY KEY REFERENCES vocab_card(id),due_at_ms INTEGER NOT NULL,stage TEXT NOT NULL CHECK(stage IN('learning','review')),stability REAL NOT NULL,difficulty REAL NOT NULL,reps INTEGER NOT NULL CHECK(reps > 0),lapses INTEGER NOT NULL CHECK(lapses >= 0 AND lapses <= reps),last_review_at_ms INTEGER NOT NULL,last_rating INTEGER NOT NULL CHECK(last_rating BETWEEN 1 AND 4));
+            CREATE TABLE vocab_review(id INTEGER PRIMARY KEY,card_id INTEGER NOT NULL REFERENCES vocab_card(id),operation_id TEXT NOT NULL UNIQUE,rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 4),reviewed_at_ms INTEGER NOT NULL,stage_before TEXT NOT NULL,stage_after TEXT NOT NULL CHECK(stage_after IN('learning','review')),stability REAL NOT NULL,difficulty REAL NOT NULL,scheduled_minutes INTEGER NOT NULL CHECK(scheduled_minutes > 0),due_at_ms INTEGER NOT NULL,algorithm TEXT NOT NULL);
+            INSERT INTO vocab_wordbook(id,vault,title,description,created_at_ms) VALUES(1,'main','Legacy Deck','Before v5',1767225600000);
+            INSERT INTO vocab_card(id,wordbook_id,position,term,meaning,example) VALUES(10,1,0,'legacy','遗留','Legacy example.');
+            PRAGMA user_version=4;
+            COMMIT;",
+        )
+        .unwrap();
+    }
+
+    let store = SqliteStore::open(&dir.0).unwrap();
+    let app = StudyApplication::new(store);
+    let cards = app.wordbook_cards("main", 1, 10, 0).unwrap();
+    assert_eq!(cards.len(), 1);
+    assert_eq!(cards[0].term, "legacy");
+    assert_eq!(cards[0].pos, "");
+    assert_eq!(cards[0].phonetic, "");
+
+    let db = rusqlite::Connection::open(&db_path).unwrap();
+    let version: i64 = db
+        .query_row("PRAGMA user_version", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(version, 5);
+    let v5_tables: i64 = db
+        .query_row(
+            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('epub_documents','epub_chapters','epub_toc','epub_captures','knowledge_audit')",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(v5_tables, 5);
 }

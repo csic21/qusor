@@ -1,6 +1,7 @@
 //! SQLite relationship verification, schema migration and atomic knowledge commits.
 use super::StorageStage;
 use blob_store::{BlobStage, BlobStore};
+use core_api::epub_contract::EpubDraft;
 use core_api::knowledge::*;
 use core_api::vocab::{
     CardSchedule, ReviewEntry, ReviewGuard, STUDY_SCHEMA_VERSION, StudyArchive, StudyCard,
@@ -94,7 +95,7 @@ impl SqliteStore {
             }
             db.execute_batch("BEGIN; CREATE TABLE source(id INTEGER PRIMARY KEY, descriptor TEXT NOT NULL); CREATE TABLE document_version(id INTEGER PRIMARY KEY,source_id INTEGER NOT NULL REFERENCES source(id),snapshot_hash TEXT NOT NULL); CREATE TABLE capture(id INTEGER PRIMARY KEY,source_id INTEGER NOT NULL REFERENCES source(id),version_id INTEGER NOT NULL REFERENCES document_version(id),record TEXT NOT NULL,anchor TEXT NOT NULL); CREATE TABLE operation(id TEXT PRIMARY KEY,capture_id INTEGER UNIQUE NOT NULL REFERENCES capture(id),input_hash TEXT NOT NULL,payload TEXT NOT NULL); CREATE TABLE receipt(operation_id TEXT PRIMARY KEY REFERENCES operation(id),payload TEXT NOT NULL); CREATE TABLE outbox(operation_id TEXT PRIMARY KEY REFERENCES operation(id),payload TEXT NOT NULL); CREATE TABLE index_job(operation_id TEXT PRIMARY KEY REFERENCES operation(id),payload TEXT NOT NULL); PRAGMA user_version=1; COMMIT;")?;
             File::open(&root)?.sync_all()?;
-        } else if !(1..=4).contains(&version) {
+        } else if !(1..=5).contains(&version) {
             return fail("unknown Core schema");
         }
         if version < 2 {
@@ -105,13 +106,16 @@ impl SqliteStore {
         if version < 4 {
             migrate_study(&db, observe.as_ref())?;
         }
-        let study_tables: i64 = db.query_row(
-            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('vocab_wordbook','vocab_card','vocab_schedule','vocab_review')",
+        if version < 5 {
+            migrate_v5(&db, observe.as_ref())?;
+        }
+        let expected_tables: i64 = db.query_row(
+            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('vocab_wordbook','vocab_card','vocab_schedule','vocab_review','epub_documents','epub_chapters','epub_toc','epub_captures','knowledge_audit')",
             [],
             |r| r.get(0),
         )?;
-        if study_tables != 4 {
-            return fail("missing study schema");
+        if expected_tables != 9 {
+            return fail("missing v5 schema tables");
         }
         let core = Self { db, blobs, observe };
         let _: ArchiveV2 = Self::read_snapshot(&core.db, &core.blobs)?;
@@ -264,6 +268,8 @@ impl SqliteStore {
             pdf_documents: vec![],
             pdf_captures: vec![],
             pdf_operations: vec![],
+            epub_documents: vec![],
+            epub_captures: vec![],
             commits: vec![],
             blobs: text
                 .blobs
@@ -375,17 +381,167 @@ impl SqliteStore {
                 return fail("incomplete PDF transaction");
             }
         }
+        {
+            let doc_count: i64 =
+                db.query_row("SELECT count(*) FROM epub_documents", [], |r| r.get(0))?;
+            let cap_count: i64 =
+                db.query_row("SELECT count(*) FROM epub_captures", [], |r| r.get(0))?;
+            let chapter_bytes: i64 = db.query_row(
+                "SELECT coalesce(sum(length(CAST(text AS BLOB))),0) FROM epub_chapters",
+                [],
+                |r| r.get(0),
+            )?;
+            if doc_count > 4096 || cap_count > 4096 || chapter_bytes > ARCHIVE_LIMIT as i64 {
+                return fail("EPUB table budget exceeded");
+            }
+            let mut stmt = db.prepare(
+                "SELECT id,vault,title,author,original_hash,original_bytes,extraction_revision,operation_id,commit_rev,receipt FROM epub_documents ORDER BY id",
+            )?;
+            let doc_rows = stmt.query_map([], |r| {
+                Ok((
+                    r.get::<_, i64>(0)?,
+                    r.get::<_, String>(1)?,
+                    r.get::<_, String>(2)?,
+                    r.get::<_, String>(3)?,
+                    r.get::<_, String>(4)?,
+                    r.get::<_, i64>(5)?,
+                    r.get::<_, String>(6)?,
+                    r.get::<_, String>(7)?,
+                    r.get::<_, i64>(8)?,
+                    r.get::<_, String>(9)?,
+                ))
+            })?;
+            for row in doc_rows {
+                let (
+                    id,
+                    vault,
+                    title,
+                    author,
+                    original_sha256,
+                    original_bytes,
+                    extraction_revision,
+                    operation_id,
+                    commit_rev,
+                    receipt_raw,
+                ) = row?;
+                let receipt: EpubDocumentReceipt = serde_json::from_str(&receipt_raw)?;
+                if receipt.document_id != id
+                    || receipt.operation_id != operation_id
+                    || receipt.commit_rev != commit_rev
+                    || receipt.original_sha256 != original_sha256
+                    || receipt.extraction_revision != extraction_revision
+                {
+                    return fail("EPUB document SQL identity mismatch");
+                }
+                let mut chapters = Vec::new();
+                let mut ch_stmt = db.prepare(
+                    "SELECT chapter_index,title,href,text FROM epub_chapters WHERE document_id=?1 ORDER BY chapter_index",
+                )?;
+                for ch_row in ch_stmt.query_map([id], |r| {
+                    Ok((
+                        r.get::<_, i64>(0)?,
+                        r.get::<_, String>(1)?,
+                        r.get::<_, String>(2)?,
+                        r.get::<_, String>(3)?,
+                    ))
+                })? {
+                    let (chapter_index, ch_title, href, text) = ch_row?;
+                    chapters.push(EpubChapterRecord {
+                        chapter_index: u32::try_from(chapter_index)?,
+                        title: ch_title,
+                        href,
+                        text,
+                    });
+                }
+                let mut toc = Vec::new();
+                let mut toc_stmt = db.prepare(
+                    "SELECT title,chapter_index,depth FROM epub_toc WHERE document_id=?1 ORDER BY position",
+                )?;
+                for toc_row in toc_stmt.query_map([id], |r| {
+                    Ok((
+                        r.get::<_, String>(0)?,
+                        r.get::<_, i64>(1)?,
+                        r.get::<_, i64>(2)?,
+                    ))
+                })? {
+                    let (toc_title, chapter_index, depth) = toc_row?;
+                    toc.push(EpubTocRecord {
+                        title: toc_title,
+                        chapter_index: u32::try_from(chapter_index)?,
+                        depth: u8::try_from(depth)?,
+                    });
+                }
+                archive.epub_documents.push(EpubDocumentRecord {
+                    receipt,
+                    vault,
+                    title,
+                    author,
+                    original_bytes: u64::try_from(original_bytes)?,
+                    chapters,
+                    toc,
+                });
+            }
+            let mut cap_stmt = db.prepare(
+                "SELECT id,document_id,operation_id,commit_rev,draft,provenance,user_note,receipt FROM epub_captures ORDER BY id",
+            )?;
+            for row in cap_stmt.query_map([], |r| {
+                Ok((
+                    r.get::<_, i64>(0)?,
+                    r.get::<_, i64>(1)?,
+                    r.get::<_, String>(2)?,
+                    r.get::<_, i64>(3)?,
+                    r.get::<_, String>(4)?,
+                    r.get::<_, String>(5)?,
+                    r.get::<_, String>(6)?,
+                    r.get::<_, String>(7)?,
+                ))
+            })? {
+                let (
+                    id,
+                    document_id,
+                    operation_id,
+                    commit_rev,
+                    draft_raw,
+                    prov_raw,
+                    user_note,
+                    receipt_raw,
+                ) = row?;
+                let receipt: EpubReceipt = serde_json::from_str(&receipt_raw)?;
+                if receipt.capture_id != id
+                    || receipt.document_id != document_id
+                    || receipt.operation_id != operation_id
+                    || receipt.commit_rev != commit_rev
+                {
+                    return fail("EPUB capture SQL identity mismatch");
+                }
+                let draft: EpubDraft = serde_json::from_str(&draft_raw)?;
+                let provenance: Provenance = serde_json::from_str(&prov_raw)?;
+                archive.epub_captures.push(EpubCaptureRecord {
+                    receipt,
+                    draft,
+                    provenance,
+                    user_note,
+                });
+            }
+            let total_chapters: usize = archive
+                .epub_documents
+                .iter()
+                .map(|doc| doc.chapters.len())
+                .sum();
+            let total_toc: usize = archive.epub_documents.iter().map(|doc| doc.toc.len()).sum();
+            let actual_chapters: i64 =
+                db.query_row("SELECT count(*) FROM epub_chapters", [], |r| r.get(0))?;
+            let actual_toc: i64 =
+                db.query_row("SELECT count(*) FROM epub_toc", [], |r| r.get(0))?;
+            if actual_chapters as usize != total_chapters || actual_toc as usize != total_toc {
+                return fail("incomplete EPUB chapters or TOC");
+            }
+        }
         archive
             .pdf_operations
             .sort_by(|a, b| a.operation_id.cmp(&b.operation_id));
         archive.blobs.sort_by(|a, b| a.hash.cmp(&b.hash));
-        if archive
-            .pdf_captures
-            .iter()
-            .any(|record| record.compound.is_some())
-        {
-            archive.schema_version = 3;
-        }
+        archive.schema_version = archive_schema_version(&archive);
         validate_archive(&archive)?;
         Ok(archive)
     }
@@ -501,6 +657,83 @@ fn insert_pdf_operation(
     }
     Ok(())
 }
+fn insert_epub_document(
+    tx: &rusqlite::Transaction<'_>,
+    record: &EpubDocumentRecord,
+) -> Internal<()> {
+    let p = &record.receipt;
+    tx.execute(
+        "INSERT INTO epub_documents(id,vault,title,author,original_hash,original_bytes,extraction_revision,operation_id,commit_rev,receipt) VALUES(?,?,?,?,?,?,?,?,?,?)",
+        params![
+            p.document_id,
+            record.vault,
+            record.title,
+            record.author,
+            p.original_sha256,
+            i64::try_from(record.original_bytes)?,
+            p.extraction_revision,
+            p.operation_id,
+            p.commit_rev,
+            serde_json::to_string(p)?
+        ],
+    )?;
+    for chapter in &record.chapters {
+        tx.execute(
+            "INSERT INTO epub_chapters(document_id,chapter_index,title,href,text) VALUES(?,?,?,?,?)",
+            params![
+                p.document_id,
+                i64::from(chapter.chapter_index),
+                chapter.title,
+                chapter.href,
+                chapter.text
+            ],
+        )?;
+    }
+    for (position, entry) in record.toc.iter().enumerate() {
+        tx.execute(
+            "INSERT INTO epub_toc(document_id,position,title,chapter_index,depth) VALUES(?,?,?,?,?)",
+            params![
+                p.document_id,
+                i64::try_from(position)?,
+                entry.title,
+                i64::from(entry.chapter_index),
+                i64::from(entry.depth)
+            ],
+        )?;
+    }
+    Ok(())
+}
+fn insert_epub_capture(tx: &rusqlite::Transaction<'_>, record: &EpubCaptureRecord) -> Internal<()> {
+    let p = &record.receipt;
+    tx.execute(
+        "INSERT INTO epub_captures(id,document_id,operation_id,commit_rev,draft,provenance,user_note,receipt) VALUES(?,?,?,?,?,?,?,?)",
+        params![
+            p.capture_id,
+            p.document_id,
+            p.operation_id,
+            p.commit_rev,
+            serde_json::to_string(&record.draft)?,
+            serde_json::to_string(&record.provenance)?,
+            record.user_note,
+            serde_json::to_string(p)?
+        ],
+    )?;
+    Ok(())
+}
+fn record_audit(
+    tx: &rusqlite::Transaction<'_>,
+    vault: &str,
+    action: &str,
+    entity_kind: &str,
+    entity_id: i64,
+    detail: &str,
+) -> Internal<()> {
+    tx.execute(
+        "INSERT INTO knowledge_audit(vault,action,entity_kind,entity_id,detail) VALUES(?,?,?,?,?)",
+        params![vault, action, entity_kind, entity_id, detail],
+    )?;
+    Ok(())
+}
 fn migrate(db: &Connection, observe: &dyn Fn(StorageStage)) -> Internal<()> {
     db.execute_batch("BEGIN IMMEDIATE;
         CREATE TABLE commit_log(commit_rev INTEGER PRIMARY KEY,operation_id TEXT UNIQUE NOT NULL,kind TEXT NOT NULL CHECK(kind IN('text','pdf_import','pdf_capture')),entity_id INTEGER NOT NULL,input_hash TEXT NOT NULL,receipt TEXT NOT NULL);
@@ -527,6 +760,104 @@ fn migrate_compound(db: &Connection, observe: &dyn Fn(StorageStage)) -> Internal
     observe(StorageStage::AfterMigrationCommit);
     Ok(())
 }
+fn has_column(db: &Connection, table: &str, column: &str) -> Internal<bool> {
+    let mut stmt = db.prepare(&format!("PRAGMA table_info({table})"))?;
+    let mut rows = stmt.query([])?;
+    while let Some(row) = rows.next()? {
+        let name: String = row.get(1)?;
+        if name == column {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+fn migrate_v5(db: &Connection, observe: &dyn Fn(StorageStage)) -> Internal<()> {
+    let has_pos = has_column(db, "vocab_card", "pos")?;
+    let has_phonetic = has_column(db, "vocab_card", "phonetic")?;
+    db.execute_batch("PRAGMA foreign_keys=OFF;")?;
+    let migration_result: Internal<()> = (|| {
+        db.execute_batch("BEGIN IMMEDIATE;")?;
+        if !has_pos {
+            db.execute_batch("ALTER TABLE vocab_card ADD COLUMN pos TEXT NOT NULL DEFAULT '';")?;
+        }
+        if !has_phonetic {
+            db.execute_batch(
+                "ALTER TABLE vocab_card ADD COLUMN phonetic TEXT NOT NULL DEFAULT '';",
+            )?;
+        }
+        db.execute_batch(
+            "CREATE TABLE commit_log_v5(
+                commit_rev INTEGER PRIMARY KEY,
+                operation_id TEXT UNIQUE NOT NULL,
+                kind TEXT NOT NULL CHECK(kind IN('text','pdf_import','pdf_capture','epub_import','epub_capture')),
+                entity_id INTEGER NOT NULL,
+                input_hash TEXT NOT NULL,
+                receipt TEXT NOT NULL
+            );
+            INSERT INTO commit_log_v5 SELECT commit_rev,operation_id,kind,entity_id,input_hash,receipt FROM commit_log;
+            DROP TABLE commit_log;
+            ALTER TABLE commit_log_v5 RENAME TO commit_log;
+            CREATE TABLE IF NOT EXISTS epub_documents(
+                id INTEGER PRIMARY KEY,
+                vault TEXT NOT NULL,
+                title TEXT NOT NULL,
+                author TEXT NOT NULL,
+                original_hash TEXT NOT NULL,
+                original_bytes INTEGER NOT NULL,
+                extraction_revision TEXT NOT NULL,
+                operation_id TEXT NOT NULL UNIQUE REFERENCES commit_log(operation_id),
+                commit_rev INTEGER NOT NULL,
+                receipt TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS epub_chapters(
+                document_id INTEGER NOT NULL REFERENCES epub_documents(id),
+                chapter_index INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                href TEXT NOT NULL,
+                text TEXT NOT NULL,
+                PRIMARY KEY(document_id, chapter_index)
+            );
+            CREATE TABLE IF NOT EXISTS epub_toc(
+                document_id INTEGER NOT NULL REFERENCES epub_documents(id),
+                position INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                chapter_index INTEGER NOT NULL,
+                depth INTEGER NOT NULL,
+                PRIMARY KEY(document_id, position)
+            );
+            CREATE TABLE IF NOT EXISTS epub_captures(
+                id INTEGER PRIMARY KEY,
+                document_id INTEGER NOT NULL REFERENCES epub_documents(id),
+                operation_id TEXT NOT NULL UNIQUE REFERENCES commit_log(operation_id),
+                commit_rev INTEGER NOT NULL,
+                draft TEXT NOT NULL,
+                provenance TEXT NOT NULL,
+                user_note TEXT NOT NULL,
+                receipt TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS knowledge_audit(
+                id INTEGER PRIMARY KEY,
+                vault TEXT NOT NULL,
+                action TEXT NOT NULL,
+                entity_kind TEXT NOT NULL,
+                entity_id INTEGER NOT NULL,
+                detail TEXT NOT NULL
+            );
+            PRAGMA user_version=5;",
+        )?;
+        observe(StorageStage::BeforeMigrationCommit);
+        db.execute_batch("COMMIT;")?;
+        observe(StorageStage::AfterMigrationCommit);
+        Ok(())
+    })();
+    let _ = db.execute_batch("PRAGMA foreign_keys=ON;");
+    migration_result?;
+    let fk: bool = db.prepare("PRAGMA foreign_key_check")?.exists([])?;
+    if fk {
+        return fail("broken relationships after v5 migration");
+    }
+    Ok(())
+}
 
 fn conflict(message: &str) -> KnowledgeError {
     KnowledgeError::new(KnowledgeErrorCode::Conflict, message)
@@ -534,7 +865,8 @@ fn conflict(message: &str) -> KnowledgeError {
 fn validate_transition(old: &ArchiveV2, plan: &CommitPlan) -> Result<()> {
     validate_archive(&plan.next)?;
     let next = &plan.next;
-    if plan.expected_revision != old.commits.len() as i64 {
+    let expected_rev = old.commits.iter().map(|c| c.commit_rev).max().unwrap_or(0);
+    if plan.expected_revision != expected_rev {
         return Err(conflict("stale knowledge commit plan"));
     }
     if next.commits.len() != old.commits.len() + 1
@@ -542,6 +874,8 @@ fn validate_transition(old: &ArchiveV2, plan: &CommitPlan) -> Result<()> {
         || !next.text_entries.starts_with(&old.text_entries)
         || !next.pdf_documents.starts_with(&old.pdf_documents)
         || !next.pdf_captures.starts_with(&old.pdf_captures)
+        || !next.epub_documents.starts_with(&old.epub_documents)
+        || !next.epub_captures.starts_with(&old.epub_captures)
         || old
             .pdf_operations
             .iter()
@@ -556,21 +890,35 @@ fn validate_transition(old: &ArchiveV2, plan: &CommitPlan) -> Result<()> {
         .commits
         .last()
         .ok_or_else(|| conflict("commit plan has no operation"))?;
-    let (text, document, capture, pdf_operation) = match commit.kind.as_str() {
-        "text" => (1, 0, 0, 0),
-        "pdf_import" => (0, 1, 0, 1),
-        "pdf_capture" => (0, 0, 1, 1),
+    let (text, document, capture, pdf_operation, epub_doc, epub_cap) = match commit.kind.as_str() {
+        "text" => (1, 0, 0, 0, 0, 0),
+        "pdf_import" => (0, 1, 0, 1, 0, 0),
+        "pdf_capture" => (0, 0, 1, 1, 0, 0),
+        "epub_import" => (0, 0, 0, 0, 1, 0),
+        "epub_capture" => (0, 0, 0, 0, 0, 1),
         _ => return Err(conflict("unknown transaction kind")),
     };
     if next.text_entries.len() != old.text_entries.len() + text
         || next.pdf_documents.len() != old.pdf_documents.len() + document
         || next.pdf_captures.len() != old.pdf_captures.len() + capture
         || next.pdf_operations.len() != old.pdf_operations.len() + pdf_operation
+        || next.epub_documents.len() != old.epub_documents.len() + epub_doc
+        || next.epub_captures.len() != old.epub_captures.len() + epub_cap
     {
         return Err(conflict("commit plan modifies unrelated knowledge"));
     }
     Ok(())
 }
+fn validate_vault_arg(vault: &str) -> Result<()> {
+    if vault.is_empty() || vault.len() > 256 || vault.chars().any(char::is_control) {
+        return Err(KnowledgeError::new(
+            KnowledgeErrorCode::InvalidInput,
+            "invalid vault",
+        ));
+    }
+    Ok(())
+}
+
 impl KnowledgeStore for SqliteStore {
     fn snapshot(&self) -> Result<ArchiveV2> {
         Self::read_snapshot(&self.db, &self.blobs).map_err(storage)
@@ -607,6 +955,38 @@ impl KnowledgeStore for SqliteStore {
             })?;
         }
         self.restore_inner(archive).map_err(storage)
+    }
+    fn update_pdf_capture_note(&mut self, vault: &str, capture_id: i64, note: &str) -> Result<()> {
+        validate_vault_arg(vault)?;
+        validate_note_input(note)?;
+        self.update_pdf_capture_note_inner(vault, capture_id, note)
+            .map_err(storage)
+    }
+    fn delete_pdf_capture(&mut self, vault: &str, capture_id: i64) -> Result<()> {
+        validate_vault_arg(vault)?;
+        self.delete_pdf_capture_inner(vault, capture_id)
+            .map_err(storage)
+    }
+    fn delete_pdf_document(&mut self, vault: &str, document_id: i64) -> Result<()> {
+        validate_vault_arg(vault)?;
+        self.delete_pdf_document_inner(vault, document_id)
+            .map_err(storage)
+    }
+    fn update_epub_capture_note(&mut self, vault: &str, capture_id: i64, note: &str) -> Result<()> {
+        validate_vault_arg(vault)?;
+        validate_note_input(note)?;
+        self.update_epub_capture_note_inner(vault, capture_id, note)
+            .map_err(storage)
+    }
+    fn delete_epub_capture(&mut self, vault: &str, capture_id: i64) -> Result<()> {
+        validate_vault_arg(vault)?;
+        self.delete_epub_capture_inner(vault, capture_id)
+            .map_err(storage)
+    }
+    fn delete_epub_document(&mut self, vault: &str, document_id: i64) -> Result<()> {
+        validate_vault_arg(vault)?;
+        self.delete_epub_document_inner(vault, document_id)
+            .map_err(storage)
     }
 }
 impl SqliteStore {
@@ -653,6 +1033,12 @@ impl SqliteStore {
                 insert_pdf_operation(&tx, operation)?;
             }
         }
+        for record in &next.epub_documents[old.epub_documents.len()..] {
+            insert_epub_document(&tx, record)?;
+        }
+        for record in &next.epub_captures[old.epub_captures.len()..] {
+            insert_epub_capture(&tx, record)?;
+        }
         (self.observe)(StorageStage::AfterEntities);
         (self.observe)(StorageStage::BeforeCommit);
         tx.commit()?;
@@ -686,6 +1072,370 @@ impl SqliteStore {
         for o in &archive.pdf_operations {
             insert_pdf_operation(&tx, o)?;
         }
+        for d in &archive.epub_documents {
+            insert_epub_document(&tx, d)?;
+        }
+        for c in &archive.epub_captures {
+            insert_epub_capture(&tx, c)?;
+        }
+        (self.observe)(StorageStage::AfterEntities);
+        (self.observe)(StorageStage::BeforeCommit);
+        tx.commit()?;
+        (self.observe)(StorageStage::AfterCommit);
+        Ok(())
+    }
+
+    fn update_pdf_capture_note_inner(
+        &mut self,
+        vault: &str,
+        capture_id: i64,
+        note: &str,
+    ) -> Internal<()> {
+        (self.observe)(StorageStage::BeforeTransaction);
+        let tx = self.db.transaction()?;
+        let row: Option<(String, String)> = tx
+            .query_row(
+                "SELECT c.record, d.record FROM pdf_capture c JOIN pdf_document d ON d.id = c.document_id WHERE c.id=?1 AND d.vault=?2",
+                params![capture_id, vault],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .optional()?;
+        let Some((cap_raw, doc_raw)) = row else {
+            return Err(
+                KnowledgeError::new(KnowledgeErrorCode::NotFound, "PDF capture not found").into(),
+            );
+        };
+        let mut record: PdfCaptureRecord = serde_json::from_str(&cap_raw)?;
+        let doc: PdfDocumentRecord = serde_json::from_str(&doc_raw)?;
+        record.user_note = note.to_owned();
+        let new_record = serde_json::to_string(&record)?;
+        let new_op = operation_for_capture(&record, &doc)?;
+        tx.execute(
+            "UPDATE pdf_capture SET record=?1 WHERE id=?2",
+            params![new_record, capture_id],
+        )?;
+        tx.execute(
+            "UPDATE pdf_operation SET input_hash=?1 WHERE operation_id=?2",
+            params![new_op.input_hash, new_op.operation_id],
+        )?;
+        tx.execute(
+            "UPDATE commit_log SET input_hash=?1 WHERE operation_id=?2",
+            params![new_op.input_hash, new_op.operation_id],
+        )?;
+        record_audit(
+            &tx,
+            vault,
+            "update_pdf_capture_note",
+            "pdf_capture",
+            capture_id,
+            &serde_json::to_string(&serde_json::json!({
+                "capture_id": capture_id,
+                "note_bytes": note.len()
+            }))?,
+        )?;
+        (self.observe)(StorageStage::AfterEntities);
+        (self.observe)(StorageStage::BeforeCommit);
+        tx.commit()?;
+        (self.observe)(StorageStage::AfterCommit);
+        Ok(())
+    }
+
+    fn delete_pdf_capture_inner(&mut self, vault: &str, capture_id: i64) -> Internal<()> {
+        (self.observe)(StorageStage::BeforeTransaction);
+        let tx = self.db.transaction()?;
+        let op_id: Option<String> = tx
+            .query_row(
+                "SELECT o.operation_id FROM pdf_capture c JOIN pdf_document d ON d.id = c.document_id JOIN pdf_operation o ON o.capture_id = c.id WHERE c.id=?1 AND d.vault=?2",
+                params![capture_id, vault],
+                |r| r.get(0),
+            )
+            .optional()?;
+        let Some(op_id) = op_id else {
+            return Err(
+                KnowledgeError::new(KnowledgeErrorCode::NotFound, "PDF capture not found").into(),
+            );
+        };
+        for table in [
+            "pdf_receipt",
+            "pdf_outbox",
+            "pdf_index_job",
+            "pdf_operation",
+        ] {
+            tx.execute(
+                &format!("DELETE FROM {table} WHERE operation_id=?1"),
+                [&op_id],
+            )?;
+        }
+        tx.execute("DELETE FROM pdf_capture WHERE id=?1", [capture_id])?;
+        tx.execute("DELETE FROM commit_log WHERE operation_id=?1", [&op_id])?;
+        record_audit(
+            &tx,
+            vault,
+            "delete_pdf_capture",
+            "pdf_capture",
+            capture_id,
+            &serde_json::to_string(&serde_json::json!({
+                "capture_id": capture_id,
+                "operation_id": op_id
+            }))?,
+        )?;
+        (self.observe)(StorageStage::AfterEntities);
+        (self.observe)(StorageStage::BeforeCommit);
+        tx.commit()?;
+        (self.observe)(StorageStage::AfterCommit);
+        Ok(())
+    }
+
+    fn delete_pdf_document_inner(&mut self, vault: &str, document_id: i64) -> Internal<()> {
+        (self.observe)(StorageStage::BeforeTransaction);
+        let tx = self.db.transaction()?;
+        let exists: bool = tx
+            .query_row(
+                "SELECT 1 FROM pdf_document WHERE id=?1 AND vault=?2",
+                params![document_id, vault],
+                |_| Ok(true),
+            )
+            .optional()?
+            .unwrap_or(false);
+        if !exists {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "PDF document not found",
+            )
+            .into());
+        }
+        let mut ops = Vec::new();
+        {
+            let mut stmt =
+                tx.prepare("SELECT operation_id FROM pdf_operation WHERE document_id=?1")?;
+            for row in stmt.query_map([document_id], |r| r.get::<_, String>(0))? {
+                ops.push(row?);
+            }
+        }
+        for op_id in &ops {
+            for table in ["pdf_receipt", "pdf_outbox", "pdf_index_job"] {
+                tx.execute(
+                    &format!("DELETE FROM {table} WHERE operation_id=?1"),
+                    [op_id],
+                )?;
+            }
+        }
+        tx.execute(
+            "DELETE FROM pdf_operation WHERE document_id=?1",
+            [document_id],
+        )?;
+        for op_id in &ops {
+            tx.execute("DELETE FROM commit_log WHERE operation_id=?1", [op_id])?;
+        }
+        tx.execute(
+            "DELETE FROM pdf_capture WHERE document_id=?1",
+            [document_id],
+        )?;
+        tx.execute(
+            "DELETE FROM pdf_extraction WHERE document_id=?1",
+            [document_id],
+        )?;
+        tx.execute(
+            "DELETE FROM pdf_document WHERE id=?1 AND vault=?2",
+            params![document_id, vault],
+        )?;
+        record_audit(
+            &tx,
+            vault,
+            "delete_pdf_document",
+            "pdf_document",
+            document_id,
+            &serde_json::to_string(&serde_json::json!({
+                "document_id": document_id,
+                "deleted_operations": ops.len()
+            }))?,
+        )?;
+        (self.observe)(StorageStage::AfterEntities);
+        (self.observe)(StorageStage::BeforeCommit);
+        tx.commit()?;
+        (self.observe)(StorageStage::AfterCommit);
+        Ok(())
+    }
+
+    fn update_epub_capture_note_inner(
+        &mut self,
+        vault: &str,
+        capture_id: i64,
+        note: &str,
+    ) -> Internal<()> {
+        (self.observe)(StorageStage::BeforeTransaction);
+        let tx = self.db.transaction()?;
+        let row: Option<(i64, String, i64, String, String, String)> = tx
+            .query_row(
+                "SELECT c.document_id, c.operation_id, c.commit_rev, c.draft, c.provenance, c.receipt FROM epub_captures c JOIN epub_documents d ON d.id = c.document_id WHERE c.id=?1 AND d.vault=?2",
+                params![capture_id, vault],
+                |r| {
+                    Ok((
+                        r.get(0)?,
+                        r.get(1)?,
+                        r.get(2)?,
+                        r.get(3)?,
+                        r.get(4)?,
+                        r.get(5)?,
+                    ))
+                },
+            )
+            .optional()?;
+        let Some((document_id, operation_id, _commit_rev, draft_raw, prov_raw, receipt_raw)) = row
+        else {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "EPUB capture not found",
+            )
+            .into());
+        };
+        let doc_row: (String, String, String, i64, String, String, i64, String) = tx.query_row(
+            "SELECT title, author, original_hash, original_bytes, extraction_revision, operation_id, commit_rev, receipt FROM epub_documents WHERE id=?1",
+            [document_id],
+            |r| {
+                Ok((
+                    r.get(0)?,
+                    r.get(1)?,
+                    r.get(2)?,
+                    r.get(3)?,
+                    r.get(4)?,
+                    r.get(5)?,
+                    r.get(6)?,
+                    r.get(7)?,
+                ))
+            },
+        )?;
+        let doc = EpubDocumentRecord {
+            receipt: serde_json::from_str(&doc_row.7)?,
+            vault: vault.to_owned(),
+            title: doc_row.0,
+            author: doc_row.1,
+            original_bytes: u64::try_from(doc_row.3)?,
+            chapters: vec![],
+            toc: vec![],
+        };
+        let record = EpubCaptureRecord {
+            receipt: serde_json::from_str(&receipt_raw)?,
+            draft: serde_json::from_str(&draft_raw)?,
+            provenance: serde_json::from_str(&prov_raw)?,
+            user_note: note.to_owned(),
+        };
+        let new_hash = epub_capture_input(&record, &doc)?;
+        tx.execute(
+            "UPDATE epub_captures SET user_note=?1 WHERE id=?2",
+            params![note, capture_id],
+        )?;
+        tx.execute(
+            "UPDATE commit_log SET input_hash=?1 WHERE operation_id=?2",
+            params![new_hash, operation_id],
+        )?;
+        record_audit(
+            &tx,
+            vault,
+            "update_epub_capture_note",
+            "epub_capture",
+            capture_id,
+            &serde_json::to_string(&serde_json::json!({
+                "capture_id": capture_id,
+                "note_bytes": note.len()
+            }))?,
+        )?;
+        (self.observe)(StorageStage::AfterEntities);
+        (self.observe)(StorageStage::BeforeCommit);
+        tx.commit()?;
+        (self.observe)(StorageStage::AfterCommit);
+        Ok(())
+    }
+
+    fn delete_epub_capture_inner(&mut self, vault: &str, capture_id: i64) -> Internal<()> {
+        (self.observe)(StorageStage::BeforeTransaction);
+        let tx = self.db.transaction()?;
+        let op_id: Option<String> = tx
+            .query_row(
+                "SELECT c.operation_id FROM epub_captures c JOIN epub_documents d ON d.id = c.document_id WHERE c.id=?1 AND d.vault=?2",
+                params![capture_id, vault],
+                |r| r.get(0),
+            )
+            .optional()?;
+        let Some(op_id) = op_id else {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "EPUB capture not found",
+            )
+            .into());
+        };
+        tx.execute("DELETE FROM epub_captures WHERE id=?1", [capture_id])?;
+        tx.execute("DELETE FROM commit_log WHERE operation_id=?1", [&op_id])?;
+        record_audit(
+            &tx,
+            vault,
+            "delete_epub_capture",
+            "epub_capture",
+            capture_id,
+            &serde_json::to_string(&serde_json::json!({
+                "capture_id": capture_id,
+                "operation_id": op_id
+            }))?,
+        )?;
+        (self.observe)(StorageStage::AfterEntities);
+        (self.observe)(StorageStage::BeforeCommit);
+        tx.commit()?;
+        (self.observe)(StorageStage::AfterCommit);
+        Ok(())
+    }
+
+    fn delete_epub_document_inner(&mut self, vault: &str, document_id: i64) -> Internal<()> {
+        (self.observe)(StorageStage::BeforeTransaction);
+        let tx = self.db.transaction()?;
+        let doc_op: Option<String> = tx
+            .query_row(
+                "SELECT operation_id FROM epub_documents WHERE id=?1 AND vault=?2",
+                params![document_id, vault],
+                |r| r.get(0),
+            )
+            .optional()?;
+        let Some(doc_op) = doc_op else {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "EPUB document not found",
+            )
+            .into());
+        };
+        let mut ops = vec![doc_op];
+        {
+            let mut stmt =
+                tx.prepare("SELECT operation_id FROM epub_captures WHERE document_id=?1")?;
+            for row in stmt.query_map([document_id], |r| r.get::<_, String>(0))? {
+                ops.push(row?);
+            }
+        }
+        tx.execute(
+            "DELETE FROM epub_captures WHERE document_id=?1",
+            [document_id],
+        )?;
+        tx.execute("DELETE FROM epub_toc WHERE document_id=?1", [document_id])?;
+        tx.execute(
+            "DELETE FROM epub_chapters WHERE document_id=?1",
+            [document_id],
+        )?;
+        tx.execute(
+            "DELETE FROM epub_documents WHERE id=?1 AND vault=?2",
+            params![document_id, vault],
+        )?;
+        for op_id in &ops {
+            tx.execute("DELETE FROM commit_log WHERE operation_id=?1", [op_id])?;
+        }
+        record_audit(
+            &tx,
+            vault,
+            "delete_epub_document",
+            "epub_document",
+            document_id,
+            &serde_json::to_string(&serde_json::json!({
+                "document_id": document_id,
+                "deleted_operations": ops.len()
+            }))?,
+        )?;
         (self.observe)(StorageStage::AfterEntities);
         (self.observe)(StorageStage::BeforeCommit);
         tx.commit()?;
@@ -711,6 +1461,8 @@ fn migrate_study(db: &Connection, observe: &dyn Fn(StorageStage)) -> Internal<()
             term TEXT NOT NULL,
             meaning TEXT NOT NULL,
             example TEXT NOT NULL,
+            pos TEXT NOT NULL DEFAULT '',
+            phonetic TEXT NOT NULL DEFAULT '',
             UNIQUE(wordbook_id,term),
             UNIQUE(wordbook_id,position));
         CREATE TABLE vocab_schedule(
@@ -775,7 +1527,7 @@ fn read_study(db: &Connection) -> Internal<StudyArchive> {
     let mut cards = Vec::new();
     {
         let mut stmt = db.prepare(
-            "SELECT id,wordbook_id,position,term,meaning,example FROM vocab_card ORDER BY id",
+            "SELECT id,wordbook_id,position,term,meaning,example,pos,phonetic FROM vocab_card ORDER BY id",
         )?;
         let rows = stmt.query_map([], |r| {
             Ok((
@@ -785,10 +1537,12 @@ fn read_study(db: &Connection) -> Internal<StudyArchive> {
                 r.get::<_, String>(3)?,
                 r.get::<_, String>(4)?,
                 r.get::<_, String>(5)?,
+                r.get::<_, String>(6)?,
+                r.get::<_, String>(7)?,
             ))
         })?;
         for row in rows {
-            let (id, wordbook_id, position, term, meaning, example) = row?;
+            let (id, wordbook_id, position, term, meaning, example, pos, phonetic) = row?;
             cards.push(StudyCard {
                 id,
                 wordbook_id,
@@ -796,6 +1550,8 @@ fn read_study(db: &Connection) -> Internal<StudyArchive> {
                 term,
                 meaning,
                 example,
+                pos,
+                phonetic,
             });
         }
     }
@@ -984,8 +1740,16 @@ impl SqliteStore {
         for (position, word) in seed.words.iter().enumerate() {
             let position = i64::try_from(position)?;
             tx.execute(
-                "INSERT INTO vocab_card(wordbook_id,position,term,meaning,example) VALUES(?1,?2,?3,?4,?5)",
-                params![id, position, word.term, word.meaning, word.example],
+                "INSERT INTO vocab_card(wordbook_id,position,term,meaning,example,pos,phonetic) VALUES(?1,?2,?3,?4,?5,?6,?7)",
+                params![
+                    id,
+                    position,
+                    word.term,
+                    word.meaning,
+                    word.example,
+                    word.pos,
+                    word.phonetic
+                ],
             )?;
         }
         tx.commit()?;
@@ -1106,14 +1870,16 @@ impl SqliteStore {
         }
         for card in &archive.cards {
             tx.execute(
-                "INSERT INTO vocab_card(id,wordbook_id,position,term,meaning,example) VALUES(?1,?2,?3,?4,?5,?6)",
+                "INSERT INTO vocab_card(id,wordbook_id,position,term,meaning,example,pos,phonetic) VALUES(?1,?2,?3,?4,?5,?6,?7,?8)",
                 params![
                     card.id,
                     card.wordbook_id,
                     i64::from(card.position),
                     card.term,
                     card.meaning,
-                    card.example
+                    card.example,
+                    card.pos,
+                    card.phonetic
                 ],
             )?;
         }
@@ -1152,6 +1918,44 @@ impl SqliteStore {
                 ],
             )?;
         }
+        (self.observe)(StorageStage::AfterEntities);
+        (self.observe)(StorageStage::BeforeCommit);
+        tx.commit()?;
+        (self.observe)(StorageStage::AfterCommit);
+        Ok(())
+    }
+
+    fn delete_wordbook_inner(&mut self, vault: &str, wordbook_id: i64) -> Internal<()> {
+        (self.observe)(StorageStage::BeforeTransaction);
+        let tx = self.db.transaction()?;
+        let exists: bool = tx
+            .query_row(
+                "SELECT 1 FROM vocab_wordbook WHERE id=?1 AND vault=?2",
+                params![wordbook_id, vault],
+                |_| Ok(true),
+            )
+            .optional()?
+            .unwrap_or(false);
+        if !exists {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "wordbook not found in this vault",
+            )
+            .into());
+        }
+        tx.execute(
+            "DELETE FROM vocab_review WHERE card_id IN (SELECT id FROM vocab_card WHERE wordbook_id=?1)",
+            [wordbook_id],
+        )?;
+        tx.execute(
+            "DELETE FROM vocab_schedule WHERE card_id IN (SELECT id FROM vocab_card WHERE wordbook_id=?1)",
+            [wordbook_id],
+        )?;
+        tx.execute("DELETE FROM vocab_card WHERE wordbook_id=?1", [wordbook_id])?;
+        tx.execute(
+            "DELETE FROM vocab_wordbook WHERE id=?1 AND vault=?2",
+            params![wordbook_id, vault],
+        )?;
         (self.observe)(StorageStage::AfterEntities);
         (self.observe)(StorageStage::BeforeCommit);
         tx.commit()?;
@@ -1203,5 +2007,17 @@ impl StudyStore for SqliteStore {
     fn restore_study(&mut self, archive: &StudyArchive) -> Result<()> {
         validate_study_archive(archive)?;
         self.restore_study_inner(archive).map_err(storage)
+    }
+
+    fn delete_wordbook(&mut self, vault: &str, wordbook_id: i64) -> Result<()> {
+        validate_vault_arg(vault)?;
+        if wordbook_id <= 0 {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::InvalidInput,
+                "invalid wordbook id",
+            ));
+        }
+        self.delete_wordbook_inner(vault, wordbook_id)
+            .map_err(storage)
     }
 }

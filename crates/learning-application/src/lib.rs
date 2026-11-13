@@ -2,6 +2,7 @@
 pub mod annotation_draft;
 pub mod annotation_source;
 pub mod draft_text;
+pub mod epub_library;
 pub mod pdf_library;
 pub mod pdf_notes;
 pub mod provider_events;
@@ -95,13 +96,19 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
         draft.validate()?;
         validate_native(op, vault, origin, user_note)?;
         let initial = self.export_all()?;
+        let max_rev = initial
+            .commits
+            .iter()
+            .map(|c| c.commit_rev)
+            .max()
+            .unwrap_or(0);
         let id = initial.text_entries.len() as i64 + 1;
         let receipt = Receipt {
             operation_id: op.into(),
             capture_id: id,
             source_id: id,
             document_version_id: id,
-            commit_rev: initial.commits.len() as i64 + 1,
+            commit_rev: max_rev + 1,
             snapshot_hash: draft.snapshot_hash(),
             draft_hash: draft.draft_hash()?,
         };
@@ -152,19 +159,24 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 .push(BinaryBlob::new(draft.snapshot_text.as_bytes()));
         }
         projected.commits.push(text_commit(&entry)?);
+        projected.schema_version = archive_schema_version(&projected);
         validate_archive(&projected)?;
         self.store.commit(CommitPlan {
-            expected_revision: receipt.commit_rev - 1,
+            expected_revision: max_rev,
             next: projected,
         })?;
         Ok(receipt)
     }
     pub fn export(&self) -> Result<ExportBundle> {
         let archive = self.export_all()?;
-        if !archive.pdf_documents.is_empty() || !archive.pdf_captures.is_empty() {
+        if !archive.pdf_documents.is_empty()
+            || !archive.pdf_captures.is_empty()
+            || !archive.epub_documents.is_empty()
+            || !archive.epub_captures.is_empty()
+        {
             return Err(KnowledgeError::new(
                 KnowledgeErrorCode::UnsupportedVersion,
-                "PDF knowledge requires complete schema 2 export_all",
+                "PDF/EPUB knowledge requires complete schema 2 export_all",
             ));
         }
         let bundle = ExportBundle {
@@ -245,11 +257,23 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
         }
         snapshot.validate_original(original)?;
         let mut archive = self.export_all()?;
-        let id = archive.pdf_documents.len() as i64 + 1;
+        let max_rev = archive
+            .commits
+            .iter()
+            .map(|c| c.commit_rev)
+            .max()
+            .unwrap_or(0);
+        let id = archive
+            .pdf_documents
+            .iter()
+            .map(|d| d.receipt.document_id)
+            .max()
+            .unwrap_or(0)
+            + 1;
         let receipt = PdfDocumentReceipt {
             operation_id: op.into(),
             document_id: id,
-            commit_rev: archive.commits.len() as i64 + 1,
+            commit_rev: max_rev + 1,
             original_sha256: sha256(original),
             extraction_revision: snapshot.extraction_revision()?,
         };
@@ -283,9 +307,10 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
         {
             archive.blobs.push(BinaryBlob::new(original));
         }
+        archive.schema_version = archive_schema_version(&archive);
         validate_archive(&archive)?;
         self.store.commit(CommitPlan {
-            expected_revision: receipt.commit_rev - 1,
+            expected_revision: max_rev,
             next: archive,
         })?;
         Ok(receipt)
@@ -354,11 +379,24 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 (draft, Some(compound), compound.draft_hash()?)
             }
         };
+        let max_rev = archive
+            .commits
+            .iter()
+            .map(|c| c.commit_rev)
+            .max()
+            .unwrap_or(0);
+        let next_capture_id = archive
+            .pdf_captures
+            .iter()
+            .map(|c| c.receipt.capture_id)
+            .max()
+            .unwrap_or(0)
+            + 1;
         let receipt = PdfReceipt {
             operation_id: op.into(),
-            capture_id: archive.pdf_captures.len() as i64 + 1,
+            capture_id: next_capture_id,
             document_id,
-            commit_rev: archive.commits.len() as i64 + 1,
+            commit_rev: max_rev + 1,
             original_sha256: document.receipt.original_sha256.clone(),
             extraction_revision: document.receipt.extraction_revision.clone(),
             draft_hash,
@@ -383,16 +421,15 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
         }
         ensure_new_operation(&archive, op)?;
         archive.pdf_captures.push(record.clone());
-        if compound.is_some() {
-            archive.schema_version = 3;
-        }
+        archive.schema_version = archive_schema_version(&archive);
         archive.pdf_operations.push(operation.clone());
         archive
             .commits
             .push(commit_for_pdf(&operation, receipt.commit_rev));
+        archive.schema_version = archive_schema_version(&archive);
         validate_archive(&archive)?;
         self.store.commit(CommitPlan {
-            expected_revision: receipt.commit_rev - 1,
+            expected_revision: max_rev,
             next: archive,
         })?;
         Ok(receipt)
@@ -483,7 +520,48 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
             text_captures: archive.text_entries.len(),
             pdf_documents: archive.pdf_documents.len(),
             pdf_captures: archive.pdf_captures.len(),
+            epub_documents: archive.epub_documents.len(),
+            epub_captures: archive.epub_captures.len(),
         })
+    }
+
+    /// Update the user note of a PDF capture scoped by `vault`.
+    pub fn update_pdf_capture_note(
+        &mut self,
+        vault: &str,
+        capture_id: i64,
+        note: &str,
+    ) -> Result<()> {
+        if vault.is_empty() || vault.len() > 256 || vault.chars().any(char::is_control) {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::InvalidInput,
+                "invalid vault",
+            ));
+        }
+        validate_note_input(note)?;
+        self.store.update_pdf_capture_note(vault, capture_id, note)
+    }
+
+    /// Delete a PDF capture scoped by `vault`.
+    pub fn delete_pdf_capture(&mut self, vault: &str, capture_id: i64) -> Result<()> {
+        if vault.is_empty() || vault.len() > 256 || vault.chars().any(char::is_control) {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::InvalidInput,
+                "invalid vault",
+            ));
+        }
+        self.store.delete_pdf_capture(vault, capture_id)
+    }
+
+    /// Delete a PDF document and its captures scoped by `vault`.
+    pub fn delete_pdf_document(&mut self, vault: &str, document_id: i64) -> Result<()> {
+        if vault.is_empty() || vault.len() > 256 || vault.chars().any(char::is_control) {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::InvalidInput,
+                "invalid vault",
+            ));
+        }
+        self.store.delete_pdf_document(vault, document_id)
     }
 }
 

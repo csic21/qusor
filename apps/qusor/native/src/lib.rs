@@ -5,6 +5,7 @@
 //! a package key or Host authority.
 pub mod app_info;
 pub mod composition_native;
+pub mod epub_reader;
 pub mod extension_preferences;
 pub mod library_native;
 pub mod notes_native;

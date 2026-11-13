@@ -11,7 +11,7 @@ use core_api::contract::sha256;
 use core_api::pdf_contract::PdfSnapshot;
 use learning_application::KnowledgeApplication;
 use nsh_core::{ImageData, element::System};
-use qusor_pdf_provider::{DocumentReport, MAX_PDF_BYTES, PageReport};
+use qusor_pdf_provider::{BookmarkEntry, DocumentReport, MAX_PDF_BYTES, PageReport};
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -253,6 +253,7 @@ pub(crate) fn import(
     let job = JobDirectory::create(sys)?;
     let original = write_original(&job, &bytes)?;
     let (report, _) = inspect(&job, &original)?;
+    write_toc_cache(sys, &report);
     let snapshot = snapshot_from_report(&report)?;
     snapshot.validate_original(&bytes).map_err(text)?;
     let operation = format!(
@@ -376,6 +377,7 @@ pub(crate) fn render_page(
     let job = JobDirectory::create(sys)?;
     let original_path = write_original(&job, &original)?;
     let (report, _) = inspect(&job, &original_path)?;
+    write_toc_cache(sys, &report);
     if report.original_sha256 != document.snapshot.original_sha256
         || report.extraction_sha256 != document.snapshot.engine_report_sha256
     {
@@ -412,6 +414,59 @@ pub(crate) fn import_value(value: PdfImport) -> Value {
         "title": value.title,
         "page_count": value.page_count,
     })
+}
+
+fn toc_cache_path(sys: &System, original_sha256: &str) -> Option<PathBuf> {
+    if original_sha256.len() != 64 || !original_sha256.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return None;
+    }
+    Some(
+        sys.data_dir
+            .as_ref()?
+            .join("pdf-toc")
+            .join(format!("{original_sha256}.json")),
+    )
+}
+
+fn write_toc_cache(sys: &System, report: &DocumentReport) {
+    let Some(path) = toc_cache_path(sys, &report.original_sha256) else {
+        return;
+    };
+    if let Some(parent) = path.parent() {
+        let _ = fs::create_dir_all(parent);
+    }
+    if let Ok(bytes) = serde_json::to_vec(&report.toc) {
+        let _ = fs::write(path, bytes);
+    }
+}
+
+fn read_toc_cache(sys: &System, original_sha256: &str) -> Option<Vec<BookmarkEntry>> {
+    let path = toc_cache_path(sys, original_sha256)?;
+    let bytes = fs::read(path).ok()?;
+    serde_json::from_slice(&bytes).ok()
+}
+
+pub(crate) fn extract_toc(
+    sys: &System,
+    store: VaultStore,
+    document_id: i64,
+) -> Result<Value, String> {
+    let application = KnowledgeApplication::new(store);
+    let document = application.query_document(document_id).map_err(text)?;
+    let toc = if let Some(cached) = read_toc_cache(sys, &document.snapshot.original_sha256) {
+        cached
+    } else {
+        let original = application.original_pdf(document_id).map_err(text)?;
+        let job = JobDirectory::create(sys)?;
+        let original_path = write_original(&job, &original)?;
+        let (report, _) = inspect(&job, &original_path)?;
+        write_toc_cache(sys, &report);
+        report.toc
+    };
+    Ok(json!({
+        "document_id": document_id,
+        "toc": toc,
+    }))
 }
 
 #[cfg(test)]

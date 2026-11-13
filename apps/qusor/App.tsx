@@ -1,6 +1,8 @@
 import {
+    Clipboard,
     effect,
     mount,
+    Picker,
     Scroll,
     setColorScheme,
     signal,
@@ -8,7 +10,7 @@ import {
     View,
     windowSize,
 } from "nsh";
-import { NotesHost, VocabHost } from "qusor/pdf-surface";
+import { AppInfo, NotesHost, VocabHost } from "qusor/pdf-surface";
 import { Button, Command, Dialog, Menu, MenuItem, Tab, Tabs } from "nsh/base";
 import { titleBar } from "nsh/desktop";
 import { BackHandler } from "nsh/mobile";
@@ -42,6 +44,7 @@ import {
     openUpdatePanel,
     runUpdateEvidence,
     UpdateDialog,
+    updateOpen,
 } from "./update";
 
 // The shell branches by generic contribution role; identities remain fixtures.
@@ -51,6 +54,7 @@ const active = signal("overview"),
 const sidebar = signal(windowSize().width >= 1120),
     inspector = signal(false),
     library = signal(false),
+    designPreview = signal(false),
     dark = signal(false);
 const searchOpen = signal(false),
     query = signal("");
@@ -76,6 +80,12 @@ const showSidebar = () =>
     !activePlugin() &&
     sidebar() &&
     !(narrow() && inspector() && !library());
+const showMobileHome = () =>
+    narrow() &&
+    !activePlugin() &&
+    !library() &&
+    !designPreview() &&
+    active() === "overview";
 function revealSidebar() {
     if (narrow()) inspector.set(false);
     sidebar.set(true);
@@ -90,8 +100,23 @@ function openEntry(id: string) {
     pluginOrigin.set(null);
     active.set(id);
     library.set(false);
+    designPreview.set(true);
     navigationScope.set("workspace");
     searchOpen.set(false);
+    if (narrow()) sidebar.set(false);
+}
+function openMobileHome() {
+    if (activePlugin()) {
+        activePlugin.set("");
+        pluginOrigin.set(null);
+    }
+    library.set(false);
+    inspector.set(false);
+    designPreview.set(false);
+    active.set("overview");
+    navigationScope.set("space");
+    searchOpen.set(false);
+    if (narrow()) sidebar.set(false);
 }
 function openLibrary() {
     if (activePlugin()) closePluginWorkspace();
@@ -99,6 +124,7 @@ function openLibrary() {
     inspector.set(false);
     navigationScope.set("space");
     searchOpen.set(false);
+    if (narrow()) sidebar.set(false);
 }
 function currentPlugin() {
     return allWorkspaces().find((workspace) => workspace.id === activePlugin());
@@ -106,6 +132,7 @@ function currentPlugin() {
 function openPluginWorkspace(id: string) {
     const workspace = allWorkspaces().find((candidate) => candidate.id === id);
     if (!workspace) return;
+    if (narrow()) sidebar.set(false);
     if (!activePlugin()) {
         pluginOrigin.set({
             active: active(),
@@ -120,6 +147,9 @@ function openPluginWorkspace(id: string) {
     inspector.set(false);
     searchOpen.set(false);
     if (workspace.role === "notes_workspace") refreshNotes();
+}
+function openWorkspaceOrLibrary(role: string) {
+    if (!openPluginWorkspaceByRole(role)) openLibrary();
 }
 function allWorkspaces() {
     return pluginWorkspaces();
@@ -214,7 +244,7 @@ function SidebarRow(props: {
             accessibilityLabel={props.title}
             onPress={props.onPress}
             style={{
-                height: 34,
+                height: narrow() ? 44 : 34,
                 flexDirection: "row",
                 gap: 8,
                 alignItems: "center",
@@ -296,14 +326,22 @@ function Sidebar() {
                     </View>
                 </Button>
                 <View style={{ gap: 3 }}>
+                    <If when={narrow()}>
+                        <SidebarRow
+                            title="工作台首页"
+                            icon="grid"
+                            selected={showMobileHome()}
+                            onPress={openMobileHome}
+                        />
+                    </If>
                     <SidebarRow
                         title="最近内容"
                         icon="clock"
                         onPress={() => openEntry("overview")}
                     />
                     <SidebarRow
-                        title="功能"
-                        icon="grid"
+                        title={narrow() ? "数据与功能" : "功能"}
+                        icon="sliders"
                         selected={library()}
                         onPress={openLibrary}
                     />
@@ -334,9 +372,9 @@ function Sidebar() {
                         </Copy>
                     </View>
                     <SidebarRow
-                        title="产品设计"
+                        title={narrow() ? "设计样例" : "产品设计"}
                         icon="folder"
-                        selected={!library()}
+                        selected={!library() && !showMobileHome()}
                         trailing="4"
                         onPress={() => openEntry("overview")}
                     />
@@ -529,14 +567,20 @@ function NavigationPane(props: { compact: boolean }) {
             importantForAccessibility={
                 searchOpen() ? "no-hide-descendants" : "auto"
             }
-            style={{ width: props.compact ? "100%" : 248, flexShrink: 0 }}
+            style={{
+                width: props.compact ? "100%" : 248,
+                flex: props.compact ? 1 : 0,
+                flexShrink: 0,
+                paddingLeft: props.compact ? "env(safe-area-inset-left)" : 0,
+                paddingRight: props.compact ? "env(safe-area-inset-right)" : 0,
+            }}
         >
             <Tabs
                 style={{
                     marginHorizontal: 12,
                     marginTop: 5,
                     marginBottom: 10,
-                    height: 32,
+                    height: props.compact ? 44 : 32,
                     flexShrink: 0,
                     flexDirection: "row",
                     padding: 2,
@@ -553,7 +597,10 @@ function NavigationPane(props: { compact: boolean }) {
                 <Each
                     of={[
                         { id: "space", title: "空间" },
-                        { id: "workspace", title: "产品设计" },
+                        {
+                            id: "workspace",
+                            title: props.compact ? "设计样例" : "产品设计",
+                        },
                     ]}
                 >
                     {(scope) => (
@@ -625,14 +672,148 @@ function ContentRow(props: { entry: Entry }) {
         </Button>
     );
 }
+function MobileHomeCard(props: {
+    title: string;
+    subtitle: string;
+    icon: string;
+    tone?: string;
+    onPress: () => void;
+}) {
+    return (
+        <Button
+            accessibilityLabel={props.title}
+            onPress={props.onPress}
+            style={{
+                minHeight: 72,
+                paddingHorizontal: 14,
+                paddingVertical: 12,
+                borderRadius: 12,
+                borderCurve: "continuous",
+                borderWidth: 1,
+                borderColor: ink("border-subtle"),
+                backgroundColor: ink("surface-control"),
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 13,
+            }}
+            hoverStyle={{ backgroundColor: ink("surface-hover") }}
+            activeStyle={{ backgroundColor: ink("surface-pressed") }}
+            focusStyle={focus()}
+        >
+            <Badge
+                icon={props.icon}
+                size={42}
+                tone={props.tone ?? "surface-accent"}
+            />
+            <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+                <Copy size={15} strong>
+                    {props.title}
+                </Copy>
+                <Copy size={12} muted lines={2}>
+                    {props.subtitle}
+                </Copy>
+            </View>
+            <Glyph name="arrow" size={16} />
+        </Button>
+    );
+}
+function MobileHome() {
+    return (
+        <Scroll style={{ flex: 1 }}>
+            <View
+                style={{
+                    paddingHorizontal: 16,
+                    paddingTop: 18,
+                    paddingBottom: 28,
+                    gap: 18,
+                }}
+            >
+                <View style={{ gap: 4, paddingHorizontal: 2 }}>
+                    <Copy size={22} strong>
+                        QUSOR 工作台
+                    </Copy>
+                    <Copy size={12} muted>
+                        本地优先 · 阅读、记忆与想法空间
+                    </Copy>
+                </View>
+                <View style={{ gap: 11 }}>
+                    <MobileHomeCard
+                        title="资料库（PDF · EPUB）"
+                        subtitle="导入与阅读书籍文档，支持选文摘录"
+                        icon="book"
+                        onPress={() =>
+                            openWorkspaceOrLibrary("library_workspace")
+                        }
+                    />
+                    <MobileHomeCard
+                        title="背单词"
+                        subtitle="FSRS-5 间隔记忆与词汇复习"
+                        icon="clock"
+                        onPress={() =>
+                            openWorkspaceOrLibrary("vocab_workspace")
+                        }
+                    />
+                    <MobileHomeCard
+                        title="想法"
+                        subtitle="随时记录灵感与整理摘录片段"
+                        icon="pen"
+                        onPress={() =>
+                            openWorkspaceOrLibrary("notes_workspace")
+                        }
+                    />
+                    <MobileHomeCard
+                        title="数据备份与管理"
+                        subtitle="扩展管理、功能列表与软件更新"
+                        icon="sliders"
+                        tone="surface-inset"
+                        onPress={openLibrary}
+                    />
+                </View>
+                <Rule />
+                <View
+                    style={{
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                        gap: 10,
+                    }}
+                >
+                    <Tool
+                        label="搜索内容"
+                        icon="search"
+                        text="搜索内容"
+                        raised
+                        size="touch"
+                        onPress={showSearch}
+                    />
+                    <Tool
+                        label="打开设计样例"
+                        icon="folder"
+                        text="设计样例"
+                        raised
+                        size="touch"
+                        onPress={() => openEntry("overview")}
+                    />
+                    <Tool
+                        label="软件更新"
+                        icon="arrow"
+                        text={`更新 ${appVersion()}`}
+                        raised
+                        size="touch"
+                        onPress={openUpdatePanel}
+                    />
+                </View>
+            </View>
+        </Scroll>
+    );
+}
 function Overview() {
     return (
         <Scroll style={{ flex: 1 }}>
             <View
                 style={{
-                    paddingHorizontal: 40,
-                    paddingTop: 30,
-                    paddingBottom: 40,
+                    paddingHorizontal: narrow() ? 16 : 40,
+                    paddingTop: narrow() ? 18 : 30,
+                    paddingBottom: narrow() ? 28 : 40,
                     width: "100%",
                     maxWidth: 1120,
                     alignSelf: "center",
@@ -663,7 +844,12 @@ function Overview() {
                     <Copy size={12} muted strong>
                         固定
                     </Copy>
-                    <View style={{ flexDirection: "row", gap: 18 }}>
+                    <View
+                        style={{
+                            flexDirection: narrow() ? "column" : "row",
+                            gap: 18,
+                        }}
+                    >
                         <Button
                             accessibilityLabel="打开固定的工作区设计备忘"
                             onPress={() => openEntry("note")}
@@ -778,12 +964,129 @@ function Overview() {
         </Scroll>
     );
 }
+const backupBusy = signal(false);
+const backupStatus = signal(
+    "可将本机 Core 中的词书、复习记录、PDF/EPUB 元数据与想法摘录导出为 JSON 备份，或从备份恢复。",
+);
+const backupPath = signal("");
+const backupJson = signal("");
+const backupBytes = signal(0);
+
+async function exportCoreBackup() {
+    if (backupBusy()) return;
+    const host = AppInfo as any;
+    if (typeof host?.exportBackup !== "function") {
+        backupStatus.set("当前宿主尚未启用备份导出接口。");
+        return;
+    }
+    backupBusy.set(true);
+    backupStatus.set("正在生成本机 Core 完整备份…");
+    try {
+        const raw = await host.exportBackup();
+        const result = JSON.parse(raw);
+        if (!result?.ok || !result.value) {
+            throw new Error(String(result?.error ?? "导出失败"));
+        }
+        const path = String(result.value.path ?? "");
+        const json = String(result.value.json ?? "");
+        const bytes = Number(result.value.bytes ?? json.length);
+        backupPath.set(path);
+        backupJson.set(json);
+        backupBytes.set(bytes);
+        backupStatus.set(
+            `备份已生成（${Math.max(1, Math.round(bytes / 1024))} KiB）${
+                path ? ` · ${path}` : ""
+            }`,
+        );
+    } catch (error) {
+        backupStatus.set(
+            `备份导出未完成：${
+                error instanceof Error ? error.message : String(error)
+            }`,
+        );
+    } finally {
+        backupBusy.set(false);
+    }
+}
+
+async function shareCoreBackup() {
+    const path = backupPath();
+    if (!path || backupBusy()) return;
+    const host = AppInfo as any;
+    if (typeof host?.shareBackup !== "function") {
+        backupStatus.set("当前宿主不支持系统分享，可直接复制备份 JSON。");
+        return;
+    }
+    try {
+        const raw = await host.shareBackup(path);
+        const result = JSON.parse(raw);
+        if (!result?.ok) {
+            throw new Error(String(result?.error ?? "分享未完成"));
+        }
+        backupStatus.set(`已打开系统分享/导出：${path}`);
+    } catch (error) {
+        backupStatus.set(
+            `未能调起系统分享：${
+                error instanceof Error ? error.message : String(error)
+            }`,
+        );
+    }
+}
+
+async function copyCoreBackupJson() {
+    const json = backupJson();
+    if (!json) return;
+    try {
+        await Clipboard.writeText(json);
+        backupStatus.set("已将完整备份 JSON 复制到剪贴板。");
+    } catch (_) {
+        backupStatus.set("复制未完成，请重试或使用文件导出。");
+    }
+}
+
+async function restoreCoreBackup() {
+    if (backupBusy()) return;
+    const host = AppInfo as any;
+    if (typeof host?.restoreBackup !== "function") {
+        backupStatus.set("当前宿主尚未启用备份恢复接口。");
+        return;
+    }
+    backupBusy.set(true);
+    try {
+        const picked = await Picker.pickFiles({
+            multiple: false,
+            filters: [{ name: "QUSOR 备份 JSON", extensions: ["json"] }],
+        });
+        if (picked.length === 0) {
+            backupStatus.set("已取消备份恢复；本机数据未更改。");
+            return;
+        }
+        const text = await picked[0].file.text();
+        if (!text.trim()) throw new Error("备份文件为空");
+        const raw = await host.restoreBackup(text);
+        const result = JSON.parse(raw);
+        if (!result?.ok) {
+            throw new Error(String(result?.error ?? "恢复失败"));
+        }
+        refreshNotes();
+        backupStatus.set("已从备份文件恢复本机 Core 数据。");
+    } catch (error) {
+        backupStatus.set(
+            `备份恢复失败：${
+                error instanceof Error ? error.message : String(error)
+            }。原有数据未损坏。`,
+        );
+    } finally {
+        backupBusy.set(false);
+    }
+}
+
 function Library() {
     return (
         <Scroll style={{ flex: 1 }}>
             <View
                 style={{
-                    padding: 40,
+                    padding: narrow() ? 18 : 40,
                     maxWidth: 870,
                     width: "100%",
                     alignSelf: "center",
@@ -791,8 +1094,87 @@ function Library() {
                 }}
             >
                 <Copy size={25} strong>
-                    功能
+                    {narrow() ? "数据备份与管理" : "功能与数据管理"}
                 </Copy>
+                <View
+                    style={{
+                        padding: 16,
+                        gap: 12,
+                        borderRadius: 12,
+                        borderCurve: "continuous",
+                        borderWidth: 1,
+                        borderColor: ink("border-subtle"),
+                        backgroundColor: ink("surface-preview"),
+                    }}
+                >
+                    <View
+                        style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 10,
+                        }}
+                    >
+                        <Badge icon="download" size={36} tone="surface-accent" />
+                        <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                            <Copy size={16} strong>
+                                数据备份与恢复（本机 Core）
+                            </Copy>
+                            <Copy size={12} muted lines={2}>
+                                导出完整 JSON 备份或从本地文件恢复；凭据不进入导出文件。
+                            </Copy>
+                        </View>
+                    </View>
+                    <Copy size={12} muted lines={3}>
+                        {backupStatus()}
+                    </Copy>
+                    <View
+                        style={{
+                            flexDirection: "row",
+                            flexWrap: "wrap",
+                            gap: 10,
+                        }}
+                    >
+                        <Tool
+                            label="导出完整备份"
+                            icon="download"
+                            text={backupBusy() ? "正在处理…" : "导出完整备份"}
+                            raised
+                            size={narrow() ? "touch" : "regular"}
+                            disabled={backupBusy()}
+                            onPress={() => void exportCoreBackup()}
+                        />
+                        <Tool
+                            label="从备份文件恢复"
+                            icon="upload"
+                            text="从备份文件恢复"
+                            raised
+                            size={narrow() ? "touch" : "regular"}
+                            disabled={backupBusy()}
+                            onPress={() => void restoreCoreBackup()}
+                        />
+                        <If when={!!backupPath()}>
+                            <Tool
+                                label="分享或导出备份文件"
+                                icon="arrow"
+                                text="分享/导出文件"
+                                raised
+                                size={narrow() ? "touch" : "regular"}
+                                disabled={backupBusy()}
+                                onPress={() => void shareCoreBackup()}
+                            />
+                        </If>
+                        <If when={!!backupJson()}>
+                            <Tool
+                                label="复制备份 JSON"
+                                icon="document"
+                                text="复制备份 JSON"
+                                size={narrow() ? "touch" : "regular"}
+                                disabled={backupBusy()}
+                                onPress={() => void copyCoreBackupJson()}
+                            />
+                        </If>
+                    </View>
+                </View>
                 <Copy muted>选择一种适合当前工作的视图</Copy>
                 <Copy size={12} muted>
                     扩展工作区来自已验签的普通插件包；阅读预览包仍使用窗口内样例。
@@ -833,6 +1215,7 @@ function Library() {
                                 label={`打开${workspace().title}工作区`}
                                 text="打开工作区"
                                 raised
+                                size={narrow() ? "touch" : "regular"}
                                 onPress={() =>
                                     openPluginWorkspace(workspace().id)
                                 }
@@ -882,6 +1265,7 @@ function Library() {
                                 <Tool
                                     label={`${plugin().enabled ? "停用" : "启用"}${plugin().title}插件`}
                                     text={plugin().enabled ? "停用" : "启用"}
+                                    size={narrow() ? "touch" : "regular"}
                                     onPress={() =>
                                         togglePluginPackage(
                                             plugin().id,
@@ -918,6 +1302,7 @@ function Library() {
                                 label={`打开${entry().kind}样例`}
                                 text="打开样例"
                                 raised
+                                size={narrow() ? "touch" : "regular"}
                                 onPress={() => openEntry(entry().id)}
                             />
                         </View>
@@ -987,6 +1372,8 @@ function Inspector() {
     );
 }
 function Search() {
+    const dialogWidth = () =>
+        Math.min(520, Math.max(280, frameWidth() - 24));
     return (
         <Dialog
             open={searchOpen()}
@@ -996,9 +1383,10 @@ function Search() {
             backdropStyle={{ backgroundColor: ink("surface-scrim") }}
             style={{
                 position: "absolute",
-                top: 96,
-                left: Math.max(16, (frameWidth() - 520) / 2),
-                width: 520,
+                top: narrow() ? 56 : 96,
+                marginTop: narrow() ? "env(safe-area-inset-top)" : 0,
+                left: Math.max(12, (frameWidth() - dialogWidth()) / 2),
+                width: dialogWidth(),
                 padding: 8,
                 borderRadius: 14,
                 borderCurve: "continuous",
@@ -1028,6 +1416,7 @@ function Search() {
                         <Tool
                             label="关闭搜索"
                             icon="close"
+                            size={narrow() ? "touch" : "regular"}
                             onPress={() => searchOpen.set(false)}
                         />
                     }
@@ -1048,7 +1437,7 @@ function Search() {
                         backgroundColor: ink("transparent"),
                         borderWidth: 0,
                     }}
-                    listStyle={{ maxHeight: 320, padding: 5 }}
+                    listStyle={{ maxHeight: narrow() ? 220 : 320, padding: 5 }}
                     itemClass="rounded-md focus:bg-accent hover:bg-muted"
                     itemStyle={{
                         height: 57,
@@ -1090,20 +1479,61 @@ function Search() {
                         </View>
                     }
                     footer={
-                        <View
-                            style={{
-                                paddingHorizontal: 14,
-                                paddingVertical: 7,
-                            }}
-                        >
-                            <Copy size={11} muted>
-                                ↑ ↓ 选择　↵ 打开　Esc 清空 / 返回
-                            </Copy>
-                        </View>
+                        <If when={!narrow()}>
+                            <View
+                                style={{
+                                    paddingHorizontal: 14,
+                                    paddingVertical: 7,
+                                }}
+                            >
+                                <Copy size={11} muted>
+                                    ↑ ↓ 选择　↵ 打开　Esc 清空 / 返回
+                                </Copy>
+                            </View>
+                        </If>
                     }
                 />
             </If>
         </Dialog>
+    );
+}
+function MoreMenu(props: { touch?: boolean }) {
+    return (
+        <Menu
+            offset={8}
+            margin={10}
+            popupStyle={menuPopup()}
+            trigger={
+                <Tool
+                    label="更多工作区操作…"
+                    icon="more"
+                    size={props.touch ? "touch" : "regular"}
+                />
+            }
+        >
+            <MenuRow
+                title={dark() ? "浅色外观" : "深色外观"}
+                icon={dark() ? "sun" : "moon"}
+                onSelect={toggleDark}
+            />
+            <MenuRow
+                title={narrow() ? "数据与功能" : "功能样例"}
+                icon="grid"
+                onSelect={openLibrary}
+            />
+            <MenuRow
+                title="软件更新"
+                icon="arrow"
+                onSelect={openUpdatePanel}
+            />
+            <If when={!currentPlugin() && (!narrow() || designPreview())}>
+                <MenuRow
+                    title="关闭当前标签"
+                    icon="close"
+                    onSelect={closeActive}
+                />
+            </If>
+        </Menu>
     );
 }
 function HostToolbar() {
@@ -1113,112 +1543,178 @@ function HostToolbar() {
             accessibilityElementsHidden={searchOpen()}
             importantForAccessibility={searchOpen() ? "no-hide-descendants" : "auto"}
             style={{
-                height: 52,
                 flexShrink: 0,
-                paddingLeft: titleBar().left + 12,
-                paddingRight: titleBar().right + 17,
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
+                paddingTop: narrow() ? "env(safe-area-inset-top)" : 0,
                 backgroundColor: ink("surface-frame"),
             }}
         >
-            <Copy size={12} muted strong>
-                QUSOR
-            </Copy>
-            <If when={!activePlugin()}>
-                <Tool
-                    label={showSidebar() ? "隐藏导航" : "显示导航"}
-                    icon="panel"
-                    text="导航"
-                    selected={showSidebar()}
-                    onPress={toggleNavigation}
-                />
-            </If>
-            <If when={currentPlugin()}>
-                <Tool
-                    label={
-                        pluginOrigin()?.library
-                            ? "返回功能列表"
-                            : `返回产品设计 · ${current()?.title ?? "概览"}`
-                    }
-                    icon="back"
-                    text={pluginOrigin()?.library ? "返回功能" : "返回产品设计"}
-                    onPress={closePluginWorkspace}
-                />
-                <Glyph name="forward" size={13} />
-                <ProviderIdentity
-                    title={currentPlugin()!.title}
-                    icon={currentPlugin()!.icon}
-                />
-            </If>
-            <If when={!activePlugin() && library()}>
-                <Glyph name="forward" size={13} />
-                <Copy strong>功能</Copy>
-            </If>
-            <If when={!activePlugin() && !library()}>
-                <If when={active() === "overview"}>
-                    <Copy strong>产品设计</Copy>
-                </If>
-                <If when={active() !== "overview"}>
-                    <Tool
-                        label="返回产品设计概览"
-                        text="产品设计"
-                        icon="folder"
-                        onPress={() => openEntry("overview")}
-                    />
-                    <Glyph name="forward" size={13} />
-                    <ProviderIdentity
-                        title={current()?.provider ?? ""}
-                        icon={current()?.icon ?? "plug"}
-                    />
-                </If>
-            </If>
-            <View style={{ flex: 1, minWidth: 0 }} />
-            <If when={!activePlugin()}>
-                <Tool
-                    label="搜索内容…"
-                    icon="search"
-                    onPress={showSearch}
-                />
-                <NewMenu />
-                <Tool
-                    label={inspector() ? "关闭信息" : "显示信息"}
-                    icon="info"
-                    selected={inspector()}
-                    onPress={() => inspector.set(!inspector())}
-                />
-            </If>
-            <Menu
-                offset={8}
-                margin={10}
-                popupStyle={menuPopup()}
-                trigger={<Tool label="更多工作区操作…" icon="more" />}
+            <View
+                style={{
+                    height: 52,
+                    paddingLeft: narrow()
+                        ? `calc(env(safe-area-inset-left) + ${titleBar().left + 12}px)`
+                        : titleBar().left + 12,
+                    paddingRight: narrow()
+                        ? `calc(env(safe-area-inset-right) + ${titleBar().right + 12}px)`
+                        : titleBar().right + 17,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: narrow() ? 8 : 10,
+                }}
             >
-                <MenuRow
-                    title={dark() ? "浅色外观" : "深色外观"}
-                    icon={dark() ? "sun" : "moon"}
-                    onSelect={toggleDark}
-                />
-                <MenuRow
-                    title="功能样例"
-                    icon="grid"
-                    onSelect={openLibrary}
-                />
-                <If when={!currentPlugin()}>
-                    <MenuRow
-                        title="关闭当前标签"
-                        icon="close"
-                        onSelect={closeActive}
-                    />
+                <If when={!narrow()}>
+                    <Copy size={12} muted strong>
+                        QUSOR
+                    </Copy>
+                    <If when={!activePlugin()}>
+                        <Tool
+                            label={showSidebar() ? "隐藏导航" : "显示导航"}
+                            icon="panel"
+                            text="导航"
+                            selected={showSidebar()}
+                            onPress={toggleNavigation}
+                        />
+                    </If>
+                    <If when={currentPlugin()}>
+                        <Tool
+                            label={
+                                pluginOrigin()?.library
+                                    ? "返回功能列表"
+                                    : `返回产品设计 · ${current()?.title ?? "概览"}`
+                            }
+                            icon="back"
+                            text={
+                                pluginOrigin()?.library
+                                    ? "返回功能"
+                                    : "返回产品设计"
+                            }
+                            onPress={closePluginWorkspace}
+                        />
+                        <Glyph name="forward" size={13} />
+                        <ProviderIdentity
+                            title={currentPlugin()!.title}
+                            icon={currentPlugin()!.icon}
+                        />
+                    </If>
+                    <If when={!activePlugin() && library()}>
+                        <Glyph name="forward" size={13} />
+                        <Copy strong>功能</Copy>
+                    </If>
+                    <If when={!activePlugin() && !library()}>
+                        <If when={active() === "overview"}>
+                            <Copy strong>产品设计</Copy>
+                        </If>
+                        <If when={active() !== "overview"}>
+                            <Tool
+                                label="返回产品设计概览"
+                                text="产品设计"
+                                icon="folder"
+                                onPress={() => openEntry("overview")}
+                            />
+                            <Glyph name="forward" size={13} />
+                            <ProviderIdentity
+                                title={current()?.provider ?? ""}
+                                icon={current()?.icon ?? "plug"}
+                            />
+                        </If>
+                    </If>
+                    <View style={{ flex: 1, minWidth: 0 }} />
+                    <If when={!activePlugin()}>
+                        <Tool
+                            label="搜索内容…"
+                            icon="search"
+                            onPress={showSearch}
+                        />
+                        <NewMenu />
+                        <Tool
+                            label={inspector() ? "关闭信息" : "显示信息"}
+                            icon="info"
+                            selected={inspector()}
+                            onPress={() => inspector.set(!inspector())}
+                        />
+                    </If>
+                    <MoreMenu />
                 </If>
-            </Menu>
+                <If when={narrow()}>
+                    <If when={currentPlugin()}>
+                        <Tool
+                            label="返回"
+                            icon="back"
+                            text="返回"
+                            size="touch"
+                            onPress={closePluginWorkspace}
+                        />
+                        <View
+                            style={{
+                                flex: 1,
+                                minWidth: 0,
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: 6,
+                            }}
+                        >
+                            <Glyph name={currentPlugin()!.icon} size={16} />
+                            <Copy size={15} strong>
+                                {currentPlugin()!.title}
+                            </Copy>
+                        </View>
+                    </If>
+                    <If when={!currentPlugin()}>
+                        <Tool
+                            label={showSidebar() ? "隐藏导航" : "显示导航"}
+                            icon="panel"
+                            selected={showSidebar()}
+                            size="touch"
+                            onPress={toggleNavigation}
+                        />
+                        <If when={library()}>
+                            <View style={{ flex: 1, minWidth: 0 }}>
+                                <Copy size={15} strong>
+                                    数据与功能
+                                </Copy>
+                            </View>
+                        </If>
+                        <If when={!library() && showMobileHome()}>
+                            <View style={{ flex: 1, minWidth: 0 }}>
+                                <Copy size={15} strong>
+                                    QUSOR
+                                </Copy>
+                            </View>
+                        </If>
+                        <If when={!library() && !showMobileHome()}>
+                            <Tool
+                                label="返回工作台"
+                                icon="back"
+                                text="返回"
+                                size="touch"
+                                onPress={openMobileHome}
+                            />
+                            <View style={{ flex: 1, minWidth: 0 }}>
+                                <Copy size={15} strong>
+                                    {current()?.title ?? "设计样例"}
+                                </Copy>
+                            </View>
+                        </If>
+                        <Tool
+                            label="搜索内容…"
+                            icon="search"
+                            size="touch"
+                            onPress={showSearch}
+                        />
+                    </If>
+                    <MoreMenu touch />
+                </If>
+            </View>
         </View>
     );
 }
 function App() {
     effect(() => {
         BackHandler.on("press", () => {
+            if (updateOpen()) {
+                updateOpen.set(false);
+                return true;
+            }
             if (searchOpen()) {
                 searchOpen.set(false);
                 return true;
@@ -1227,16 +1723,21 @@ function App() {
                 closePluginWorkspace();
                 return true;
             }
-            if (library()) {
-                openEntry("overview");
-                return true;
-            }
             if (narrow() && sidebar()) {
                 sidebar.set(false);
                 return true;
             }
+            if (library()) {
+                if (narrow()) openMobileHome();
+                else openEntry("overview");
+                return true;
+            }
             if (active() !== "overview") {
                 openEntry("overview");
+                return true;
+            }
+            if (narrow() && designPreview()) {
+                openMobileHome();
                 return true;
             }
             return false;
@@ -1244,7 +1745,11 @@ function App() {
     });
     return (
         <View
-            style={{ flex: 1, backgroundColor: ink("surface-frame") }}
+            style={{
+                flex: 1,
+                backgroundColor: ink("surface-frame"),
+                paddingBottom: narrow() ? "env(safe-area-inset-bottom)" : 0,
+            }}
         >
             <HostToolbar />
             <View style={{ flex: 1, flexDirection: "row", minHeight: 0 }}>
@@ -1258,8 +1763,14 @@ function App() {
                         flex: 1,
                         minWidth: 0,
                         flexDirection: "column",
-                        marginLeft: showSidebar() ? 0 : 8,
-                        marginRight: 8,
+                        marginLeft: narrow()
+                            ? "calc(env(safe-area-inset-left) + 8px)"
+                            : showSidebar()
+                              ? 0
+                              : 8,
+                        marginRight: narrow()
+                            ? "calc(env(safe-area-inset-right) + 8px)"
+                            : 8,
                         marginBottom: 8,
                         borderRadius: 12,
                         borderCurve: "continuous",
@@ -1270,7 +1781,7 @@ function App() {
                         display: narrow() && showSidebar() ? "none" : "flex",
                     }}
                 >
-                <If when={!library() && !activePlugin()}>
+                <If when={!library() && !activePlugin() && !showMobileHome()}>
                     <View
                         style={{
                             height: 40,
@@ -1361,10 +1872,14 @@ function App() {
                         <If when={!activePlugin() && library()}>
                             <Library />
                         </If>
+                        <If when={showMobileHome()}>
+                            <MobileHome />
+                        </If>
                         <If
                             when={
                                 !activePlugin() &&
                                 !library() &&
+                                !showMobileHome() &&
                                 active() === "overview"
                             }
                         >

@@ -5,17 +5,28 @@
 use core_api::{
     knowledge::{KnowledgeError, KnowledgeErrorCode, Result},
     vocab::{
-        CardSchedule, DAILY_NEW_LIMIT, MAX_OPERATION_ID_BYTES, MAX_QUEUE_SIZE, MAX_TIMESTAMP_MS,
-        ReviewEntry, ReviewGuard, STUDY_ALGORITHM, StudyArchive, StudyCard, StudyRating,
-        StudyStage, Wordbook, WordbookSeed, validate_archive, validate_seed,
+        CardSchedule, DAILY_NEW_LIMIT, MAX_DAILY_NEW_LIMIT, MAX_OPERATION_ID_BYTES, MAX_QUEUE_SIZE,
+        MAX_TIMESTAMP_MS, MAX_VAULT_BYTES, ReviewEntry, ReviewGuard, STUDY_ALGORITHM, StudyArchive,
+        StudyCard, StudyRating, StudyStage, Wordbook, WordbookSeed, validate_archive,
+        validate_seed,
     },
 };
 use learning_domain::fsrs::{self, MemoryState, Policy, Rating, ScheduleInput, Stage};
 use learning_ports::StudyStore;
 use std::collections::{BTreeMap, BTreeSet};
 
+/// Maximum cards returned in a single `wordbook_cards` page.
+pub const MAX_WORDBOOK_CARDS_PAGE: usize = 200;
+
 fn invalid(message: &'static str) -> KnowledgeError {
     KnowledgeError::new(KnowledgeErrorCode::InvalidInput, message)
+}
+
+fn validate_vault(vault: &str) -> Result<()> {
+    if vault.is_empty() || vault.len() > MAX_VAULT_BYTES || vault.chars().any(char::is_control) {
+        return Err(invalid("invalid study vault"));
+    }
+    Ok(())
 }
 
 fn not_found(message: &'static str) -> KnowledgeError {
@@ -160,6 +171,50 @@ impl<S: StudyStore> StudyApplication<S> {
         Ok(decks)
     }
 
+    /// Delete a wordbook scoped by `vault` along with its cards, schedules, and reviews.
+    pub fn delete_wordbook(&mut self, vault: &str, wordbook_id: i64) -> Result<()> {
+        validate_vault(vault)?;
+        if wordbook_id <= 0 {
+            return Err(invalid("invalid wordbook id"));
+        }
+        self.store.delete_wordbook(vault, wordbook_id)
+    }
+
+    /// Return a bounded slice of cards belonging to one wordbook in `vault`, ordered by position.
+    pub fn wordbook_cards(
+        &self,
+        vault: &str,
+        wordbook_id: i64,
+        limit: usize,
+        offset: usize,
+    ) -> Result<Vec<StudyCard>> {
+        validate_vault(vault)?;
+        if wordbook_id <= 0 {
+            return Err(invalid("invalid wordbook id"));
+        }
+        if limit == 0 || limit > MAX_WORDBOOK_CARDS_PAGE {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::BudgetExceeded,
+                "wordbook card page limit is outside the supported range",
+            ));
+        }
+        let archive = self.store.study_snapshot()?;
+        if !archive
+            .wordbooks
+            .iter()
+            .any(|book| book.id == wordbook_id && book.vault == vault)
+        {
+            return Err(not_found("wordbook not found in this vault"));
+        }
+        let mut cards: Vec<StudyCard> = archive
+            .cards
+            .into_iter()
+            .filter(|card| card.wordbook_id == wordbook_id)
+            .collect();
+        cards.sort_by_key(|card| (card.position, card.id));
+        Ok(cards.into_iter().skip(offset).take(limit).collect())
+    }
+
     /// One bounded queue page: due reviews first, then new cards while the daily
     /// introduction budget allows. The queue never mutates Core.
     #[allow(clippy::too_many_arguments)]
@@ -170,6 +225,50 @@ impl<S: StudyStore> StudyApplication<S> {
         now_ms: i64,
         day_start_ms: i64,
         limit: usize,
+    ) -> Result<StudyQueue> {
+        self.queue_inner(
+            vault,
+            wordbook_id,
+            now_ms,
+            day_start_ms,
+            limit,
+            DAILY_NEW_LIMIT,
+        )
+    }
+
+    /// One bounded queue page using an explicit daily new-card limit (clamped to `0..=200`).
+    pub fn queue_with_limit(
+        &self,
+        vault: &str,
+        wordbook_id: i64,
+        now_ms: i64,
+        page_size: usize,
+        daily_new_limit: u32,
+    ) -> Result<StudyQueue> {
+        if now_ms <= 0 {
+            return Err(invalid("invalid study time range"));
+        }
+        let day_start_ms = now_ms - now_ms.rem_euclid(86_400_000);
+        let clamped_limit = daily_new_limit.min(MAX_DAILY_NEW_LIMIT);
+        self.queue_inner(
+            vault,
+            wordbook_id,
+            now_ms,
+            day_start_ms,
+            page_size,
+            clamped_limit,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn queue_inner(
+        &self,
+        vault: &str,
+        wordbook_id: i64,
+        now_ms: i64,
+        day_start_ms: i64,
+        limit: usize,
+        daily_new_limit: u32,
     ) -> Result<StudyQueue> {
         if wordbook_id <= 0 {
             return Err(invalid("invalid wordbook id"));
@@ -233,7 +332,7 @@ impl<S: StudyStore> StudyApplication<S> {
                     && review.reviewed_at_ms <= now_ms
             })
             .count() as u32;
-        let new_allowance = DAILY_NEW_LIMIT.saturating_sub(introduced_today);
+        let new_allowance = daily_new_limit.saturating_sub(introduced_today);
         let take_new = usize::try_from(new_allowance)
             .unwrap_or(0)
             .min(new_cards.len())

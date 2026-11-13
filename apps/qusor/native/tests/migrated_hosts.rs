@@ -160,6 +160,8 @@ fn seed_legacy_vocab(root: &std::path::Path) {
             description: "Migrated vocabulary fixture.".into(),
             words: vec![NewWord {
                 term: "core".into(),
+                pos: String::new(),
+                phonetic: String::new(),
                 meaning: "核心".into(),
                 example: "One Core serves both Hosts.".into(),
             }],

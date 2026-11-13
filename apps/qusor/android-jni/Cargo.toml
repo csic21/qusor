@@ -1,0 +1,15 @@
+[workspace]
+resolver = "3"
+
+[package]
+name = "qusor-android-jni"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97.1"
+license = "MIT"
+publish = false
+description = "Isolated Android JNI bridge for QUSOR native TTS and file sharing."
+
+[target.'cfg(target_os = "android")'.dependencies]
+jni = { version = "=0.21.1", default-features = false }
+libc = ">=0.2.190, <=0.2.191"

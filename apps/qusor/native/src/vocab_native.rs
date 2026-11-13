@@ -1,5 +1,5 @@
 use crate::{package_catalog, runtime, vault::VaultStore};
-use core_api::vocab::{NewWord, WordbookSeed};
+use core_api::vocab::{MAX_DAILY_NEW_LIMIT, NewWord, StudyStage, WordbookSeed};
 use extension_api::{vocab::*, *};
 use extension_host::{Grant, Host, Session};
 use learning_application::study::StudyApplication;
@@ -191,6 +191,82 @@ impl VocabRuntime {
             "total": total,
         }))
     }
+
+    fn queue_with_limit(&mut self, wordbook_id: i64, daily_new_limit: u32) -> Result<Value, String> {
+        let now = now_ms();
+        let study = StudyApplication::new(self.store.clone());
+        let queue = study
+            .queue_with_limit(
+                "qusor-vault",
+                wordbook_id,
+                now,
+                20,
+                daily_new_limit.min(MAX_DAILY_NEW_LIMIT),
+            )
+            .map_err(text)?;
+        let cards = queue
+            .cards
+            .into_iter()
+            .map(|item| {
+                let stage = match item.stage {
+                    StudyStage::New => "new",
+                    StudyStage::Learning => "learning",
+                    StudyStage::Review => "review",
+                };
+                json!({
+                    "card_id": item.card.id,
+                    "term": item.card.term,
+                    "pos": item.card.pos,
+                    "phonetic": item.card.phonetic,
+                    "meaning": item.card.meaning,
+                    "example": item.card.example,
+                    "stage": stage,
+                })
+            })
+            .collect::<Vec<_>>();
+        Ok(json!({
+            "cards": cards,
+            "remaining_due": queue.remaining_due,
+            "remaining_new": queue.remaining_new,
+        }))
+    }
+
+    fn wordbook_cards(
+        &self,
+        wordbook_id: i64,
+        limit: u16,
+        offset: u32,
+    ) -> Result<Value, String> {
+        let study = StudyApplication::new(self.store.clone());
+        let rows = study
+            .wordbook_cards("qusor-vault", wordbook_id, usize::from(limit), offset as usize)
+            .map_err(text)?;
+        let cards = rows
+            .into_iter()
+            .map(|card| {
+                json!({
+                    "id": card.id,
+                    "term": card.term,
+                    "pos": card.pos,
+                    "phonetic": card.phonetic,
+                    "meaning": card.meaning,
+                    "example": card.example,
+                })
+            })
+            .collect::<Vec<_>>();
+        Ok(json!({ "cards": cards }))
+    }
+
+    fn delete_wordbook(&mut self, wordbook_id: i64) -> Result<Value, String> {
+        let mut study = StudyApplication::new(self.store.clone());
+        study
+            .delete_wordbook("qusor-vault", wordbook_id)
+            .map_err(text)?;
+        Ok(json!({
+            "deleted": true,
+            "wordbook_id": wordbook_id,
+        }))
+    }
 }
 
 const MAX_WORDBOOK_IMPORT_BYTES: usize = 2 * 1024 * 1024;
@@ -207,6 +283,10 @@ struct ImportWordbook {
 #[serde(deny_unknown_fields)]
 struct ImportWord {
     term: String,
+    #[serde(default)]
+    pos: String,
+    #[serde(default)]
+    phonetic: String,
     meaning: String,
     example: Option<String>,
 }
@@ -231,6 +311,8 @@ fn parse_import_wordbook(document: &str) -> Result<WordbookSeed, String> {
             .into_iter()
             .map(|word| NewWord {
                 term: word.term,
+                pos: word.pos,
+                phonetic: word.phonetic,
                 meaning: word.meaning,
                 example: word.example.unwrap_or_default(),
             })
@@ -245,12 +327,17 @@ mod import_tests {
     #[test]
     fn import_shape_defaults_optional_fields() {
         let seed = parse_import_wordbook(
-            r#"{"title":"  My words  ","words":[{"term":"term","meaning":"词"}]}"#,
+            r#"{"title":"  My words  ","words":[{"term":"term","meaning":"词"},{"term":"lexicon","pos":"n.","phonetic":"/ˈleksɪkən/","meaning":"词汇","example":"Read the lexicon."}]}"#,
         )
         .unwrap();
         assert_eq!(seed.title, "My words");
         assert_eq!(seed.description, "");
+        assert_eq!(seed.words[0].pos, "");
+        assert_eq!(seed.words[0].phonetic, "");
         assert_eq!(seed.words[0].example, "");
+        assert_eq!(seed.words[1].pos, "n.");
+        assert_eq!(seed.words[1].phonetic, "/ˈleksɪkən/");
+        assert_eq!(seed.words[1].example, "Read the lexicon.");
     }
 
     #[test]
@@ -423,12 +510,16 @@ fn installed_voices() -> &'static [(String, String)] {
 /// Reads the text with the system voice. The process keeps speaking after this
 /// call returns; a new call stops the previous reading instead of stacking.
 #[cfg(target_os = "macos")]
-fn speak_now(text: &str, accent: &str) -> Result<Option<String>, String> {
+fn speak_now(text: &str, accent: &str, rate: f32) -> Result<Option<String>, String> {
     use std::{
         io::Write,
         process::{Child, Command, Stdio},
         sync::Mutex,
     };
+    if !rate.is_finite() {
+        return Err("invalid speech rate".into());
+    }
+    let clamped = rate.clamp(0.4, 1.5);
     static SPEAKER: Mutex<Option<Child>> = Mutex::new(None);
     if let Ok(mut speaker) = SPEAKER.lock()
         && let Some(mut previous) = speaker.take()
@@ -437,8 +528,10 @@ fn speak_now(text: &str, accent: &str) -> Result<Option<String>, String> {
         let _ = previous.try_wait();
     }
     let voice = speech_voice(accent, installed_voices());
+    let base_wpm: f32 = SPEECH_RATE.parse().unwrap_or(165.0);
+    let wpm = (base_wpm * clamped).round() as u32;
     let mut command = Command::new("/usr/bin/say");
-    command.args(["-r", SPEECH_RATE]);
+    command.args(["-r", &wpm.to_string()]);
     if let Some(voice) = &voice {
         command.args(["-v", voice]);
     }
@@ -460,8 +553,20 @@ fn speak_now(text: &str, accent: &str) -> Result<Option<String>, String> {
     Ok(voice)
 }
 
-#[cfg(not(target_os = "macos"))]
-fn speak_now(_text: &str, _accent: &str) -> Result<Option<String>, String> {
+#[cfg(target_os = "android")]
+fn speak_now(text: &str, accent: &str, rate: f32) -> Result<Option<String>, String> {
+    if !rate.is_finite() {
+        return Err("invalid speech rate".into());
+    }
+    qusor_android_jni::speak(text, accent, rate.clamp(0.4, 1.5))?;
+    Ok(Some("Android TTS".into()))
+}
+
+#[cfg(not(any(target_os = "macos", target_os = "android")))]
+fn speak_now(_text: &str, _accent: &str, rate: f32) -> Result<Option<String>, String> {
+    if !rate.is_finite() {
+        return Err("invalid speech rate".into());
+    }
     Err("this platform's host has no system voice".into())
 }
 
@@ -504,6 +609,14 @@ impl VocabHost {
     /// The sample host asks the platform's voice; no pronunciation data is
     /// invented here and nothing is written to Core.
     pub fn pronounce(sys: System, text: String, accent: String) -> String {
+        Self::pronounce_with_rate(sys, text, accent, 1.0)
+    }
+
+    /// Read one short text with a relative speech rate multiplier (0.4..=1.5).
+    pub fn pronounce_with_rate(sys: System, text: String, accent: String, rate: f32) -> String {
+        if !rate.is_finite() {
+            return json!({ "ok": false, "error": "invalid speech rate" }).to_string();
+        }
         if let Err(error) = validate_speech(&text, &accent) {
             return json!({ "ok": false, "error": error }).to_string();
         }
@@ -511,7 +624,28 @@ impl VocabHost {
         // package/Core runtime: a window without it keeps the sample card and
         // says it cannot read instead of starting the system voice anyway.
         answer(runtime::with_vocab(&sys, |_| {
-            speak_now(&text, &accent).map(|voice| json!({ "accent": accent, "voice": voice }))
+            speak_now(&text, &accent, rate).map(|voice| json!({ "accent": accent, "voice": voice }))
+        }))
+    }
+
+    /// Study queue respecting a configurable daily new-word cap, returning `pos` and `phonetic`.
+    pub fn queue_with_limit(sys: System, wordbook_id: i64, daily_new_limit: u32) -> String {
+        answer(runtime::with_vocab(&sys, |vocab| {
+            vocab.queue_with_limit(wordbook_id, daily_new_limit)
+        }))
+    }
+
+    /// One bounded page of cards belonging to a wordbook for vocabulary browsing.
+    pub fn wordbook_cards(sys: System, wordbook_id: i64, limit: u16, offset: u32) -> String {
+        answer(runtime::with_vocab(&sys, |vocab| {
+            vocab.wordbook_cards(wordbook_id, limit, offset)
+        }))
+    }
+
+    /// Delete one wordbook and all its cards/schedules/reviews from Core.
+    pub fn delete_wordbook(sys: System, wordbook_id: i64) -> String {
+        answer(runtime::with_vocab(&sys, |vocab| {
+            vocab.delete_wordbook(wordbook_id)
         }))
     }
 

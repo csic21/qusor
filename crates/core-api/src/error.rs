@@ -84,3 +84,15 @@ impl From<crate::pdf_contract::PdfContractError> for KnowledgeError {
         Self::new(code, v.message)
     }
 }
+impl From<crate::epub_contract::EpubContractError> for KnowledgeError {
+    fn from(v: crate::epub_contract::EpubContractError) -> Self {
+        use crate::epub_contract::EpubContractErrorCode as C;
+        let code = match v.code {
+            C::BudgetExceeded => KnowledgeErrorCode::BudgetExceeded,
+            C::UnsupportedVersion => KnowledgeErrorCode::UnsupportedVersion,
+            C::HashMismatch | C::OriginalMismatch => KnowledgeErrorCode::Integrity,
+            _ => KnowledgeErrorCode::InvalidInput,
+        };
+        Self::new(code, v.message)
+    }
+}

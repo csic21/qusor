@@ -15,6 +15,8 @@ impl Memory {
                 pdf_documents: vec![],
                 pdf_captures: vec![],
                 pdf_operations: vec![],
+                epub_documents: vec![],
+                epub_captures: vec![],
                 commits: vec![],
                 blobs: vec![],
             },
@@ -27,7 +29,14 @@ impl KnowledgeStore for Memory {
         Ok(self.archive.clone())
     }
     fn commit(&mut self, plan: CommitPlan) -> Result<()> {
-        assert_eq!(plan.expected_revision, self.archive.commits.len() as i64);
+        let max_rev = self
+            .archive
+            .commits
+            .iter()
+            .map(|c| c.commit_rev)
+            .max()
+            .unwrap_or(0);
+        assert_eq!(plan.expected_revision, max_rev);
         validate_archive(&plan.next)?;
         self.archive = plan.next;
         if self.lose_reply {
@@ -42,6 +51,232 @@ impl KnowledgeStore for Memory {
     fn restore(&mut self, a: &ArchiveV2) -> Result<()> {
         validate_archive(a)?;
         self.archive = a.clone();
+        Ok(())
+    }
+    fn update_pdf_capture_note(&mut self, vault: &str, capture_id: i64, note: &str) -> Result<()> {
+        validate_note_input(note)?;
+        let Some(pos) = self
+            .archive
+            .pdf_captures
+            .iter()
+            .position(|c| c.receipt.capture_id == capture_id)
+        else {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "PDF capture not found",
+            ));
+        };
+        let doc_id = self.archive.pdf_captures[pos].receipt.document_id;
+        let Some(doc) = self
+            .archive
+            .pdf_documents
+            .iter()
+            .find(|d| d.receipt.document_id == doc_id && d.vault == vault)
+            .cloned()
+        else {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "PDF capture not found",
+            ));
+        };
+        self.archive.pdf_captures[pos].user_note = note.to_owned();
+        let updated_op = operation_for_capture(&self.archive.pdf_captures[pos], &doc)?;
+        if let Some(op) = self
+            .archive
+            .pdf_operations
+            .iter_mut()
+            .find(|o| o.operation_id == updated_op.operation_id)
+        {
+            *op = updated_op.clone();
+        }
+        if let Some(commit) = self
+            .archive
+            .commits
+            .iter_mut()
+            .find(|c| c.operation_id == updated_op.operation_id)
+        {
+            commit.input_hash = updated_op.input_hash;
+        }
+        validate_archive(&self.archive)?;
+        Ok(())
+    }
+    fn delete_pdf_capture(&mut self, vault: &str, capture_id: i64) -> Result<()> {
+        let Some(pos) = self
+            .archive
+            .pdf_captures
+            .iter()
+            .position(|c| c.receipt.capture_id == capture_id)
+        else {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "PDF capture not found",
+            ));
+        };
+        let doc_id = self.archive.pdf_captures[pos].receipt.document_id;
+        if !self
+            .archive
+            .pdf_documents
+            .iter()
+            .any(|d| d.receipt.document_id == doc_id && d.vault == vault)
+        {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "PDF capture not found",
+            ));
+        }
+        let op_id = self.archive.pdf_captures.remove(pos).receipt.operation_id;
+        self.archive
+            .pdf_operations
+            .retain(|o| o.operation_id != op_id);
+        self.archive.commits.retain(|c| c.operation_id != op_id);
+        self.archive.schema_version = archive_schema_version(&self.archive);
+        validate_archive(&self.archive)?;
+        Ok(())
+    }
+    fn delete_pdf_document(&mut self, vault: &str, document_id: i64) -> Result<()> {
+        let Some(pos) = self
+            .archive
+            .pdf_documents
+            .iter()
+            .position(|d| d.receipt.document_id == document_id && d.vault == vault)
+        else {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "PDF document not found",
+            ));
+        };
+        let doc = self.archive.pdf_documents.remove(pos);
+        let mut ops = vec![doc.receipt.operation_id.clone()];
+        self.archive.pdf_captures.retain(|c| {
+            if c.receipt.document_id == document_id {
+                ops.push(c.receipt.operation_id.clone());
+                false
+            } else {
+                true
+            }
+        });
+        self.archive
+            .pdf_operations
+            .retain(|o| !ops.contains(&o.operation_id));
+        self.archive
+            .commits
+            .retain(|c| !ops.contains(&c.operation_id));
+        if !self
+            .archive
+            .pdf_documents
+            .iter()
+            .any(|d| d.receipt.original_sha256 == doc.receipt.original_sha256)
+            && !self
+                .archive
+                .text_entries
+                .iter()
+                .any(|t| t.record.receipt.snapshot_hash == doc.receipt.original_sha256)
+        {
+            self.archive
+                .blobs
+                .retain(|b| b.hash != doc.receipt.original_sha256);
+        }
+        self.archive.schema_version = archive_schema_version(&self.archive);
+        validate_archive(&self.archive)?;
+        Ok(())
+    }
+    fn update_epub_capture_note(&mut self, vault: &str, capture_id: i64, note: &str) -> Result<()> {
+        validate_note_input(note)?;
+        let Some(pos) = self
+            .archive
+            .epub_captures
+            .iter()
+            .position(|c| c.receipt.capture_id == capture_id)
+        else {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "EPUB capture not found",
+            ));
+        };
+        let doc_id = self.archive.epub_captures[pos].receipt.document_id;
+        let Some(doc) = self
+            .archive
+            .epub_documents
+            .iter()
+            .find(|d| d.receipt.document_id == doc_id && d.vault == vault)
+            .cloned()
+        else {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "EPUB capture not found",
+            ));
+        };
+        self.archive.epub_captures[pos].user_note = note.to_owned();
+        let new_hash = epub_capture_input(&self.archive.epub_captures[pos], &doc)?;
+        let op_id = self.archive.epub_captures[pos].receipt.operation_id.clone();
+        if let Some(commit) = self
+            .archive
+            .commits
+            .iter_mut()
+            .find(|c| c.operation_id == op_id)
+        {
+            commit.input_hash = new_hash;
+        }
+        validate_archive(&self.archive)?;
+        Ok(())
+    }
+    fn delete_epub_capture(&mut self, vault: &str, capture_id: i64) -> Result<()> {
+        let Some(pos) = self
+            .archive
+            .epub_captures
+            .iter()
+            .position(|c| c.receipt.capture_id == capture_id)
+        else {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "EPUB capture not found",
+            ));
+        };
+        let doc_id = self.archive.epub_captures[pos].receipt.document_id;
+        if !self
+            .archive
+            .epub_documents
+            .iter()
+            .any(|d| d.receipt.document_id == doc_id && d.vault == vault)
+        {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "EPUB capture not found",
+            ));
+        }
+        let op_id = self.archive.epub_captures.remove(pos).receipt.operation_id;
+        self.archive.commits.retain(|c| c.operation_id != op_id);
+        self.archive.schema_version = archive_schema_version(&self.archive);
+        validate_archive(&self.archive)?;
+        Ok(())
+    }
+    fn delete_epub_document(&mut self, vault: &str, document_id: i64) -> Result<()> {
+        let Some(pos) = self
+            .archive
+            .epub_documents
+            .iter()
+            .position(|d| d.receipt.document_id == document_id && d.vault == vault)
+        else {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::NotFound,
+                "EPUB document not found",
+            ));
+        };
+        let doc = self.archive.epub_documents.remove(pos);
+        let mut ops = vec![doc.receipt.operation_id];
+        self.archive.epub_captures.retain(|c| {
+            if c.receipt.document_id == document_id {
+                ops.push(c.receipt.operation_id.clone());
+                false
+            } else {
+                true
+            }
+        });
+        self.archive
+            .commits
+            .retain(|c| !ops.contains(&c.operation_id));
+        self.archive.schema_version = archive_schema_version(&self.archive);
+        validate_archive(&self.archive)?;
         Ok(())
     }
 }

@@ -1,6 +1,9 @@
 //! Persistent knowledge envelopes and pure consistency invariants.
 //! No filesystem, database, runtime, or UI implementation is part of this module.
 use crate::contract::{CaptureDraft, sha256};
+use crate::epub_contract::{
+    EpubChapterSnapshot, EpubDraft, EpubSnapshot, EpubTocEntry, resolve_epub,
+};
 pub use crate::error::{KnowledgeError, KnowledgeErrorCode, KnowledgeResult as Result};
 use crate::pdf_compound::PdfCompoundDraft;
 use crate::pdf_contract::{PdfDraft, PdfSnapshot};
@@ -109,6 +112,92 @@ pub struct PdfCaptureRecord {
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+pub struct EpubDocumentReceipt {
+    pub operation_id: String,
+    pub document_id: i64,
+    pub commit_rev: i64,
+    pub original_sha256: String,
+    pub extraction_revision: String,
+}
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EpubChapterRecord {
+    pub chapter_index: u32,
+    pub title: String,
+    pub href: String,
+    pub text: String,
+}
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EpubTocRecord {
+    pub title: String,
+    pub chapter_index: u32,
+    pub depth: u8,
+}
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EpubDocumentRecord {
+    pub receipt: EpubDocumentReceipt,
+    pub vault: String,
+    pub title: String,
+    pub author: String,
+    pub original_bytes: u64,
+    pub chapters: Vec<EpubChapterRecord>,
+    pub toc: Vec<EpubTocRecord>,
+}
+impl EpubDocumentRecord {
+    /// Convert this stored record into a validated semantic `EpubSnapshot`.
+    pub fn to_snapshot(&self) -> EpubSnapshot {
+        EpubSnapshot {
+            vault: self.vault.clone(),
+            title: self.title.clone(),
+            author: self.author.clone(),
+            original_sha256: self.receipt.original_sha256.clone(),
+            original_bytes: self.original_bytes,
+            extraction_revision: self.receipt.extraction_revision.clone(),
+            chapters: self
+                .chapters
+                .iter()
+                .map(|c| EpubChapterSnapshot {
+                    chapter_index: c.chapter_index,
+                    title: c.title.clone(),
+                    href: c.href.clone(),
+                    text: c.text.clone(),
+                })
+                .collect(),
+            toc: self
+                .toc
+                .iter()
+                .map(|t| EpubTocEntry {
+                    title: t.title.clone(),
+                    chapter_index: t.chapter_index,
+                    depth: t.depth,
+                })
+                .collect(),
+        }
+    }
+}
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EpubReceipt {
+    pub operation_id: String,
+    pub capture_id: i64,
+    pub document_id: i64,
+    pub commit_rev: i64,
+    pub original_sha256: String,
+    pub extraction_revision: String,
+    pub draft_hash: String,
+}
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EpubCaptureRecord {
+    pub receipt: EpubReceipt,
+    pub draft: EpubDraft,
+    pub provenance: Provenance,
+    pub user_note: String,
+}
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct BinaryBlob {
     pub hash: String,
     pub byte_len: u64,
@@ -170,6 +259,10 @@ pub struct ArchiveV2 {
     pub pdf_documents: Vec<PdfDocumentRecord>,
     pub pdf_captures: Vec<PdfCaptureRecord>,
     pub pdf_operations: Vec<PdfOperationEntry>,
+    #[serde(default)]
+    pub epub_documents: Vec<EpubDocumentRecord>,
+    #[serde(default)]
+    pub epub_captures: Vec<EpubCaptureRecord>,
     pub commits: Vec<CommitEntry>,
     pub blobs: Vec<BinaryBlob>,
 }
@@ -180,6 +273,10 @@ pub struct RestoreAllReceipt {
     pub text_captures: usize,
     pub pdf_documents: usize,
     pub pdf_captures: usize,
+    #[serde(default)]
+    pub epub_documents: usize,
+    #[serde(default)]
+    pub epub_captures: usize,
 }
 impl ArchiveV2 {
     pub fn from_legacy(bundle: &ExportBundle) -> Result<Self> {
@@ -190,6 +287,8 @@ impl ArchiveV2 {
             pdf_documents: vec![],
             pdf_captures: vec![],
             pdf_operations: vec![],
+            epub_documents: vec![],
+            epub_captures: vec![],
             commits: bundle
                 .entries
                 .iter()
@@ -458,8 +557,89 @@ pub fn native_import(op: &str, vault: &str, title: &str) -> Result<()> {
     }
     Ok(())
 }
-pub fn validate_archive(archive: &ArchiveV2) -> Result<()> {
-    let expected_version = if archive
+
+/// Validate a mutable user note edit (bounded length and no disallowed control characters).
+pub fn validate_note_input(note: &str) -> Result<()> {
+    if note.len() > 1024 * 1024 {
+        return Err(KnowledgeError::new(
+            KnowledgeErrorCode::BudgetExceeded,
+            "user note budget exceeded",
+        ));
+    }
+    if note
+        .chars()
+        .any(|ch| ch.is_control() && !matches!(ch, '\n' | '\r' | '\t'))
+    {
+        return Err(KnowledgeError::new(
+            KnowledgeErrorCode::InvalidInput,
+            "user note contains unsupported control characters",
+        ));
+    }
+    Ok(())
+}
+
+/// Compute canonical `input_hash` for an EPUB document import record.
+pub fn epub_document_input(record: &EpubDocumentRecord) -> Result<String> {
+    Ok(sha256(&serde_json::to_vec(&(
+        "epub_import",
+        &record.vault,
+        &record.title,
+        &record.author,
+        &record.receipt.original_sha256,
+        record.original_bytes,
+        &record.receipt.extraction_revision,
+        &record.chapters,
+        &record.toc,
+    ))?))
+}
+
+/// Compute canonical `input_hash` for an EPUB capture record.
+pub fn epub_capture_input(
+    record: &EpubCaptureRecord,
+    document: &EpubDocumentRecord,
+) -> Result<String> {
+    Ok(sha256(&serde_json::to_vec(&(
+        "epub_capture",
+        record.receipt.document_id,
+        &document.vault,
+        &record.draft,
+        &record.provenance,
+        &record.user_note,
+    ))?))
+}
+
+/// Build the `CommitEntry` representing an EPUB document import.
+pub fn commit_for_epub_document(record: &EpubDocumentRecord) -> Result<CommitEntry> {
+    Ok(CommitEntry {
+        commit_rev: record.receipt.commit_rev,
+        operation_id: record.receipt.operation_id.clone(),
+        kind: "epub_import".into(),
+        entity_id: record.receipt.document_id,
+        input_hash: epub_document_input(record)?,
+        receipt: serde_json::to_string(&record.receipt)?,
+    })
+}
+
+/// Build the `CommitEntry` representing an EPUB selection capture.
+pub fn commit_for_epub_capture(
+    record: &EpubCaptureRecord,
+    document: &EpubDocumentRecord,
+) -> Result<CommitEntry> {
+    Ok(CommitEntry {
+        commit_rev: record.receipt.commit_rev,
+        operation_id: record.receipt.operation_id.clone(),
+        kind: "epub_capture".into(),
+        entity_id: record.receipt.capture_id,
+        input_hash: epub_capture_input(record, document)?,
+        receipt: serde_json::to_string(&record.receipt)?,
+    })
+}
+
+/// Compute the expected `ArchiveV2.schema_version` for the archive's features.
+pub fn archive_schema_version(archive: &ArchiveV2) -> u32 {
+    if !archive.epub_documents.is_empty() || !archive.epub_captures.is_empty() {
+        4
+    } else if archive
         .pdf_captures
         .iter()
         .any(|record| record.compound.is_some())
@@ -467,7 +647,11 @@ pub fn validate_archive(archive: &ArchiveV2) -> Result<()> {
         3
     } else {
         2
-    };
+    }
+}
+
+pub fn validate_archive(archive: &ArchiveV2) -> Result<()> {
+    let expected_version = archive_schema_version(archive);
     if archive.schema_version != expected_version {
         return Err(KnowledgeError::new(
             KnowledgeErrorCode::UnsupportedVersion,
@@ -521,10 +705,12 @@ pub fn validate_archive(archive: &ArchiveV2) -> Result<()> {
         .iter()
         .map(|e| e.record.receipt.snapshot_hash.clone())
         .collect();
-    for (index, record) in archive.pdf_documents.iter().enumerate() {
+    let mut pdf_doc_ids = BTreeSet::new();
+    for record in &archive.pdf_documents {
         let r = &record.receipt;
         native_import(&r.operation_id, &record.vault, &record.title)?;
-        if r.document_id != (index + 1) as i64
+        if r.document_id <= 0
+            || !pdf_doc_ids.insert(r.document_id)
             || r.extraction_revision != record.snapshot.extraction_revision()?
             || r.original_sha256 != record.snapshot.original_sha256
         {
@@ -547,7 +733,8 @@ pub fn validate_archive(archive: &ArchiveV2) -> Result<()> {
             return fail("duplicate PDF import operation");
         }
     }
-    for (index, record) in archive.pdf_captures.iter().enumerate() {
+    let mut pdf_cap_ids = BTreeSet::new();
+    for record in &archive.pdf_captures {
         let r = &record.receipt;
         let document = archive
             .pdf_documents
@@ -560,7 +747,8 @@ pub fn validate_archive(archive: &ArchiveV2) -> Result<()> {
             &record.provenance,
             &record.user_note,
         )?;
-        if r.capture_id != (index + 1) as i64
+        if r.capture_id <= 0
+            || !pdf_cap_ids.insert(r.capture_id)
             || r.original_sha256 != document.receipt.original_sha256
             || r.extraction_revision != document.receipt.extraction_revision
             || r.draft_hash != capture_draft_hash(record)?
@@ -578,6 +766,43 @@ pub fn validate_archive(archive: &ArchiveV2) -> Result<()> {
             return fail("duplicate PDF capture operation");
         }
     }
+    let mut epub_doc_ids = BTreeSet::new();
+    let mut epub_snapshots = BTreeMap::new();
+    for record in &archive.epub_documents {
+        let r = &record.receipt;
+        native_import(&r.operation_id, &record.vault, &record.title)?;
+        if r.document_id <= 0 || !epub_doc_ids.insert(r.document_id) {
+            return fail("invalid EPUB document identity");
+        }
+        let snapshot = record.to_snapshot();
+        snapshot.validate()?;
+        epub_snapshots.insert(r.document_id, (record, snapshot));
+        expected_commits.push(commit_for_epub_document(record)?);
+    }
+    let mut epub_cap_ids = BTreeSet::new();
+    for record in &archive.epub_captures {
+        let r = &record.receipt;
+        let (document, snapshot) = epub_snapshots
+            .get(&r.document_id)
+            .ok_or("EPUB document relationship missing")?;
+        validate_native(
+            &r.operation_id,
+            &document.vault,
+            &record.provenance,
+            &record.user_note,
+        )?;
+        if r.capture_id <= 0
+            || !epub_cap_ids.insert(r.capture_id)
+            || r.original_sha256 != document.receipt.original_sha256
+            || r.extraction_revision != document.receipt.extraction_revision
+            || r.draft_hash != record.draft.draft_hash()?
+            || r.commit_rev <= document.receipt.commit_rev
+        {
+            return fail("invalid EPUB capture identity");
+        }
+        resolve_epub(snapshot, &record.draft)?;
+        expected_commits.push(commit_for_epub_capture(record, document)?);
+    }
     let actual_operations: BTreeMap<_, _> = archive
         .pdf_operations
         .iter()
@@ -593,10 +818,12 @@ pub fn validate_archive(archive: &ArchiveV2) -> Result<()> {
         return fail("global commit log mismatch");
     };
     let mut operations = BTreeSet::new();
-    for (index, commit) in archive.commits.iter().enumerate() {
-        if commit.commit_rev != (index + 1) as i64 || !operations.insert(&commit.operation_id) {
+    let mut prev_rev = 0i64;
+    for commit in &archive.commits {
+        if commit.commit_rev <= prev_rev || !operations.insert(&commit.operation_id) {
             return fail("global commit revision or operation conflict");
         }
+        prev_rev = commit.commit_rev;
     }
     if blobs.keys().cloned().collect::<BTreeSet<_>>() != referenced {
         return fail("unreferenced or missing archive blob");

@@ -1,5 +1,5 @@
 import { Canvas, Path2D, Text, View, token, type JSX } from "nsh";
-import { Button } from "nsh/base";
+import { Button, Dialog } from "nsh/base";
 
 export const ink = (role: string) => token(role as any);
 const paths: Record<string, string> = {
@@ -26,6 +26,12 @@ const paths: Record<string, string> = {
     chat: "M4 4h16v12H9l-5 4z M8 8h8 M8 12h5",
     grid: "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
     folder: "M3 6h7l2 2h9v12H3z M3 6V4h7l2 2",
+    trash: "M4 7h16 M9 7V4h6v3 M6 7l1 13h10l1-13 M10 11v6 M14 11v6",
+    edit: "M4 20h4L18.5 9.5a1.5 1.5 0 0 0-4-4L4 16z M13.5 6.5l4 4",
+    download: "M12 4v11 M7 11l5 5l5-5 M5 19h14",
+    upload: "M12 16V5 M7 9l5-5l5 5 M5 19h14",
+    bookmark: "M6 4h12v17l-6-4l-6 4z",
+    sliders: "M4 7h16 M4 12h16 M4 17h16 M8 5v4 M15 10v4 M11 15v4",
 };
 export function Glyph(props: { name: string; size?: number; color?: string }) {
     return (
@@ -85,7 +91,7 @@ export const focus = () => ({
     outlineColor: ink("focus-ring"),
 });
 
-export type ControlSize = "compact" | "regular" | "large";
+export type ControlSize = "compact" | "regular" | "large" | "touch";
 
 /// One size scale for every button and text action. Height, padding, radius,
 /// icon and label sizes move together so a row of controls reads as one system.
@@ -108,6 +114,15 @@ export const control = (size: ControlSize = "regular") => {
                 gap: 8,
                 icon: 17,
                 text: 13,
+            };
+        case "touch":
+            return {
+                height: 44,
+                padding: 16,
+                radius: 10,
+                gap: 8,
+                icon: 20,
+                text: 15,
             };
         default:
             return {
@@ -289,5 +304,98 @@ export function ProviderIdentity(props: { title: string; icon: string }) {
                 </Copy>
             </View>
         </View>
+    );
+}
+
+export interface BottomSheetProps {
+    open: boolean;
+    onClose: () => void;
+    title?: string;
+    subtitle?: string;
+    headerRight?: JSX.Element;
+    maxHeight?: number | `${number}%`;
+    children?: JSX.Element;
+    testID?: string;
+}
+
+/**
+ * Mobile bottom sheet built on NSH `Dialog`, respecting bottom safe area and
+ * software keyboard inset heights.
+ */
+export function BottomSheet(props: BottomSheetProps) {
+    return (
+        <Dialog
+            testID={props.testID}
+            open={props.open}
+            onOpenChange={({ open }) => {
+                if (!open) props.onClose();
+            }}
+            animation="slide"
+            backdropStyle={{ backgroundColor: ink("surface-scrim") }}
+            style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                maxHeight: props.maxHeight ?? "85%",
+                marginBottom: "env(keyboard-inset-height)",
+                paddingTop: 10,
+                paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)",
+                paddingLeft: "calc(env(safe-area-inset-left) + 16px)",
+                paddingRight: "calc(env(safe-area-inset-right) + 16px)",
+                borderTopLeftRadius: 18,
+                borderTopRightRadius: 18,
+                borderCurve: "continuous",
+                backgroundColor: ink("surface-floating"),
+                borderTopWidth: 1,
+                borderLeftWidth: 1,
+                borderRightWidth: 1,
+                borderColor: ink("border-control"),
+                boxShadow: "0 -12px 40px rgba(0,0,0,0.20)",
+                gap: 12,
+            }}
+        >
+            <View
+                style={{
+                    alignSelf: "center",
+                    width: 36,
+                    height: 4,
+                    borderRadius: 2,
+                    backgroundColor: ink("border-control"),
+                }}
+            />
+            <If when={props.title || props.headerRight}>
+                <View
+                    style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 10,
+                        minHeight: 36,
+                    }}
+                >
+                    <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                        <If when={props.title}>
+                            <Copy size={16} strong>
+                                {props.title ?? ""}
+                            </Copy>
+                        </If>
+                        <If when={props.subtitle}>
+                            <Copy size={12} muted>
+                                {props.subtitle ?? ""}
+                            </Copy>
+                        </If>
+                    </View>
+                    <If when={props.headerRight}>{props.headerRight}</If>
+                    <Tool
+                        label="关闭"
+                        icon="close"
+                        size="touch"
+                        onPress={props.onClose}
+                    />
+                </View>
+                <Rule />
+            </If>
+            <View style={{ flexShrink: 1, minHeight: 0 }}>{props.children}</View>
+        </Dialog>
     );
 }

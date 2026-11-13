@@ -19,6 +19,7 @@ workspace_manifests = [
   "experiments/nsh-reader/native-host/Cargo.toml",
   "apps/qusor/provider/Cargo.toml",
   "apps/qusor/bridges/Cargo.toml",
+  "apps/qusor/android-jni/Cargo.toml",
   "apps/qusor/native/Cargo.toml",
 ]
 
@@ -34,9 +35,13 @@ allowed_dependencies = ["libc", "pdfium-render", "serde", "serde_json", "sha2", 
 manifest = "apps/qusor/bridges/Cargo.toml"
 allowed_dependencies = ["core-api", "extension-api", "extension-host", "learning-application", "learning-ports"]
 
+[apps.qusor.packages.qusor-android-jni]
+manifest = "apps/qusor/android-jni/Cargo.toml"
+allowed_dependencies = ["jni", "libc"]
+
 [apps.qusor.packages.qusor-app-native]
 manifest = "apps/qusor/native/Cargo.toml"
-allowed_dependencies = ["capability-composition", "core-api", "extension-api", "extension-host", "extension-package", "learning-application", "learning-ports", "nsh-core", "png", "qusor-app-bridges", "qusor-pdf-provider", "serde", "serde_json", "storage-sqlite"]
+allowed_dependencies = ["capability-composition", "core-api", "extension-api", "extension-host", "extension-package", "learning-application", "learning-ports", "nsh-core", "png", "qusor-android-jni", "qusor-app-bridges", "qusor-pdf-provider", "serde", "serde_json", "storage-sqlite", "zip"]
 
 # See ADR 0004: the policy kernel does not execute plugins or write knowledge.
 [packages.learning-domain]

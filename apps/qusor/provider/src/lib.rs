@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::os::unix::fs::OpenOptionsExt;
 use std::{
+    collections::HashSet,
     error::Error,
     fs::{self, OpenOptions},
     io::{Read, Write},
@@ -20,6 +21,8 @@ pub const MAX_PDF_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_PAGES: usize = 16;
 pub const MAX_CHARS: usize = 100_000;
 pub const MAX_RENDER_EDGE: i32 = 2048;
+pub const MAX_TOC_ENTRIES: usize = 512;
+pub const MAX_TOC_DEPTH: u8 = 8;
 
 pub fn sha256(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
@@ -99,6 +102,12 @@ pub struct PageReport {
     pub rendered_file: String,
     pub rendered_sha256: String,
 }
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BookmarkEntry {
+    pub title: String,
+    pub page_index: u32,
+    pub depth: u8,
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct DocumentReport {
@@ -108,6 +117,66 @@ pub struct DocumentReport {
     pub extractor: ExtractorProfile,
     pub extraction_sha256: String,
     pub pages: Vec<PageReport>,
+    #[serde(default)]
+    pub toc: Vec<BookmarkEntry>,
+}
+
+fn bookmark_page_index(bookmark: &PdfBookmark<'_>) -> Option<u32> {
+    if let Some(dest) = bookmark.destination() {
+        return dest.page_index().ok().and_then(|idx| u32::try_from(idx).ok());
+    }
+    match bookmark.action() {
+        Some(PdfAction::LocalDestination(local)) => local
+            .destination()
+            .ok()
+            .and_then(|dest| dest.page_index().ok())
+            .and_then(|idx| u32::try_from(idx).ok()),
+        _ => None,
+    }
+}
+
+fn extract_toc(document: &PdfDocument<'_>, pages_count: usize) -> Vec<BookmarkEntry> {
+    let mut toc = Vec::new();
+    let mut visited = HashSet::new();
+    let mut stack = Vec::new();
+    if let Some(root) = document.bookmarks().root() {
+        stack.push((root, 0u8));
+    }
+    while let Some((bookmark, depth)) = stack.pop() {
+        if toc.len() >= MAX_TOC_ENTRIES {
+            break;
+        }
+        if visited.contains(&bookmark) {
+            continue;
+        }
+        let next_sibling = bookmark.next_sibling();
+        let first_child = if depth < MAX_TOC_DEPTH {
+            bookmark.first_child()
+        } else {
+            None
+        };
+        if let Some(title) = bookmark
+            .title()
+            .map(|raw| raw.trim().to_string())
+            .filter(|trimmed| !trimmed.is_empty())
+            && let Some(page_index) = bookmark_page_index(&bookmark)
+            && (page_index as usize) < pages_count
+        {
+            toc.push(BookmarkEntry {
+                title,
+                page_index,
+                depth,
+            });
+        }
+        visited.insert(bookmark);
+        if let Some(sibling) = next_sibling {
+            stack.push((sibling, depth));
+        }
+        if let Some(child) = first_child {
+            stack.push((child, depth.saturating_add(1)));
+        }
+    }
+    toc
 }
 
 fn read_bounded(path: &Path, max: usize) -> Result<Vec<u8>> {
@@ -316,6 +385,7 @@ pub fn inspect_with_library_sha256(
             rendered_sha256: sha256(&ppm),
         });
     }
+    let toc = extract_toc(&document, pages_count);
     let original_sha256 = sha256(&bytes);
     let extraction_sha256 = sha256(&serde_json::to_vec(&(
         &original_sha256,
@@ -329,6 +399,7 @@ pub fn inspect_with_library_sha256(
         extractor,
         extraction_sha256,
         pages,
+        toc,
     })
 }
 
@@ -448,6 +519,15 @@ pub(crate) fn validate_report(report: &DocumentReport) -> Result<()> {
             return Err("inconsistent mapping status".into());
         }
     }
+    if report.toc.len() > MAX_TOC_ENTRIES
+        || report.toc.iter().any(|entry| {
+            entry.title.trim().is_empty()
+                || entry.depth > MAX_TOC_DEPTH
+                || (entry.page_index as usize) >= report.pages.len()
+        })
+    {
+        return Err("invalid or oversized TOC".into());
+    }
     let hash = sha256(&serde_json::to_vec(&(
         &report.original_sha256,
         &report.extractor,
@@ -513,4 +593,199 @@ pub fn resolve(report: &DocumentReport, request: ResolveRequest<'_>) -> Result<S
         exact: exact.into(),
         characters,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn minimal_page(page_index: usize) -> PageReport {
+        PageReport {
+            page_index,
+            rotation: "None".into(),
+            media_box: Rect {
+                left: 0.0,
+                bottom: 0.0,
+                right: 612.0,
+                top: 792.0,
+            },
+            crop_box: Rect {
+                left: 0.0,
+                bottom: 0.0,
+                right: 612.0,
+                top: 792.0,
+            },
+            displayed_width_points: 612.0,
+            displayed_height_points: 792.0,
+            pixel_width: 612,
+            pixel_height: 792,
+            page_text: String::new(),
+            page_text_sha256: sha256(b""),
+            text_status: "no_text".into(),
+            characters: Vec::new(),
+            rendered_file: format!("page-{page_index}.ppm"),
+            rendered_sha256: sha256(b"stub"),
+        }
+    }
+
+    fn minimal_report(toc: Vec<BookmarkEntry>) -> DocumentReport {
+        let original_sha256 = sha256(b"%PDF-1.4");
+        let extractor = ExtractorProfile {
+            algorithm: PROFILE.into(),
+            wrapper: "pdfium-render-0.9.5".into(),
+            abi: "pdfium_8125".into(),
+            library_sha256: "0".repeat(64),
+            mapping_check: "unicode_scalar_validity_only".into(),
+            normalization: "pdfium-char-stream-raw-v1".into(),
+        };
+        let pages = vec![minimal_page(0), minimal_page(1)];
+        let extraction_sha256 =
+            sha256(&serde_json::to_vec(&(&original_sha256, &extractor, &pages)).unwrap());
+        DocumentReport {
+            schema_version: 1,
+            original_sha256,
+            original_bytes: 8,
+            extractor,
+            extraction_sha256,
+            pages,
+            toc,
+        }
+    }
+
+    #[test]
+    fn document_report_toc_roundtrip_and_bounds() {
+        let mut value = serde_json::to_value(minimal_report(Vec::new())).unwrap();
+        value.as_object_mut().unwrap().remove("toc");
+        let legacy: DocumentReport = serde_json::from_value(value).unwrap();
+        assert!(legacy.toc.is_empty());
+        assert!(validate_report(&legacy).is_ok());
+
+        let with_toc = minimal_report(vec![
+            BookmarkEntry {
+                title: "Chapter 1".into(),
+                page_index: 0,
+                depth: 0,
+            },
+            BookmarkEntry {
+                title: "Section 1.1".into(),
+                page_index: 1,
+                depth: 8,
+            },
+        ]);
+        let roundtrip: DocumentReport =
+            serde_json::from_str(&serde_json::to_string(&with_toc).unwrap()).unwrap();
+        assert_eq!(roundtrip.toc, with_toc.toc);
+        assert!(validate_report(&roundtrip).is_ok());
+
+        let bad_depth = minimal_report(vec![BookmarkEntry {
+            title: "Too deep".into(),
+            page_index: 0,
+            depth: MAX_TOC_DEPTH + 1,
+        }]);
+        assert!(validate_report(&bad_depth).is_err());
+
+        let bad_page = minimal_report(vec![BookmarkEntry {
+            title: "Out of range".into(),
+            page_index: 2,
+            depth: 0,
+        }]);
+        assert!(validate_report(&bad_page).is_err());
+
+        let empty_title = minimal_report(vec![BookmarkEntry {
+            title: "   ".into(),
+            page_index: 0,
+            depth: 0,
+        }]);
+        assert!(validate_report(&empty_title).is_err());
+
+        let oversized = minimal_report(
+            (0..=MAX_TOC_ENTRIES)
+                .map(|i| BookmarkEntry {
+                    title: format!("Item {i}"),
+                    page_index: 0,
+                    depth: 0,
+                })
+                .collect(),
+        );
+        assert!(validate_report(&oversized).is_err());
+    }
+
+    fn build_pdf_with_outlines() -> Vec<u8> {
+        let objects = [
+            "1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Outlines 5 0 R >>\nendobj\n",
+            "2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>\nendobj\n",
+            "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /CropBox [0 0 200 200] >>\nendobj\n",
+            "4 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /CropBox [0 0 200 200] >>\nendobj\n",
+            "5 0 obj\n<< /Type /Outlines /First 6 0 R /Last 10 0 R /Count 4 >>\nendobj\n",
+            "6 0 obj\n<< /Title (Chapter 1) /Parent 5 0 R /Next 8 0 R /First 7 0 R /Last 7 0 R /Count 1 /Dest [3 0 R /Fit] >>\nendobj\n",
+            "7 0 obj\n<< /Title (Section 1.1) /Parent 6 0 R /Dest [4 0 R /Fit] >>\nendobj\n",
+            "8 0 obj\n<< /Title (   ) /Parent 5 0 R /Prev 6 0 R /Next 9 0 R /Dest [3 0 R /Fit] >>\nendobj\n",
+            "9 0 obj\n<< /Title (Chapter 2) /Parent 5 0 R /Prev 8 0 R /Next 10 0 R /A << /S /GoTo /D [4 0 R /Fit] >> >>\nendobj\n",
+            "10 0 obj\n<< /Title (External Link) /Parent 5 0 R /Prev 9 0 R /A << /S /URI /URI (https://example.com) >> >>\nendobj\n",
+        ];
+        let mut out = Vec::from(&b"%PDF-1.4\n"[..]);
+        let mut offsets = Vec::with_capacity(objects.len());
+        for obj in &objects {
+            offsets.push(out.len());
+            out.extend_from_slice(obj.as_bytes());
+        }
+        let xref_start = out.len();
+        out.extend_from_slice(format!("xref\n0 {}\n", objects.len() + 1).as_bytes());
+        out.extend_from_slice(b"0000000000 65535 f \n");
+        for off in offsets {
+            out.extend_from_slice(format!("{off:010} 00000 n \n").as_bytes());
+        }
+        out.extend_from_slice(
+            format!(
+                "trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref_start}\n%%EOF\n",
+                objects.len() + 1
+            )
+            .as_bytes(),
+        );
+        out
+    }
+
+    #[test]
+    fn inspect_extracts_bounded_pdf_bookmarks() {
+        let dylib = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../native/assets/pdfium/macos-aarch64/libpdfium.dylib");
+        if !dylib.is_file() {
+            return;
+        }
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let dir = std::env::temp_dir().join(format!("qusor-pdf-toc-test-{nanos}"));
+        fs::create_dir_all(&dir).unwrap();
+        let pdf_path = dir.join("sample.pdf");
+        let out_dir = dir.join("out");
+        fs::write(&pdf_path, build_pdf_with_outlines()).unwrap();
+
+        let report = inspect(&dylib, &pdf_path, &out_dir).unwrap();
+        assert_eq!(
+            report.toc,
+            vec![
+                BookmarkEntry {
+                    title: "Chapter 1".into(),
+                    page_index: 0,
+                    depth: 0,
+                },
+                BookmarkEntry {
+                    title: "Section 1.1".into(),
+                    page_index: 1,
+                    depth: 1,
+                },
+                BookmarkEntry {
+                    title: "Chapter 2".into(),
+                    page_index: 1,
+                    depth: 0,
+                },
+            ]
+        );
+        assert!(validate_report(&report).is_ok());
+        let _ = fs::remove_dir_all(&dir);
+    }
 }

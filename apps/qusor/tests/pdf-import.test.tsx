@@ -44,6 +44,12 @@ test("the Library workspace shows a Core PDF and its native page", async () => {
     });
     expect(app.shows(`text:${title}`)).toBe(true);
     expect(app.shows("text:本机 Core · 原生页图 + 文字层")).toBe(true);
+    expect(app.enabled("label:缩小资料页图")).toBe(false);
+    await app.press("label:放大资料页图");
+    await app.waitFor("text:125%");
+    expect(app.enabled("label:缩小资料页图")).toBe(true);
+    await app.press("label:资料页图适合宽度");
+    await app.waitFor("text:100%");
     await app.press("label:下一页");
     await app.waitFor(`label:《${title}》第 2 页原生页图`, {
         timeout: 10000,

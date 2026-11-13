@@ -89,8 +89,10 @@ impl VaultStore {
 }
 
 fn starter_wordbook() -> WordbookSeed {
-    let word = |term: &str, meaning: &str, example: &str| NewWord {
+    let word = |term: &str, pos: &str, phonetic: &str, meaning: &str, example: &str| NewWord {
         term: term.into(),
+        pos: pos.into(),
+        phonetic: phonetic.into(),
         meaning: meaning.into(),
         example: example.into(),
     };
@@ -100,61 +102,85 @@ fn starter_wordbook() -> WordbookSeed {
         words: vec![
             word(
                 "abandon",
+                "v.",
+                "/əˈbændən/",
                 "放弃；抛弃",
                 "They had to abandon the plan when the funding was withdrawn.",
             ),
             word(
                 "benefit",
+                "n./v.",
+                "/ˈbenɪfɪt/",
                 "好处；使受益",
                 "Daily review benefits long-term memory more than one long session.",
             ),
             word(
                 "candidate",
+                "n.",
+                "/ˈkændɪdət/",
                 "候选人；应试者",
                 "Each candidate read the passage twice before answering.",
             ),
             word(
                 "coherent",
+                "adj.",
+                "/kəʊˈhɪərənt/",
                 "连贯的；一致的",
                 "A coherent argument states its claim before the evidence.",
             ),
             word(
                 "cite",
+                "v.",
+                "/saɪt/",
                 "引用；举例",
                 "Cite the original page instead of a summary of it.",
             ),
             word(
                 "context",
+                "n.",
+                "/ˈkɒntekst/",
                 "上下文；语境",
                 "The surrounding context changes how a sentence is understood.",
             ),
             word(
                 "deliberate",
+                "adj.",
+                "/dɪˈlɪbərət/",
                 "深思熟虑的；故意的",
                 "A deliberate pause can make room for a better answer.",
             ),
             word(
                 "evidence",
+                "n.",
+                "/ˈevɪdəns/",
                 "证据",
                 "Keep the evidence next to the claim it supports.",
             ),
             word(
                 "interpret",
+                "v.",
+                "/ɪnˈtɜːprɪt/",
                 "解释；理解",
                 "Readers may interpret the same passage in different ways.",
             ),
             word(
                 "method",
+                "n.",
+                "/ˈmeθəd/",
                 "方法",
                 "A clear method makes the result easier to reproduce.",
             ),
             word(
                 "primary",
+                "adj.",
+                "/ˈpraɪməri/",
                 "主要的；最初的",
                 "The primary source is more reliable than a later summary.",
             ),
             word(
                 "source",
+                "n.",
+                "/sɔːs/",
                 "来源；出处",
                 "Every quotation should preserve its source and page.",
             ),
@@ -173,6 +199,56 @@ impl KnowledgeStore for VaultStore {
 
     fn restore(&mut self, archive: &ArchiveV2) -> core_api::knowledge::Result<()> {
         self.with_store(|store| store.restore(archive))
+    }
+
+    fn update_pdf_capture_note(
+        &mut self,
+        vault: &str,
+        capture_id: i64,
+        note: &str,
+    ) -> core_api::knowledge::Result<()> {
+        self.with_store(|store| store.update_pdf_capture_note(vault, capture_id, note))
+    }
+
+    fn delete_pdf_capture(
+        &mut self,
+        vault: &str,
+        capture_id: i64,
+    ) -> core_api::knowledge::Result<()> {
+        self.with_store(|store| store.delete_pdf_capture(vault, capture_id))
+    }
+
+    fn delete_pdf_document(
+        &mut self,
+        vault: &str,
+        document_id: i64,
+    ) -> core_api::knowledge::Result<()> {
+        self.with_store(|store| store.delete_pdf_document(vault, document_id))
+    }
+
+    fn update_epub_capture_note(
+        &mut self,
+        vault: &str,
+        capture_id: i64,
+        note: &str,
+    ) -> core_api::knowledge::Result<()> {
+        self.with_store(|store| store.update_epub_capture_note(vault, capture_id, note))
+    }
+
+    fn delete_epub_capture(
+        &mut self,
+        vault: &str,
+        capture_id: i64,
+    ) -> core_api::knowledge::Result<()> {
+        self.with_store(|store| store.delete_epub_capture(vault, capture_id))
+    }
+
+    fn delete_epub_document(
+        &mut self,
+        vault: &str,
+        document_id: i64,
+    ) -> core_api::knowledge::Result<()> {
+        self.with_store(|store| store.delete_epub_document(vault, document_id))
     }
 }
 
@@ -201,6 +277,14 @@ impl StudyStore for VaultStore {
 
     fn restore_study(&mut self, archive: &StudyArchive) -> core_api::knowledge::Result<()> {
         self.with_store(|store| store.restore_study(archive))
+    }
+
+    fn delete_wordbook(
+        &mut self,
+        vault: &str,
+        wordbook_id: i64,
+    ) -> core_api::knowledge::Result<()> {
+        self.with_store(|store| store.delete_wordbook(vault, wordbook_id))
     }
 }
 
@@ -259,6 +343,8 @@ fn knowledge_is_empty(archive: &ArchiveV2) -> bool {
         && archive.pdf_documents.is_empty()
         && archive.pdf_captures.is_empty()
         && archive.pdf_operations.is_empty()
+        && archive.epub_documents.is_empty()
+        && archive.epub_captures.is_empty()
         && archive.blobs.is_empty()
 }
 
@@ -394,6 +480,8 @@ mod tests {
                 description: "Synthetic shared-Core fixture.".into(),
                 words: vec![NewWord {
                     term: "vault".into(),
+                    pos: String::new(),
+                    phonetic: String::new(),
                     meaning: "本地库".into(),
                     example: "One Core serves both plugins.".into(),
                 }],
@@ -479,6 +567,8 @@ mod tests {
                     description: "Synthetic migration fixture.".into(),
                     words: vec![NewWord {
                         term: "legacy".into(),
+                        pos: String::new(),
+                        phonetic: String::new(),
                         meaning: "旧的".into(),
                         example: "The split Core is preserved.".into(),
                     }],

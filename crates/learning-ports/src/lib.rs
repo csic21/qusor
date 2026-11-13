@@ -1,8 +1,16 @@
 //! Whole-transaction knowledge persistence boundary. No SQL or platform objects cross it.
 use core_api::{
+    error::{KnowledgeError, KnowledgeErrorCode},
     knowledge::{ArchiveV2, Result},
     vocab::{CardSchedule, ReviewEntry, ReviewGuard, StudyArchive, Wordbook, WordbookSeed},
 };
+
+fn unavailable<T>(message: &'static str) -> Result<T> {
+    Err(KnowledgeError::new(
+        KnowledgeErrorCode::Unavailable,
+        message,
+    ))
+}
 
 /// A single already-validated application transition. Adapters must still verify it.
 #[derive(Clone, Debug)]
@@ -18,6 +26,40 @@ pub trait KnowledgeStore {
     fn snapshot(&self) -> Result<ArchiveV2>;
     fn commit(&mut self, plan: CommitPlan) -> Result<()>;
     fn restore(&mut self, archive: &ArchiveV2) -> Result<()>;
+    /// Update the user note of a PDF capture scoped by `vault` and record an audit row.
+    fn update_pdf_capture_note(
+        &mut self,
+        _vault: &str,
+        _capture_id: i64,
+        _note: &str,
+    ) -> Result<()> {
+        unavailable("PDF note updates are not supported by this store")
+    }
+    /// Delete a PDF capture scoped by `vault` and record an audit row.
+    fn delete_pdf_capture(&mut self, _vault: &str, _capture_id: i64) -> Result<()> {
+        unavailable("PDF capture deletion is not supported by this store")
+    }
+    /// Delete a PDF document and its dependent captures scoped by `vault` and record an audit row.
+    fn delete_pdf_document(&mut self, _vault: &str, _document_id: i64) -> Result<()> {
+        unavailable("PDF document deletion is not supported by this store")
+    }
+    /// Update the user note of an EPUB capture scoped by `vault` and record an audit row.
+    fn update_epub_capture_note(
+        &mut self,
+        _vault: &str,
+        _capture_id: i64,
+        _note: &str,
+    ) -> Result<()> {
+        unavailable("EPUB note updates are not supported by this store")
+    }
+    /// Delete an EPUB capture scoped by `vault` and record an audit row.
+    fn delete_epub_capture(&mut self, _vault: &str, _capture_id: i64) -> Result<()> {
+        unavailable("EPUB capture deletion is not supported by this store")
+    }
+    /// Delete an EPUB document and its chapters/TOC/captures scoped by `vault` and record an audit row.
+    fn delete_epub_document(&mut self, _vault: &str, _document_id: i64) -> Result<()> {
+        unavailable("EPUB document deletion is not supported by this store")
+    }
 }
 
 /// Atomic vocabulary study persistence. Review history is append-only and the
@@ -49,6 +91,10 @@ pub trait StudyStore {
     ) -> Result<ReviewEntry>;
     /// Restore study data into an empty study space without touching captured knowledge.
     fn restore_study(&mut self, archive: &StudyArchive) -> Result<()>;
+    /// Delete a wordbook scoped by `vault` along with its cards, schedules, and reviews.
+    fn delete_wordbook(&mut self, _vault: &str, _wordbook_id: i64) -> Result<()> {
+        unavailable("wordbook deletion is not supported by this store")
+    }
 }
 
 /// Durability observations for diagnostics and external crash qualification.

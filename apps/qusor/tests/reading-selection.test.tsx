@@ -1,10 +1,14 @@
 import { expect, test } from "nsh/test";
 import {
+    adjustSelectionEnd,
+    adjustSelectionStart,
+    boxesForRange,
     boxesForSavedRanges,
     boxesForScalarRange,
     glyphAt,
     parsePageGeometry,
     selectionBetween,
+    selectionHandles,
     type PageGeometry,
 } from "../reading_selection";
 
@@ -81,4 +85,60 @@ test("overlapping saved ranges share one visual highlight", () => {
             { capture_id: 1, start: 2, end: 3 },
         ]),
     ).toEqual([[30, 10, 10, 10]]);
+});
+
+const multiLineGeometry: PageGeometry = {
+    width: 200,
+    height: 100,
+    glyphs: [
+        [0, 10, 10, 10, 10],
+        [1, 20, 10, 10, 10],
+        [2, 30, 10, 10, 10],
+        [4, 10, 30, 10, 10],
+        [5, 20, 30, 10, 10],
+        [6, 30, 30, 10, 10],
+    ],
+};
+
+test("boxesForRange and selectionHandles expose start and end drag boxes", () => {
+    expect(boxesForRange(multiLineGeometry, 1, 6)).toEqual([
+        [20, 10, 10, 10],
+        [30, 10, 10, 10],
+        [10, 30, 10, 10],
+        [20, 30, 10, 10],
+    ]);
+    expect(selectionHandles(multiLineGeometry, 1, 6)).toEqual({
+        startBox: [20, 10, 10, 10],
+        endBox: [20, 30, 10, 10],
+    });
+    expect(selectionHandles(multiLineGeometry, 3, 3)).toBeNull();
+    expect(selectionHandles(multiLineGeometry, 5, 2)).toBeNull();
+});
+
+test("adjustSelectionStart and adjustSelectionEnd resize across lines and clamp ordered bounds", () => {
+    const display = { width: 400, height: 200 };
+    // Expand start backwards to glyph 0 on line 1 (x=25..30 -> 12.5..15 in page coords)
+    expect(
+        adjustSelectionStart(multiLineGeometry, display, 30, 30, 1, 6),
+    ).toEqual({ start: 0, end: 6 });
+
+    // Drag start past currentEnd (6) onto glyph 5 (scalar 6): clamps to last glyph before 6 (scalar 5)
+    expect(
+        adjustSelectionStart(multiLineGeometry, display, 70, 70, 1, 6),
+    ).toEqual({ start: 5, end: 6 });
+
+    // Expand end forward onto glyph 5 (scalar 6 -> exclusive end 7)
+    expect(
+        adjustSelectionEnd(multiLineGeometry, display, 70, 70, 1, 5),
+    ).toEqual({ start: 1, end: 7 });
+
+    // Drag end before currentStart (4) onto glyph 0 (scalar 0): clamps to at least first glyph >= 4 (scalar 4 -> end 5)
+    expect(
+        adjustSelectionEnd(multiLineGeometry, display, 30, 30, 4, 7),
+    ).toEqual({ start: 4, end: 5 });
+
+    // Snap cleanly from horizontal whitespace on the same line
+    expect(
+        adjustSelectionEnd(multiLineGeometry, display, 160, 70, 0, 5),
+    ).toEqual({ start: 0, end: 7 });
 });

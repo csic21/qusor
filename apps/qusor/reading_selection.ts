@@ -24,6 +24,18 @@ export type SavedSelectionRange = {
     end: number;
 };
 
+export type PageBox = [number, number, number, number];
+
+export type SelectionHandles = {
+    startBox: PageBox;
+    endBox: PageBox;
+};
+
+export type SelectionRange = {
+    start: number;
+    end: number;
+};
+
 const MAX_GEOMETRY_GLYPHS = 20_000;
 
 function finite(value: unknown): value is number {
@@ -200,4 +212,155 @@ export function boxesForSavedRanges(
         }
     }
     return boxes;
+}
+
+/** Returns page bounding boxes for all glyphs within the scalar range `[start, end)`. */
+export function boxesForRange(
+    geometry: PageGeometry,
+    start: number,
+    end: number,
+): PageBox[] {
+    return boxesForScalarRange(geometry, start, end);
+}
+
+/** Returns the first and last glyph boxes for drawing start/end selection drag handles. */
+export function selectionHandles(
+    geometry: PageGeometry,
+    start: number,
+    end: number,
+): SelectionHandles | null {
+    const boxes = boxesForRange(geometry, start, end);
+    if (!boxes.length) return null;
+    return {
+        startBox: boxes[0],
+        endBox: boxes[boxes.length - 1],
+    };
+}
+
+function nearestGlyphAt(
+    geometry: PageGeometry,
+    display: { width: number; height: number },
+    x: number,
+    y: number,
+): number | null {
+    if (
+        !finite(x) ||
+        !finite(y) ||
+        display.width <= 0 ||
+        display.height <= 0 ||
+        geometry.glyphs.length === 0
+    ) {
+        return null;
+    }
+    const direct = glyphAt(geometry, display, x, y);
+    if (direct !== null) return direct;
+
+    const pageX = (x / display.width) * geometry.width;
+    const pageY = (y / display.height) * geometry.height;
+    let bestIndex: number | null = null;
+    let bestScore = Number.POSITIVE_INFINITY;
+    let bestArea = Number.POSITIVE_INFINITY;
+
+    for (let index = 0; index < geometry.glyphs.length; index += 1) {
+        const [, left, top, width, height] = geometry.glyphs[index];
+        const dx =
+            pageX < left
+                ? left - pageX
+                : pageX > left + width
+                  ? pageX - (left + width)
+                  : 0;
+        const dy =
+            pageY < top
+                ? top - pageY
+                : pageY > top + height
+                  ? pageY - (top + height)
+                  : 0;
+        // Weight vertical distance higher so horizontal gaps stay on the same line.
+        const score = dy * 4 + dx;
+        const area = width * height;
+        if (score < bestScore || (score === bestScore && area < bestArea)) {
+            bestScore = score;
+            bestArea = area;
+            bestIndex = index;
+        }
+    }
+    return bestIndex;
+}
+
+/** Adjusts the start scalar of `[currentStart, currentEnd)` toward `(x, y)`, clamped so `start < end`. */
+export function adjustSelectionStart(
+    geometry: PageGeometry,
+    display: { width: number; height: number },
+    x: number,
+    y: number,
+    currentStart: number,
+    currentEnd: number,
+): SelectionRange {
+    if (
+        !Number.isSafeInteger(currentStart) ||
+        !Number.isSafeInteger(currentEnd) ||
+        currentStart < 0 ||
+        currentStart >= currentEnd ||
+        geometry.glyphs.length === 0
+    ) {
+        return { start: currentStart, end: currentEnd };
+    }
+    const target = nearestGlyphAt(geometry, display, x, y);
+    if (target === null) {
+        return { start: currentStart, end: currentEnd };
+    }
+    const candidateStart = geometry.glyphs[target][0];
+    if (candidateStart >= currentEnd) {
+        let clamped = currentStart;
+        for (let index = geometry.glyphs.length - 1; index >= 0; index -= 1) {
+            if (geometry.glyphs[index][0] < currentEnd) {
+                clamped = geometry.glyphs[index][0];
+                break;
+            }
+        }
+        return {
+            start: Math.min(clamped, currentEnd - 1),
+            end: currentEnd,
+        };
+    }
+    return { start: candidateStart, end: currentEnd };
+}
+
+/** Adjusts the end scalar of `[currentStart, currentEnd)` toward `(x, y)`, clamped so `start < end`. */
+export function adjustSelectionEnd(
+    geometry: PageGeometry,
+    display: { width: number; height: number },
+    x: number,
+    y: number,
+    currentStart: number,
+    currentEnd: number,
+): SelectionRange {
+    if (
+        !Number.isSafeInteger(currentStart) ||
+        !Number.isSafeInteger(currentEnd) ||
+        currentStart < 0 ||
+        currentStart >= currentEnd ||
+        geometry.glyphs.length === 0
+    ) {
+        return { start: currentStart, end: currentEnd };
+    }
+    const target = nearestGlyphAt(geometry, display, x, y);
+    if (target === null) {
+        return { start: currentStart, end: currentEnd };
+    }
+    const candidateEnd = geometry.glyphs[target][0] + 1;
+    if (candidateEnd <= currentStart) {
+        let clamped = currentStart + 1;
+        for (let index = 0; index < geometry.glyphs.length; index += 1) {
+            if (geometry.glyphs[index][0] >= currentStart) {
+                clamped = geometry.glyphs[index][0] + 1;
+                break;
+            }
+        }
+        return {
+            start: currentStart,
+            end: Math.max(clamped, currentStart + 1),
+        };
+    }
+    return { start: currentStart, end: candidateEnd };
 }

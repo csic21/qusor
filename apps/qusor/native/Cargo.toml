@@ -22,10 +22,12 @@ extension-host = { path = "../../../crates/extension-host" }
 extension-package = { path = "../../../crates/extension-package" }
 learning-application = { path = "../../../crates/learning-application" }
 learning-ports = { path = "../../../crates/learning-ports" }
+qusor-android-jni = { path = "../android-jni" }
 qusor-app-bridges = { path = "../bridges" }
 serde = { version = "=1.0.228", features = ["derive"] }
 serde_json = "=1.0.149"
 storage-sqlite = { path = "../../../adapters/storage-sqlite" }
+zip = { version = "=8.6.0", default-features = false, features = ["deflate"] }
 
 [target.'cfg(unix)'.dependencies]
 png = "=0.18.1"

@@ -180,6 +180,10 @@ pub(crate) fn package_report(sys: &System) -> Result<String, String> {
     package_catalog::package_report_for(&plan)
 }
 
+pub(crate) fn core_handle(sys: &System) -> Result<VaultStore, String> {
+    with_runtime(sys, |runtime| runtime.core())
+}
+
 pub(crate) fn with_notes<T>(
     sys: &System,
     operation: impl FnOnce(&mut NotesRuntime) -> Result<T, String>,

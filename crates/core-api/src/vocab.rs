@@ -24,6 +24,12 @@ pub const MAX_TERM_BYTES: usize = 128;
 pub const MAX_MEANING_BYTES: usize = 512;
 /// Maximum UTF-8 bytes of one example sentence.
 pub const MAX_EXAMPLE_BYTES: usize = 1024;
+/// Maximum UTF-8 bytes of one part-of-speech tag.
+pub const MAX_POS_BYTES: usize = 64;
+/// Maximum UTF-8 bytes of one phonetic transcription.
+pub const MAX_PHONETIC_BYTES: usize = 128;
+/// Maximum configurable daily new card limit.
+pub const MAX_DAILY_NEW_LIMIT: u32 = 200;
 /// Maximum UTF-8 bytes of a vault identifier.
 pub const MAX_VAULT_BYTES: usize = 256;
 /// Maximum bytes of an idempotency operation id.
@@ -173,6 +179,10 @@ pub struct NewWord {
     pub term: String,
     pub meaning: String,
     pub example: String,
+    #[serde(default)]
+    pub pos: String,
+    #[serde(default)]
+    pub phonetic: String,
 }
 
 /// Idempotent wordbook seed keyed by `(vault, title)` in the store.
@@ -205,6 +215,10 @@ pub struct StudyCard {
     pub term: String,
     pub meaning: String,
     pub example: String,
+    #[serde(default)]
+    pub pos: String,
+    #[serde(default)]
+    pub phonetic: String,
 }
 
 /// Current scheduling state for one card; `reps` starts at 1 with the first review.
@@ -300,6 +314,12 @@ pub fn validate_seed(vault: &str, seed: &WordbookSeed) -> Result<()> {
         if !text_ok(&word.example, MAX_EXAMPLE_BYTES, false, true) {
             return invalid("invalid word example");
         }
+        if !text_ok(&word.pos, MAX_POS_BYTES, false, false) {
+            return invalid("invalid word part of speech");
+        }
+        if !text_ok(&word.phonetic, MAX_PHONETIC_BYTES, false, false) {
+            return invalid("invalid word phonetic");
+        }
         if !terms.insert(word.term.as_str()) {
             return invalid("duplicate word term in one wordbook");
         }
@@ -332,6 +352,8 @@ fn validate_card(card: &StudyCard) -> Result<()> {
     if !text_ok(&card.term, MAX_TERM_BYTES, true, false)
         || !text_ok(&card.meaning, MAX_MEANING_BYTES, true, true)
         || !text_ok(&card.example, MAX_EXAMPLE_BYTES, false, true)
+        || !text_ok(&card.pos, MAX_POS_BYTES, false, false)
+        || !text_ok(&card.phonetic, MAX_PHONETIC_BYTES, false, false)
     {
         return corrupt("invalid stored card text");
     }
