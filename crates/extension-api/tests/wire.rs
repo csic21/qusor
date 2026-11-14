@@ -109,9 +109,14 @@ fn manifest_parsing_keeps_host_compatibility_separate_from_structure() {
 
 #[test]
 fn request_requires_the_implemented_protocol_version() {
+    for minor in 1..=7 {
+        let mut request = request();
+        request.api_version = ApiVersion { major: 0, minor };
+        request.validate().unwrap();
+    }
     for version in [
         ApiVersion { major: 0, minor: 0 },
-        ApiVersion { major: 0, minor: 4 },
+        ApiVersion { major: 0, minor: 8 },
         ApiVersion { major: 1, minor: 1 },
     ] {
         let mut request = request();

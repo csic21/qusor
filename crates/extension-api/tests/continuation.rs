@@ -65,7 +65,12 @@ fn canonical_base64_and_strict_resource_versions() {
         encode_checkpoint(&vec![0; 8193]).unwrap_err().code,
         ErrorCode::BudgetExceeded
     );
-    for version in [HOST_API, HOST_API_V0_2, ApiVersion { major: 0, minor: 4 }] {
+    for version in [
+        ApiVersion { major: 0, minor: 0 },
+        HOST_API,
+        HOST_API_V0_2,
+        ApiVersion { major: 0, minor: 8 },
+    ] {
         let mut r = request(ContinuationOperation::ReadMetadata {});
         r.api_version = version;
         assert_eq!(
@@ -73,6 +78,9 @@ fn canonical_base64_and_strict_resource_versions() {
             ErrorCode::UnsupportedVersion
         );
     }
+    let mut r_later = request(ContinuationOperation::ReadMetadata {});
+    r_later.api_version = HOST_API_V0_4;
+    r_later.validate().unwrap();
     let mut r = request(ContinuationOperation::ReadMetadata {});
     r.sequence = 0;
     assert!(r.validate().is_err());

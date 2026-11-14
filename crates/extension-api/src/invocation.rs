@@ -18,10 +18,13 @@ pub struct InvocationRequest {
 }
 impl InvocationRequest {
     pub fn validate(&self) -> Result<(), ApiError> {
-        if self.invocation_protocol != INVOCATION_PROTOCOL || self.api_version != HOST_API_V0_2 {
+        if self.invocation_protocol != INVOCATION_PROTOCOL
+            || !crate::is_supported_api(self.api_version)
+            || self.api_version < HOST_API_V0_2
+        {
             return Err(ApiError::new(
                 ErrorCode::UnsupportedVersion,
-                "invocation parameters require Host API0.2",
+                "invocation parameters require minimum Host API0.2",
             ));
         }
         validate_opaque_id(&self.request_id, "request_id")

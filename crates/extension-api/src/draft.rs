@@ -125,10 +125,13 @@ impl DraftOperation {
 }
 impl DraftRequest {
     pub fn validate(&self) -> Result<(), ApiError> {
-        if self.api_version != HOST_API_V0_3 || self.draft_protocol != DRAFT_PROTOCOL {
+        if !crate::is_supported_api(self.api_version)
+            || self.api_version < HOST_API_V0_3
+            || self.draft_protocol != DRAFT_PROTOCOL
+        {
             return Err(ApiError::new(
                 ErrorCode::UnsupportedVersion,
-                "draft wire requires protocol1 and Host API0.3",
+                "draft wire requires protocol1 and minimum Host API0.3",
             ));
         }
         request_id(&self.request_id)?;
@@ -187,7 +190,10 @@ pub enum DraftOutcome {
 }
 impl DraftResponse {
     pub fn validate(&self) -> Result<(), ApiError> {
-        if self.api_version != HOST_API_V0_3 || self.draft_protocol != DRAFT_PROTOCOL {
+        if !crate::is_supported_api(self.api_version)
+            || self.api_version < HOST_API_V0_3
+            || self.draft_protocol != DRAFT_PROTOCOL
+        {
             return Err(ApiError::new(
                 ErrorCode::UnsupportedVersion,
                 "unsupported draft response protocol",

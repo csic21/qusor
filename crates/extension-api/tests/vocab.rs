@@ -335,8 +335,12 @@ fn vocab_vocabulary_is_api_0_5_only() {
             HOST_API_V0_5
         ));
     }
-    assert!(!capability_available_in(
+    assert!(capability_available_in(
         Capability::NotesRead,
+        HOST_API_V0_5
+    ));
+    assert!(!capability_available_in(
+        Capability::LibraryRead,
         HOST_API_V0_5
     ));
 }
@@ -359,13 +363,11 @@ fn manifests_require_the_matching_vocab_vocabulary() {
         ErrorCode::InvalidManifest
     );
 
-    let mut no_capability = manifest(5, 5);
-    no_capability.required_capabilities.clear();
-    no_capability.contributions.clear();
-    assert_eq!(
-        no_capability.validate().unwrap_err().code,
-        ErrorCode::InvalidManifest
-    );
+    let mut non_vocab_on_0_5 = manifest(5, 5);
+    non_vocab_on_0_5.required_capabilities = vec![Capability::NotesRead];
+    non_vocab_on_0_5.contributions.clear();
+    assert!(non_vocab_on_0_5.validate().is_ok());
+    assert!(non_vocab_on_0_5.supports_api(HOST_API_V0_5));
 
     let mut workspace_without_read = manifest(5, 5);
     workspace_without_read.required_capabilities = vec![Capability::VocabReview];

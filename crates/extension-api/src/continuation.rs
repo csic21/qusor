@@ -52,10 +52,10 @@ fn identity(
     sequence: u64,
     revision: u64,
 ) -> Result<(), ApiError> {
-    if api != HOST_API_V0_3 || protocol != CONTINUATION_PROTOCOL {
+    if !crate::is_supported_api(api) || api < HOST_API_V0_3 || protocol != CONTINUATION_PROTOCOL {
         return Err(ApiError::new(
             ErrorCode::UnsupportedVersion,
-            "continuation requires Host API0.3 and protocol1",
+            "continuation requires minimum Host API0.3 and protocol1",
         ));
     }
     if request.len() > 32 {

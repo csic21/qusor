@@ -44,11 +44,13 @@ fn budget(message: &'static str) -> ApiError {
 }
 
 fn protocol(library_protocol: u16, api_version: ApiVersion) -> Result<(), ApiError> {
-    if library_protocol != LIBRARY_PROTOCOL || !matches!(api_version, HOST_API_V0_6 | HOST_API_V0_7)
+    if library_protocol != LIBRARY_PROTOCOL
+        || !crate::is_supported_api(api_version)
+        || api_version < HOST_API_V0_6
     {
         return Err(ApiError::new(
             ErrorCode::UnsupportedVersion,
-            "library requires protocol1 and Host API0.6 or 0.7",
+            "library requires protocol1 and minimum Host API0.6",
         ));
     }
     Ok(())
@@ -186,10 +188,10 @@ impl LibraryRequest {
                 document_id,
                 page_index,
             } => {
-                if self.api_version != HOST_API_V0_7 {
+                if self.api_version < HOST_API_V0_7 {
                     return Err(ApiError::new(
                         ErrorCode::UnsupportedVersion,
-                        "saved Library selections require Host API0.7",
+                        "saved Library selections require minimum Host API0.7",
                     ));
                 }
                 positive(*document_id, "invalid library document id")?;

@@ -23,10 +23,13 @@ impl Host {
         session: &Session,
         request: &VocabRequest,
     ) -> Result<Permit, ApiError> {
-        if request.vocab_protocol != VOCAB_PROTOCOL || request.api_version != HOST_API_V0_5 {
+        if request.vocab_protocol != VOCAB_PROTOCOL
+            || !extension_api::is_supported_api(request.api_version)
+            || request.api_version < HOST_API_V0_5
+        {
             return Err(ApiError::new(
                 ErrorCode::UnsupportedVersion,
-                "vocab requires protocol1 and Host API0.5",
+                "vocab requires protocol1 and minimum Host API0.5",
             ));
         }
         request.validate()?;
@@ -37,7 +40,7 @@ impl Host {
         self.authorize(
             session,
             CapabilityRequest {
-                api_version: HOST_API_V0_5,
+                api_version: request.api_version,
                 request_id: request.request_id.clone(),
                 capability,
                 resource: Resource::Vault {

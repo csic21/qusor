@@ -35,10 +35,13 @@ fn budget(message: &'static str) -> ApiError {
 }
 
 fn protocol(vocab_protocol: u16, api_version: ApiVersion) -> Result<(), ApiError> {
-    if vocab_protocol != VOCAB_PROTOCOL || api_version != HOST_API_V0_5 {
+    if vocab_protocol != VOCAB_PROTOCOL
+        || !crate::is_supported_api(api_version)
+        || api_version < HOST_API_V0_5
+    {
         return Err(ApiError::new(
             ErrorCode::UnsupportedVersion,
-            "vocab requires protocol1 and Host API0.5",
+            "vocab requires protocol1 and minimum Host API0.5",
         ));
     }
     Ok(())

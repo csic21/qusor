@@ -83,7 +83,7 @@ pub const MAX_TITLE_BYTES: usize = 256;
 /// Maximum number of contributions in one manifest.
 pub const MAX_CONTRIBUTIONS: usize = 64;
 /// Maximum distinct capability declarations across implemented protocol versions.
-pub const MAX_CAPABILITIES: usize = 6;
+pub const MAX_CAPABILITIES: usize = 9;
 /// Maximum UTF-8 bytes in a public error message.
 pub const MAX_ERROR_MESSAGE_BYTES: usize = 512;
 /// Maximum encoded error response size in bytes.
@@ -160,22 +160,22 @@ pub enum ContributionKind {
     LibraryWorkspace,
 }
 
-/// Version availability is checked even when a capability is declared optional.
+/// Capabilities introduced in earlier minor versions stay cumulatively available
+/// in later supported `0.x` protocol versions; version availability is checked
+/// even when a capability is declared optional.
 pub fn capability_available_in(capability: Capability, version: ApiVersion) -> bool {
+    if !is_supported_api(version) {
+        return false;
+    }
     match capability {
-        Capability::NoteDraftEdit => version == HOST_API_V0_3,
-        Capability::NotesRead => version == HOST_API_V0_4,
-        Capability::VocabRead | Capability::VocabReview => version == HOST_API_V0_5,
-        Capability::LibraryRead => matches!(version, HOST_API_V0_6 | HOST_API_V0_7),
-        Capability::ReaderSurface => version == HOST_API_V0_2,
         Capability::SelectionRead
         | Capability::DocumentMetadataRead
-        | Capability::CapturePropose => {
-            matches!(
-                version,
-                HOST_API | HOST_API_V0_2 | HOST_API_V0_6 | HOST_API_V0_7
-            )
-        }
+        | Capability::CapturePropose => version >= HOST_API,
+        Capability::ReaderSurface => version >= HOST_API_V0_2,
+        Capability::NoteDraftEdit => version >= HOST_API_V0_3,
+        Capability::NotesRead => version >= HOST_API_V0_4,
+        Capability::VocabRead | Capability::VocabReview => version >= HOST_API_V0_5,
+        Capability::LibraryRead => version >= HOST_API_V0_6,
     }
 }
 
@@ -192,7 +192,7 @@ pub fn capability_resource_valid(
     match capability {
         Capability::SelectionRead => {
             matches!(resource, Resource::Selection { .. })
-                || (version == HOST_API_V0_2 && matches!(resource, Resource::Document { .. }))
+                || (version >= HOST_API_V0_2 && matches!(resource, Resource::Document { .. }))
         }
         Capability::DocumentMetadataRead => {
             matches!(resource, Resource::Vault { .. } | Resource::Document { .. })
@@ -304,17 +304,6 @@ impl Manifest {
                 "vocab vocabulary requires minimum Host API0.5",
             ));
         }
-        if self.host_api.major == 0
-            && self.host_api.min_minor == 5
-            && !declared
-                .iter()
-                .any(|c| matches!(c, Capability::VocabRead | Capability::VocabReview))
-        {
-            return Err(ApiError::new(
-                code,
-                "Host API0.5 requires a vocab capability declaration",
-            ));
-        }
         let library_vocabulary = declared.contains(&Capability::LibraryRead)
             || self
                 .contributions
@@ -324,24 +313,6 @@ impl Manifest {
             return Err(ApiError::new(
                 code,
                 "library vocabulary requires minimum Host API0.6",
-            ));
-        }
-        if self.host_api.major == 0
-            && matches!(self.host_api.min_minor, 6 | 7)
-            && !declared.contains(&Capability::LibraryRead)
-        {
-            return Err(ApiError::new(
-                code,
-                "Host API0.6+ requires library.read declaration",
-            ));
-        }
-        if self.host_api.major == 0
-            && self.host_api.min_minor == 3
-            && !declared.contains(&Capability::NoteDraftEdit)
-        {
-            return Err(ApiError::new(
-                code,
-                "Host API0.3 requires note.draft.edit declaration",
             ));
         }
         if self.contributions.len() > MAX_CONTRIBUTIONS {
@@ -441,16 +412,14 @@ impl Manifest {
                 .contributions
                 .iter()
                 .all(|contribution| match contribution.kind {
-                    ContributionKind::ReaderWorkspace => version == HOST_API_V0_2,
-                    ContributionKind::ComponentProvider => version == HOST_API_V0_3,
-                    ContributionKind::NotesWorkspace => version == HOST_API_V0_4,
-                    ContributionKind::VocabWorkspace => version == HOST_API_V0_5,
-                    ContributionKind::LibraryWorkspace => {
-                        matches!(version, HOST_API_V0_6 | HOST_API_V0_7)
-                    }
                     ContributionKind::Command | ContributionKind::SelectionAction => {
-                        version != HOST_API_V0_3
+                        version >= HOST_API
                     }
+                    ContributionKind::ReaderWorkspace => version >= HOST_API_V0_2,
+                    ContributionKind::ComponentProvider => version >= HOST_API_V0_3,
+                    ContributionKind::NotesWorkspace => version >= HOST_API_V0_4,
+                    ContributionKind::VocabWorkspace => version >= HOST_API_V0_5,
+                    ContributionKind::LibraryWorkspace => version >= HOST_API_V0_6,
                 })
     }
 
@@ -548,10 +517,10 @@ impl CapabilityRequest {
                 "unsupported request api_version",
             ));
         }
-        if matches!(self.resource, Resource::Draft { .. }) && self.api_version != HOST_API_V0_3 {
+        if matches!(self.resource, Resource::Draft { .. }) && self.api_version < HOST_API_V0_3 {
             return Err(ApiError::new(
                 ErrorCode::UnsupportedVersion,
-                "Draft resource requires Host API0.3",
+                "Draft resource requires minimum Host API0.3",
             ));
         }
         validate_opaque_id(&self.request_id, "request_id")?;

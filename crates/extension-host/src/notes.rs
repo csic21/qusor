@@ -21,17 +21,20 @@ impl Host {
         session: &Session,
         request: &NotesRequest,
     ) -> Result<Permit, ApiError> {
-        if request.notes_protocol != NOTES_PROTOCOL || request.api_version != HOST_API_V0_4 {
+        if request.notes_protocol != NOTES_PROTOCOL
+            || !extension_api::is_supported_api(request.api_version)
+            || request.api_version < HOST_API_V0_4
+        {
             return Err(ApiError::new(
                 ErrorCode::UnsupportedVersion,
-                "notes require protocol1 and Host API0.4",
+                "notes require protocol1 and minimum Host API0.4",
             ));
         }
         request.validate()?;
         self.authorize(
             session,
             CapabilityRequest {
-                api_version: HOST_API_V0_4,
+                api_version: request.api_version,
                 request_id: request.request_id.clone(),
                 capability: Capability::NotesRead,
                 resource: Resource::Vault {
