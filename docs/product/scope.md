@@ -69,7 +69,7 @@ Reader AI 按原愿景建议保留 M0，但允许用户选择延后（上线 AI 
 | C-01 本轮基座深度 | 先推进无界面策略基座，再做独立执行与本地闭环前置实验 | 已确认（2026-11-07）；状态见 [状态表](../status.md) |
 | C-02 首个可用版本 | 已接受本地阅读闭环实施顺序；首版是否同时含 Reader AI/画布/图谱/同步 | 待确认；不阻止 C-08 已授权工作 |
 | C-03 云端默认行为 | 同步默认关、云 AI 主动调用、原书单独授权；严格离线；或首版登录同步元数据 | 待确认 |
-| C-07 插件开放范围 | 第一阶段支持第三方开发/安装/分发；第一方功能围绕同一插件契约开发 | 已确认（2026-11-07）；第一方静态 vs 动态交付细节待复核（见下节待拍板 #1） |
+| C-07 插件开放范围 | 第一阶段支持第三方开发/安装/分发；第一方功能围绕同一插件契约开发 | 已确认（2026-11-07）；2026-11-14 已拍板 1A（同一公开契约、两种交付形态：第一方允许同构/内置交付但强制同契约无特权且受脚本守卫），见 [ADR 0003](../architecture/adr/0003-plugin-first-delivery.md) · [ADR 0053](../architecture/adr/0053-runtime-budgets-abi-and-platforms.md) |
 | C-08 目录与下一阶段 | 所有核心用户工作流插件化；先 NSH/包生命周期前置，再真实保存与阅读回源闭环；PDF 先行再补 EPUB | 已确认（2026-11-07）；见 [ADR 0006](../architecture/adr/0006-plugin-workspace-layout.md) |
 | C-09 原生技术优先 | 优先 NSH 原生 UI 和原生底层服务，减少 WebView/网页技术；确有缺口再评估 Web 备选 | 已确认（2026-11-08） |
 | C-10 云存储适配 | 预留供应商无关的云适配边界，Supabase / Cloudflare 为候选 | 已确认可替换设计（2026-11-08）；不确认供应商或默认联网；见 [ADR 0024](../architecture/adr/0024-cloud-storage-adapters.md) |
@@ -77,18 +77,24 @@ Reader AI 按原愿景建议保留 M0，但允许用户选择延后（上线 AI 
 | C-12 分区与组件扩展 | 稳定软件分区，区分区域/角色/提供者；插件可接入、兼容组件可替换，数据独立于 UI 实现 | 已确认要求（2026-11-08）；见 [ADR 0028](../architecture/adr/0028-extensible-native-workspace.md) |
 | C-13 本地 Agent 工作台 | 通用多后端插件/Agent 基座（编程与电脑操作为一类场景），同步设计 UI/UX/UE | 已确认长期需求与设计方向（2026-11-08/09）；首版深度、平台与默认授权待定；见 [规格](agent-workbench.md) |
 | C-14 插件平台兼容 | 允许单平台插件、同包多实现与平台专属贡献，核心知识与公开语义通用 | 已确认设计要求（2026-11-08）；见 [平台兼容规格](../architecture/plugin-platforms.md) |
-| C-15 全平台交付目标 | 将 macOS、Windows、Linux、iOS、Android、Web 纳入同一交付目标 | 已确认（2026-11-09）；iOS/Web 动态第三方插件边界待拍板（见下节待拍板 #2） |
+| C-15 全平台交付目标 | 将 macOS、Windows、Linux、iOS、Android、Web 纳入同一交付目标 | 已确认（2026-11-09）；2026-11-14 已拍板 2A（桌面/Android 支持签名 `.qpk` 动态安装；iOS 商店版与 Web 仅随包审核内置及纯声明式插件），见 [ADR 0053](../architecture/adr/0053-runtime-budgets-abi-and-platforms.md) |
 | C-16 原生软件视觉 | 形成精美、符合 NSH 原生绘制的通用基座界面，单导航区与持续插件身份，避免 Web 感 | 已确认方向（2026-11-09）；候选视觉见 [原生方向](../design/native-art-direction.md) 与 [外壳交互](../design/shell-layout.md) |
 | C-17 发行与自动更新 | GitHub Release 发版 + GitHub Actions 构建；主仓库转 public 作更新源；应用改为 `nsh package` 形态 | 已确认（2026-11-11）；见 [发行与更新](release-and-update.md) |
-| C-18 插件 UI 原生载体 | 插件入口/工作区/工具只走 NSH 原生 Surface/组件；禁止 WebView、HTML/DOM、Electron/Node 页面；dsh 仅借鉴组合/接缝 | 已确认（2026-11-12）；具体技术路线待拍板（见下节待拍板 #3）；见 [ADR 0042](../architecture/adr/0042-native-only-plugin-ui.md) |
+| C-18 插件 UI 原生载体 | 插件入口/工作区/工具只走 NSH 原生 Surface/组件；禁止 WebView、HTML/DOM、Electron/Node 页面；dsh 仅借鉴组合/接缝 | 已确认（2026-11-12）；2026-11-14 已拍板 3A（声明式原生 UI 树/Patch 协议 + `ControlledSurfaceRef` + `ui.slot`，迁出顺序 `词汇 → 笔记 → 资料库/阅读`），见 [ADR 0042](../architecture/adr/0042-native-only-plugin-ui.md) · [ADR 0051](../architecture/adr/0051-app-shell-boundary.md) · [ADR 0052](../architecture/adr/0052-plugin-ui-protocol.md) |
 
-### 待用户拍板的关键架构选择（2026-11-14 架构评审提出）
+### 已拍板架构选择（2026-11-14 用户确认）与待决产品范围
 
-1. **第一方功能的交付形态**：保持 [ADR 0003](../architecture/adr/0003-plugin-first-delivery.md)“第一方亦独立动态包”，还是放宽为“同一公开契约、两种交付形态（第一方静态链接仅调用公开 SDK trait + 第三方 Wasm 包）”？
-2. **iOS / Web 第三方插件策略**：是否必须在 iOS / Web 支持动态安装执行第三方插件，还是接受“商店版/Web 仅随包插件 + 纯声明式插件”？
-3. **插件 UI 技术路线**：采用自定义声明式原生 UI 树协议（Wasm 产出节点/patch + Host 渲染），还是采用 NSH TSX/JS 受限隔离运行时？
+2026-11-14 用户已正式拍板三项架构选择，相关决策已转入 `Accepted`（不再列为待决）：
 
-> 未收到用户明确答复前，相关 ADR 必须保持 `Proposed`，不得自动落地依赖未决选择的生产实现。
+1. **1A 第一方功能交付形态（[ADR 0003](../architecture/adr/0003-plugin-first-delivery.md) · [ADR 0053](../architecture/adr/0053-runtime-budgets-abi-and-platforms.md)）**：同一公开契约、两种交付形态——允许第一方功能随应用同构编译或内置打包，但代码与权限必须走与第三方完全一致的公开 SDK / `Capability` 契约，严禁私有 API 或直写 SQLite，由脚本持续守卫。
+2. **2A iOS / Web 动态插件策略（[ADR 0053](../architecture/adr/0053-runtime-budgets-abi-and-platforms.md)）**：桌面（macOS/Windows/Linux）与 Android 支持签名 `.qpk`（Wasm）动态安装；iOS（App Store 版）与 Web 仅支持随包审核内置插件及纯声明式插件。
+3. **3A 插件 UI 路线与迁出顺序（[ADR 0051](../architecture/adr/0051-app-shell-boundary.md) · [ADR 0052](../architecture/adr/0052-plugin-ui-protocol.md)）**：采用声明式原生 UI 树/Patch 协议 + `ControlledSurfaceRef` + `ui.slot`，第一方功能迁出顺序为 `词汇（Vocab）→ 笔记（Notes）→ 资料库/阅读（Library/Reader）`。
+
+当前仅保留以下**产品范围待定项**（未定前不自动默认执行或改写）：
+
+1. **C-02 首个可用版本功能范围**：首版是否同时包含 Reader AI、画布、知识图谱或同步。
+2. **C-03 云端默认行为**：同步默认关 + 云 AI 主动调用 + 原书单独授权、严格离线，或首版登录同步元数据。
+3. **C-04 / F-PLAT-01 / C-13 首发平台门槛与 Agent 深度**：各端最低系统版本/渠道资格、首发平台范围，以及本地 Agent 工作台首版深度、平台与默认授权。
 
 ## 随后细化与非目标边界
 
