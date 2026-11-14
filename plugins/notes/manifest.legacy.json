@@ -1,0 +1,29 @@
+{
+  "manifest_version": 1,
+  "package_id": "org.qusor.notes",
+  "publisher_id": "org.qusor",
+  "package_version": {
+    "major": 0,
+    "minor": 1,
+    "patch": 0
+  },
+  "host_api": {
+    "major": 0,
+    "min_minor": 4,
+    "max_minor": 4
+  },
+  "required_capabilities": [
+    "notes.read"
+  ],
+  "optional_capabilities": [],
+  "contributions": [
+    {
+      "id": "org.qusor.notes.workspace",
+      "title": "想法",
+      "kind": "notes_workspace",
+      "required_capabilities": [
+        "notes.read"
+      ]
+    }
+  ]
+}

@@ -1,7 +1,11 @@
 //! Trusted notes Host mounted by the application composition runtime.
 use crate::{core_facade, package_catalog, profile, runtime, vault::VaultStore};
-use extension_api::{notes::*, *};
-use extension_host::{Grant, Host, Session};
+use extension_api::{
+    notes::*,
+    orthogonal::{CapabilityId, STANDARD_ORTHOGONAL_CAPABILITIES},
+    *,
+};
+use extension_host::{Grant, Host, OrthogonalGrant, Session};
 use learning_application::pdf_notes::NoteBodyField;
 use nsh_core::prelude::*;
 use qusor_app_bridges::notes_bridge::NotesReadBridge;
@@ -18,8 +22,7 @@ pub(crate) struct NotesRuntime {
 impl NotesRuntime {
     #[cfg(test)]
     pub(crate) fn mount(store: VaultStore) -> Result<Self, String> {
-        let verified = package_catalog::verify_for_contribution(ContributionKind::NotesWorkspace)?;
-        Self::mount_verified(store, verified)
+        Self::mount_for_package(store, "org.qusor.notes")
     }
 
     pub(crate) fn mount_for_package(store: VaultStore, package_id: &str) -> Result<Self, String> {
@@ -33,23 +36,52 @@ impl NotesRuntime {
     ) -> Result<Self, String> {
         profile::require_service_active(profile::NOTES_READ_SERVICE)?;
         let vault_id = store.vault_id();
-        let mut host = Host::new(vault_id, [Capability::NotesRead]).map_err(text)?;
+        let mut host =
+            Host::new(vault_id, [Capability::NotesRead, Capability::UiSlot]).map_err(text)?;
+        for cap in STANDARD_ORTHOGONAL_CAPABILITIES {
+            let cap_id =
+                CapabilityId::parse_with_code(cap, ErrorCode::InvalidRequest).map_err(text)?;
+            host.configure_orthogonal_support(cap_id, 1, 0)
+                .map_err(text)?;
+        }
         let installation = host
             .register(verified.manifest().clone(), verified.digest())
             .map_err(text)?;
         host.replace_grants(
             installation,
-            vec![Grant {
-                capability: Capability::NotesRead,
+            vec![
+                Grant {
+                    capability: Capability::NotesRead,
+                    resource: extension_api::Resource::Vault {
+                        vault_id: vault_id.to_owned(),
+                    },
+                },
+                Grant {
+                    capability: Capability::UiSlot,
+                    resource: extension_api::Resource::Vault {
+                        vault_id: vault_id.to_owned(),
+                    },
+                },
+            ],
+        )
+        .map_err(text)?;
+        let orthogonal_grants: Vec<OrthogonalGrant> = verified
+            .manifest()
+            .effective_orthogonal_requirements()
+            .into_iter()
+            .map(|req| OrthogonalGrant {
+                capability: req.id,
+                min_minor: req.min_minor,
                 resource: extension_api::Resource::Vault {
                     vault_id: vault_id.to_owned(),
                 },
-            }],
-        )
-        .map_err(text)?;
+            })
+            .collect();
+        host.replace_orthogonal_grants(installation, orthogonal_grants)
+            .map_err(text)?;
         host.enable(installation).map_err(text)?;
         let session = host
-            .open_session_for_api(installation, HOST_API_V0_4)
+            .open_negotiated_session(installation, &SUPPORTED_HOST_APIS)
             .map_err(text)?;
         let bridge = core_facade::new_notes_bridge(&store);
         Ok(Self {
@@ -62,9 +94,10 @@ impl NotesRuntime {
     }
 
     fn page(&mut self) -> Result<Value, String> {
+        let api_version = self.host.session_api(&self.session).map_err(text)?;
         let request = NotesRequest {
             notes_protocol: NOTES_PROTOCOL,
-            api_version: HOST_API_V0_4,
+            api_version,
             request_id: request_id("page"),
             operation: NotesOperation::Page {
                 cursor: None,
@@ -105,9 +138,10 @@ impl NotesRuntime {
             "note" => NoteField::Note,
             _ => return Err("unknown note field".into()),
         };
+        let api_version = self.host.session_api(&self.session).map_err(text)?;
         let request = NotesRequest {
             notes_protocol: NOTES_PROTOCOL,
-            api_version: HOST_API_V0_4,
+            api_version,
             request_id: request_id("body"),
             operation: NotesOperation::Body {
                 capture_id,
@@ -145,8 +179,9 @@ impl NotesRuntime {
     pub(crate) fn epub_notes_page(&self, cursor: String, limit: u16) -> Result<Value, String> {
         let after = (!cursor.is_empty()).then_some(cursor.as_str());
         let page_limit = usize::from(limit).clamp(1, MAX_NOTE_PAGE.into());
-        let page = core_facade::legacy_plugin_bypass::epub_notes_page(&self.store, after, page_limit)
-            .map_err(text)?;
+        let page =
+            core_facade::legacy_plugin_bypass::epub_notes_page(&self.store, after, page_limit)
+                .map_err(text)?;
         let notes = page
             .notes
             .into_iter()
@@ -205,7 +240,12 @@ impl NotesRuntime {
         }))
     }
 
-    pub(crate) fn update_note(&mut self, capture_id: i64, format: String, note: String) -> Result<Value, String> {
+    pub(crate) fn update_note(
+        &mut self,
+        capture_id: i64,
+        format: String,
+        note: String,
+    ) -> Result<Value, String> {
         match format.as_str() {
             "pdf" => core_facade::legacy_plugin_bypass::update_pdf_capture_note(
                 &self.store,
@@ -230,10 +270,8 @@ impl NotesRuntime {
 
     pub(crate) fn delete_note(&mut self, capture_id: i64, format: String) -> Result<Value, String> {
         match format.as_str() {
-            "pdf" => {
-                core_facade::legacy_plugin_bypass::delete_pdf_capture(&self.store, capture_id)
-                    .map_err(text)?
-            }
+            "pdf" => core_facade::legacy_plugin_bypass::delete_pdf_capture(&self.store, capture_id)
+                .map_err(text)?,
             "epub" => {
                 core_facade::legacy_plugin_bypass::delete_epub_capture(&self.store, capture_id)
                     .map_err(text)?
