@@ -9,6 +9,7 @@ use std::{
     fs::{self, File, OpenOptions},
     io::{Read, Write},
     path::{Path, PathBuf},
+    sync::atomic::{AtomicU64, Ordering},
 };
 type Internal<T> = std::result::Result<T, Box<dyn Error>>;
 fn storage(error: Box<dyn Error>) -> KnowledgeError {
@@ -19,19 +20,29 @@ fn storage(error: Box<dyn Error>) -> KnowledgeError {
         if value.kind() == std::io::ErrorKind::NotFound {
             return KnowledgeError::new(
                 KnowledgeErrorCode::Integrity,
-                "referenced immutable blob is missing",
+                "referenced immutable blob is missing [category=io kind=NotFound]",
             );
         }
         if value.kind() == std::io::ErrorKind::WouldBlock {
             return KnowledgeError::new(
                 KnowledgeErrorCode::Conflict,
-                "knowledge store already has a writer",
+                "knowledge store already has a writer [category=io kind=WouldBlock]",
             );
         }
+        let os_detail = value
+            .raw_os_error()
+            .map_or_else(String::new, |code| format!(" os={code}"));
+        return KnowledgeError::new(
+            KnowledgeErrorCode::Storage,
+            format!(
+                "immutable blob storage operation failed [category=io kind={:?}{os_detail}]",
+                value.kind()
+            ),
+        );
     }
     KnowledgeError::new(
         KnowledgeErrorCode::Storage,
-        "immutable blob storage operation failed",
+        "immutable blob storage operation failed [category=storage]",
     )
 }
 fn fail<T>(message: &str) -> Internal<T> {
@@ -46,6 +57,7 @@ impl Drop for WriterLock {
 pub struct BlobStore {
     _lock: WriterLock,
     root: PathBuf,
+    reads: AtomicU64,
 }
 impl BlobStore {
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
@@ -71,12 +83,20 @@ impl BlobStore {
         Ok(Self {
             _lock: guard,
             root: root.to_owned(),
+            reads: AtomicU64::new(0),
         })
     }
     pub fn root(&self) -> &Path {
         &self.root
     }
+    pub fn read_count(&self) -> u64 {
+        self.reads.load(Ordering::Relaxed)
+    }
+    pub fn reset_read_count(&self) {
+        self.reads.store(0, Ordering::Relaxed);
+    }
     pub fn read(&self, hash: &str) -> Result<Vec<u8>> {
+        self.reads.fetch_add(1, Ordering::Relaxed);
         self.read_inner(hash).map_err(storage)
     }
     fn read_inner(&self, hash: &str) -> Internal<Vec<u8>> {
@@ -197,4 +217,40 @@ fn read_regular(path: &Path) -> Internal<Vec<u8>> {
         return fail("file budget exceeded");
     }
     Ok(b)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::BlobStore;
+    use core_api::knowledge::KnowledgeErrorCode;
+    use std::os::unix::fs::PermissionsExt;
+
+    #[test]
+    fn blob_store_errors_keep_structured_context_and_hide_paths() {
+        let dir =
+            std::env::temp_dir().join(format!("qusor-blob-canary-77311-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir(&dir).unwrap();
+        std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o700)).unwrap();
+
+        let store = BlobStore::open(&dir).unwrap();
+        let err = store.read(&"a".repeat(64)).unwrap_err();
+        assert_eq!(err.code, KnowledgeErrorCode::Integrity);
+        assert!(err.message.contains("[category=io kind=NotFound]"));
+        assert!(!err.message.contains("qusor-blob-canary-77311"));
+        assert_eq!(store.read_count(), 1);
+        store.reset_read_count();
+        assert_eq!(store.read_count(), 0);
+
+        let lock_err = match BlobStore::open(&dir) {
+            Ok(_) => panic!("second writer must conflict"),
+            Err(e) => e,
+        };
+        assert_eq!(lock_err.code, KnowledgeErrorCode::Conflict);
+        assert!(lock_err.message.contains("[category=io kind=WouldBlock]"));
+        assert!(!lock_err.message.contains("qusor-blob-canary-77311"));
+
+        drop(store);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 }

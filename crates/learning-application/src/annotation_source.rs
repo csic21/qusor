@@ -6,7 +6,7 @@ use core_api::{
     },
     pdf_contract::{PdfDraft, resolve_pdf},
 };
-use learning_ports::KnowledgeStore;
+use learning_ports::{KnowledgeCommand, KnowledgeQuery, OperationLookup};
 
 /// A source checked against Core before the selection's transient lease expires.
 /// The trusted caller must check current capture authority again before `capture`.
@@ -22,7 +22,7 @@ pub struct FrozenPdfSource {
 impl FrozenPdfSource {
     /// Call under the same trusted selection/authority gate as the freeze intent.
     /// Core checks content; this method does not authenticate a plugin identity.
-    pub fn freeze<S: KnowledgeStore>(
+    pub fn freeze<S: KnowledgeQuery>(
         app: &KnowledgeApplication<S>,
         document_id: i64,
         vault: &str,
@@ -58,7 +58,7 @@ impl FrozenPdfSource {
 
     /// Requires fresh Host authorization for the original capture installation.
     /// The existing Core transaction rechecks exact source and operation identity.
-    pub fn capture<S: KnowledgeStore>(
+    pub fn capture<S: KnowledgeQuery + KnowledgeCommand>(
         &self,
         app: &mut KnowledgeApplication<S>,
         operation_id: &str,
@@ -79,46 +79,34 @@ impl FrozenPdfSource {
 
     /// Trusted read-only reconciliation of a previously frozen save payload.
     /// No save permission is required to discover an already committed result.
-    /// `None` means no operation exists in this consistent Core snapshot; it is
+    /// `None` means no operation exists in this consistent Core query; it is
     /// not permission to invent another operation or unlock a pending upload.
-    pub fn receipt<S: KnowledgeStore>(
+    pub fn receipt<S: KnowledgeQuery>(
         &self,
         app: &KnowledgeApplication<S>,
         operation_id: &str,
         note: &str,
     ) -> Result<Option<PdfReceipt>> {
         validate_native(operation_id, &self.vault, &self.provenance, note)?;
-        // One consistent snapshot avoids mixing an absent receipt with a later
-        // operation lookup. Core validates all archive relationships first.
-        let archive = app.export_all()?;
-        if let Some(record) = archive
-            .pdf_captures
-            .iter()
-            .find(|record| record.receipt.operation_id == operation_id)
-        {
-            let document = archive
-                .pdf_documents
-                .iter()
-                .find(|document| document.receipt.document_id == self.document_id);
-            if record.receipt.document_id != self.document_id
-                || record.draft != self.selection
-                || record.compound.is_some()
-                || record.provenance != self.provenance
-                || record.user_note != note
-                || document.is_none_or(|document| document.vault != self.vault)
-            {
-                return conflict("annotation receipt belongs to a different payload");
+        match app.pdf_capture_operation(operation_id)? {
+            OperationLookup::Match(found) => {
+                let record = &found.record;
+                if record.receipt.document_id != self.document_id
+                    || record.draft != self.selection
+                    || record.compound.is_some()
+                    || record.provenance != self.provenance
+                    || record.user_note != note
+                    || found.document_vault != self.vault
+                {
+                    return conflict("annotation receipt belongs to a different payload");
+                }
+                Ok(Some(found.record.receipt))
             }
-            return Ok(Some(record.receipt.clone()));
+            OperationLookup::OtherOperationKind => {
+                conflict("annotation operation belongs to another kind")
+            }
+            OperationLookup::Absent => Ok(None),
         }
-        if archive
-            .commits
-            .iter()
-            .any(|commit| commit.operation_id == operation_id)
-        {
-            return conflict("annotation operation belongs to another kind");
-        }
-        Ok(None)
     }
 }
 fn conflict<T>(message: &'static str) -> Result<T> {
@@ -135,7 +123,7 @@ pub struct FrozenPdfCompoundSource {
     provenance: Provenance,
 }
 impl FrozenPdfCompoundSource {
-    pub fn freeze<S: KnowledgeStore>(
+    pub fn freeze<S: KnowledgeQuery>(
         app: &KnowledgeApplication<S>,
         document_id: i64,
         vault: &str,
@@ -168,7 +156,7 @@ impl FrozenPdfCompoundSource {
         &self.provenance
     }
     /// Fresh original capture-installation authorization remains the caller's responsibility.
-    pub fn capture<S: KnowledgeStore>(
+    pub fn capture<S: KnowledgeQuery + KnowledgeCommand>(
         &self,
         app: &mut KnowledgeApplication<S>,
         operation_id: &str,
@@ -185,44 +173,32 @@ impl FrozenPdfCompoundSource {
             note,
         )
     }
-    pub fn receipt<S: KnowledgeStore>(
+    pub fn receipt<S: KnowledgeQuery>(
         &self,
         app: &KnowledgeApplication<S>,
         operation_id: &str,
         note: &str,
     ) -> Result<Option<PdfReceipt>> {
         validate_native(operation_id, &self.vault, &self.provenance, note)?;
-        // export_all first validates the full Core archive, including the
-        // compound/legacy anchor/hash relationships, in one consistent snapshot.
-        let archive = app.export_all()?;
-        if let Some(record) = archive
-            .pdf_captures
-            .iter()
-            .find(|r| r.receipt.operation_id == operation_id)
-        {
-            let document = archive
-                .pdf_documents
-                .iter()
-                .find(|d| d.receipt.document_id == self.document_id);
-            if record.receipt.document_id != self.document_id
-                || record.compound.as_ref() != Some(&self.selection)
-                || self.selection.segments.first() != Some(&record.draft)
-                || record.provenance != self.provenance
-                || record.user_note != note
-                || document.is_none_or(|d| d.vault != self.vault)
-            {
-                return conflict("annotation receipt belongs to a different payload");
+        match app.pdf_capture_operation(operation_id)? {
+            OperationLookup::Match(found) => {
+                let record = &found.record;
+                if record.receipt.document_id != self.document_id
+                    || record.compound.as_ref() != Some(&self.selection)
+                    || self.selection.segments.first() != Some(&record.draft)
+                    || record.provenance != self.provenance
+                    || record.user_note != note
+                    || found.document_vault != self.vault
+                {
+                    return conflict("annotation receipt belongs to a different payload");
+                }
+                Ok(Some(found.record.receipt))
             }
-            return Ok(Some(record.receipt.clone()));
+            OperationLookup::OtherOperationKind => {
+                conflict("annotation operation belongs to another kind")
+            }
+            OperationLookup::Absent => Ok(None),
         }
-        if archive
-            .commits
-            .iter()
-            .any(|c| c.operation_id == operation_id)
-        {
-            return conflict("annotation operation belongs to another kind");
-        }
-        Ok(None)
     }
 }
 
@@ -283,7 +259,7 @@ impl FrozenAnnotationSource {
             Self::Compound(s) => &s.selection().extraction_revision,
         }
     }
-    pub fn capture<S: KnowledgeStore>(
+    pub fn capture<S: KnowledgeQuery + KnowledgeCommand>(
         &self,
         app: &mut KnowledgeApplication<S>,
         operation: &str,
@@ -294,7 +270,7 @@ impl FrozenAnnotationSource {
             Self::Compound(s) => s.capture(app, operation, note),
         }
     }
-    pub fn receipt<S: KnowledgeStore>(
+    pub fn receipt<S: KnowledgeQuery>(
         &self,
         app: &KnowledgeApplication<S>,
         operation: &str,

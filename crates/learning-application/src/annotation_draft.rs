@@ -8,7 +8,7 @@ use core_api::{
     knowledge::{KnowledgeError, KnowledgeErrorCode as Code, PdfReceipt, Provenance, Result},
     pdf_contract::PdfDraft,
 };
-use learning_ports::KnowledgeStore;
+use learning_ports::{KnowledgeCommand, KnowledgeQuery};
 use std::io::{self, Write};
 use std::sync::Arc;
 
@@ -67,7 +67,7 @@ impl AnnotationDrafts {
         Self::default()
     }
     #[allow(clippy::too_many_arguments)] // Explicit immutable source identity, checked together.
-    pub fn create_pdf<S: KnowledgeStore>(
+    pub fn create_pdf<S: KnowledgeQuery>(
         &mut self,
         app: &KnowledgeApplication<S>,
         document_id: i64,
@@ -89,7 +89,7 @@ impl AnnotationDrafts {
         self.insert_source(FrozenAnnotationSource::Single(source), generation)
     }
     #[allow(clippy::too_many_arguments)] // Explicit immutable source identity, checked together.
-    pub fn create_pdf_compound<S: KnowledgeStore>(
+    pub fn create_pdf_compound<S: KnowledgeQuery>(
         &mut self,
         app: &KnowledgeApplication<S>,
         document_id: i64,
@@ -262,7 +262,7 @@ impl AnnotationDrafts {
         self.source(&frozen.draft)
     }
     /// Caller must fresh-authorize the ORIGINAL capture identity before entering this use case.
-    pub fn commit<S: KnowledgeStore>(
+    pub fn commit<S: KnowledgeQuery + KnowledgeCommand>(
         &mut self,
         app: &mut KnowledgeApplication<S>,
         frozen: &FrozenAnnotationSave,
@@ -275,7 +275,7 @@ impl AnnotationDrafts {
         Ok(receipt)
     }
     /// None or error preserves Saving; absence is not proof a prior attempt cannot commit.
-    pub fn reconcile<S: KnowledgeStore>(
+    pub fn reconcile<S: KnowledgeQuery>(
         &mut self,
         app: &KnowledgeApplication<S>,
         frozen: &FrozenAnnotationSave,

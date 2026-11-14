@@ -13,6 +13,7 @@ use learning_application::{
     annotation_source::{FrozenAnnotationSource, FrozenPdfCompoundSource, FrozenPdfSource},
     draft_text::{DraftId, DraftState},
 };
+#[allow(deprecated)]
 use learning_ports::{CommitPlan, KnowledgeStore};
 use std::{
     fs,
@@ -160,6 +161,7 @@ struct LostReply {
     inner: SqliteStore,
     lose: bool,
 }
+#[allow(deprecated)]
 impl KnowledgeStore for LostReply {
     fn snapshot(&self) -> Result<ArchiveV2> {
         self.inner.snapshot()

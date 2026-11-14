@@ -3,6 +3,12 @@
 mod unix;
 #[cfg(unix)]
 pub use unix::BlobStore;
+
+#[cfg(not(unix))]
+mod unsupported;
+#[cfg(not(unix))]
+pub use unsupported::BlobStore;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BlobStage {
     AfterWrite,
