@@ -142,7 +142,7 @@ DraftId是应用生成的不可复用32hex身份，DraftRevision为u64包装；D
 
 ## 当前代码与验证
 
-应用层已落位 [draft_text](../../crates/learning-application/src/draft_text.rs)、[冻结来源](../../crates/learning-application/src/annotation_source.rs) 和 [绑定草稿](../../crates/learning-application/src/annotation_draft.rs)。AnnotationDrafts封闭持有文本、来源及原capture generation，FrozenAnnotationSave只能由该registry创建，不暴露任意重新配对来源的入口。来源最多8份/8MiB逻辑序列化事实，文本及上传声明预留合计16MiB。
+应用层已落位 [draft_text](../../crates/learning-application/src/session/draft_text.rs)、[冻结来源](../../crates/learning-application/src/knowledge/annotation_source.rs) 和 [绑定草稿](../../crates/learning-application/src/session/annotation_draft.rs)。AnnotationDrafts封闭持有文本、来源及原capture generation，FrozenAnnotationSave只能由该registry创建，不暴露任意重新配对来源的入口。来源最多8份/8MiB逻辑序列化事实，文本及上传声明预留合计16MiB。
 
 包内14项测试通过：1MiB完整分块往返、UTF-8边界、修订/连续上传、超时和owner撤销、跨registry拒绝、未知保存锁定、Core已提交但回复丢失后只读核对，以及两个文档/原插件身份/文本不串用。这里的丢回复由内存KnowledgeStore故障fixture注入，验证的是应用状态和真实Core用例逻辑，不冒充实际OS/SQLite故障。整个Workspace155项Rust测试与四组真实process controller测试通过；架构守卫、42项守卫测试、格式、workspace Clippy及本地文档链接检查通过。
 

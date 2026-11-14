@@ -7,19 +7,20 @@
 ```text
 Cargo workspace（根生产成员）
 ├── learning-domain         FSRS-5 词汇调度内核；零外部依赖
-├── core-api                捕获/来源/锚点、知识记录、词汇学习契约与归档校验（含待下沉的归档逻辑）
+├── core-api                捕获/来源/锚点、知识记录与词汇学习纯契约及统一错误基元
 ├── capability-composition  能力接缝、分层 profile 与确定性激活规划；零外部依赖
-├── learning-ports          一致快照/原子提交恢复与词汇学习端口（待拆 Query/Command/Archive）
-├── learning-application    文本/PDF/复合知识用例与词汇学习用例
+├── learning-ports          Query/Command/Archive 六端口与归档/outbox/index_job 整库核验
+├── learning-application    knowledge / session / study 三层用例与交互会话状态机
 ├── blob-store              Unix 私有目录、单 writer 与耐久 CAS 适配器
-├── storage-sqlite          schema/关系核验、整体 SQL 事务与词汇学习表（非 Unix 待补）
+├── storage-sqlite          schema/关系核验、增量/整体 SQL 事务与词汇学习表
 ├── extension-package       有界签名容器、内容/发布者键绑定验证
 ├── extension-runtime-api   无授权副作用的执行端口与预算契约
 ├── runtime-wasm            Wasmi 执行适配器；不创建 Host 或读取包路径
-├── runtime-process         Linux 进程身份、父死守卫与 pidfd 清理（仅 Linux/macOS 部分）
+├── runtime-process         桌面原生 helper / 外部 MCP 进程身份、父死守卫与清理
+├── extension-ports         持久安装/授权/恢复纯端口（仅依赖 extension-api）
 ├── extension-store         包/安装/授权/私有配对与 worker lease SQL 持久化内核
-├── extension-api           Host API 0.1–0.7 JSON 策略协议、manifest 投影与能力校验
-└── extension-host          内存/持久安装元数据、授权、会话、生命周期与贡献查询
+├── extension-api           Host API 0.1–0.7 JSON 策略协议、声明式 UI 契约、manifest 投影与能力校验
+└── extension-host          内存/持久安装元数据、授权、会话、生命周期、UI 槽位与贡献查询
 
 独立 Workspace 与治理目录
 ├── apps/qusor/             生产应用独立 Workspace（provider / bridges / android-jni / native）
@@ -66,20 +67,22 @@ flowchart TD
     Sqlite --> LearnPorts
     Sqlite -. "dev-dependency" .-> LearnApp
 
+    ExtPorts["extension-ports"] --> ExtAPI
     ExtHost --> ExtAPI
+    ExtHost --> ExtPorts
     ExtPkg --> ExtAPI
     RuntimeWasm["runtime-wasm"] --> ExtAPI
     RuntimeWasm --> RuntimeAPI["extension-runtime-api"]
     RuntimeProc["runtime-process"] --> RuntimeAPI
 
     ExtStore["extension-store"] --> ExtAPI
-    ExtStore -. "已知层间倒置：adapter 依赖宿主策略" .-> ExtHost
+    ExtStore --> ExtPorts
     ExtStore --> ExtPkg
     ExtStore --> RuntimeAPI
 ```
 
 > [!NOTE]
-> 核对结论：当前源码中 `core-api`、`learning-ports` 均**不**依赖 `learning-domain`，`extension-host` **不**依赖 `core-api`；`extension-store`（adapter）依赖 `extension-host` 属于已知层间倒置，计划在第二阶段抽离 `extension-ports` 消除。
+> 核对结论：当前源码中 `core-api`、`learning-ports` 均**不**依赖 `learning-domain`，`extension-host` **不**依赖 `core-api`；`extension-store`（adapter）与 `extension-host` 已通过纯端口 `extension-ports` 解耦（[ADR 0055](adr/0055-lifecycle-and-port-decoupling.md)），消除了 adapter 依赖宿主策略的层间倒置。
 
 ## 目标依赖方向与层间边界
 
@@ -178,6 +181,8 @@ Core API、文档版本、ReaderAnchor 与持久化 Schema 均独立版本化。
 | 0051 | [应用壳止血边界与功能迁出准备](adr/0051-app-shell-boundary.md) | Accepted | 应用壳写死标识清理、可信 Core 服务门面与只减不增边界守卫、`contributions.tsx` 机械拆分与已确认迁出顺序（词汇 → 笔记 → 资料库/阅读） |
 | 0052 | [插件 UI 协议与受控原生槽位路线](adr/0052-plugin-ui-protocol.md) | Accepted | 2026-11-14 用户拍板选定候选 A（3A）：声明式原生 UI 树/Patch + `ControlledSurfaceRef` + `ui.slot` |
 | 0053 | [运行时预算配置化、插件 ABI 演进与六端执行策略](adr/0053-runtime-budgets-abi-and-platforms.md) | Accepted | Host 注入 MiB 级预算、流式与长驻会话、WIT/Component ABI、`qusor dev` 调试门禁、`runtime-process` 桌面专职定位及已拍板 1A/2A 策略 |
+| 0054 | [Core 分层清理与命名演进路线](adr/0054-core-layering-and-naming.md) | Accepted | 统一 `core-api` 错误基元、下沉归档/outbox/index_job 核验至 `learning-ports::archive`，确立 `learning-application`（`knowledge`/`session`/`study`）三层及渐进拆分为 `knowledge-*`/`study-*` 的迁移路线 |
+| 0055 | [生命周期简化与扩展端口解耦](adr/0055-lifecycle-and-port-decoupling.md) | Accepted | 抽出仅依 `extension-api` 的 `crates/extension-ports` 消除 `extension-store` 依赖倒置；新增 `preserve_grants`/`upgrade_package` 同权升级保留授权与 `enable_intent`、扩权清除重授；将 `runtime-process` 收敛为桌面原生 helper/外部 MCP 监督 |
 <!-- ADR-INDEX-END -->
 
 ## 相关研究
