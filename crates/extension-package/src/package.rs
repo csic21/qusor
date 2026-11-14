@@ -20,6 +20,99 @@ pub const MAX_PATH_BYTES: usize = 240;
 pub const MAX_PATH_DEPTH: usize = 8;
 const SIGNING_DOMAIN: &[u8] = b"QUSOR-PACKAGE-PROBE-V1\0";
 
+/// Absolute hard ceilings enforced even when the Host supplies a custom package profile.
+pub const HARD_MAX_PACKAGE_BYTES: usize = 64 * 1024 * 1024;
+pub const HARD_MAX_FILE_BYTES: usize = 16 * 1024 * 1024;
+pub const HARD_MAX_TOTAL_FILE_BYTES: usize = 32 * 1024 * 1024;
+pub const HARD_MAX_FILES: usize = 512;
+
+/// Host-injected bounded package size profile for real Rust plugins.
+///
+/// Legacy [`verify`] and [`build_signed`] continue using [`Self::legacy_v1`] so
+/// v1 fixtures remain byte-compatible; Host loaders use [`Self::desktop_standard`]
+/// or [`Self::mobile_standard`] to admit MiB-class compiled Wasm modules.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct PackageBudgets {
+    pub max_package_bytes: usize,
+    pub max_file_bytes: usize,
+    pub max_total_file_bytes: usize,
+    pub max_files: usize,
+}
+
+impl Default for PackageBudgets {
+    fn default() -> Self {
+        Self::desktop_standard()
+    }
+}
+
+impl PackageBudgets {
+    /// Legacy v1 probe package budgets (9 MiB encoded, 1 MiB file, 4 MiB total).
+    pub const fn legacy_v1() -> Self {
+        Self {
+            max_package_bytes: MAX_PACKAGE_BYTES,
+            max_file_bytes: MAX_FILE_BYTES,
+            max_total_file_bytes: MAX_TOTAL_FILE_BYTES,
+            max_files: MAX_FILES,
+        }
+    }
+
+    /// Mobile / Web package budgets aligned with 4 MiB Wasm module limits.
+    pub const fn mobile_standard() -> Self {
+        Self {
+            max_package_bytes: 18 * 1024 * 1024,
+            max_file_bytes: 4 * 1024 * 1024,
+            max_total_file_bytes: 8 * 1024 * 1024,
+            max_files: 128,
+        }
+    }
+
+    /// Desktop package budgets aligned with 8 MiB Wasm module limits.
+    pub const fn desktop_standard() -> Self {
+        Self {
+            max_package_bytes: 36 * 1024 * 1024,
+            max_file_bytes: 8 * 1024 * 1024,
+            max_total_file_bytes: 16 * 1024 * 1024,
+            max_files: 256,
+        }
+    }
+
+    /// Fails closed if any budget is zero, inconsistent, or above hard ceilings.
+    pub fn validate(&self) -> Result<(), PackageError> {
+        if self.max_package_bytes == 0
+            || self.max_package_bytes > HARD_MAX_PACKAGE_BYTES
+            || self.max_file_bytes == 0
+            || self.max_file_bytes > HARD_MAX_FILE_BYTES
+            || self.max_total_file_bytes == 0
+            || self.max_total_file_bytes > HARD_MAX_TOTAL_FILE_BYTES
+            || self.max_files == 0
+            || self.max_files > HARD_MAX_FILES
+            || self.max_file_bytes > self.max_total_file_bytes
+            || self.max_total_file_bytes > self.max_package_bytes
+        {
+            return Err(fail(
+                PackageErrorCode::BudgetExceeded,
+                "invalid package budget configuration",
+            ));
+        }
+        Ok(())
+    }
+}
+
+/// Explicit opt-in switch for loading unsigned packages in `qusor dev`.
+///
+/// Defaults to `false`. Even when set to `true`, unsigned loading is only
+/// compiled and reachable in debug builds (`cfg!(debug_assertions)`).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct DevUnsignedOptions {
+    pub allow_unsigned: bool,
+}
+
+/// Whether this build profile allows dev-only unsigned package loading.
+pub const fn dev_unsigned_supported() -> bool {
+    cfg!(debug_assertions)
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PackageErrorCode {
     Malformed,
@@ -113,6 +206,7 @@ pub struct VerifiedPackage {
     raw_bytes: Vec<u8>,
     files: Vec<PackageFile>,
     module_index: usize,
+    dev_unsigned: bool,
 }
 
 impl VerifiedPackage {
@@ -150,6 +244,10 @@ impl VerifiedPackage {
 
     pub fn verifier_policy(&self) -> u16 {
         VERIFIER_POLICY
+    }
+
+    pub fn is_dev_unsigned(&self) -> bool {
+        self.dev_unsigned
     }
 
     /// Read-only bytes and MIME for an exactly named verified regular file.
@@ -192,12 +290,91 @@ pub fn build_signed(
 pub fn build_signed_for_host(
     manifest: Manifest,
     entrypoint: &str,
-    mut files: Vec<PackageFile>,
+    files: Vec<PackageFile>,
     signing_seed: &[u8; 32],
     supported_apis: &[ApiVersion],
 ) -> Result<Vec<u8>, PackageError> {
+    build_signed_with_budgets(
+        manifest,
+        entrypoint,
+        files,
+        signing_seed,
+        supported_apis,
+        &PackageBudgets::legacy_v1(),
+    )
+}
+
+/// Build and sign a canonical `.qpk` using host-injected bounded package budgets.
+pub fn build_signed_with_budgets(
+    manifest: Manifest,
+    entrypoint: &str,
+    files: Vec<PackageFile>,
+    signing_seed: &[u8; 32],
+    supported_apis: &[ApiVersion],
+    budgets: &PackageBudgets,
+) -> Result<Vec<u8>, PackageError> {
+    let payload = build_payload(manifest, entrypoint, files, supported_apis, budgets)?;
+    let key = SigningKey::from_bytes(signing_seed);
+    let publisher_key = encode_hex(key.verifying_key().as_bytes());
+    let signature = key.sign(&signing_bytes(&payload, budgets)?);
+    let package = Package {
+        payload,
+        signature: SignatureEnvelope {
+            algorithm: "ed25519".to_owned(),
+            publisher_key: publisher_key.clone(),
+            publisher_fingerprint: digest_hex(key.verifying_key().as_bytes()),
+            signature: encode_hex(&signature.to_bytes()),
+        },
+    };
+    let bytes = encode_json(&package, budgets)?;
+    // Both author and Host use the identical acceptance boundary.
+    verify_with_budgets(&bytes, &publisher_key, supported_apis, budgets)?;
+    Ok(bytes)
+}
+
+/// Build an unsigned `.qpk` strictly for `qusor dev` local debugging in debug builds.
+///
+/// This function is compiled out (`#[cfg(debug_assertions)]`) in release builds.
+#[cfg(debug_assertions)]
+pub fn build_dev_unsigned_with_budgets(
+    manifest: Manifest,
+    entrypoint: &str,
+    files: Vec<PackageFile>,
+    supported_apis: &[ApiVersion],
+    budgets: &PackageBudgets,
+) -> Result<Vec<u8>, PackageError> {
+    let payload = build_payload(manifest, entrypoint, files, supported_apis, budgets)?;
+    let package = Package {
+        payload,
+        signature: SignatureEnvelope {
+            algorithm: "dev-unsigned".to_owned(),
+            publisher_key: "dev-unsigned".to_owned(),
+            publisher_fingerprint: "dev-unsigned".to_owned(),
+            signature: String::new(),
+        },
+    };
+    let bytes = encode_json(&package, budgets)?;
+    verify_dev_unsigned_with_budgets(
+        &bytes,
+        supported_apis,
+        budgets,
+        DevUnsignedOptions {
+            allow_unsigned: true,
+        },
+    )?;
+    Ok(bytes)
+}
+
+fn build_payload(
+    manifest: Manifest,
+    entrypoint: &str,
+    mut files: Vec<PackageFile>,
+    supported_apis: &[ApiVersion],
+    budgets: &PackageBudgets,
+) -> Result<Payload, PackageError> {
+    budgets.validate()?;
     check_host_apis(supported_apis)?;
-    check_file_budgets(files.iter().map(|file| file.bytes.len()))?;
+    check_file_budgets(files.iter().map(|file| file.bytes.len()), budgets)?;
     files.sort_by(|left, right| left.path.cmp(&right.path));
     let payload = Payload {
         package_format: PACKAGE_FORMAT,
@@ -215,23 +392,8 @@ pub fn build_signed_for_host(
             })
             .collect(),
     };
-    validate_payload(&payload, supported_apis)?;
-    let key = SigningKey::from_bytes(signing_seed);
-    let publisher_key = encode_hex(key.verifying_key().as_bytes());
-    let signature = key.sign(&signing_bytes(&payload)?);
-    let package = Package {
-        payload,
-        signature: SignatureEnvelope {
-            algorithm: "ed25519".to_owned(),
-            publisher_key: publisher_key.clone(),
-            publisher_fingerprint: digest_hex(key.verifying_key().as_bytes()),
-            signature: encode_hex(&signature.to_bytes()),
-        },
-    };
-    let bytes = encode_json(&package)?;
-    // Both author and Host use the identical acceptance boundary.
-    verify_for_host(&bytes, &publisher_key, supported_apis)?;
-    Ok(bytes)
+    validate_payload(&payload, supported_apis, budgets)?;
+    Ok(payload)
 }
 
 /// Verify a canonical package against an explicitly supplied trusted public key.
@@ -250,26 +412,22 @@ pub fn verify_for_host(
     trusted_key: &str,
     supported_apis: &[ApiVersion],
 ) -> Result<VerifiedPackage, PackageError> {
-    check_host_apis(supported_apis)?;
-    if bytes.len() > MAX_PACKAGE_BYTES {
-        return Err(fail(
-            PackageErrorCode::BudgetExceeded,
-            "package exceeds encoded byte budget",
-        ));
-    }
-    let package: Package = serde_json::from_slice(bytes).map_err(|_| {
-        fail(
-            PackageErrorCode::Malformed,
-            "invalid package JSON shape or value",
-        )
-    })?;
-    if encode_json(&package)? != bytes {
-        return Err(fail(
-            PackageErrorCode::NonCanonical,
-            "package is not canonical JSON",
-        ));
-    }
-    let (files, module_index) = validate_payload(&package.payload, supported_apis)?;
+    verify_with_budgets(
+        bytes,
+        trusted_key,
+        supported_apis,
+        &PackageBudgets::legacy_v1(),
+    )
+}
+
+/// Verify a canonical package under host-injected bounded package budgets.
+pub fn verify_with_budgets(
+    bytes: &[u8],
+    trusted_key: &str,
+    supported_apis: &[ApiVersion],
+    budgets: &PackageBudgets,
+) -> Result<VerifiedPackage, PackageError> {
+    let (package, files, module_index) = decode_canonical_package(bytes, supported_apis, budgets)?;
     if package.signature.algorithm != "ed25519" {
         return Err(fail(
             PackageErrorCode::Incompatible,
@@ -302,7 +460,7 @@ pub fn verify_for_host(
             )
         })?;
     key.verify_strict(
-        &signing_bytes(&package.payload)?,
+        &signing_bytes(&package.payload, budgets)?,
         &Signature::from_bytes(&signature_bytes),
     )
     .map_err(|_| {
@@ -311,7 +469,90 @@ pub fn verify_for_host(
             "signature verification failed",
         )
     })?;
-    Ok(VerifiedPackage {
+    Ok(finalize_verified_package(
+        package,
+        bytes,
+        files,
+        module_index,
+        false,
+    ))
+}
+
+/// Verify an unsigned local-dev package when explicitly opted in by `qusor dev`.
+///
+/// Always compiled out in release builds (`#[cfg(debug_assertions)]`), requires
+/// `options.allow_unsigned == true`, and still enforces canonical JSON, path
+/// safety, Wasm magic/header, file hashes, manifest, and bounded budgets.
+#[cfg(debug_assertions)]
+pub fn verify_dev_unsigned_with_budgets(
+    bytes: &[u8],
+    supported_apis: &[ApiVersion],
+    budgets: &PackageBudgets,
+    options: DevUnsignedOptions,
+) -> Result<VerifiedPackage, PackageError> {
+    if !options.allow_unsigned {
+        return Err(fail(
+            PackageErrorCode::UntrustedKey,
+            "unsigned package rejected without explicit dev switch",
+        ));
+    }
+    let (package, files, module_index) = decode_canonical_package(bytes, supported_apis, budgets)?;
+    if package.signature.algorithm != "dev-unsigned"
+        || package.signature.publisher_key != "dev-unsigned"
+        || package.signature.publisher_fingerprint != "dev-unsigned"
+        || !package.signature.signature.is_empty()
+    {
+        return Err(fail(
+            PackageErrorCode::InvalidSignature,
+            "package is not marked as dev-unsigned",
+        ));
+    }
+    Ok(finalize_verified_package(
+        package,
+        bytes,
+        files,
+        module_index,
+        true,
+    ))
+}
+
+fn decode_canonical_package(
+    bytes: &[u8],
+    supported_apis: &[ApiVersion],
+    budgets: &PackageBudgets,
+) -> Result<(Package, Vec<PackageFile>, usize), PackageError> {
+    budgets.validate()?;
+    check_host_apis(supported_apis)?;
+    if bytes.len() > budgets.max_package_bytes {
+        return Err(fail(
+            PackageErrorCode::BudgetExceeded,
+            "package exceeds encoded byte budget",
+        ));
+    }
+    let package: Package = serde_json::from_slice(bytes).map_err(|_| {
+        fail(
+            PackageErrorCode::Malformed,
+            "invalid package JSON shape or value",
+        )
+    })?;
+    if encode_json(&package, budgets)? != bytes {
+        return Err(fail(
+            PackageErrorCode::NonCanonical,
+            "package is not canonical JSON",
+        ));
+    }
+    let (files, module_index) = validate_payload(&package.payload, supported_apis, budgets)?;
+    Ok((package, files, module_index))
+}
+
+fn finalize_verified_package(
+    package: Package,
+    bytes: &[u8],
+    files: Vec<PackageFile>,
+    module_index: usize,
+    dev_unsigned: bool,
+) -> VerifiedPackage {
+    VerifiedPackage {
         manifest: package.payload.manifest,
         digest: digest_hex(bytes),
         publisher_key: package.signature.publisher_key,
@@ -321,7 +562,8 @@ pub fn verify_for_host(
         raw_bytes: bytes.to_vec(),
         files,
         module_index,
-    })
+        dev_unsigned,
+    }
 }
 
 fn check_host_apis(supported_apis: &[ApiVersion]) -> Result<(), PackageError> {
@@ -336,6 +578,7 @@ fn check_host_apis(supported_apis: &[ApiVersion]) -> Result<(), PackageError> {
 fn validate_payload(
     payload: &Payload,
     supported_apis: &[ApiVersion],
+    budgets: &PackageBudgets,
 ) -> Result<(Vec<PackageFile>, usize), PackageError> {
     if payload.package_format != PACKAGE_FORMAT || payload.profile != EXECUTION_PROFILE {
         return Err(fail(
@@ -359,7 +602,7 @@ fn validate_payload(
     // The authoritative API only deserializes known capabilities/contributions;
     // it validates every contribution's declared requirements as well.
     validate_path(&payload.entrypoint)?;
-    check_file_budgets(payload.files.iter().map(|file| file.size))?;
+    check_file_budgets(payload.files.iter().map(|file| file.size), budgets)?;
     let mut seen = BTreeSet::new();
     let mut decoded = Vec::with_capacity(payload.files.len());
     let mut previous_path: Option<&str> = None;
@@ -424,12 +667,15 @@ fn validate_payload(
     Ok((decoded, module_index))
 }
 
-fn check_file_budgets(sizes: impl Iterator<Item = usize>) -> Result<(), PackageError> {
+fn check_file_budgets(
+    sizes: impl Iterator<Item = usize>,
+    budgets: &PackageBudgets,
+) -> Result<(), PackageError> {
     let mut count = 0usize;
     let mut total = 0usize;
     for size in sizes {
         count += 1;
-        if count > MAX_FILES || size > MAX_FILE_BYTES {
+        if count > budgets.max_files || size > budgets.max_file_bytes {
             return Err(fail(
                 PackageErrorCode::BudgetExceeded,
                 "file count or single-file budget exceeded",
@@ -438,7 +684,7 @@ fn check_file_budgets(sizes: impl Iterator<Item = usize>) -> Result<(), PackageE
         total = total
             .checked_add(size)
             .ok_or_else(|| fail(PackageErrorCode::BudgetExceeded, "file total overflow"))?;
-        if total > MAX_TOTAL_FILE_BYTES {
+        if total > budgets.max_total_file_bytes {
             return Err(fail(
                 PackageErrorCode::BudgetExceeded,
                 "total decoded file budget exceeded",
@@ -515,18 +761,18 @@ fn validate_mime(mime: &str) -> Result<(), PackageError> {
     Ok(())
 }
 
-fn signing_bytes(payload: &Payload) -> Result<Vec<u8>, PackageError> {
-    let encoded = encode_json(payload)?;
+fn signing_bytes(payload: &Payload, budgets: &PackageBudgets) -> Result<Vec<u8>, PackageError> {
+    let encoded = encode_json(payload, budgets)?;
     let mut bytes = Vec::with_capacity(SIGNING_DOMAIN.len() + encoded.len());
     bytes.extend_from_slice(SIGNING_DOMAIN);
     bytes.extend_from_slice(&encoded);
     Ok(bytes)
 }
 
-fn encode_json(value: &impl Serialize) -> Result<Vec<u8>, PackageError> {
+fn encode_json(value: &impl Serialize, budgets: &PackageBudgets) -> Result<Vec<u8>, PackageError> {
     let bytes = serde_json::to_vec(value)
         .map_err(|_| fail(PackageErrorCode::Malformed, "could not encode package"))?;
-    if bytes.len() > MAX_PACKAGE_BYTES {
+    if bytes.len() > budgets.max_package_bytes {
         return Err(fail(
             PackageErrorCode::BudgetExceeded,
             "package exceeds encoded byte budget",

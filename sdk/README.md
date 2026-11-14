@@ -2,6 +2,8 @@
 
 尚未发布独立 SDK。[extension-api](../crates/extension-api/README.md) 当前保留0.1默认、显式0.2阅读Surface并新增待完整提供者验收的0.3草稿/组件协议；签名包格式已有生产权威源和本机验证，贡献 UI、完整能力与平台契约仍须分别验证。
 
+- **阶段 2 ABI 与工具链设计**：见 [WIT 契约](wit/qusor-plugin.wit) 与 [SDK / ABI / `qusor dev` 设计说明](DESIGN.md)（含 `wasmi 2.0.0` Component Model 评估、MiB 级预算、Rust-first `qusor-sdk` 与开发期未签名加载开关）。
+
 包格式/完整文件签名与显式键绑定以 [extension-package](../crates/extension-package/README.md) 为唯一权威源；实验 SDK 直接导出该纯实现，作者不会获得安装 Store 或运行器。
 
 捕获/来源/文本及 PDF 锚点以 [core-api](../crates/core-api/README.md) 为唯一权威源，实验 SDK 导出直接使用该实现；仍未正式发布。Host 策略 wire DTO/schema/契约测试以 [extension-api](../crates/extension-api/README.md) 为权威源。此目录用于生成配置、语言绑定、作者文档、打包/验证工具及发行入口，不维护第二套手写协议。
