@@ -243,6 +243,7 @@ fn capability_service_name(capability: extension_api::Capability) -> &'static st
         Capability::VocabRead => "vocab.read",
         Capability::VocabReview => "vocab.review",
         Capability::LibraryRead => "library.read",
+        Capability::UiSlot => "ui.slot",
     }
 }
 

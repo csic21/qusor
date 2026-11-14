@@ -123,7 +123,8 @@ pub fn workspace_kind(kind: ContributionKind) -> Option<&'static str> {
         ContributionKind::LibraryWorkspace => Some("library_workspace"),
         ContributionKind::Command
         | ContributionKind::SelectionAction
-        | ContributionKind::ComponentProvider => None,
+        | ContributionKind::ComponentProvider
+        | ContributionKind::UiSlot => None,
     }
 }
 

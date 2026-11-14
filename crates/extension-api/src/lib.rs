@@ -48,6 +48,7 @@ pub mod notes;
 pub mod platform;
 pub mod projection;
 pub mod surface;
+pub mod ui;
 pub mod vocab;
 
 /// Whether the protocol is implemented; ranges alone never enable future versions.
@@ -83,7 +84,7 @@ pub const MAX_TITLE_BYTES: usize = 256;
 /// Maximum number of contributions in one manifest.
 pub const MAX_CONTRIBUTIONS: usize = 64;
 /// Maximum distinct capability declarations across implemented protocol versions.
-pub const MAX_CAPABILITIES: usize = 9;
+pub const MAX_CAPABILITIES: usize = 10;
 /// Maximum UTF-8 bytes in a public error message.
 pub const MAX_ERROR_MESSAGE_BYTES: usize = 512;
 /// Maximum encoded error response size in bytes.
@@ -145,6 +146,8 @@ pub enum Capability {
     VocabReview,
     #[serde(rename = "library.read")]
     LibraryRead,
+    #[serde(rename = "ui.slot")]
+    UiSlot,
 }
 
 /// Declarative entry types currently understood by the policy registry.
@@ -158,6 +161,7 @@ pub enum ContributionKind {
     NotesWorkspace,
     VocabWorkspace,
     LibraryWorkspace,
+    UiSlot,
 }
 
 /// Capabilities introduced in earlier minor versions stay cumulatively available
@@ -176,6 +180,7 @@ pub fn capability_available_in(capability: Capability, version: ApiVersion) -> b
         Capability::NotesRead => version >= HOST_API_V0_4,
         Capability::VocabRead | Capability::VocabReview => version >= HOST_API_V0_5,
         Capability::LibraryRead => version >= HOST_API_V0_6,
+        Capability::UiSlot => version >= HOST_API_V0_7,
     }
 }
 
@@ -200,7 +205,7 @@ pub fn capability_resource_valid(
         Capability::CapturePropose => matches!(resource, Resource::Vault { .. }),
         Capability::ReaderSurface => matches!(resource, Resource::Document { .. }),
         Capability::NoteDraftEdit => matches!(resource, Resource::Draft { .. }),
-        Capability::NotesRead | Capability::LibraryRead => {
+        Capability::NotesRead | Capability::LibraryRead | Capability::UiSlot => {
             matches!(resource, Resource::Vault { .. })
         }
         Capability::VocabRead | Capability::VocabReview => {
@@ -315,6 +320,17 @@ impl Manifest {
                 "library vocabulary requires minimum Host API0.6",
             ));
         }
+        let ui_slot_vocabulary = declared.contains(&Capability::UiSlot)
+            || self
+                .contributions
+                .iter()
+                .any(|c| c.kind == ContributionKind::UiSlot);
+        if ui_slot_vocabulary && (self.host_api.major != 0 || self.host_api.min_minor < 7) {
+            return Err(ApiError::new(
+                code,
+                "ui.slot vocabulary requires minimum Host API0.7",
+            ));
+        }
         if self.contributions.len() > MAX_CONTRIBUTIONS {
             return Err(ApiError::new(code, "too many contributions"));
         }
@@ -386,6 +402,13 @@ impl Manifest {
                     "library workspace requires library.read",
                 ));
             }
+            if contribution.kind == ContributionKind::UiSlot
+                && !contribution
+                    .required_capabilities
+                    .contains(&Capability::UiSlot)
+            {
+                return Err(ApiError::new(code, "ui_slot requires ui.slot"));
+            }
             for capability in validate_capabilities(&contribution.required_capabilities, code)? {
                 if !declared.contains(&capability) {
                     return Err(ApiError::new(
@@ -420,6 +443,7 @@ impl Manifest {
                     ContributionKind::NotesWorkspace => version >= HOST_API_V0_4,
                     ContributionKind::VocabWorkspace => version >= HOST_API_V0_5,
                     ContributionKind::LibraryWorkspace => version >= HOST_API_V0_6,
+                    ContributionKind::UiSlot => version >= HOST_API_V0_7,
                 })
     }
 

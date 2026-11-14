@@ -26,6 +26,7 @@ pub mod library;
 pub mod notes;
 pub mod platform;
 pub mod surface;
+pub mod ui;
 pub mod vocab;
 
 const MAX_INSTALLATIONS: usize = 256;
