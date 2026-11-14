@@ -11,7 +11,10 @@ pub mod ffi;
 pub mod ui_builder;
 
 pub use extension_api::{
-    self, ApiError, ApiVersion, ErrorCode, HOST_API_V0_7, ui,
+    self, ApiError, ApiVersion, ErrorCode, HOST_API_V0_7, HOST_API_V0_8,
+    notes::NoteField,
+    orthogonal::{self, *},
+    ui,
     vocab::{
         self, VOCAB_PROTOCOL, VocabCardView, VocabDeck, VocabOperation, VocabRating, VocabRequest,
         VocabResponse, VocabResult, VocabReviewOutcome, VocabStage,
@@ -189,6 +192,427 @@ impl<'a> VocabClient<'a> {
             VocabResult::Review(outcome) => Ok(outcome),
             other => Err(SdkError::Deserialize(format!(
                 "unexpected vocab response for review: {other:?}"
+            ))),
+        }
+    }
+}
+
+/// Paginated response returned by [`OrthogonalKnowledgeClient::documents_page`].
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct KnowledgeDocumentsPage {
+    pub documents: Vec<KnowledgeDocumentSummary>,
+    pub next_cursor: Option<String>,
+}
+
+/// Text chunk returned by [`OrthogonalKnowledgeClient::document_chunk`].
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct KnowledgeDocumentChunk {
+    pub format: DocumentFormat,
+    pub document_id: i64,
+    pub section_index: u32,
+    pub offset: u32,
+    pub total_bytes: u64,
+    pub text: String,
+    pub next_offset: Option<u32>,
+}
+
+/// Paginated response returned by [`OrthogonalKnowledgeClient::notes_page`].
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct KnowledgeNotesPage {
+    pub notes: Vec<KnowledgeNoteSummary>,
+    pub next_cursor: Option<String>,
+}
+
+/// Receipt returned by [`OrthogonalKnowledgeClient`] capture mutations.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct KnowledgeCaptureReceipt {
+    pub format: DocumentFormat,
+    pub capture_id: i64,
+    pub commit_rev: i64,
+}
+
+/// Receipt returned by [`OrthogonalKnowledgeClient::delete_document`].
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct KnowledgeDocumentReceipt {
+    pub format: DocumentFormat,
+    pub document_id: i64,
+    pub commit_rev: i64,
+}
+
+/// Typed client for the Host API `0.8+` orthogonal `core.knowledge` broker protocol.
+pub struct OrthogonalKnowledgeClient<'a> {
+    transport: &'a dyn HostTransport,
+    api_version: ApiVersion,
+}
+
+impl Default for OrthogonalKnowledgeClient<'static> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl OrthogonalKnowledgeClient<'static> {
+    /// Creates a client using the default `wasm32` FFI broker transport and Host API `0.8`.
+    pub fn new() -> Self {
+        Self {
+            transport: &DEFAULT_TRANSPORT,
+            api_version: HOST_API_V0_8,
+        }
+    }
+}
+
+impl<'a> OrthogonalKnowledgeClient<'a> {
+    /// Creates a client backed by a caller-supplied [`HostTransport`].
+    pub fn with_transport(transport: &'a dyn HostTransport) -> Self {
+        Self {
+            transport,
+            api_version: HOST_API_V0_8,
+        }
+    }
+
+    /// Overrides the negotiated Host API version sent in [`CoreKnowledgeRequest`].
+    pub fn with_api_version(mut self, api_version: ApiVersion) -> Self {
+        self.api_version = api_version;
+        self
+    }
+
+    /// Sends one validated [`CoreKnowledgeOperation`] and returns its non-error [`CoreKnowledgeResult`].
+    pub fn send(
+        &self,
+        request_id: &str,
+        operation: CoreKnowledgeOperation,
+    ) -> Result<CoreKnowledgeResult, SdkError> {
+        let request = CoreKnowledgeRequest {
+            protocol_version: CORE_KNOWLEDGE_PROTOCOL,
+            api_version: self.api_version,
+            request_id: request_id.to_owned(),
+            operation,
+        };
+        request
+            .validate()
+            .map_err(|err| SdkError::Serialize(err.to_string()))?;
+        let response: CoreKnowledgeResponse = host_call_with(self.transport, &request)?;
+        if response.request_id != request.request_id {
+            return Err(SdkError::Deserialize(format!(
+                "mismatched response request_id `{}` (expected `{}`)",
+                response.request_id, request.request_id
+            )));
+        }
+        match response.result {
+            CoreKnowledgeResult::Error { error } => Err(SdkError::Api(error)),
+            other => Ok(other),
+        }
+    }
+
+    /// Lists PDF/EPUB document summaries (`core.knowledge.read`).
+    pub fn documents_page(
+        &self,
+        request_id: &str,
+        format: Option<DocumentFormat>,
+        cursor: Option<&str>,
+        limit: u16,
+    ) -> Result<KnowledgeDocumentsPage, SdkError> {
+        match self.send(
+            request_id,
+            CoreKnowledgeOperation::DocumentsPage {
+                format,
+                cursor: cursor.map(str::to_owned),
+                limit,
+            },
+        )? {
+            CoreKnowledgeResult::DocumentsPage {
+                documents,
+                next_cursor,
+            } => Ok(KnowledgeDocumentsPage {
+                documents,
+                next_cursor,
+            }),
+            other => Err(SdkError::Deserialize(format!(
+                "unexpected core.knowledge response for documents_page: {other:?}"
+            ))),
+        }
+    }
+
+    /// Reads the bounded table of contents for a document (`core.knowledge.read`).
+    pub fn document_toc(
+        &self,
+        request_id: &str,
+        format: DocumentFormat,
+        document_id: i64,
+    ) -> Result<Vec<KnowledgeTocEntry>, SdkError> {
+        match self.send(
+            request_id,
+            CoreKnowledgeOperation::DocumentToc {
+                format,
+                document_id,
+            },
+        )? {
+            CoreKnowledgeResult::DocumentToc { entries, .. } => Ok(entries),
+            other => Err(SdkError::Deserialize(format!(
+                "unexpected core.knowledge response for document_toc: {other:?}"
+            ))),
+        }
+    }
+
+    /// Reads one bounded UTF-8 text chunk of a PDF page or EPUB chapter (`core.knowledge.read`).
+    pub fn document_chunk(
+        &self,
+        request_id: &str,
+        format: DocumentFormat,
+        document_id: i64,
+        section_index: u32,
+        offset: u32,
+        max_bytes: u16,
+    ) -> Result<KnowledgeDocumentChunk, SdkError> {
+        match self.send(
+            request_id,
+            CoreKnowledgeOperation::DocumentChunk {
+                format,
+                document_id,
+                section_index,
+                offset,
+                max_bytes,
+            },
+        )? {
+            CoreKnowledgeResult::DocumentChunk {
+                format,
+                document_id,
+                section_index,
+                offset,
+                total_bytes,
+                text,
+                next_offset,
+            } => Ok(KnowledgeDocumentChunk {
+                format,
+                document_id,
+                section_index,
+                offset,
+                total_bytes,
+                text,
+                next_offset,
+            }),
+            other => Err(SdkError::Deserialize(format!(
+                "unexpected core.knowledge response for document_chunk: {other:?}"
+            ))),
+        }
+    }
+
+    /// Lists saved selection scalar ranges in one PDF page or EPUB chapter (`core.knowledge.read`).
+    pub fn saved_selections(
+        &self,
+        request_id: &str,
+        format: DocumentFormat,
+        document_id: i64,
+        section_index: u32,
+    ) -> Result<Vec<KnowledgeSavedRange>, SdkError> {
+        match self.send(
+            request_id,
+            CoreKnowledgeOperation::SavedSelections {
+                format,
+                document_id,
+                section_index,
+            },
+        )? {
+            CoreKnowledgeResult::SavedSelections { ranges, .. } => Ok(ranges),
+            other => Err(SdkError::Deserialize(format!(
+                "unexpected core.knowledge response for saved_selections: {other:?}"
+            ))),
+        }
+    }
+
+    /// Lists PDF/EPUB note summaries (`core.knowledge.read`).
+    pub fn notes_page(
+        &self,
+        request_id: &str,
+        format: Option<DocumentFormat>,
+        document_id: Option<i64>,
+        cursor: Option<&str>,
+        limit: u16,
+    ) -> Result<KnowledgeNotesPage, SdkError> {
+        match self.send(
+            request_id,
+            CoreKnowledgeOperation::NotesPage {
+                format,
+                document_id,
+                cursor: cursor.map(str::to_owned),
+                limit,
+            },
+        )? {
+            CoreKnowledgeResult::NotesPage { notes, next_cursor } => {
+                Ok(KnowledgeNotesPage { notes, next_cursor })
+            }
+            other => Err(SdkError::Deserialize(format!(
+                "unexpected core.knowledge response for notes_page: {other:?}"
+            ))),
+        }
+    }
+
+    /// Reads one bounded UTF-8 chunk of a saved capture quote or user note (`core.knowledge.read`).
+    pub fn note_body(
+        &self,
+        request_id: &str,
+        format: DocumentFormat,
+        capture_id: i64,
+        field: NoteField,
+        offset: u32,
+        max_bytes: u16,
+    ) -> Result<KnowledgeNoteBody, SdkError> {
+        match self.send(
+            request_id,
+            CoreKnowledgeOperation::NoteBody {
+                format,
+                capture_id,
+                field,
+                offset,
+                max_bytes,
+            },
+        )? {
+            CoreKnowledgeResult::NoteBody(body) => Ok(body),
+            other => Err(SdkError::Deserialize(format!(
+                "unexpected core.knowledge response for note_body: {other:?}"
+            ))),
+        }
+    }
+
+    /// Reads PDF metadata (`core.knowledge.read`).
+    pub fn pdf_metadata(
+        &self,
+        request_id: &str,
+        document_id: i64,
+    ) -> Result<KnowledgePdfMetadata, SdkError> {
+        match self.send(
+            request_id,
+            CoreKnowledgeOperation::PdfMetadata { document_id },
+        )? {
+            CoreKnowledgeResult::PdfMetadata(meta) => Ok(meta),
+            other => Err(SdkError::Deserialize(format!(
+                "unexpected core.knowledge response for pdf_metadata: {other:?}"
+            ))),
+        }
+    }
+
+    /// Updates a capture's user note (`core.knowledge.write`).
+    pub fn update_capture_note(
+        &self,
+        request_id: &str,
+        format: DocumentFormat,
+        capture_id: i64,
+        note: &str,
+    ) -> Result<KnowledgeCaptureReceipt, SdkError> {
+        match self.send(
+            request_id,
+            CoreKnowledgeOperation::UpdateCaptureNote {
+                format,
+                capture_id,
+                note: note.to_owned(),
+            },
+        )? {
+            CoreKnowledgeResult::NoteUpdated {
+                format,
+                capture_id,
+                commit_rev,
+            } => Ok(KnowledgeCaptureReceipt {
+                format,
+                capture_id,
+                commit_rev,
+            }),
+            other => Err(SdkError::Deserialize(format!(
+                "unexpected core.knowledge response for update_capture_note: {other:?}"
+            ))),
+        }
+    }
+
+    /// Deletes a capture (`core.knowledge.write`).
+    pub fn delete_capture(
+        &self,
+        request_id: &str,
+        format: DocumentFormat,
+        capture_id: i64,
+    ) -> Result<KnowledgeCaptureReceipt, SdkError> {
+        match self.send(
+            request_id,
+            CoreKnowledgeOperation::DeleteCapture { format, capture_id },
+        )? {
+            CoreKnowledgeResult::CaptureDeleted {
+                format,
+                capture_id,
+                commit_rev,
+            } => Ok(KnowledgeCaptureReceipt {
+                format,
+                capture_id,
+                commit_rev,
+            }),
+            other => Err(SdkError::Deserialize(format!(
+                "unexpected core.knowledge response for delete_capture: {other:?}"
+            ))),
+        }
+    }
+
+    /// Deletes a document (`core.knowledge.write`).
+    pub fn delete_document(
+        &self,
+        request_id: &str,
+        format: DocumentFormat,
+        document_id: i64,
+    ) -> Result<KnowledgeDocumentReceipt, SdkError> {
+        match self.send(
+            request_id,
+            CoreKnowledgeOperation::DeleteDocument {
+                format,
+                document_id,
+            },
+        )? {
+            CoreKnowledgeResult::DocumentDeleted {
+                format,
+                document_id,
+                commit_rev,
+            } => Ok(KnowledgeDocumentReceipt {
+                format,
+                document_id,
+                commit_rev,
+            }),
+            other => Err(SdkError::Deserialize(format!(
+                "unexpected core.knowledge response for delete_document: {other:?}"
+            ))),
+        }
+    }
+
+    /// Proposes capturing a scalar selection in an EPUB chapter (`core.capture.propose`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn capture_epub_selection(
+        &self,
+        request_id: &str,
+        operation_id: &str,
+        document_id: i64,
+        chapter_index: u32,
+        start: u32,
+        end: u32,
+        quote: &str,
+        note: &str,
+    ) -> Result<KnowledgeCaptureReceipt, SdkError> {
+        match self.send(
+            request_id,
+            CoreKnowledgeOperation::CaptureEpubSelection {
+                operation_id: operation_id.to_owned(),
+                document_id,
+                chapter_index,
+                start,
+                end,
+                quote: quote.to_owned(),
+                note: note.to_owned(),
+            },
+        )? {
+            CoreKnowledgeResult::CaptureCreated {
+                format,
+                capture_id,
+                commit_rev,
+            } => Ok(KnowledgeCaptureReceipt {
+                format,
+                capture_id,
+                commit_rev,
+            }),
+            other => Err(SdkError::Deserialize(format!(
+                "unexpected core.knowledge response for capture_epub_selection: {other:?}"
             ))),
         }
     }
@@ -511,5 +935,305 @@ mod tests {
             SlotUpdate::Tree(updated) => updated.validate(UiBudgets::default()).unwrap(),
             SlotUpdate::Patch(_) => panic!("expected tree"),
         }
+    }
+
+    struct MockKnowledgeTransport;
+
+    impl HostTransport for MockKnowledgeTransport {
+        fn call_bytes(&self, input: &[u8]) -> Result<Vec<u8>, SdkError> {
+            let req = CoreKnowledgeRequest::from_slice(input).map_err(SdkError::Api)?;
+            let result = match req.operation {
+                CoreKnowledgeOperation::DocumentsPage { .. } => {
+                    CoreKnowledgeResult::DocumentsPage {
+                        documents: vec![KnowledgeDocumentSummary {
+                            document_id: 1,
+                            format: DocumentFormat::Epub,
+                            commit_rev: 2,
+                            title: "Mock Book".to_owned(),
+                            section_count: 3,
+                        }],
+                        next_cursor: None,
+                    }
+                }
+                CoreKnowledgeOperation::DocumentToc {
+                    format,
+                    document_id,
+                } => CoreKnowledgeResult::DocumentToc {
+                    format,
+                    document_id,
+                    entries: vec![KnowledgeTocEntry {
+                        title: "Intro".to_owned(),
+                        section_index: 0,
+                        depth: 0,
+                    }],
+                },
+                CoreKnowledgeOperation::DocumentChunk {
+                    format,
+                    document_id,
+                    section_index,
+                    offset,
+                    ..
+                } => CoreKnowledgeResult::DocumentChunk {
+                    format,
+                    document_id,
+                    section_index,
+                    offset,
+                    total_bytes: 5,
+                    text: "Hello".to_owned(),
+                    next_offset: None,
+                },
+                CoreKnowledgeOperation::SavedSelections {
+                    format,
+                    document_id,
+                    section_index,
+                } => CoreKnowledgeResult::SavedSelections {
+                    format,
+                    document_id,
+                    section_index,
+                    ranges: vec![KnowledgeSavedRange {
+                        capture_id: 9,
+                        start: 0,
+                        end: 5,
+                    }],
+                },
+                CoreKnowledgeOperation::NotesPage { .. } => CoreKnowledgeResult::NotesPage {
+                    notes: vec![KnowledgeNoteSummary {
+                        format: DocumentFormat::Pdf,
+                        capture_id: 9,
+                        commit_rev: 4,
+                        document_id: 1,
+                        document_title: "Mock Book".to_owned(),
+                        section_index: 0,
+                        quote_preview: "Hello".to_owned(),
+                        quote_bytes: 5,
+                        quote_truncated: false,
+                        note_preview: "Note".to_owned(),
+                        note_bytes: 4,
+                        note_truncated: false,
+                    }],
+                    next_cursor: None,
+                },
+                CoreKnowledgeOperation::NoteBody {
+                    format,
+                    capture_id,
+                    field,
+                    offset,
+                    ..
+                } => CoreKnowledgeResult::NoteBody(KnowledgeNoteBody {
+                    format,
+                    capture_id,
+                    commit_rev: 4,
+                    document_id: 1,
+                    field,
+                    offset,
+                    total_bytes: 4,
+                    text: "Note".to_owned(),
+                    next_offset: None,
+                }),
+                CoreKnowledgeOperation::PdfMetadata { document_id } => {
+                    CoreKnowledgeResult::PdfMetadata(KnowledgePdfMetadata {
+                        document_id,
+                        commit_rev: 2,
+                        title: "Mock PDF".to_owned(),
+                        original_sha256: "a".repeat(64),
+                        original_bytes: 1024,
+                        extraction_revision: "b".repeat(64),
+                        page_count: 10,
+                    })
+                }
+                CoreKnowledgeOperation::UpdateCaptureNote {
+                    format,
+                    capture_id,
+                    note,
+                } => {
+                    if note == "deny" {
+                        CoreKnowledgeResult::Error {
+                            error: ApiError::new(ErrorCode::PermissionDenied, "write denied"),
+                        }
+                    } else {
+                        CoreKnowledgeResult::NoteUpdated {
+                            format,
+                            capture_id,
+                            commit_rev: 5,
+                        }
+                    }
+                }
+                CoreKnowledgeOperation::DeleteCapture { format, capture_id } => {
+                    CoreKnowledgeResult::CaptureDeleted {
+                        format,
+                        capture_id,
+                        commit_rev: 6,
+                    }
+                }
+                CoreKnowledgeOperation::DeleteDocument {
+                    format,
+                    document_id,
+                } => CoreKnowledgeResult::DocumentDeleted {
+                    format,
+                    document_id,
+                    commit_rev: 7,
+                },
+                CoreKnowledgeOperation::CaptureEpubSelection { .. } => {
+                    CoreKnowledgeResult::CaptureCreated {
+                        format: DocumentFormat::Epub,
+                        capture_id: 12,
+                        commit_rev: 8,
+                    }
+                }
+            };
+            let reply = CoreKnowledgeResponse {
+                request_id: req.request_id,
+                result,
+            };
+            serde_json::to_vec(&reply).map_err(|err| SdkError::Serialize(err.to_string()))
+        }
+    }
+
+    #[test]
+    fn orthogonal_knowledge_client_roundtrips_all_operations_and_api_errors() {
+        let client = OrthogonalKnowledgeClient::with_transport(&MockKnowledgeTransport);
+
+        let docs = client.documents_page("r1", None, None, 10).unwrap();
+        assert_eq!(docs.documents.len(), 1);
+        assert_eq!(docs.documents[0].title, "Mock Book");
+
+        let toc = client.document_toc("r2", DocumentFormat::Epub, 1).unwrap();
+        assert_eq!(toc.len(), 1);
+
+        let chunk = client
+            .document_chunk("r3", DocumentFormat::Epub, 1, 0, 0, 64)
+            .unwrap();
+        assert_eq!(chunk.text, "Hello");
+
+        let sels = client
+            .saved_selections("r4", DocumentFormat::Epub, 1, 0)
+            .unwrap();
+        assert_eq!(sels.len(), 1);
+
+        let notes = client.notes_page("r5", None, None, None, 10).unwrap();
+        assert_eq!(notes.notes.len(), 1);
+
+        let body = client
+            .note_body("r6", DocumentFormat::Pdf, 9, NoteField::Note, 0, 64)
+            .unwrap();
+        assert_eq!(body.text, "Note");
+
+        let meta = client.pdf_metadata("r7", 1).unwrap();
+        assert_eq!(meta.page_count, 10);
+
+        let upd = client
+            .update_capture_note("r8", DocumentFormat::Epub, 9, "ok")
+            .unwrap();
+        assert_eq!(upd.commit_rev, 5);
+
+        let cap = client
+            .capture_epub_selection("r9", "op-1", 1, 0, 0, 5, "Hello", "note")
+            .unwrap();
+        assert_eq!(cap.capture_id, 12);
+
+        let del_cap = client
+            .delete_capture("r10", DocumentFormat::Pdf, 9)
+            .unwrap();
+        assert_eq!(del_cap.commit_rev, 6);
+
+        let del_doc = client
+            .delete_document("r11", DocumentFormat::Epub, 1)
+            .unwrap();
+        assert_eq!(del_doc.commit_rev, 7);
+
+        let denied = client
+            .update_capture_note("r12", DocumentFormat::Epub, 9, "deny")
+            .unwrap_err();
+        assert!(matches!(
+            denied,
+            SdkError::Api(ApiError {
+                code: ErrorCode::PermissionDenied,
+                ..
+            })
+        ));
+    }
+
+    #[test]
+    fn ui_builder_new_components_pass_strict_ui_validation() {
+        let root = ui_builder::split(
+            "root-split",
+            35,
+            ui::SpacingScale::Md,
+            vec![
+                ui_builder::with_compact_hide(ui_builder::scroll(
+                    "left-scroll",
+                    ui::SpacingScale::Sm,
+                    vec![
+                        ui_builder::tabs(
+                            "nav-tabs",
+                            "Library sections",
+                            "docs",
+                            vec![
+                                ui_builder::tab_option("docs", "Documents"),
+                                ui_builder::tab_option("notes", "Notes"),
+                            ],
+                            "switch_tab",
+                        ),
+                        ui_builder::divider("div-1"),
+                        ui_builder::input(
+                            "search-input",
+                            "Search notes",
+                            "",
+                            "Filter...",
+                            false,
+                            false,
+                            "search_changed",
+                            Some("search_submit".to_owned()),
+                        ),
+                        ui_builder::select(
+                            "format-select",
+                            "Format filter",
+                            "all",
+                            vec![
+                                ui_builder::select_option("all", "All"),
+                                ui_builder::select_option("epub", "EPUB"),
+                            ],
+                            false,
+                            "format_changed",
+                        ),
+                        ui_builder::toggle(
+                            "show-archived",
+                            "Show details",
+                            true,
+                            false,
+                            "toggle_details",
+                        ),
+                    ],
+                )),
+                ui_builder::with_flex_grow(ui_builder::card(
+                    "right-card",
+                    ui::SpacingScale::Sm,
+                    ui::SpacingScale::Md,
+                    vec![
+                        ui_builder::section(
+                            "toolbar",
+                            "Reader",
+                            ui::SpacingScale::Sm,
+                            vec![ui_builder::icon_button(
+                                "bookmark-btn",
+                                "bookmark",
+                                "Bookmark selection",
+                                "bookmark_add",
+                                false,
+                            )],
+                        ),
+                        ui_builder::controlled_surface_ref(
+                            "reader-surface",
+                            "surface-epub-10",
+                            ui::ControlledSurfaceKind::ReaderDocument,
+                        ),
+                    ],
+                )),
+            ],
+        );
+
+        let tree = ui_builder::ui_tree(1, root);
+        tree.validate(UiBudgets::default())
+            .expect("all constructed declarative components must validate");
     }
 }

@@ -20,6 +20,7 @@ DIRECT_CORE_ALLOWLIST = frozenset({
     "apps/qusor/native/src/core_facade.rs",
     "apps/qusor/bridges/src/library_bridge.rs",
     "apps/qusor/bridges/src/notes_bridge.rs",
+    "apps/qusor/bridges/src/orthogonal_bridge.rs",
     "apps/qusor/bridges/src/vocab_bridge.rs",
 })
 
@@ -30,6 +31,7 @@ VAULT_ID_ALLOWLIST = frozenset({
 FROZEN_CORE_FACADE_HOST_FNS = frozenset({
     "new_library_bridge",
     "new_notes_bridge",
+    "new_orthogonal_bridge",
     "new_vocab_bridge",
     "export_backup_archives",
     "inspect_backup_state",
