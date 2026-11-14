@@ -119,6 +119,15 @@ class DocsGovernanceTests(unittest.TestCase):
         errors = check_adr_files_and_index(self.root)
         self.assertTrue(any("missing ADR 0049" in e for e in errors))
 
+    def test_rejects_adr_file_and_index_status_mismatch(self):
+        self._seed_minimal_valid_repo()
+        self.write(
+            "docs/architecture/adr/0048-doc-governance.md",
+            _valid_adr_0048().replace("- 状态：Accepted", "- 状态：Proposed（待拍板）"),
+        )
+        errors = check_adr_files_and_index(self.root)
+        self.assertTrue(any("mismatches ADR file status" in e for e in errors))
+
     def test_rejects_status_table_missing_evidence_or_bad_state(self):
         self._seed_minimal_valid_repo()
         self.write(

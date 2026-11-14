@@ -121,6 +121,7 @@ def check_adr_files_and_index(root: Path) -> list[str]:
 
     adr_files = sorted(adr_dir.glob("*.md"))
     by_num: dict[str, Path] = {}
+    file_statuses: dict[str, str] = {}
     for path in adr_files:
         rel = path.relative_to(root)
         m = ADR_FILENAME.match(path.name)
@@ -132,7 +133,10 @@ def check_adr_files_and_index(root: Path) -> list[str]:
             errors.append(f"{rel}: duplicate ADR number {num}")
         else:
             by_num[num] = path
-        errors.extend(_check_single_adr(path, root, int(num)))
+        adr_errors, adr_status = _check_single_adr(path, root, int(num))
+        errors.extend(adr_errors)
+        if adr_status is not None:
+            file_statuses[num] = adr_status
 
     readme_text = readme_path.read_text(encoding="utf-8-sig")
     block_match = ADR_INDEX_BLOCK.search(readme_text)
@@ -201,6 +205,12 @@ def check_adr_files_and_index(root: Path) -> list[str]:
             errors.append(
                 f"docs/architecture/README.md: ADR {num_str} invalid status '{status_col}'"
             )
+        elif num_val >= STRICT_ADR_MIN_NUMBER and num_str in file_statuses:
+            if status_col != file_statuses[num_str]:
+                errors.append(
+                    f"docs/architecture/README.md: ADR {num_str} index status '{status_col}' "
+                    f"mismatches ADR file status '{file_statuses[num_str]}'"
+                )
         if not summary_col:
             errors.append(
                 f"docs/architecture/README.md: ADR {num_str} summary cannot be empty"
@@ -214,7 +224,7 @@ def check_adr_files_and_index(root: Path) -> list[str]:
     return errors
 
 
-def _check_single_adr(path: Path, root: Path, num: int) -> list[str]:
+def _check_single_adr(path: Path, root: Path, num: int) -> tuple[list[str], str | None]:
     errors: list[str] = []
     rel = path.relative_to(root)
     text = path.read_text(encoding="utf-8-sig")
@@ -226,7 +236,7 @@ def _check_single_adr(path: Path, root: Path, num: int) -> list[str]:
     if num < STRICT_ADR_MIN_NUMBER:
         if "日期" not in header_text or "状态" not in header_text:
             errors.append(f"{rel}: historical ADR missing 日期/状态 header")
-        return errors
+        return errors, None
 
     # Strict ADR 0048+ governance checks
     fields: dict[str, str] = {}
@@ -246,6 +256,7 @@ def _check_single_adr(path: Path, root: Path, num: int) -> list[str]:
     if "日期" in fields and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", fields["日期"]):
         errors.append(f"{rel}: '日期' must be YYYY-MM-DD, got '{fields['日期']}'")
 
+    primary_status: str | None = None
     if "状态" in fields:
         status_m = re.match(
             r"^(Proposed|Accepted|Superseded)(?:$|\s|[（(])", fields["状态"]
@@ -254,6 +265,8 @@ def _check_single_adr(path: Path, root: Path, num: int) -> list[str]:
             errors.append(
                 f"{rel}: '状态' must start with Proposed|Accepted|Superseded, got '{fields['状态']}'"
             )
+        else:
+            primary_status = status_m.group(1)
 
     h2_headings = {
         line.strip().lstrip("# ").strip()
@@ -282,7 +295,7 @@ def _check_single_adr(path: Path, root: Path, num: int) -> list[str]:
                 f"{rel}: forbidden test/count progress log in ADR body: {line.strip()}"
             )
 
-    return errors
+    return errors, primary_status
 
 
 def check_status_table(root: Path) -> list[str]:
