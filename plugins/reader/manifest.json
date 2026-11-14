@@ -1,5 +1,5 @@
 {
-  "manifest_version": 1,
+  "manifest_version": 2,
   "package_id": "org.qusor.reader.preview",
   "publisher_id": "org.qusor",
   "package_version": {
@@ -9,20 +9,43 @@
   },
   "host_api": {
     "major": 0,
-    "min_minor": 2,
-    "max_minor": 2
+    "min_minor": 8,
+    "max_minor": 8
   },
   "required_capabilities": [
-    "reader.surface"
+    "library.read",
+    "ui.slot"
   ],
   "optional_capabilities": [],
+  "orthogonal_capabilities": [
+    {
+      "id": "core.knowledge.read",
+      "major": 1,
+      "min_minor": 0
+    },
+    {
+      "id": "core.capture.propose",
+      "major": 1,
+      "min_minor": 0
+    },
+    {
+      "id": "native.document.render",
+      "major": 1,
+      "min_minor": 0
+    },
+    {
+      "id": "host.ui.slot",
+      "major": 1,
+      "min_minor": 0
+    }
+  ],
   "contributions": [
     {
       "id": "org.qusor.reader.preview.workspace",
       "title": "阅读",
-      "kind": "reader_workspace",
+      "kind": "ui_slot",
       "required_capabilities": [
-        "reader.surface"
+        "ui.slot"
       ]
     }
   ]
