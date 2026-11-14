@@ -8,16 +8,20 @@
 
 use crate::{core_facade, package_catalog, runtime, vault::VaultStore};
 use extension_api::{
-    Capability, Resource, SUPPORTED_HOST_APIS,
+    Capability, ErrorCode, Manifest, Resource, SUPPORTED_HOST_APIS,
     library::LibraryRequest,
     notes::NotesRequest,
+    orthogonal::{
+        CapabilityId, CoreKnowledgeRequest, CoreKnowledgeResponse, CoreKnowledgeResult,
+        STANDARD_ORTHOGONAL_CAPABILITIES,
+    },
     ui::{
         SlotDescriptor, SlotRegion, UI_SLOT_PROTOCOL, UiBudgets, UiEventEnvelope, UiPatch,
         UiSlotRegistration, UiTree,
     },
     vocab::{VocabRequest, VocabResponse, VocabResult},
 };
-use extension_host::{Grant, Host, Session, ui::PluginUiHost};
+use extension_host::{Grant, Host, OrthogonalGrant, Session, ui::PluginUiHost};
 use extension_runtime_api::{
     CapabilityBroker, ModuleSession, RuntimeBudgets, RuntimeError, SessionExecutor,
 };
@@ -48,11 +52,17 @@ enum SlotCommand {
     Mount {
         contribution_id: String,
         store: VaultStore,
+        compact: bool,
         reply: SyncSender<Result<Value, String>>,
     },
     DispatchEvent {
         mount_id: String,
         envelope_json: String,
+        reply: SyncSender<Result<Value, String>>,
+    },
+    KnowledgeCall {
+        mount_id: String,
+        request_json: String,
         reply: SyncSender<Result<Value, String>>,
     },
     Unmount {
@@ -89,38 +99,18 @@ impl SlotManager {
         }
     }
 
-    fn mount(&mut self, contribution_id: &str, store: VaultStore) -> Result<Value, String> {
+    fn mount(
+        &mut self,
+        contribution_id: &str,
+        store: VaultStore,
+        compact: bool,
+    ) -> Result<Value, String> {
         let (verified, contribution) = package_catalog::find_ui_slot(contribution_id)?;
         let manifest = verified.manifest().clone();
         let wasm_bytes = verified.module_bytes();
 
-        let vault_id = store.vault_id().to_owned();
-        let mut host = Host::new(vault_id.clone(), HOST_SUPPORTED_CAPABILITIES).map_err(text)?;
-        let installation = host
-            .register(manifest.clone(), verified.digest())
-            .map_err(text)?;
-
-        let grants: Vec<Grant> = manifest
-            .required_capabilities
-            .iter()
-            .chain(
-                manifest
-                    .optional_capabilities
-                    .iter()
-                    .filter(|cap| HOST_SUPPORTED_CAPABILITIES.contains(cap)),
-            )
-            .map(|&capability| Grant {
-                capability,
-                resource: Resource::Vault {
-                    vault_id: vault_id.clone(),
-                },
-            })
-            .collect();
-        host.replace_grants(installation, grants).map_err(text)?;
-        host.enable(installation).map_err(text)?;
-        let session = host
-            .open_negotiated_session(installation, &SUPPORTED_HOST_APIS)
-            .map_err(text)?;
+        let (mut host, session) =
+            configure_slot_host(store.vault_id(), &manifest, verified.digest())?;
         let api_version = host.session_api(&session).map_err(text)?;
 
         let required_caps = if contribution.required_capabilities.is_empty() {
@@ -164,7 +154,7 @@ impl SlotManager {
             "mount_id": mount_id,
             "generation": generation,
             "api_version": api_version,
-            "compact": false,
+            "compact": compact,
         }))
         .map_err(text)?;
 
@@ -285,6 +275,16 @@ impl SlotManager {
         }))
     }
 
+    fn knowledge_call(&mut self, mount_id: &str, request_json: &str) -> Result<Value, String> {
+        let entry = self
+            .slots
+            .get_mut(mount_id)
+            .ok_or_else(|| format!("slot `{mount_id}` is not mounted"))?;
+        let req = CoreKnowledgeRequest::from_slice(request_json.as_bytes()).map_err(text)?;
+        let response = dispatch_core_knowledge(&mut entry.host, &entry.session, &entry.store, &req);
+        serde_json::to_value(&response).map_err(text)
+    }
+
     fn unmount(&mut self, mount_id: &str) -> Result<Value, String> {
         self.slots.remove(mount_id);
         let _ = self.ui_host.unmount_slot(mount_id);
@@ -305,6 +305,96 @@ impl SlotManager {
     }
 }
 
+fn configure_slot_host(
+    vault_id: &str,
+    manifest: &Manifest,
+    digest: &str,
+) -> Result<(Host, Session), String> {
+    let mut host = Host::new(vault_id.to_owned(), HOST_SUPPORTED_CAPABILITIES).map_err(text)?;
+    for cap in STANDARD_ORTHOGONAL_CAPABILITIES {
+        let cap_id = CapabilityId::parse_with_code(cap, ErrorCode::InvalidRequest).map_err(text)?;
+        host.configure_orthogonal_support(cap_id, 1, 0)
+            .map_err(text)?;
+    }
+
+    let installation = host.register(manifest.clone(), digest).map_err(text)?;
+
+    let grants: Vec<Grant> = manifest
+        .required_capabilities
+        .iter()
+        .chain(
+            manifest
+                .optional_capabilities
+                .iter()
+                .filter(|cap| HOST_SUPPORTED_CAPABILITIES.contains(cap)),
+        )
+        .map(|&capability| Grant {
+            capability,
+            resource: Resource::Vault {
+                vault_id: vault_id.to_owned(),
+            },
+        })
+        .collect();
+    host.replace_grants(installation, grants).map_err(text)?;
+
+    let orthogonal_grants: Vec<OrthogonalGrant> = manifest
+        .effective_orthogonal_requirements()
+        .into_iter()
+        .filter(|req| {
+            host.supported_orthogonal()
+                .get(&req.id)
+                .is_some_and(|&(host_major, host_max_minor)| {
+                    req.negotiate_minor(host_major, host_max_minor).is_some()
+                })
+        })
+        .map(|req| OrthogonalGrant {
+            capability: req.id,
+            min_minor: req.min_minor,
+            resource: Resource::Vault {
+                vault_id: vault_id.to_owned(),
+            },
+        })
+        .collect();
+    host.replace_orthogonal_grants(installation, orthogonal_grants)
+        .map_err(text)?;
+
+    host.enable(installation).map_err(text)?;
+    let session = host
+        .open_negotiated_session(installation, &SUPPORTED_HOST_APIS)
+        .map_err(text)?;
+    Ok((host, session))
+}
+
+fn dispatch_core_knowledge(
+    host: &mut Host,
+    session: &Session,
+    store: &VaultStore,
+    req: &CoreKnowledgeRequest,
+) -> CoreKnowledgeResponse {
+    let resource = Resource::Vault {
+        vault_id: store.vault_id().to_owned(),
+    };
+    let permit = match host.authorize_core_knowledge(session, req, resource) {
+        Ok(permit) => permit,
+        Err(error) => {
+            return CoreKnowledgeResponse {
+                request_id: req.request_id.clone(),
+                result: CoreKnowledgeResult::Error { error },
+            };
+        }
+    };
+    match host.dispatch_orthogonal(permit, |ctx| {
+        let mut bridge = core_facade::new_orthogonal_bridge(store);
+        Ok(bridge.respond_authorized(req, ctx))
+    }) {
+        Ok(response) => response,
+        Err(error) => CoreKnowledgeResponse {
+            request_id: req.request_id.clone(),
+            result: CoreKnowledgeResult::Error { error },
+        },
+    }
+}
+
 struct SlotBroker<'a> {
     host: &'a mut Host,
     session: &'a Session,
@@ -313,6 +403,11 @@ struct SlotBroker<'a> {
 
 impl CapabilityBroker for SlotBroker<'_> {
     fn call(&mut self, request_bytes: &[u8]) -> Result<Vec<u8>, RuntimeError> {
+        if let Ok(req) = CoreKnowledgeRequest::from_slice(request_bytes) {
+            let response = dispatch_core_knowledge(self.host, self.session, self.store, &req);
+            return serde_json::to_vec(&response).map_err(|_| RuntimeError::new("invalid_output"));
+        }
+
         if let Ok(req) = VocabRequest::from_slice(request_bytes) {
             let permit = match self.host.authorize_vocab(self.session, &req) {
                 Ok(permit) => permit,
@@ -375,9 +470,10 @@ fn spawn_actor() -> Result<Sender<SlotCommand>, String> {
                     SlotCommand::Mount {
                         contribution_id,
                         store,
+                        compact,
                         reply,
                     } => {
-                        let _ = reply.send(manager.mount(&contribution_id, store));
+                        let _ = reply.send(manager.mount(&contribution_id, store, compact));
                     }
                     SlotCommand::DispatchEvent {
                         mount_id,
@@ -385,6 +481,13 @@ fn spawn_actor() -> Result<Sender<SlotCommand>, String> {
                         reply,
                     } => {
                         let _ = reply.send(manager.dispatch_event(&mount_id, &envelope_json));
+                    }
+                    SlotCommand::KnowledgeCall {
+                        mount_id,
+                        request_json,
+                        reply,
+                    } => {
+                        let _ = reply.send(manager.knowledge_call(&mount_id, &request_json));
                     }
                     SlotCommand::Unmount { mount_id, reply } => {
                         let _ = reply.send(manager.unmount(&mount_id));
@@ -451,13 +554,14 @@ fn runtime_budgets() -> RuntimeBudgets {
     }
 }
 
-fn mount_slot_inner(sys: &System, contribution_id: &str) -> Result<Value, String> {
+fn mount_slot_inner(sys: &System, contribution_id: &str, compact: bool) -> Result<Value, String> {
     runtime::ensure_contribution_active(sys, contribution_id)?;
     let store = runtime::core_handle(sys)?;
     let (reply_tx, reply_rx) = mpsc::sync_channel(1);
     send_command(|| SlotCommand::Mount {
         contribution_id: contribution_id.to_owned(),
         store,
+        compact,
         reply: reply_tx,
     })?;
     reply_rx
@@ -470,6 +574,18 @@ fn dispatch_event_inner(mount_id: &str, envelope_json: &str) -> Result<Value, St
     send_command(|| SlotCommand::DispatchEvent {
         mount_id: mount_id.to_owned(),
         envelope_json: envelope_json.to_owned(),
+        reply: reply_tx,
+    })?;
+    reply_rx
+        .recv()
+        .map_err(|_| "plugin slot actor closed unexpectedly".to_string())?
+}
+
+fn slot_knowledge_call_inner(mount_id: &str, request_json: &str) -> Result<Value, String> {
+    let (reply_tx, reply_rx) = mpsc::sync_channel(1);
+    send_command(|| SlotCommand::KnowledgeCall {
+        mount_id: mount_id.to_owned(),
+        request_json: request_json.to_owned(),
         reply: reply_tx,
     })?;
     reply_rx
@@ -496,12 +612,24 @@ pub struct PluginSlotHost;
 impl PluginSlotHost {
     /// Mount any active verified package contribution of kind `ui_slot`.
     pub fn mount_slot(sys: System, contribution_id: String) -> String {
-        answer(mount_slot_inner(&sys, &contribution_id))
+        answer(mount_slot_inner(&sys, &contribution_id, false))
+    }
+
+    /// Mount any active verified package contribution of kind `ui_slot` with an
+    /// explicit `compact` viewport hint passed to the plugin `render_slot` entrypoint.
+    pub fn mount_slot_compact(sys: System, contribution_id: String, compact: bool) -> String {
+        answer(mount_slot_inner(&sys, &contribution_id, compact))
     }
 
     /// Forward a generation-fenced `UiEventEnvelope` JSON payload to a mounted slot.
     pub fn dispatch_event(_sys: System, mount_id: String, envelope_json: String) -> String {
         answer(dispatch_event_inner(&mount_id, &envelope_json))
+    }
+
+    /// Execute one Host-authorized orthogonal `CoreKnowledgeRequest` JSON payload
+    /// in the mounted slot's `Host` session (used by controlled document surfaces).
+    pub fn slot_knowledge_call(_sys: System, mount_id: String, request_json: String) -> String {
+        answer(slot_knowledge_call_inner(&mount_id, &request_json))
     }
 
     /// Unmount a previously mounted UI slot and release its Wasm session.
@@ -530,5 +658,237 @@ fn answer(result: Result<Value, String>) -> String {
     match result {
         Ok(value) => json!({ "ok": true, "value": value }).to_string(),
         Err(error) => json!({ "ok": false, "error": error }).to_string(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use extension_api::{
+        ApiError, ApiRange, HOST_API_V0_8, PackageVersion,
+        orthogonal::{
+            CAP_CORE_CAPTURE_PROPOSE, CAP_CORE_KNOWLEDGE_READ, CAP_CORE_KNOWLEDGE_WRITE,
+            CAP_HOST_UI_SLOT, CORE_KNOWLEDGE_PROTOCOL, CapabilityRequirement,
+            CoreKnowledgeOperation, DocumentFormat,
+        },
+    };
+    use std::{
+        fs,
+        path::PathBuf,
+        sync::atomic::{AtomicU64, Ordering},
+    };
+
+    static TEST_SEQ: AtomicU64 = AtomicU64::new(0);
+
+    struct TempDir(PathBuf);
+
+    impl TempDir {
+        fn new() -> Self {
+            let dir = std::env::temp_dir().join(format!(
+                "qusor-plugin-slot-unit-{}-{}",
+                std::process::id(),
+                TEST_SEQ.fetch_add(1, Ordering::Relaxed)
+            ));
+            fs::create_dir_all(&dir).unwrap();
+            Self(dir)
+        }
+    }
+
+    impl Drop for TempDir {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.0);
+        }
+    }
+
+    fn cap_req(id: &str) -> CapabilityRequirement {
+        CapabilityRequirement {
+            id: CapabilityId::parse(id).unwrap(),
+            major: 1,
+            min_minor: 0,
+            max_minor: None,
+            optional: false,
+        }
+    }
+
+    fn call_broker(
+        broker: &mut SlotBroker<'_>,
+        request_id: &str,
+        operation: CoreKnowledgeOperation,
+    ) -> CoreKnowledgeResponse {
+        let req = CoreKnowledgeRequest {
+            protocol_version: CORE_KNOWLEDGE_PROTOCOL,
+            api_version: HOST_API_V0_8,
+            request_id: request_id.to_owned(),
+            operation,
+        };
+        let bytes = serde_json::to_vec(&req).unwrap();
+        let reply = broker
+            .call(&bytes)
+            .expect("orthogonal auth failure must return structured CoreKnowledgeResponse");
+        serde_json::from_slice(&reply).unwrap()
+    }
+
+    #[test]
+    fn slot_host_registers_orthogonal_capabilities_and_blocks_write_on_readonly_v1_manifest() {
+        let dir = TempDir::new();
+        let store = VaultStore::open_app_for_vault(&dir.0, "slot-vault").unwrap();
+        let manifest = Manifest {
+            manifest_version: 1,
+            package_id: "org.test.readonly".to_owned(),
+            publisher_id: "org.test".to_owned(),
+            package_version: PackageVersion {
+                major: 1,
+                minor: 0,
+                patch: 0,
+            },
+            host_api: ApiRange {
+                major: 0,
+                min_minor: 7,
+                max_minor: 8,
+            },
+            required_capabilities: vec![
+                Capability::NotesRead,
+                Capability::LibraryRead,
+                Capability::UiSlot,
+            ],
+            optional_capabilities: vec![],
+            contributions: vec![],
+            orthogonal_capabilities: vec![],
+            provides: vec![],
+            requires: vec![],
+        };
+        let digest = "a".repeat(64);
+        let (mut host, session) =
+            configure_slot_host(store.vault_id(), &manifest, &digest).unwrap();
+
+        for cap in STANDARD_ORTHOGONAL_CAPABILITIES {
+            let id = CapabilityId::parse(cap).unwrap();
+            assert_eq!(host.supported_orthogonal().get(&id), Some(&(1, 0)));
+        }
+
+        let mut broker = SlotBroker {
+            host: &mut host,
+            session: &session,
+            store: &store,
+        };
+
+        let read_resp = call_broker(
+            &mut broker,
+            "req-ro-docs",
+            CoreKnowledgeOperation::DocumentsPage {
+                format: None,
+                cursor: None,
+                limit: 8,
+            },
+        );
+        assert!(matches!(
+            read_resp.result,
+            CoreKnowledgeResult::DocumentsPage { ref documents, .. } if documents.is_empty()
+        ));
+
+        // Read-only legacy manifest must NOT receive silent core.knowledge.write grant,
+        // and SlotBroker must return structured PermissionDenied instead of aborting Wasm.
+        let write_resp = call_broker(
+            &mut broker,
+            "req-ro-write",
+            CoreKnowledgeOperation::UpdateCaptureNote {
+                format: DocumentFormat::Epub,
+                capture_id: 1,
+                note: "denied".to_owned(),
+            },
+        );
+        assert!(matches!(
+            write_resp.result,
+            CoreKnowledgeResult::Error {
+                error: ApiError {
+                    code: ErrorCode::PermissionDenied,
+                    ..
+                }
+            }
+        ));
+    }
+
+    #[test]
+    fn slot_host_v2_orthogonal_manifest_routes_read_write_and_capture() {
+        let dir = TempDir::new();
+        let store = VaultStore::open_app_for_vault(&dir.0, "slot-vault-v2").unwrap();
+        let manifest = Manifest {
+            manifest_version: 2,
+            package_id: "org.test.reader".to_owned(),
+            publisher_id: "org.test".to_owned(),
+            package_version: PackageVersion {
+                major: 1,
+                minor: 0,
+                patch: 0,
+            },
+            host_api: ApiRange {
+                major: 0,
+                min_minor: 8,
+                max_minor: 8,
+            },
+            required_capabilities: vec![],
+            optional_capabilities: vec![],
+            contributions: vec![],
+            orthogonal_capabilities: vec![
+                cap_req(CAP_CORE_KNOWLEDGE_READ),
+                cap_req(CAP_CORE_KNOWLEDGE_WRITE),
+                cap_req(CAP_CORE_CAPTURE_PROPOSE),
+                cap_req(CAP_HOST_UI_SLOT),
+            ],
+            provides: vec![],
+            requires: vec![],
+        };
+        let digest = "b".repeat(64);
+        let (mut host, session) =
+            configure_slot_host(store.vault_id(), &manifest, &digest).unwrap();
+        let mut broker = SlotBroker {
+            host: &mut host,
+            session: &session,
+            store: &store,
+        };
+
+        // Write passes Host authorization and reaches OrthogonalKnowledgeBridge + VaultStore.
+        let upd_resp = call_broker(
+            &mut broker,
+            "req-v2-write",
+            CoreKnowledgeOperation::UpdateCaptureNote {
+                format: DocumentFormat::Epub,
+                capture_id: 999,
+                note: "hello".to_owned(),
+            },
+        );
+        assert!(matches!(
+            upd_resp.result,
+            CoreKnowledgeResult::Error {
+                error: ApiError {
+                    code: ErrorCode::NotFound,
+                    ..
+                }
+            }
+        ));
+
+        // Capture passes Host authorization and reaches OrthogonalKnowledgeBridge + VaultStore.
+        let cap_resp = call_broker(
+            &mut broker,
+            "req-v2-cap",
+            CoreKnowledgeOperation::CaptureEpubSelection {
+                operation_id: "op-slot-cap-1".to_owned(),
+                document_id: 999,
+                chapter_index: 0,
+                start: 0,
+                end: 4,
+                quote: "ignored".to_owned(),
+                note: "note".to_owned(),
+            },
+        );
+        assert!(matches!(
+            cap_resp.result,
+            CoreKnowledgeResult::Error {
+                error: ApiError {
+                    code: ErrorCode::NotFound,
+                    ..
+                }
+            }
+        ));
     }
 }

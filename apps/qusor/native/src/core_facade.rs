@@ -40,12 +40,18 @@ use learning_application::{
     study::StudyApplication,
 };
 use qusor_app_bridges::{
-    library_bridge::LibraryReadBridge, notes_bridge::NotesReadBridge, vocab_bridge::VocabBridge,
+    library_bridge::LibraryReadBridge, notes_bridge::NotesReadBridge,
+    orthogonal_bridge::OrthogonalKnowledgeBridge, vocab_bridge::VocabBridge,
 };
 
 // ---------------------------------------------------------------------------
 // 1. Authorized Host Wire Bridges
 // ---------------------------------------------------------------------------
+
+/// Build the Host-gated orthogonal Core Knowledge wire adapter bound to `store.vault_id()`.
+pub(crate) fn new_orthogonal_bridge(store: &VaultStore) -> OrthogonalKnowledgeBridge<VaultStore> {
+    OrthogonalKnowledgeBridge::new(KnowledgeApplication::new(store.clone()), store.vault_id())
+}
 
 /// Build the Host-gated Library wire adapter bound to `store.vault_id()`.
 pub(crate) fn new_library_bridge(store: &VaultStore) -> LibraryReadBridge<VaultStore> {
