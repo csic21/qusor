@@ -70,6 +70,9 @@ fn manifest(min_minor: u16, max_minor: u16) -> Manifest {
             kind: ContributionKind::VocabWorkspace,
             required_capabilities: vec![Capability::VocabRead],
         }],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     }
 }
 

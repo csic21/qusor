@@ -1,6 +1,6 @@
 use extension_api::{
     ApiRange, ApiVersion, Capability, CapabilityRequest, ContributionKind, ErrorCode, HOST_API,
-    HOST_API_V0_2, HOST_API_V0_5, HOST_API_V0_6, HOST_API_V0_7, Manifest, Resource,
+    HOST_API_V0_2, HOST_API_V0_5, HOST_API_V0_6, HOST_API_V0_7, HOST_API_V0_8, Manifest, Resource,
     SUPPORTED_HOST_APIS, capability_available_in, capability_resource_valid,
     invocation::{INVOCATION_PROTOCOL, InvocationRequest},
     is_supported_api,
@@ -72,10 +72,11 @@ fn explicit_support_set_and_manifest_vocabulary_prevent_silent_legacy_upgrade() 
     assert!(is_supported_api(HOST_API_V0_5));
     assert!(is_supported_api(HOST_API_V0_6));
     assert!(is_supported_api(HOST_API_V0_7));
+    assert!(is_supported_api(HOST_API_V0_8));
     for bad in [
         vec![],
         vec![HOST_API, HOST_API],
-        vec![ApiVersion { major: 0, minor: 8 }],
+        vec![ApiVersion { major: 0, minor: 9 }],
     ] {
         assert_eq!(
             validate_supported_apis(&bad).unwrap_err().code,

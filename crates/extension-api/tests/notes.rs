@@ -75,6 +75,9 @@ fn notes_manifest(min_minor: u16) -> Manifest {
             kind: ContributionKind::NotesWorkspace,
             required_capabilities: vec![Capability::NotesRead],
         }],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     }
 }
 

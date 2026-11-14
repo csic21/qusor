@@ -89,10 +89,12 @@ manifest = "crates/extension-ports/Cargo.toml"
 allowed_dependencies = ["extension-api"]
 allowed_transitive_dependencies = ["base64", "extension-api", "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]
 
+# ADR 0038 / 0049: capability-composition provides pure acyclic service dependency planning
+# for ExtensionRouter (`provides`/`requires`) without introducing storage/runtime/UI deps.
 [packages.extension-host]
 manifest = "crates/extension-host/Cargo.toml"
-allowed_dependencies = ["extension-api", "extension-ports"]
-allowed_transitive_dependencies = ["base64", "extension-api", "extension-ports", "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]
+allowed_dependencies = ["capability-composition", "extension-api", "extension-ports"]
+allowed_transitive_dependencies = ["base64", "capability-composition", "extension-api", "extension-ports", "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]
 
 # ADR 0021: pure signed-package format, immutable content and bound-key verification.
 # No installation state, filesystem, Host or execution dependency.

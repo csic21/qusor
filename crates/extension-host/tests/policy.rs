@@ -32,6 +32,9 @@ fn manifest() -> Manifest {
                 required_capabilities: vec![Capability::CapturePropose],
             },
         ],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     }
 }
 fn selection(vault: &str, id: &str) -> Resource {

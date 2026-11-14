@@ -24,6 +24,9 @@ fn manifest() -> Manifest {
             kind: ContributionKind::LibraryWorkspace,
             required_capabilities: vec![Capability::LibraryRead, Capability::CapturePropose],
         }],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     }
 }
 

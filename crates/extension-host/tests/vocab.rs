@@ -24,6 +24,9 @@ fn manifest(required: &[Capability], optional: &[Capability]) -> Manifest {
             kind: ContributionKind::VocabWorkspace,
             required_capabilities: vec![Capability::VocabRead],
         }],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     }
 }
 

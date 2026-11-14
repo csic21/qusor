@@ -161,6 +161,9 @@ fn build_pkg(
         required_capabilities: required,
         optional_capabilities: optional,
         contributions: vec![],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     };
     let mut wasm = b"\0asm\x01\0\0\0".to_vec();
     wasm.extend_from_slice(wasm_tag);

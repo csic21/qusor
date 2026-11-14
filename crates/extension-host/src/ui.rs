@@ -1321,6 +1321,9 @@ mod tests {
                 kind: ContributionKind::UiSlot,
                 required_capabilities: vec![Capability::UiSlot],
             }],
+            orthogonal_capabilities: vec![],
+            provides: vec![],
+            requires: vec![],
         };
         let reg = UiSlotRegistration {
             slot_protocol: UI_SLOT_PROTOCOL,
@@ -1405,6 +1408,9 @@ mod tests {
                 kind: ContributionKind::UiSlot,
                 required_capabilities: vec![Capability::UiSlot],
             }],
+            orthogonal_capabilities: vec![],
+            provides: vec![],
+            requires: vec![],
         };
         assert_eq!(
             manifest.validate().unwrap_err().code,

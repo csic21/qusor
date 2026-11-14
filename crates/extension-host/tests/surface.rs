@@ -36,6 +36,9 @@ fn manifest(name: &str) -> Manifest {
             kind: ContributionKind::ReaderWorkspace,
             required_capabilities: vec![Capability::ReaderSurface],
         }],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     }
 }
 fn request(operation: SurfaceOperation) -> SurfaceRequest {

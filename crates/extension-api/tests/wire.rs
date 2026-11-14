@@ -100,7 +100,7 @@ fn manifest_parsing_keeps_host_compatibility_separate_from_structure() {
         manifest.validate().unwrap_err().code,
         ErrorCode::InvalidManifest
     );
-    manifest.manifest_version = 2;
+    manifest.manifest_version = 3;
     assert_eq!(
         manifest.validate().unwrap_err().code,
         ErrorCode::UnsupportedVersion
@@ -109,14 +109,14 @@ fn manifest_parsing_keeps_host_compatibility_separate_from_structure() {
 
 #[test]
 fn request_requires_the_implemented_protocol_version() {
-    for minor in 1..=7 {
+    for minor in 1..=8 {
         let mut request = request();
         request.api_version = ApiVersion { major: 0, minor };
         request.validate().unwrap();
     }
     for version in [
         ApiVersion { major: 0, minor: 0 },
-        ApiVersion { major: 0, minor: 8 },
+        ApiVersion { major: 0, minor: 9 },
         ApiVersion { major: 1, minor: 1 },
     ] {
         let mut request = request();

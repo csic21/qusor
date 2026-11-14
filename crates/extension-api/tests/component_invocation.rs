@@ -55,7 +55,7 @@ fn unknown_fields_cannot_supply_identity_or_approval() {
 }
 #[test]
 fn versions_tags_and_ascii_ids_are_closed() {
-    for minor in [0, 1, 2, 8] {
+    for minor in [0, 1, 2, 9] {
         let mut r = request();
         r.api_version.minor = minor;
         assert_eq!(
