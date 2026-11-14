@@ -9,8 +9,12 @@ use core_api::{
     },
     knowledge::Provenance,
 };
-use extension_api::{ApiError, Capability, HOST_API_V0_7, Resource, library::*};
-use extension_host::{Grant, Host, Session};
+use extension_api::{
+    ApiError, Capability, ErrorCode, Resource, SUPPORTED_HOST_APIS,
+    library::*,
+    orthogonal::{CapabilityId, STANDARD_ORTHOGONAL_CAPABILITIES},
+};
+use extension_host::{Grant, Host, OrthogonalGrant, Session};
 use learning_application::epub_library::{EpubSelectionRange, MAX_EPUB_TEXT_CHUNK};
 use nsh_core::prelude::*;
 use qusor_app_bridges::library_bridge::LibraryReadBridge;
@@ -33,10 +37,7 @@ pub(crate) struct LibraryRuntime {
 impl LibraryRuntime {
     #[cfg(test)]
     pub(crate) fn mount(store: VaultStore) -> Result<Self, String> {
-        let verified = package_catalog::verify_for_contribution(
-            extension_api::ContributionKind::LibraryWorkspace,
-        )?;
-        Self::mount_verified(store, verified)
+        Self::mount_for_package(store, "org.qusor.library")
     }
 
     pub(crate) fn mount_for_package(store: VaultStore, package_id: &str) -> Result<Self, String> {
@@ -52,33 +53,58 @@ impl LibraryRuntime {
         let vault_id = store.vault_id();
         let mut host = Host::new(
             vault_id,
-            [Capability::LibraryRead, Capability::CapturePropose],
-        )
-        .map_err(text)?;
-        let installation = host
-            .register(verified.manifest().clone(), verified.digest())
-            .map_err(text)?;
-        host.replace_grants(
-            installation,
-            vec![
-                Grant {
-                    capability: Capability::LibraryRead,
-                    resource: Resource::Vault {
-                        vault_id: vault_id.to_owned(),
-                    },
-                },
-                Grant {
-                    capability: Capability::CapturePropose,
-                    resource: Resource::Vault {
-                        vault_id: vault_id.to_owned(),
-                    },
-                },
+            [
+                Capability::LibraryRead,
+                Capability::CapturePropose,
+                Capability::UiSlot,
             ],
         )
         .map_err(text)?;
+        for cap in STANDARD_ORTHOGONAL_CAPABILITIES {
+            let cap_id =
+                CapabilityId::parse_with_code(cap, ErrorCode::InvalidRequest).map_err(text)?;
+            host.configure_orthogonal_support(cap_id, 1, 0)
+                .map_err(text)?;
+        }
+        let installation = host
+            .register(verified.manifest().clone(), verified.digest())
+            .map_err(text)?;
+        let declared_grants: Vec<Grant> = [
+            Capability::LibraryRead,
+            Capability::CapturePropose,
+            Capability::UiSlot,
+        ]
+        .into_iter()
+        .filter(|cap| {
+            verified.manifest().required_capabilities.contains(cap)
+                || verified.manifest().optional_capabilities.contains(cap)
+        })
+        .map(|capability| Grant {
+            capability,
+            resource: Resource::Vault {
+                vault_id: vault_id.to_owned(),
+            },
+        })
+        .collect();
+        host.replace_grants(installation, declared_grants)
+            .map_err(text)?;
+        let orthogonal_grants: Vec<OrthogonalGrant> = verified
+            .manifest()
+            .effective_orthogonal_requirements()
+            .into_iter()
+            .map(|req| OrthogonalGrant {
+                capability: req.id,
+                min_minor: req.min_minor,
+                resource: Resource::Vault {
+                    vault_id: vault_id.to_owned(),
+                },
+            })
+            .collect();
+        host.replace_orthogonal_grants(installation, orthogonal_grants)
+            .map_err(text)?;
         host.enable(installation).map_err(text)?;
         let session = host
-            .open_session_for_api(installation, HOST_API_V0_7)
+            .open_negotiated_session(installation, &SUPPORTED_HOST_APIS)
             .map_err(text)?;
         let installation_id = i64::try_from(installation.sequence()).map_err(text)?;
         let provenance = Provenance {
@@ -119,9 +145,10 @@ impl LibraryRuntime {
     }
 
     fn page(&mut self, cursor: Option<String>, limit: u16) -> Result<Value, String> {
+        let api_version = self.host.session_api(&self.session).map_err(text)?;
         let request = LibraryRequest {
             library_protocol: LIBRARY_PROTOCOL,
-            api_version: HOST_API_V0_7,
+            api_version,
             request_id: "workbench-library-page".into(),
             operation: LibraryOperation::Page { cursor, limit },
         };
@@ -159,9 +186,10 @@ impl LibraryRuntime {
         offset: u32,
         max_bytes: u16,
     ) -> Result<Value, String> {
+        let api_version = self.host.session_api(&self.session).map_err(text)?;
         let request = LibraryRequest {
             library_protocol: LIBRARY_PROTOCOL,
-            api_version: HOST_API_V0_7,
+            api_version,
             request_id: "workbench-library-page-text".into(),
             operation: LibraryOperation::PageText {
                 document_id,
@@ -214,9 +242,10 @@ impl LibraryRuntime {
         note: String,
         operation_id: String,
     ) -> Result<Value, String> {
+        let api_version = self.host.session_api(&self.session).map_err(text)?;
         let request = LibraryRequest {
             library_protocol: LIBRARY_PROTOCOL,
-            api_version: HOST_API_V0_7,
+            api_version,
             request_id: operation_id,
             operation: LibraryOperation::CaptureSelection {
                 document_id,
@@ -254,9 +283,10 @@ impl LibraryRuntime {
     }
 
     fn saved_selections(&mut self, document_id: i64, page_index: u32) -> Result<Value, String> {
+        let api_version = self.host.session_api(&self.session).map_err(text)?;
         let request = LibraryRequest {
             library_protocol: LIBRARY_PROTOCOL,
-            api_version: HOST_API_V0_7,
+            api_version,
             request_id: "workbench-library-saved-selections".into(),
             operation: LibraryOperation::SavedSelections {
                 document_id,
@@ -304,16 +334,14 @@ impl LibraryRuntime {
 
     fn delete_document(&mut self, document_id: i64, format: &str) -> Result<Value, String> {
         match format {
-            "pdf" => core_facade::legacy_plugin_bypass::delete_pdf_document(
-                &self.store,
-                document_id,
-            )
-            .map_err(text)?,
-            "epub" => core_facade::legacy_plugin_bypass::delete_epub_document(
-                &self.store,
-                document_id,
-            )
-            .map_err(text)?,
+            "pdf" => {
+                core_facade::legacy_plugin_bypass::delete_pdf_document(&self.store, document_id)
+                    .map_err(text)?
+            }
+            "epub" => {
+                core_facade::legacy_plugin_bypass::delete_epub_document(&self.store, document_id)
+                    .map_err(text)?
+            }
             _ => return Err("unknown document format".into()),
         }
         Ok(json!({
@@ -326,12 +354,9 @@ impl LibraryRuntime {
     fn epub_page(&self, cursor: String, limit: u16) -> Result<Value, String> {
         let after = (!cursor.is_empty()).then_some(cursor.as_str());
         let page_limit = usize::from(limit).clamp(1, MAX_LIBRARY_PAGE.into());
-        let page = core_facade::legacy_plugin_bypass::epub_documents_page(
-            &self.store,
-            after,
-            page_limit,
-        )
-        .map_err(text)?;
+        let page =
+            core_facade::legacy_plugin_bypass::epub_documents_page(&self.store, after, page_limit)
+                .map_err(text)?;
         let items = page
             .documents
             .into_iter()
@@ -1031,17 +1056,13 @@ mod tests {
             .unwrap();
         assert_eq!(updated["updated"], true);
 
-        let body = notes
-            .epub_body(capture_id, "note".into(), 0, 1024)
-            .unwrap();
+        let body = notes.epub_body(capture_id, "note".into(), 0, 1024).unwrap();
         assert_eq!(body["text"], "Edited EPUB note");
 
         let deleted_note = notes.delete_note(capture_id, "epub".into()).unwrap();
         assert_eq!(deleted_note["deleted"], true);
         assert!(
-            notes
-                .epub_notes_page(String::new(), 10)
-                .unwrap()["notes"]
+            notes.epub_notes_page(String::new(), 10).unwrap()["notes"]
                 .as_array()
                 .unwrap()
                 .is_empty()
@@ -1050,9 +1071,7 @@ mod tests {
         let deleted_doc = library.delete_document(document_id, "epub").unwrap();
         assert_eq!(deleted_doc["deleted"], true);
         assert!(
-            library
-                .epub_page(String::new(), 10)
-                .unwrap()["items"]
+            library.epub_page(String::new(), 10).unwrap()["items"]
                 .as_array()
                 .unwrap()
                 .is_empty()

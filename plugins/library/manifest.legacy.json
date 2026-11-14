@@ -1,0 +1,30 @@
+{
+  "manifest_version": 1,
+  "package_id": "org.qusor.library",
+  "publisher_id": "org.qusor",
+  "package_version": {
+    "major": 0,
+    "minor": 1,
+    "patch": 0
+  },
+  "host_api": {
+    "major": 0,
+    "min_minor": 7,
+    "max_minor": 7
+  },
+  "required_capabilities": [
+    "library.read",
+    "capture.propose"
+  ],
+  "optional_capabilities": [],
+  "contributions": [
+    {
+      "id": "org.qusor.library.workspace",
+      "title": "资料库",
+      "kind": "library_workspace",
+      "required_capabilities": [
+        "library.read"
+      ]
+    }
+  ]
+}
