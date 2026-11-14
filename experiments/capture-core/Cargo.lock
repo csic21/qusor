@@ -66,6 +66,7 @@ dependencies = [
  "core-api",
  "fs2",
  "libc",
+ "rustix",
 ]
 
 [[package]]
@@ -262,6 +263,7 @@ name = "extension-host"
 version = "0.0.0"
 dependencies = [
  "extension-api",
+ "extension-ports",
 ]
 
 [[package]]
@@ -276,6 +278,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "extension-ports"
+version = "0.0.0"
+dependencies = [
+ "extension-api",
+]
+
+[[package]]
 name = "extension-runtime-api"
 version = "0.0.0"
 dependencies = [
@@ -287,8 +296,8 @@ name = "extension-store"
 version = "0.0.0"
 dependencies = [
  "extension-api",
- "extension-host",
  "extension-package",
+ "extension-ports",
  "extension-runtime-api",
  "fs2",
  "libc",

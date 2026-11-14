@@ -561,7 +561,7 @@ fn metadata(
         window: snapshot
             .window
             .map(|w| {
-                Ok(wire::ProjectionWindow {
+                Ok::<_, ApiError>(wire::ProjectionWindow {
                     reached_eof: w.reached_eof,
                     rows: w
                         .rows
