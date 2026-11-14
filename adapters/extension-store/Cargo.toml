@@ -9,7 +9,7 @@ publish.workspace = true
 description = "QUSOR durable extension package, grant material, private pairs and worker leases."
 
 [dependencies]
-extension-host = { path = "../../crates/extension-host" }
+extension-ports = { path = "../../crates/extension-ports" }
 extension-api = { path = "../../crates/extension-api" }
 extension-package = { path = "../../crates/extension-package" }
 extension-runtime-api = { path = "../../crates/extension-runtime-api" }

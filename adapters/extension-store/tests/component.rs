@@ -6,10 +6,10 @@
 #![cfg(unix)]
 
 use extension_api::{HOST_API_V0_3, Manifest};
-use extension_host::durable::{AuthorityRead, ComponentAuthoritySource};
 use extension_package::package::{
     PackageFile, VerifiedPackage, build_signed_for_host, publisher_key, verify_for_host,
 };
+use extension_ports::{AuthorityRead, ComponentAuthoritySource};
 use extension_store::Store;
 use std::{
     fs,
@@ -125,12 +125,7 @@ fn missing_signed_descriptor_cannot_bind_or_advance_installation() {
 }
 
 #[test]
-fn real_store_mount_rechecks_management_and_cannot_resume_without_new_intent() {
-    use extension_api::{
-        Capability, Resource,
-        draft::{DRAFT_PROTOCOL, DraftOperation, DraftRequest},
-    };
-    use extension_host::durable::{DurableHost, UserMountIntent};
+fn component_store_stop_advances_generation_without_persisting_draft_grant() {
     let scratch = Scratch::new();
     let mut store = Store::open_for_host(&scratch.0.join("store"), &[HOST_API_V0_3]).unwrap();
     let installed = store.install("install", 0, &package(true)).unwrap();
@@ -140,57 +135,15 @@ fn real_store_mount_rechecks_management_and_cannot_resume_without_new_intent() {
     let facts = store
         .component_installation("ordinary.editor", AuthorityRead::Activation)
         .unwrap();
-    let resource = Resource::Draft {
-        vault_id: "vault".into(),
-        draft_id: "1".repeat(32),
-    };
-    let mut host = DurableHost::new("vault", [Capability::NoteDraftEdit]).unwrap();
-    host.configure_component_identity([8; 16]).unwrap();
-    let mounted = host
-        .mount_component(
-            &store,
-            UserMountIntent::new(facts, resource.clone()).unwrap(),
-            1,
-        )
-        .unwrap();
-    let request = DraftRequest {
-        api_version: HOST_API_V0_3,
-        draft_protocol: DRAFT_PROTOCOL,
-        request_id: "read".into(),
-        resource,
-        mount_id: mounted.handle().mount_id().into(),
-        operation: DraftOperation::ReadChunk {
-            revision: None,
-            offset: 0,
-            max_bytes: 512,
-        },
-    };
-    host.dispatch_draft(
-        &store,
-        mounted.handle(),
-        2,
-        None,
-        request.clone(),
-        |context| {
-            assert_eq!(context.package_id, "ordinary.editor");
-            Ok(())
-        },
-    )
-    .unwrap();
-    store
+    assert_eq!(facts.generation, bound.generation);
+    let stopped = store
         .stop("stop", bound.revision, "ordinary.editor", "disable")
         .unwrap();
-    assert!(
-        host.dispatch_draft::<()>(&store, mounted.handle(), 3, None, request, |_| panic!(
-            "revoked mount reached handler"
-        ))
-        .is_err()
-    );
-    assert_eq!(host.pending_component_cleanup().len(), 1);
-    assert!(
-        host.validate_component_current(&store, mounted.handle(), 4, None)
-            .is_err()
-    );
+    assert!(stopped.generation > bound.generation);
+    let after = store
+        .component_installation("ordinary.editor", AuthorityRead::Current { run_id: None })
+        .unwrap();
+    assert_eq!(after.generation, stopped.generation);
     // No saved grant can silently reconstruct a component session after the stop.
     assert!(
         store

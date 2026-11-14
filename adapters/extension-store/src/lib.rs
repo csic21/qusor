@@ -38,6 +38,19 @@ pub struct Receipt {
     pub status: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct UpgradeReceipt {
+    pub installation: Receipt,
+    pub grants_preserved: bool,
+}
+
+enum UpgradeGrantPlan {
+    None,
+    Clear,
+    PreserveJson(String),
+}
+
 /// Dedicated local 0700 directory, single writer. Not a defense against the account owner.
 /// Grants persist as enable intent; runtime sessions remain process-local.
 /// Installation status does not claim that a runtime has started.
@@ -330,6 +343,231 @@ impl Store {
         Ok(receipt)
     }
 
+    /// Upgrade an installed package in place while preserving existing durable grants
+    /// when `required_capabilities` do not expand and API/policy compatibility hold.
+    /// Privilege expansion, API incompatibility, or expired grants clear authorization
+    /// and require explicit re-authorization before activation.
+    pub fn upgrade_package(
+        &mut self,
+        operation: &str,
+        expected: i64,
+        package: &VerifiedPackage,
+    ) -> Result<UpgradeReceipt> {
+        validate_command(operation, expected)?;
+        let input = input_hash(&(
+            "upgrade-package",
+            expected,
+            package.digest(),
+            package.publisher_key(),
+        ))?;
+        if let Some(receipt) = self.replay_upgrade(operation, &input)? {
+            return Ok(receipt);
+        }
+        self.check_budget(Some(package))?;
+        let manifest = package.manifest();
+        let binding: Option<(String, String)> = self
+            .db
+            .query_row(
+                "SELECT publisher,key FROM trust WHERE package_id=?1",
+                [&manifest.package_id],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .optional()?;
+        if binding.as_ref().is_some_and(|(publisher, key)| {
+            publisher != &manifest.publisher_id || key != package.publisher_key()
+        }) {
+            return Err(StoreError::conflict("publisher key binding conflict"));
+        }
+        let old = self.current(&manifest.package_id)?;
+        if old.status == "uninstalled" {
+            return Err(StoreError::conflict("cannot upgrade uninstalled package"));
+        }
+        self.ensure_no_pending(old.installation_id)?;
+        self.ensure_worker_access(old.installation_id, None)?;
+        if self.has_private_head(old.installation_id)? {
+            return Err(StoreError::conflict(
+                "private state requires paired upgrade",
+            ));
+        }
+        if old.revision != expected {
+            return Err(StoreError::conflict("installation revision conflict"));
+        }
+        let previous = self.current_package(&old)?;
+        if previous.publisher_key() != package.publisher_key()
+            || previous.manifest().publisher_id != manifest.publisher_id
+        {
+            return Err(StoreError::conflict("publisher key binding conflict"));
+        }
+        if manifest.package_version <= previous.manifest().package_version
+            || old.digest == package.digest()
+        {
+            return Err(StoreError::conflict(
+                "update requires newer version and different digest",
+            ));
+        }
+        let revision = checked_next(old.revision)?;
+        let generation = checked_next(old.generation)?;
+        let grant_plan = self.evaluate_upgrade_grant_plan(&old, &previous, package, generation)?;
+        let grants_preserved = matches!(grant_plan, UpgradeGrantPlan::PreserveJson(_));
+
+        self.services
+            .observer
+            .checkpoint(Checkpoint::BeforeTransaction);
+        let tx = self.db.transaction()?;
+        tx.execute(
+            "INSERT OR IGNORE INTO content VALUES (?1,?2)",
+            params![package.digest(), package.raw_bytes()],
+        )?;
+        let stored: Vec<u8> = tx.query_row(
+            "SELECT bytes FROM content WHERE digest=?1 AND length(bytes)<=?2",
+            params![package.digest(), MAX_PACKAGE_BYTES as i64],
+            |r| r.get(0),
+        )?;
+        let frozen = verify_for_host(&stored, package.publisher_key(), &self.supported_apis)?;
+        if frozen.digest() != package.digest() {
+            return Err(StoreError::corrupt("stored content digest mismatch"));
+        }
+        self.services.observer.checkpoint(Checkpoint::AfterContent);
+        match &grant_plan {
+            UpgradeGrantPlan::PreserveJson(encoded) => {
+                tx.execute(
+                    "UPDATE grants SET record=?1 WHERE installation_id=?2",
+                    params![encoded, old.installation_id],
+                )?;
+            }
+            UpgradeGrantPlan::Clear => {
+                tx.execute(
+                    "DELETE FROM grants WHERE installation_id=?1",
+                    [old.installation_id],
+                )?;
+            }
+            UpgradeGrantPlan::None => {}
+        }
+        tx.execute(
+            "UPDATE installations SET digest=?1,revision=?2,generation=?3,status='disabled' WHERE id=?4",
+            params![package.digest(), revision, generation, old.installation_id],
+        )?;
+        let receipt = UpgradeReceipt {
+            installation: Receipt {
+                operation_id: operation.into(),
+                installation_id: old.installation_id,
+                package_id: manifest.package_id.clone(),
+                digest: package.digest().into(),
+                revision,
+                generation,
+                status: "disabled".into(),
+            },
+            grants_preserved,
+        };
+        tx.execute(
+            "INSERT INTO operations VALUES (?1,?2,?3)",
+            params![operation, input, serde_json::to_string(&receipt)?],
+        )?;
+        self.services.observer.checkpoint(Checkpoint::BeforeCommit);
+        tx.commit()?;
+        self.services.observer.checkpoint(Checkpoint::AfterCommit);
+        Ok(receipt)
+    }
+
+    fn evaluate_upgrade_grant_plan(
+        &self,
+        old: &Receipt,
+        previous: &VerifiedPackage,
+        package: &VerifiedPackage,
+        new_generation: i64,
+    ) -> Result<UpgradeGrantPlan> {
+        let has_grant: bool = self.db.query_row(
+            "SELECT EXISTS(SELECT 1 FROM grants WHERE installation_id=?1)",
+            [old.installation_id],
+            |r| r.get(0),
+        )?;
+        if !has_grant {
+            return Ok(UpgradeGrantPlan::None);
+        }
+        let existing = self.saved_authorization_with_package(old, previous)?;
+        let existing_grants: Vec<extension_ports::Grant> = existing
+            .durable_grants()
+            .into_iter()
+            .map(|g| g.grant)
+            .collect();
+        let current_time = now()?;
+        let manifest = package.manifest();
+        match existing {
+            SavedAuthorization::V1(mut record) => {
+                if record.scope.expires_at <= current_time {
+                    return Ok(UpgradeGrantPlan::Clear);
+                }
+                let decision = extension_ports::preserve_grants(
+                    previous.manifest(),
+                    &old.digest,
+                    manifest,
+                    package.digest(),
+                    &existing_grants,
+                    HOST_API,
+                )?;
+                if !matches!(decision, extension_ports::GrantUpgradeDecision::Preserve(_)) {
+                    return Ok(UpgradeGrantPlan::Clear);
+                }
+                match self
+                    .services
+                    .grant_validator
+                    .validate(package, &record.scope)
+                {
+                    Ok(()) => {
+                        record.digest = package.digest().into();
+                        record.generation = new_generation;
+                        Ok(UpgradeGrantPlan::PreserveJson(serde_json::to_string(
+                            &record,
+                        )?))
+                    }
+                    Err(err) if err.code() == StoreErrorCode::External => Err(err),
+                    Err(_) => Ok(UpgradeGrantPlan::Clear),
+                }
+            }
+            SavedAuthorization::V2(mut record) => {
+                if record.scope.expires_at <= current_time {
+                    return Ok(UpgradeGrantPlan::Clear);
+                }
+                let decision = extension_ports::preserve_grants(
+                    previous.manifest(),
+                    &old.digest,
+                    manifest,
+                    package.digest(),
+                    &existing_grants,
+                    record.scope.api_version,
+                )?;
+                let extension_ports::GrantUpgradeDecision::Preserve(kept) = decision else {
+                    return Ok(UpgradeGrantPlan::Clear);
+                };
+                record.scope.grants.retain(|pg| {
+                    kept.iter()
+                        .any(|g| g.capability == pg.capability && g.resource == pg.resource)
+                });
+                if self.check_profile2(package, &record.scope).is_err() {
+                    return Ok(UpgradeGrantPlan::Clear);
+                }
+                match self
+                    .services
+                    .grant_validator
+                    .validate_set(package, &record.scope)
+                {
+                    Ok(()) => {
+                        record.digest = package.digest().into();
+                        record.generation = new_generation;
+                        let encoded = serde_json::to_string(&record)?;
+                        if encoded.len() > MAX_AUTHORIZATION_BYTES {
+                            Ok(UpgradeGrantPlan::Clear)
+                        } else {
+                            Ok(UpgradeGrantPlan::PreserveJson(encoded))
+                        }
+                    }
+                    Err(err) if err.code() == StoreErrorCode::External => Err(err),
+                    Err(_) => Ok(UpgradeGrantPlan::Clear),
+                }
+            }
+        }
+    }
+
     /// Tombstone only: retains content and history, has no access to Core knowledge.
     pub fn uninstall(
         &mut self,
@@ -613,7 +851,7 @@ impl Store {
         Ok(())
     }
 
-    fn replay(&self, operation: &str, input: &str) -> Result<Option<Receipt>> {
+    fn replay_raw(&self, operation: &str, input: &str) -> Result<Option<String>> {
         let private_used: bool = self.db.query_row("SELECT EXISTS(SELECT 1 FROM private_operations WHERE operation_id=?1) OR EXISTS(SELECT 1 FROM private_pending WHERE operation_id=?1)", [operation], |r|r.get(0))?;
         if private_used {
             return Err(StoreError::conflict(
@@ -629,12 +867,24 @@ impl Store {
             )
             .optional()?;
         match saved {
-            Some((hash, receipt)) if hash == input => Ok(Some(serde_json::from_str(&receipt)?)),
+            Some((hash, receipt)) if hash == input => Ok(Some(receipt)),
             Some(_) => Err(StoreError::conflict(
                 "operation ID reused with different input",
             )),
             None => Ok(None),
         }
+    }
+
+    fn replay(&self, operation: &str, input: &str) -> Result<Option<Receipt>> {
+        self.replay_raw(operation, input)?
+            .map(|receipt| serde_json::from_str(&receipt).map_err(Into::into))
+            .transpose()
+    }
+
+    fn replay_upgrade(&self, operation: &str, input: &str) -> Result<Option<UpgradeReceipt>> {
+        self.replay_raw(operation, input)?
+            .map(|receipt| serde_json::from_str(&receipt).map_err(Into::into))
+            .transpose()
     }
 
     fn check_budget(&self, package: Option<&VerifiedPackage>) -> Result<()> {
@@ -925,15 +1175,14 @@ mod writer_lock_tests {
     }
 }
 
-/// Map fresh durable facts to the single live Host's authorization source.
+/// Map fresh durable facts to the Host's authority-source port.
 /// The store never constructs a Host, Session or capability permit.
-impl extension_host::durable::AuthoritySource for Store {
+impl extension_ports::AuthoritySource for Store {
     fn removed_installation(
         &self,
         package_id: &str,
-    ) -> std::result::Result<extension_host::durable::RemovedInstallation, extension_api::ApiError>
-    {
-        let read = || -> Result<extension_host::durable::RemovedInstallation> {
+    ) -> std::result::Result<extension_ports::RemovedInstallation, extension_api::ApiError> {
+        let read = || -> Result<extension_ports::RemovedInstallation> {
             let item = self.current(package_id)?;
             if item.status != "uninstalled" {
                 return Err(StoreError::conflict("installation is not uninstalled"));
@@ -948,7 +1197,7 @@ impl extension_host::durable::AuthoritySource for Store {
                 [item.installation_id],
                 |row| row.get(0),
             )?;
-            Ok(extension_host::durable::RemovedInstallation {
+            Ok(extension_ports::RemovedInstallation {
                 installation_id: item.installation_id,
                 package_id: item.package_id,
                 vault_id,
@@ -966,10 +1215,9 @@ impl extension_host::durable::AuthoritySource for Store {
     fn authority_snapshot(
         &self,
         package_id: &str,
-        read: extension_host::durable::AuthorityRead<'_>,
-    ) -> std::result::Result<extension_host::durable::AuthoritySnapshot, extension_api::ApiError>
-    {
-        use extension_host::durable::{AuthorityRead, AuthoritySnapshot};
+        read: extension_ports::AuthorityRead<'_>,
+    ) -> std::result::Result<extension_ports::AuthoritySnapshot, extension_api::ApiError> {
+        use extension_ports::{AuthorityRead, AuthoritySnapshot};
         let snapshot = || -> Result<AuthoritySnapshot> {
             let run_id = match read {
                 AuthorityRead::Activation => None,

@@ -2,10 +2,10 @@
 use super::*;
 use crate::{Receipt, Store};
 use extension_api::{HOST_API, HOST_API_V0_3, Manifest, composition::*};
-use extension_host::durable::{AuthorityRead, ComponentAuthoritySource};
 use extension_package::package::{
     PackageFile, build_signed_for_host, publisher_key, verify_for_host,
 };
+use extension_ports::{AuthorityRead, ComponentAuthoritySource};
 use rusqlite::{Connection, params};
 use std::{
     fs,

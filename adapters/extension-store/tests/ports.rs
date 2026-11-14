@@ -248,7 +248,7 @@ fn migration_runs_after_durable_revocation_outside_sql_transaction() {
 
 #[test]
 fn current_authority_rechecks_binding_without_executing_private_guest() {
-    use extension_host::durable::{AuthorityRead, AuthoritySource};
+    use extension_ports::{AuthorityRead, AuthoritySource};
     let scratch = Scratch::new();
     let path = scratch.0.join("store");
     let services = Arc::new(Services {

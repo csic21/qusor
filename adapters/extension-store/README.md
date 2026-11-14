@@ -4,7 +4,7 @@
 
 原实验 schema1—4 的表、JSON 字段顺序、操作输入 hash、提交算法和预算迁入同一实现。实验 Store 仅组合本适配器与其原会话/模拟 metadata 协调器，故障标签和退出注入留在实验；生产只提供类型化 `CheckpointObserver`。`Connection`、事务、writer lock 均不公开。Linux 配置沿用私有目录、单 writer、SQLite DELETE/FULL；其他平台的持久 profile 尚未验证，`open` 明确拒绝。
 
-`open_for_host` 接收可信宿主版本集合，默认只支持0.1。安装始终禁用且不保存授权，每次 frozen action/恢复读取均重验同一批持久字节、完整摘要、发布者键与命名空间。更新和卸载清除授权材料并推进 revision/generation；重装分配新的安装 ID。操作重放只查询原回执，不重复写入或重新启用。
+`open_for_host` 接收可信宿主版本集合，默认只支持0.1。安装始终禁用且不保存授权，每次 frozen action/恢复读取均重验同一批持久字节、完整摘要、发布者键与命名空间。`install("update", ...)`、`upgrade_private` 与卸载清除授权材料并推进 revision/generation；`upgrade_package` 在版本递增、身份与 API 兼容且权限未超出既有持久授权时保留授权与 `enable_intent`，若新版本扩大 `required_capabilities` 则清除授权并要求重新授权；重装分配新的安装 ID。操作重放只查询原回执，不重复写入或重新启用。
 
 ## 可信应用端口
 
@@ -14,7 +14,7 @@
 
 默认 services 拒绝缺失的授权/私有执行服务，不自动提供模拟后端。应用必须将持久管理变更与当前 Host 授权/正式提交的门串行协调；本适配器不声称两个数据库具有分布式事务。
 
-`AuthoritySource` 向唯一的 `extension_host::durable::DurableHost` 提供新鲜持久事实：Activation 可执行启动前私有预检，Current 只重读当前安装、包/键、授权、来源版本、私有 pair 与 worker lease，不运行 guest。`resource_version` 保留旧持续授权的精确版本语义；实际 broker 用可信 Core resolver 的当前版本复核。快照与原始 grant 都不是能力许可，不能绕过 Host。
+`extension_ports::AuthoritySource` 经 `extension-ports` 解耦向唯一的 `extension_host::durable::DurableHost` 提供新鲜持久事实（本适配器不再依赖 `extension-host`）：Activation 可执行启动前私有预检，Current 只重读当前安装、包/键、授权、来源版本、私有 pair 与 worker lease，不运行 guest。`resource_version` 保留旧持续授权的精确版本语义；实际 broker 用可信 Core resolver 的当前版本复核。快照与原始 grant 都不是能力许可，不能绕过 Host。
 
 ## 验证
 

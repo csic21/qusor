@@ -12,72 +12,13 @@ use crate::{Grant, Host, InstallationId, Session};
 pub use component::{
     ComponentAuthoritySource, ComponentInstallation, MountedComponent, UserMountIntent,
 };
-use extension_api::{ApiError, ApiVersion, Capability, CapabilityRequest, ErrorCode, Manifest};
+use extension_api::{ApiError, ApiVersion, Capability, ErrorCode, Manifest};
+pub use extension_ports::{
+    AuthorityRead, AuthoritySnapshot, AuthoritySource, DurableGrant, GrantUpgradeDecision,
+    RemovedInstallation, VersionedRequest,
+};
 pub use run::{ManagedRun, RunPhase};
 use std::collections::BTreeMap;
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DurableGrant {
-    pub grant: Grant,
-    pub expires_at: u64,
-    /// Preserved durable source/version constraint; None means explicitly unversioned.
-    pub resource_version: Option<String>,
-}
-
-/// Host-resolved current version, not a version self-reported by the guest.
-/// Resolve it under the same gate/snapshot as the handler's actual data access.
-pub struct VersionedRequest {
-    pub request: CapabilityRequest,
-    pub resource_version: Option<String>,
-}
-
-/// Trusted storage facts, not a permit. The verifier/source owns byte authentication.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct AuthoritySnapshot {
-    pub installation_id: i64,
-    pub revision: i64,
-    pub generation: i64,
-    pub manifest: Manifest,
-    pub digest: String,
-    pub vault_id: String,
-    pub enable_intent: bool,
-    /// V1 did not freeze a grant-record API; V2 must retain its explicit API.
-    pub required_api: Option<ApiVersion>,
-    pub grants: Vec<DurableGrant>,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum AuthorityRead<'a> {
-    /// May perform bounded private-state preflight, before a VM invocation starts.
-    Activation,
-    /// No guest execution or provider I/O in the per-message authorization gate.
-    Current { run_id: Option<&'a str> },
-}
-
-/// Trusted journal tombstone, never a guest-supplied cleanup approval.
-#[derive(Debug, Clone)]
-pub struct RemovedInstallation {
-    pub installation_id: i64,
-    pub package_id: String,
-    pub vault_id: String,
-    pub revision: i64,
-    pub generation: i64,
-}
-
-/// Implemented by trusted durable infrastructure. Neither method grants a capability.
-pub trait AuthoritySource {
-    fn authority_snapshot(
-        &self,
-        package_id: &str,
-        read: AuthorityRead<'_>,
-    ) -> Result<AuthoritySnapshot, ApiError>;
-    fn removed_installation(&self, _package_id: &str) -> Result<RemovedInstallation, ApiError> {
-        Err(ApiError::new(
-            ErrorCode::InvalidState,
-            "durable uninstall proof unavailable",
-        ))
-    }
-}
 
 /// Host-only handle. No wire deserialization and no old process session resurrection.
 #[derive(Debug, Clone)]
@@ -160,6 +101,49 @@ impl DurableHost {
             return Err(denied("required capabilities need explicit grants"));
         }
         Ok(())
+    }
+
+    /// Evaluate whether existing durable grants may be preserved across a verified
+    /// package upgrade under this Host's policy.
+    ///
+    /// Same-privilege upgrades (where `next_manifest.required_capabilities` do not exceed
+    /// `existing_grants` and Host policy/API compatibility still hold) preserve valid
+    /// still-declared grants; privilege expansion returns `RequireReauthorization`.
+    pub fn preserve_grants(
+        &self,
+        previous_manifest: &Manifest,
+        previous_digest: &str,
+        next_manifest: &Manifest,
+        next_digest: &str,
+        existing_grants: &[Grant],
+        api: ApiVersion,
+    ) -> Result<GrantUpgradeDecision, ApiError> {
+        self.host
+            .validate_package(previous_manifest, previous_digest)?;
+        self.host.validate_package(next_manifest, next_digest)?;
+        let decision = extension_ports::preserve_grants(
+            previous_manifest,
+            previous_digest,
+            next_manifest,
+            next_digest,
+            existing_grants,
+            api,
+        )?;
+        match decision {
+            GrantUpgradeDecision::Preserve(kept) => {
+                if self
+                    .validate_activation_intent(next_manifest, next_digest, &kept, api)
+                    .is_ok()
+                {
+                    Ok(GrantUpgradeDecision::Preserve(kept))
+                } else {
+                    Ok(GrantUpgradeDecision::RequireReauthorization)
+                }
+            }
+            GrantUpgradeDecision::RequireReauthorization => {
+                Ok(GrantUpgradeDecision::RequireReauthorization)
+            }
+        }
     }
 
     fn time(&mut self, now: u64) -> u64 {
@@ -537,5 +521,179 @@ impl DurableHost {
         let _ = binding;
         self.remove(session.persistent_id);
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use extension_api::{
+        ApiRange, CapabilityRequest, HOST_API, HOST_API_V0_2, PackageVersion, Resource,
+    };
+    use std::cell::RefCell;
+
+    fn manifest(version: u32, required: Vec<Capability>, optional: Vec<Capability>) -> Manifest {
+        Manifest {
+            manifest_version: 1,
+            package_id: "org.example.upgrade".into(),
+            publisher_id: "org.example".into(),
+            package_version: PackageVersion {
+                major: version,
+                minor: 0,
+                patch: 0,
+            },
+            host_api: ApiRange {
+                major: 0,
+                min_minor: 1,
+                max_minor: 2,
+            },
+            required_capabilities: required,
+            optional_capabilities: optional,
+            contributions: vec![],
+        }
+    }
+
+    fn doc_grant(capability: Capability) -> Grant {
+        Grant {
+            capability,
+            resource: Resource::Document {
+                vault_id: "vault".into(),
+                document_id: "doc".into(),
+            },
+        }
+    }
+
+    #[test]
+    fn host_preserve_grants_allows_same_privilege_and_blocks_escalation() {
+        let host = DurableHost::new(
+            "vault",
+            [Capability::DocumentMetadataRead, Capability::SelectionRead],
+        )
+        .unwrap();
+        let v1 = manifest(1, vec![Capability::DocumentMetadataRead], vec![]);
+        let v2_same = manifest(2, vec![Capability::DocumentMetadataRead], vec![]);
+        let v2_escalated = manifest(
+            2,
+            vec![Capability::DocumentMetadataRead, Capability::SelectionRead],
+            vec![],
+        );
+        let grants = vec![doc_grant(Capability::DocumentMetadataRead)];
+
+        assert_eq!(
+            host.preserve_grants(
+                &v1,
+                &"a".repeat(64),
+                &v2_same,
+                &"b".repeat(64),
+                &grants,
+                HOST_API_V0_2,
+            )
+            .unwrap(),
+            GrantUpgradeDecision::Preserve(grants.clone())
+        );
+
+        assert_eq!(
+            host.preserve_grants(
+                &v1,
+                &"a".repeat(64),
+                &v2_escalated,
+                &"b".repeat(64),
+                &grants,
+                HOST_API_V0_2,
+            )
+            .unwrap(),
+            GrantUpgradeDecision::RequireReauthorization
+        );
+    }
+
+    #[test]
+    fn same_privilege_upgrade_reactivates_with_new_session_and_invalidates_old_session() {
+        struct MemSource(RefCell<Option<AuthoritySnapshot>>);
+        impl AuthoritySource for MemSource {
+            fn authority_snapshot(
+                &self,
+                _: &str,
+                _: AuthorityRead<'_>,
+            ) -> Result<AuthoritySnapshot, ApiError> {
+                self.0
+                    .borrow()
+                    .clone()
+                    .ok_or_else(|| ApiError::new(ErrorCode::NotFound, "no grant"))
+            }
+        }
+
+        let mut host = DurableHost::new("vault", [Capability::DocumentMetadataRead]).unwrap();
+        let v1 = manifest(1, vec![Capability::DocumentMetadataRead], vec![]);
+        let v2 = manifest(2, vec![Capability::DocumentMetadataRead], vec![]);
+        let grant = DurableGrant {
+            grant: doc_grant(Capability::DocumentMetadataRead),
+            expires_at: 100,
+            resource_version: Some("rev-1".into()),
+        };
+
+        let source = MemSource(RefCell::new(Some(AuthoritySnapshot {
+            installation_id: 1,
+            revision: 2,
+            generation: 2,
+            manifest: v1.clone(),
+            digest: "a".repeat(64),
+            vault_id: "vault".into(),
+            enable_intent: true,
+            required_api: Some(HOST_API_V0_2),
+            grants: vec![grant.clone()],
+        })));
+
+        // Required API cannot downgrade even if manifest allows 0.1.
+        assert!(
+            host.activate(&source, "org.example.upgrade", HOST_API, 1)
+                .is_err()
+        );
+
+        let session_v1 = host
+            .activate(&source, "org.example.upgrade", HOST_API_V0_2, 1)
+            .unwrap();
+
+        let call = || VersionedRequest {
+            resource_version: Some("rev-1".into()),
+            request: CapabilityRequest {
+                api_version: HOST_API_V0_2,
+                request_id: "req".into(),
+                capability: Capability::DocumentMetadataRead,
+                resource: Resource::Document {
+                    vault_id: "vault".into(),
+                    document_id: "doc".into(),
+                },
+            },
+        };
+
+        // Simulate same-privilege upgrade in durable store (revision/generation/digest advance, grants preserved).
+        *source.0.borrow_mut() = Some(AuthoritySnapshot {
+            installation_id: 1,
+            revision: 3,
+            generation: 3,
+            manifest: v2,
+            digest: "b".repeat(64),
+            vault_id: "vault".into(),
+            enable_intent: true,
+            required_api: Some(HOST_API_V0_2),
+            grants: vec![grant],
+        });
+
+        assert!(
+            host.dispatch(&source, &session_v1, 2, None, call(), |_| Ok(()))
+                .is_err(),
+            "old session must be revoked after upgrade"
+        );
+
+        let session_v2 = host
+            .activate(&source, "org.example.upgrade", HOST_API_V0_2, 2)
+            .unwrap();
+        assert_eq!(
+            host.dispatch(&source, &session_v2, 2, None, call(), |ctx| Ok(ctx
+                .package_digest
+                .clone()))
+                .unwrap(),
+            "b".repeat(64)
+        );
     }
 }

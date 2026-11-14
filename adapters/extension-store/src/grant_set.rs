@@ -102,8 +102,8 @@ impl SavedAuthorization {
             Self::V2(record) => &record.scope.vault_id,
         }
     }
-    pub fn durable_grants(&self) -> Vec<extension_host::durable::DurableGrant> {
-        use extension_host::{Grant, durable::DurableGrant};
+    pub fn durable_grants(&self) -> Vec<extension_ports::DurableGrant> {
+        use extension_ports::{DurableGrant, Grant};
         match self {
             Self::V1(record) => vec![DurableGrant {
                 grant: Grant {
@@ -210,7 +210,7 @@ impl Store {
         Ok(receipt)
     }
 
-    fn check_profile2(&self, package: &VerifiedPackage, scope: &GrantSet) -> Result<()> {
+    pub(super) fn check_profile2(&self, package: &VerifiedPackage, scope: &GrantSet) -> Result<()> {
         scope.validate()?;
         if !self.supported_apis.contains(&HOST_API_V0_2)
             || !package.manifest().supports_api(HOST_API_V0_2)
