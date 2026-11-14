@@ -11,19 +11,19 @@ use extension_api::{
         MAX_LIBRARY_TITLE_BYTES, SavedSelectionRange,
     },
 };
+use extension_host::AuthorizedContext;
 use learning_application::{
     KnowledgeApplication,
     pdf_library::{PdfDocumentSummary, PdfSelectionRange},
 };
-use learning_ports::KnowledgeStore;
-use extension_host::AuthorizedContext;
+use learning_ports::{KnowledgeCommand, KnowledgeQuery};
 
-pub struct LibraryReadBridge<S: KnowledgeStore> {
+pub struct LibraryReadBridge<S: KnowledgeQuery + KnowledgeCommand> {
     app: KnowledgeApplication<S>,
     vault: String,
 }
 
-impl<S: KnowledgeStore> LibraryReadBridge<S> {
+impl<S: KnowledgeQuery + KnowledgeCommand> LibraryReadBridge<S> {
     pub fn new(app: KnowledgeApplication<S>, vault: impl Into<String>) -> Self {
         Self {
             app,
@@ -222,11 +222,7 @@ fn title(value: &str) -> String {
         }
         out.push(character);
     }
-    if out.is_empty() {
-        "?".into()
-    } else {
-        out
-    }
+    if out.is_empty() { "?".into() } else { out }
 }
 
 fn map_error(error: &KnowledgeError) -> ApiError {
