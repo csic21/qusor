@@ -161,6 +161,9 @@ fn package(reader: bool, version: u32) -> VerifiedPackage {
         required_capabilities: caps,
         optional_capabilities: optional,
         contributions: vec![],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     };
     let seed = [71; 32];
     let bytes = build_signed_for_host(

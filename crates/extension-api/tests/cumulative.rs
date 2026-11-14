@@ -1,7 +1,7 @@
 use extension_api::{
     ApiRange, ApiVersion, Capability, CapabilityRequest, Contribution, ContributionKind, ErrorCode,
     HOST_API, HOST_API_V0_2, HOST_API_V0_3, HOST_API_V0_4, HOST_API_V0_5, HOST_API_V0_6,
-    HOST_API_V0_7, Manifest, PackageVersion, Resource, SUPPORTED_HOST_APIS,
+    HOST_API_V0_7, HOST_API_V0_8, Manifest, PackageVersion, Resource, SUPPORTED_HOST_APIS,
     capability_available_in, capability_resource_valid,
     draft::{DRAFT_PROTOCOL, DraftOperation, DraftRequest},
     library::{LIBRARY_PROTOCOL, LibraryOperation, LibraryRequest},
@@ -28,6 +28,9 @@ fn base_manifest(min_minor: u16, max_minor: u16) -> Manifest {
         required_capabilities: vec![],
         optional_capabilities: vec![],
         contributions: vec![],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     }
 }
 
@@ -43,9 +46,10 @@ fn capabilities_and_contributions_are_cumulatively_available_from_intro_minor() 
         (Capability::VocabRead, 5),
         (Capability::VocabReview, 5),
         (Capability::LibraryRead, 6),
+        (Capability::UiSlot, 7),
     ];
 
-    for minor in 1..=7 {
+    for minor in 1..=8 {
         let version = ApiVersion { major: 0, minor };
         for &(capability, min_intro) in &intro_minor {
             assert_eq!(
@@ -58,7 +62,7 @@ fn capabilities_and_contributions_are_cumulatively_available_from_intro_minor() 
 
     for bad in [
         ApiVersion { major: 0, minor: 0 },
-        ApiVersion { major: 0, minor: 8 },
+        ApiVersion { major: 0, minor: 9 },
         ApiVersion { major: 1, minor: 0 },
     ] {
         for &(capability, _) in &intro_minor {
@@ -75,7 +79,7 @@ fn capabilities_and_contributions_are_cumulatively_available_from_intro_minor() 
         &doc,
         HOST_API
     ));
-    for minor in 2..=7 {
+    for minor in 2..=8 {
         assert!(capability_resource_valid(
             Capability::SelectionRead,
             &doc,
@@ -107,10 +111,11 @@ fn capabilities_and_contributions_are_cumulatively_available_from_intro_minor() 
             Capability::LibraryRead,
             6,
         ),
+        (ContributionKind::UiSlot, Capability::UiSlot, 7),
     ];
 
     for (index, (kind, cap, min_intro)) in kind_intro.iter().enumerate() {
-        let mut manifest = base_manifest(*min_intro, 7);
+        let mut manifest = base_manifest(*min_intro, 8);
         manifest.required_capabilities = vec![*cap];
         manifest.contributions = vec![Contribution {
             id: format!("org.example.cross.c{index}"),
@@ -119,7 +124,7 @@ fn capabilities_and_contributions_are_cumulatively_available_from_intro_minor() 
             required_capabilities: vec![*cap],
         }];
         manifest.validate().unwrap();
-        for minor in 1..=7 {
+        for minor in 1..=8 {
             let v = ApiVersion { major: 0, minor };
             assert_eq!(manifest.supports_api(v), minor >= *min_intro);
         }
@@ -128,7 +133,7 @@ fn capabilities_and_contributions_are_cumulatively_available_from_intro_minor() 
 
 #[test]
 fn cross_domain_manifest_validates_and_negotiates_highest_common_version() {
-    let mut full = base_manifest(6, 7);
+    let mut full = base_manifest(7, 8);
     full.required_capabilities = vec![
         Capability::SelectionRead,
         Capability::DocumentMetadataRead,
@@ -139,6 +144,7 @@ fn cross_domain_manifest_validates_and_negotiates_highest_common_version() {
         Capability::VocabRead,
         Capability::VocabReview,
         Capability::LibraryRead,
+        Capability::UiSlot,
     ];
     full.contributions = vec![
         Contribution {
@@ -166,6 +172,12 @@ fn cross_domain_manifest_validates_and_negotiates_highest_common_version() {
             required_capabilities: vec![Capability::LibraryRead, Capability::CapturePropose],
         },
         Contribution {
+            id: "org.example.cross.slot".into(),
+            kind: ContributionKind::UiSlot,
+            title: "Slot".into(),
+            required_capabilities: vec![Capability::UiSlot],
+        },
+        Contribution {
             id: "org.example.cross.cmd".into(),
             kind: ContributionKind::Command,
             title: "Quick Command".into(),
@@ -173,25 +185,25 @@ fn cross_domain_manifest_validates_and_negotiates_highest_common_version() {
         },
     ];
     full.validate().unwrap();
-    assert!(!full.supports_api(HOST_API_V0_5));
-    assert!(full.supports_api(HOST_API_V0_6));
+    assert!(!full.supports_api(HOST_API_V0_6));
     assert!(full.supports_api(HOST_API_V0_7));
+    assert!(full.supports_api(HOST_API_V0_8));
     assert_eq!(
         full.negotiate_api(&SUPPORTED_HOST_APIS),
-        Some(HOST_API_V0_7)
+        Some(HOST_API_V0_8)
     );
     assert_eq!(
-        full.negotiate_api(&[HOST_API_V0_5, HOST_API_V0_6]),
-        Some(HOST_API_V0_6)
+        full.negotiate_api(&[HOST_API_V0_6, HOST_API_V0_7]),
+        Some(HOST_API_V0_7)
     );
 
-    // Notes + Vocab across 0.5..=0.7 without forcing library.read.
-    let mut notes_and_vocab = base_manifest(5, 7);
+    // Notes + Vocab across 0.5..=0.8 without forcing library.read.
+    let mut notes_and_vocab = base_manifest(5, 8);
     notes_and_vocab.required_capabilities = vec![Capability::NotesRead, Capability::VocabRead];
     notes_and_vocab.validate().unwrap();
     assert_eq!(
         notes_and_vocab.negotiate_api(&SUPPORTED_HOST_APIS),
-        Some(HOST_API_V0_7)
+        Some(HOST_API_V0_8)
     );
 
     // Declaring a capability whose introduction minor exceeds min_minor still fails closed.
@@ -335,7 +347,7 @@ fn unknown_capabilities_contributions_and_versions_fail_closed() {
 
     for bad in [
         ApiVersion { major: 0, minor: 0 },
-        ApiVersion { major: 0, minor: 8 },
+        ApiVersion { major: 0, minor: 9 },
         ApiVersion { major: 1, minor: 0 },
     ] {
         let req = CapabilityRequest {
@@ -352,8 +364,8 @@ fn unknown_capabilities_contributions_and_versions_fail_closed() {
         );
     }
 
-    // Typed sub-protocols accept cumulative versions >= intro and reject < intro or > 0.7.
-    for minor in 4..=7 {
+    // Typed sub-protocols accept cumulative versions >= intro and reject < intro or > 0.8.
+    for minor in 4..=8 {
         NotesRequest {
             notes_protocol: NOTES_PROTOCOL,
             api_version: ApiVersion { major: 0, minor },
@@ -382,7 +394,7 @@ fn unknown_capabilities_contributions_and_versions_fail_closed() {
         ErrorCode::UnsupportedVersion
     );
 
-    for minor in 5..=7 {
+    for minor in 5..=8 {
         VocabRequest {
             vocab_protocol: VOCAB_PROTOCOL,
             api_version: ApiVersion { major: 0, minor },
@@ -405,7 +417,7 @@ fn unknown_capabilities_contributions_and_versions_fail_closed() {
         ErrorCode::UnsupportedVersion
     );
 
-    for minor in 6..=7 {
+    for minor in 6..=8 {
         LibraryRequest {
             library_protocol: LIBRARY_PROTOCOL,
             api_version: ApiVersion { major: 0, minor },
@@ -434,7 +446,7 @@ fn unknown_capabilities_contributions_and_versions_fail_closed() {
         ErrorCode::UnsupportedVersion
     );
 
-    for minor in 2..=7 {
+    for minor in 2..=8 {
         SurfaceRequest {
             surface_protocol: SURFACE_PROTOCOL,
             api_version: ApiVersion { major: 0, minor },
@@ -455,7 +467,7 @@ fn unknown_capabilities_contributions_and_versions_fail_closed() {
         .unwrap();
     }
 
-    for minor in 3..=7 {
+    for minor in 3..=8 {
         DraftRequest {
             api_version: ApiVersion { major: 0, minor },
             draft_protocol: DRAFT_PROTOCOL,

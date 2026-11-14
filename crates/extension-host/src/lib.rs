@@ -15,8 +15,14 @@ static NEXT_HOST: AtomicU64 = AtomicU64::new(1);
 
 use extension_api::{
     ApiError, ApiVersion, Capability, CapabilityRequest, Contribution, ErrorCode, HOST_API,
-    Manifest, Resource, SUPPORTED_HOST_APIS, capability_available_in, capability_resource_valid,
-    is_supported_api,
+    HOST_API_V0_8, Manifest, Resource, SUPPORTED_HOST_APIS, capability_available_in,
+    capability_resource_valid, is_supported_api,
+    orthogonal::{
+        CAP_CORE_CAPTURE_PROPOSE, CAP_CORE_KNOWLEDGE_READ, CAP_CORE_KNOWLEDGE_WRITE,
+        CAP_CORE_VOCAB_STUDY, CAP_HOST_STORAGE_KV, CAP_HOST_UI_SLOT, CAP_NATIVE_DOCUMENT_RENDER,
+        CapabilityId, CapabilityRequirement, CoreKnowledgeRequest, project_legacy_capability,
+    },
+    validate_opaque_id,
 };
 
 pub mod component;
@@ -25,6 +31,7 @@ mod durable_surface;
 pub mod library;
 pub mod notes;
 pub mod platform;
+pub mod router;
 pub mod surface;
 pub mod ui;
 pub mod vocab;
@@ -87,11 +94,95 @@ pub struct AuthorizedContext {
     pub request: CapabilityRequest,
 }
 
+/// Host-approved orthogonal capability grant with minimum negotiated minor and exact resource.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OrthogonalGrant {
+    pub capability: CapabilityId,
+    pub min_minor: u16,
+    pub resource: Resource,
+}
+
+/// Per-capability negotiation outcome frozen into one live session.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NegotiatedCapability {
+    pub major: u16,
+    pub negotiated_minor: Option<u16>,
+    pub optional: bool,
+    pub degraded: bool,
+}
+
+/// Session-frozen per-capability semver negotiation table.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct SessionCapabilityTable {
+    entries: BTreeMap<CapabilityId, NegotiatedCapability>,
+}
+
+impl SessionCapabilityTable {
+    pub fn get(&self, capability: &CapabilityId) -> Option<&NegotiatedCapability> {
+        self.entries.get(capability)
+    }
+
+    pub fn is_active(&self, capability: &CapabilityId) -> bool {
+        self.entries
+            .get(capability)
+            .is_some_and(|entry| !entry.degraded && entry.negotiated_minor.is_some())
+    }
+
+    pub fn is_degraded(&self, capability: &CapabilityId) -> bool {
+        self.entries
+            .get(capability)
+            .is_some_and(|entry| entry.degraded)
+    }
+
+    pub fn entries(&self) -> &BTreeMap<CapabilityId, NegotiatedCapability> {
+        &self.entries
+    }
+
+    pub fn active_capabilities(&self) -> BTreeSet<CapabilityId> {
+        self.entries
+            .iter()
+            .filter(|(_, entry)| !entry.degraded && entry.negotiated_minor.is_some())
+            .map(|(id, _)| id.clone())
+            .collect()
+    }
+}
+
+/// In-flight orthogonal policy decision consumed and revalidated by `dispatch_orthogonal`.
+#[derive(Debug)]
+pub struct OrthogonalPermit {
+    owner: Arc<()>,
+    session: u64,
+    epoch: u64,
+    capability: CapabilityId,
+    negotiated_major: u16,
+    negotiated_minor: u16,
+    min_minor: u16,
+    request_id: String,
+    resource: Resource,
+}
+
+/// Host-authenticated orthogonal dispatch context.
+#[derive(Debug, Clone)]
+pub struct OrthogonalAuthorizedContext {
+    pub installation_id: InstallationId,
+    pub package_id: String,
+    pub publisher_id: String,
+    pub package_digest: String,
+    pub vault_id: String,
+    pub grant_epoch: u64,
+    pub capability: CapabilityId,
+    pub negotiated_major: u16,
+    pub negotiated_minor: u16,
+    pub request_id: String,
+    pub resource: Resource,
+}
+
 #[derive(Debug)]
 struct Installation {
     manifest: Manifest,
     digest: String,
     grants: Vec<Grant>,
+    orthogonal_grants: Vec<OrthogonalGrant>,
     epoch: u64,
     status: Status,
 }
@@ -101,6 +192,7 @@ struct Connection {
     installation: InstallationId,
     epoch: u64,
     api_version: ApiVersion,
+    capabilities: SessionCapabilityTable,
 }
 
 /// One vault-bound policy authority. No builtin/official privilege branch exists.
@@ -110,6 +202,7 @@ pub struct Host {
     owner: Arc<()>,
     vault_id: String,
     supported: BTreeSet<Capability>,
+    supported_orthogonal: BTreeMap<CapabilityId, (u16, u16)>,
     installations: BTreeMap<InstallationId, Installation>,
     sessions: BTreeMap<u64, Connection>,
     next_installation: u64,
@@ -131,11 +224,19 @@ impl Host {
         let identity = NEXT_HOST
             .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1))
             .map_err(|_| error(ErrorCode::BudgetExceeded, "host identity space exhausted"))?;
+        let supported: BTreeSet<Capability> = supported.into_iter().collect();
+        let mut supported_orthogonal = BTreeMap::new();
+        for cap in &supported {
+            let id = CapabilityId::parse(project_legacy_capability(*cap))
+                .expect("projected standard capability is valid");
+            supported_orthogonal.insert(id, (1, 0));
+        }
         Ok(Self {
             identity,
             owner: Arc::new(()),
             vault_id,
-            supported: supported.into_iter().collect(),
+            supported,
+            supported_orthogonal,
             installations: BTreeMap::new(),
             sessions: BTreeMap::new(),
             next_installation: 1,
@@ -143,6 +244,29 @@ impl Host {
             surfaces: surface::SurfaceRegistry::default(),
             components: component::ComponentRegistry::default(),
         })
+    }
+
+    /// Advertise host-supported orthogonal capability major and maximum minor version.
+    /// Does not grant authority to any package.
+    pub fn configure_orthogonal_support(
+        &mut self,
+        capability: CapabilityId,
+        major: u16,
+        max_minor: u16,
+    ) -> Result<(), ApiError> {
+        capability.validate_with(ErrorCode::InvalidRequest)?;
+        self.supported_orthogonal
+            .insert(capability, (major, max_minor));
+        Ok(())
+    }
+
+    /// Withdraw host support for an orthogonal capability for subsequent sessions.
+    pub fn remove_orthogonal_support(&mut self, capability: &CapabilityId) {
+        self.supported_orthogonal.remove(capability);
+    }
+
+    pub fn supported_orthogonal(&self) -> &BTreeMap<CapabilityId, (u16, u16)> {
+        &self.supported_orthogonal
     }
 
     /// Register already-verified metadata, disabled and without any grants.
@@ -180,6 +304,7 @@ impl Host {
                 manifest,
                 digest,
                 grants: Vec::new(),
+                orthogonal_grants: Vec::new(),
                 epoch: 0,
                 status: Status::Disabled,
             },
@@ -218,6 +343,7 @@ impl Host {
         installed.manifest = manifest;
         installed.digest = digest;
         installed.grants.clear();
+        installed.orthogonal_grants.clear();
         installed.epoch = epoch;
         installed.status = Status::Disabled;
         self.drop_sessions(id);
@@ -237,6 +363,10 @@ impl Host {
         Ok(&self.installation(id)?.grants)
     }
 
+    pub fn orthogonal_grants(&self, id: InstallationId) -> Result<&[OrthogonalGrant], ApiError> {
+        Ok(&self.installation(id)?.orthogonal_grants)
+    }
+
     /// Replace explicit user grants after trusted host authorization UI/policy.
     /// Validation is atomic: invalid input leaves existing grants and sessions intact.
     /// Even narrowing to an equivalent set invalidates every old connection and permit.
@@ -247,7 +377,8 @@ impl Host {
     ) -> Result<(), ApiError> {
         let installed = self.installation(id)?;
         self.validate_grants(&installed.manifest, &grants)?;
-        let required = required_granted(&installed.manifest, &grants);
+        let can_stay_enabled =
+            can_enable_installation(&installed.manifest, &grants, &installed.orthogonal_grants);
         let epoch = self.advance_epoch(id)?;
         let installed = self
             .installations
@@ -255,7 +386,33 @@ impl Host {
             .expect("installation checked");
         installed.epoch = epoch;
         installed.grants = grants;
-        if !required {
+        if !can_stay_enabled {
+            installed.status = Status::Disabled;
+        }
+        self.drop_sessions(id);
+        Ok(())
+    }
+
+    /// Replace explicit orthogonal capability grants after trusted host authorization UI/policy.
+    /// Validation is atomic, never implicitly promotes read-only manifests to write, and
+    /// advances the installation grant epoch to invalidate all prior sessions and permits.
+    pub fn replace_orthogonal_grants(
+        &mut self,
+        id: InstallationId,
+        grants: Vec<OrthogonalGrant>,
+    ) -> Result<(), ApiError> {
+        let installed = self.installation(id)?;
+        self.validate_orthogonal_grants(&installed.manifest, &grants)?;
+        let can_stay_enabled =
+            can_enable_installation(&installed.manifest, &installed.grants, &grants);
+        let epoch = self.advance_epoch(id)?;
+        let installed = self
+            .installations
+            .get_mut(&id)
+            .expect("installation checked");
+        installed.epoch = epoch;
+        installed.orthogonal_grants = grants;
+        if !can_stay_enabled {
             installed.status = Status::Disabled;
         }
         self.drop_sessions(id);
@@ -294,12 +451,58 @@ impl Host {
         Ok(())
     }
 
+    fn validate_orthogonal_grants(
+        &self,
+        manifest: &Manifest,
+        grants: &[OrthogonalGrant],
+    ) -> Result<(), ApiError> {
+        if grants.len() > MAX_GRANTS {
+            return Err(error(ErrorCode::BudgetExceeded, "grant limit reached"));
+        }
+        let declared = manifest.effective_orthogonal_requirements();
+        for (index, grant) in grants.iter().enumerate() {
+            grant.capability.validate_with(ErrorCode::InvalidRequest)?;
+            grant.resource.validate()?;
+            if grant.resource.vault_id() != self.vault_id
+                || !orthogonal_resource_valid(&grant.capability, &grant.resource)
+            {
+                return Err(error(
+                    ErrorCode::PermissionDenied,
+                    "orthogonal grant exceeds vault or resource scope",
+                ));
+            }
+            let Some(req) = declared.iter().find(|item| item.id == grant.capability) else {
+                return Err(error(
+                    ErrorCode::PermissionDenied,
+                    "orthogonal grant exceeds declared capabilities",
+                ));
+            };
+            if req.max_minor.is_some_and(|max| grant.min_minor > max) {
+                return Err(error(
+                    ErrorCode::PermissionDenied,
+                    "orthogonal grant minor exceeds manifest upper bound",
+                ));
+            }
+            if grants[..index].contains(grant) {
+                return Err(error(
+                    ErrorCode::InvalidRequest,
+                    "duplicate orthogonal grant",
+                ));
+            }
+        }
+        Ok(())
+    }
+
     pub fn enable(&mut self, id: InstallationId) -> Result<(), ApiError> {
         let installed = self.installation(id)?;
         if installed.epoch == u64::MAX {
             return Err(error(ErrorCode::BudgetExceeded, "grant epoch exhausted"));
         }
-        if !required_granted(&installed.manifest, &installed.grants) {
+        if !can_enable_installation(
+            &installed.manifest,
+            &installed.grants,
+            &installed.orthogonal_grants,
+        ) {
             return Err(error(
                 ErrorCode::PermissionDenied,
                 "required capabilities need explicit grants",
@@ -357,6 +560,7 @@ impl Host {
                 manifest,
                 digest,
                 grants: Vec::new(),
+                orthogonal_grants: Vec::new(),
                 epoch,
                 status: Status::Disabled,
             },
@@ -398,7 +602,28 @@ impl Host {
         self.open_session_for_api(id, negotiated)
     }
 
-    /// Freeze one explicitly negotiated API version into the connection.
+    /// Open a Host API >= 0.8 session with per-capability negotiation table.
+    pub fn open_orthogonal_session(&mut self, id: InstallationId) -> Result<Session, ApiError> {
+        let supported_v08: Vec<ApiVersion> = SUPPORTED_HOST_APIS
+            .iter()
+            .copied()
+            .filter(|version| *version >= HOST_API_V0_8)
+            .collect();
+        let negotiated = self
+            .installation(id)?
+            .manifest
+            .negotiate_api(&supported_v08)
+            .ok_or_else(|| {
+                error(
+                    ErrorCode::UnsupportedVersion,
+                    "session API 0.8 is incompatible with the package",
+                )
+            })?;
+        self.open_session_for_api(id, negotiated)
+    }
+
+    /// Freeze one explicitly negotiated API version and per-capability negotiation table
+    /// into the connection.
     pub fn open_session_for_api(
         &mut self,
         id: InstallationId,
@@ -421,6 +646,7 @@ impl Host {
         if installed.status != Status::Enabled {
             return Err(error(ErrorCode::Disabled, "installation is disabled"));
         }
+        let capabilities = self.negotiate_capabilities_for_session(id, &installed.manifest)?;
         let epoch = installed.epoch;
         if self.sessions.len() >= MAX_SESSIONS {
             return Err(error(ErrorCode::BudgetExceeded, "session limit reached"));
@@ -432,6 +658,7 @@ impl Host {
                 installation: id,
                 epoch,
                 api_version,
+                capabilities,
             },
         );
         Ok(Session {
@@ -449,6 +676,20 @@ impl Host {
             return Err(stale());
         }
         Ok(connection.api_version)
+    }
+
+    /// Return the session-frozen per-capability negotiation table for a live session.
+    pub fn session_capabilities(
+        &self,
+        session: &Session,
+    ) -> Result<&SessionCapabilityTable, ApiError> {
+        self.check_owner(&session.owner)?;
+        let connection = self.sessions.get(&session.id).ok_or_else(stale)?;
+        let installed = self.installation(connection.installation)?;
+        if installed.status != Status::Enabled || installed.epoch != connection.epoch {
+            return Err(stale());
+        }
+        Ok(&connection.capabilities)
     }
 
     /// Disconnecting a runtime connection also revokes all of its outstanding permits.
@@ -501,6 +742,92 @@ impl Host {
             vault_id: self.vault_id.clone(),
             grant_epoch: installed.epoch,
             request: permit.request,
+        })
+    }
+
+    /// Authorize an orthogonal capability request against Host API >= 0.8 policy,
+    /// per-capability session negotiation, and explicit `OrthogonalGrant` bounds.
+    pub fn authorize_orthogonal(
+        &self,
+        session: &Session,
+        capability: CapabilityId,
+        request_id: impl Into<String>,
+        resource: Resource,
+    ) -> Result<OrthogonalPermit, ApiError> {
+        self.check_owner(&session.owner)?;
+        capability.validate_with(ErrorCode::InvalidRequest)?;
+        let request_id = request_id.into();
+        validate_opaque_id(&request_id, "request_id")?;
+        resource.validate()?;
+        let (_, installed, major, negotiated_minor, min_minor) =
+            self.check_orthogonal_request(session.id, &capability, &resource)?;
+        Ok(OrthogonalPermit {
+            owner: Arc::clone(&self.owner),
+            session: session.id,
+            epoch: installed.epoch,
+            capability,
+            negotiated_major: major,
+            negotiated_minor,
+            min_minor,
+            request_id,
+            resource,
+        })
+    }
+
+    /// Validate a bounded Core Knowledge Wire request (protocol_version = 1) and
+    /// authorize the corresponding orthogonal capability (`core.knowledge.read`,
+    /// `core.knowledge.write`, or `core.capture.propose`).
+    pub fn authorize_core_knowledge(
+        &self,
+        session: &Session,
+        request: &CoreKnowledgeRequest,
+        resource: Resource,
+    ) -> Result<OrthogonalPermit, ApiError> {
+        request.validate()?;
+        self.check_owner(&session.owner)?;
+        let connection = self.sessions.get(&session.id).ok_or_else(stale)?;
+        if request.api_version != connection.api_version {
+            return Err(error(
+                ErrorCode::UnsupportedVersion,
+                "request API differs from its negotiated session",
+            ));
+        }
+        let capability = CapabilityId::parse_with_code(
+            request.operation.required_capability(),
+            ErrorCode::InvalidRequest,
+        )?;
+        self.authorize_orthogonal(session, capability, &request.request_id, resource)
+    }
+
+    /// Revalidate all orthogonal policy, session, epoch, and grant bounds immediately
+    /// before executing the trusted adapter callback.
+    pub fn dispatch_orthogonal<T>(
+        &mut self,
+        permit: OrthogonalPermit,
+        action: impl FnOnce(&OrthogonalAuthorizedContext) -> Result<T, ApiError>,
+    ) -> Result<T, ApiError> {
+        self.check_owner(&permit.owner)?;
+        let (connection, installed, major, negotiated_minor, _) =
+            self.check_orthogonal_request(permit.session, &permit.capability, &permit.resource)?;
+        if permit.epoch != installed.epoch
+            || permit.negotiated_major != major
+            || permit.negotiated_minor != negotiated_minor
+            || negotiated_minor < permit.min_minor
+        {
+            return Err(stale());
+        }
+        action(&OrthogonalAuthorizedContext {
+            installation_id: connection.installation,
+            package_id: installed.manifest.package_id.clone(),
+            publisher_id: installed.manifest.publisher_id.clone(),
+            package_digest: installed.digest.clone(),
+            vault_id: self.vault_id.clone(),
+            grant_epoch: installed.epoch,
+            capability: permit.capability,
+            negotiated_major: major,
+            negotiated_minor,
+            request_id: permit.request_id,
+            resource: permit.resource,
         })
     }
 
@@ -630,6 +957,276 @@ impl Host {
         self.sessions
             .retain(|_, session| session.installation != id);
     }
+
+    pub(crate) fn host_identity(&self) -> u64 {
+        self.identity
+    }
+
+    pub(crate) fn check_session_owner(&self, session: &Session) -> Result<(), ApiError> {
+        self.check_owner(&session.owner)
+    }
+
+    pub(crate) fn live_installation(
+        &self,
+        id: InstallationId,
+    ) -> Result<(Status, u64, &Manifest, &[OrthogonalGrant]), ApiError> {
+        let installed = self.installation(id)?;
+        Ok((
+            installed.status,
+            installed.epoch,
+            &installed.manifest,
+            &installed.orthogonal_grants,
+        ))
+    }
+
+    pub(crate) fn live_session(
+        &self,
+        session: &Session,
+    ) -> Result<(InstallationId, u64, ApiVersion, &SessionCapabilityTable), ApiError> {
+        self.check_owner(&session.owner)?;
+        let connection = self.sessions.get(&session.id).ok_or_else(stale)?;
+        let installed = self.installation(connection.installation)?;
+        if installed.status != Status::Enabled || installed.epoch != connection.epoch {
+            return Err(stale());
+        }
+        Ok((
+            connection.installation,
+            connection.epoch,
+            connection.api_version,
+            &connection.capabilities,
+        ))
+    }
+
+    pub(crate) fn granted_orthogonal_for_resource(
+        &self,
+        id: InstallationId,
+        resource: &Resource,
+        session_table: Option<&SessionCapabilityTable>,
+    ) -> BTreeSet<CapabilityId> {
+        let Ok(installed) = self.installation(id) else {
+            return BTreeSet::new();
+        };
+        if installed.status != Status::Enabled {
+            return BTreeSet::new();
+        }
+        let declared = installed.manifest.effective_orthogonal_requirements();
+        let mut active = BTreeSet::new();
+        for grant in &installed.orthogonal_grants {
+            if grant.capability.as_str() == CAP_CORE_KNOWLEDGE_WRITE
+                && !declared
+                    .iter()
+                    .any(|req| req.id.as_str() == CAP_CORE_KNOWLEDGE_WRITE)
+            {
+                continue;
+            }
+            let Some(req) = declared.iter().find(|req| req.id == grant.capability) else {
+                continue;
+            };
+            let neg_minor = if let Some(table) = session_table {
+                match table.get(&grant.capability) {
+                    Some(entry) if !entry.degraded => match entry.negotiated_minor {
+                        Some(minor) if minor >= grant.min_minor => minor,
+                        _ => continue,
+                    },
+                    _ => continue,
+                }
+            } else {
+                let Some((sup_major, sup_max_minor)) = self.lookup_orthogonal_support(id, req)
+                else {
+                    continue;
+                };
+                match req.negotiate_minor(sup_major, sup_max_minor) {
+                    Some(minor) if minor >= grant.min_minor => minor,
+                    _ => continue,
+                }
+            };
+            if orthogonal_covers(grant, &grant.capability, resource, neg_minor) {
+                active.insert(grant.capability.clone());
+            }
+        }
+        active
+    }
+
+    fn negotiate_capabilities_for_session(
+        &self,
+        id: InstallationId,
+        manifest: &Manifest,
+    ) -> Result<SessionCapabilityTable, ApiError> {
+        let mut entries = BTreeMap::new();
+        for req in manifest.effective_orthogonal_requirements() {
+            let support = self.lookup_orthogonal_support(id, &req);
+            match support {
+                Some((sup_major, sup_max_minor)) => {
+                    if let Some(negotiated_minor) = req.negotiate_minor(sup_major, sup_max_minor) {
+                        entries.insert(
+                            req.id,
+                            NegotiatedCapability {
+                                major: req.major,
+                                negotiated_minor: Some(negotiated_minor),
+                                optional: req.optional,
+                                degraded: false,
+                            },
+                        );
+                    } else if req.optional {
+                        entries.insert(
+                            req.id,
+                            NegotiatedCapability {
+                                major: req.major,
+                                negotiated_minor: None,
+                                optional: true,
+                                degraded: true,
+                            },
+                        );
+                    } else {
+                        return Err(error(
+                            ErrorCode::UnsupportedVersion,
+                            "required orthogonal capability version incompatible",
+                        ));
+                    }
+                }
+                None => {
+                    if req.optional {
+                        entries.insert(
+                            req.id,
+                            NegotiatedCapability {
+                                major: req.major,
+                                negotiated_minor: None,
+                                optional: true,
+                                degraded: true,
+                            },
+                        );
+                    } else {
+                        return Err(error(
+                            ErrorCode::CapabilityUnavailable,
+                            "required orthogonal capability unavailable",
+                        ));
+                    }
+                }
+            }
+        }
+        Ok(SessionCapabilityTable { entries })
+    }
+
+    fn lookup_orthogonal_support(
+        &self,
+        id: InstallationId,
+        req: &CapabilityRequirement,
+    ) -> Option<(u16, u16)> {
+        if let Some(support) = self.supported_orthogonal.get(&req.id) {
+            return Some(*support);
+        }
+        if !req.id.is_extension() {
+            return None;
+        }
+        let mut candidate: Option<(u16, u16)> = None;
+        for (other_id, other) in &self.installations {
+            if *other_id == id || other.status != Status::Enabled {
+                continue;
+            }
+            for endpoint in &other.manifest.provides {
+                if endpoint.service == req.id {
+                    if endpoint.matches_requirement(req) {
+                        return Some((endpoint.major, endpoint.minor));
+                    }
+                    candidate = Some((endpoint.major, endpoint.minor));
+                }
+            }
+        }
+        candidate
+    }
+
+    fn check_orthogonal_request(
+        &self,
+        session: u64,
+        capability: &CapabilityId,
+        resource: &Resource,
+    ) -> Result<(&Connection, &Installation, u16, u16, u16), ApiError> {
+        let connection = self.sessions.get(&session).ok_or_else(stale)?;
+        if connection.api_version < HOST_API_V0_8 {
+            return Err(error(
+                ErrorCode::UnsupportedVersion,
+                "orthogonal capabilities require Host API >= 0.8",
+            ));
+        }
+        let installed = self
+            .installations
+            .get(&connection.installation)
+            .ok_or_else(stale)?;
+        if installed.status != Status::Enabled || connection.epoch != installed.epoch {
+            return Err(stale());
+        }
+        if resource.vault_id() != self.vault_id || !orthogonal_resource_valid(capability, resource)
+        {
+            return Err(error(
+                ErrorCode::PermissionDenied,
+                "orthogonal request outside vault or resource scope",
+            ));
+        }
+        let declared = installed.manifest.effective_orthogonal_requirements();
+        let Some(req) = declared.iter().find(|item| item.id == *capability) else {
+            return Err(error(
+                ErrorCode::PermissionDenied,
+                "orthogonal capability not declared by package",
+            ));
+        };
+        if capability.as_str() == CAP_CORE_KNOWLEDGE_WRITE
+            && !declared
+                .iter()
+                .any(|item| item.id.as_str() == CAP_CORE_KNOWLEDGE_WRITE)
+        {
+            return Err(error(
+                ErrorCode::PermissionDenied,
+                "write capability is never implicitly granted",
+            ));
+        }
+        let Some(negotiated) = connection.capabilities.get(capability) else {
+            return Err(error(
+                ErrorCode::PermissionDenied,
+                "capability absent from session capability table",
+            ));
+        };
+        let negotiated_minor = match negotiated.negotiated_minor {
+            Some(minor) if !negotiated.degraded => minor,
+            _ => {
+                return Err(error(
+                    ErrorCode::CapabilityUnavailable,
+                    "capability degraded or unavailable in current session",
+                ));
+            }
+        };
+        let Some((sup_major, sup_max_minor)) =
+            self.lookup_orthogonal_support(connection.installation, req)
+        else {
+            return Err(error(
+                ErrorCode::CapabilityUnavailable,
+                "orthogonal capability is no longer supported by host",
+            ));
+        };
+        if sup_major != negotiated.major
+            || sup_max_minor < negotiated_minor
+            || req.negotiate_minor(sup_major, sup_max_minor) != Some(negotiated_minor)
+        {
+            return Err(stale());
+        }
+        let matched = installed
+            .orthogonal_grants
+            .iter()
+            .filter(|grant| orthogonal_covers(grant, capability, resource, negotiated_minor))
+            .max_by_key(|grant| grant.min_minor)
+            .ok_or_else(|| {
+                error(
+                    ErrorCode::PermissionDenied,
+                    "request outside granted orthogonal capability or resource",
+                )
+            })?;
+        Ok((
+            connection,
+            installed,
+            negotiated.major,
+            negotiated_minor,
+            matched.min_minor,
+        ))
+    }
 }
 
 fn error(code: ErrorCode, message: &str) -> ApiError {
@@ -663,6 +1260,72 @@ fn required_granted(manifest: &Manifest, grants: &[Grant]) -> bool {
         .required_capabilities
         .iter()
         .all(|cap| grants.iter().any(|grant| grant.capability == *cap))
+}
+fn required_orthogonal_granted(manifest: &Manifest, grants: &[OrthogonalGrant]) -> bool {
+    manifest
+        .effective_orthogonal_requirements()
+        .into_iter()
+        .filter(|req| !req.optional)
+        .all(|req| {
+            grants.iter().any(|grant| {
+                grant.capability == req.id
+                    && grant.min_minor >= req.min_minor
+                    && req.max_minor.is_none_or(|max| grant.min_minor <= max)
+            })
+        })
+}
+fn can_enable_installation(
+    manifest: &Manifest,
+    grants: &[Grant],
+    orthogonal_grants: &[OrthogonalGrant],
+) -> bool {
+    required_granted(manifest, grants)
+        && (manifest.manifest_version < 2
+            || required_orthogonal_granted(manifest, orthogonal_grants))
+}
+fn orthogonal_resource_valid(capability: &CapabilityId, resource: &Resource) -> bool {
+    match capability.as_str() {
+        CAP_CORE_KNOWLEDGE_READ | CAP_CORE_KNOWLEDGE_WRITE | CAP_CORE_CAPTURE_PROPOSE => matches!(
+            resource,
+            Resource::Vault { .. } | Resource::Document { .. } | Resource::Selection { .. }
+        ),
+        CAP_CORE_VOCAB_STUDY | CAP_HOST_UI_SLOT | CAP_HOST_STORAGE_KV => {
+            matches!(resource, Resource::Vault { .. })
+        }
+        CAP_NATIVE_DOCUMENT_RENDER => {
+            matches!(resource, Resource::Vault { .. } | Resource::Document { .. })
+        }
+        _ if capability.is_extension() => matches!(
+            resource,
+            Resource::Vault { .. } | Resource::Document { .. } | Resource::Selection { .. }
+        ),
+        _ => false,
+    }
+}
+fn orthogonal_covers(
+    grant: &OrthogonalGrant,
+    capability: &CapabilityId,
+    resource: &Resource,
+    negotiated_minor: u16,
+) -> bool {
+    grant.capability == *capability
+        && negotiated_minor >= grant.min_minor
+        && grant.resource.vault_id() == resource.vault_id()
+        && (grant.resource == *resource
+            || (matches!(
+                (&grant.resource, resource),
+                (
+                    Resource::Vault { .. },
+                    Resource::Document { .. } | Resource::Selection { .. }
+                )
+            ) && (capability.is_extension()
+                || matches!(
+                    capability.as_str(),
+                    CAP_CORE_KNOWLEDGE_READ
+                        | CAP_CORE_KNOWLEDGE_WRITE
+                        | CAP_CORE_CAPTURE_PROPOSE
+                        | CAP_NATIVE_DOCUMENT_RENDER
+                ))))
 }
 fn covers(grant: &Grant, request: &CapabilityRequest) -> bool {
     grant.capability == request.capability
@@ -698,6 +1361,9 @@ mod internal_tests {
             required_capabilities: vec![],
             optional_capabilities: vec![],
             contributions: vec![],
+            orthogonal_capabilities: vec![],
+            provides: vec![],
+            requires: vec![],
         };
         let id = host.register(manifest, "a".repeat(64)).unwrap();
         host.enable(id).unwrap();

@@ -34,15 +34,58 @@ interface types {
         to-schema: u32,
         snapshot: list<u8>,
     }
+
+    /// Host API 0.8 orthogonal capability requirement (`core.*`, `host.*`, `native.*`,
+    /// or `ext.<provider_ns>.<endpoint>`).
+    record capability-requirement {
+        id: string,
+        major: u16,
+        min-minor: u16,
+        max-minor: option<u16>,
+        optional: bool,
+    }
+
+    /// Per-capability negotiation status frozen into a Host API >= 0.8 session.
+    record negotiated-capability {
+        id: string,
+        major: u16,
+        negotiated-minor: option<u16>,
+        optional: bool,
+        degraded: bool,
+    }
+
+    /// Extension-provided service endpoint in the `ext.<provider_ns>.<endpoint>` namespace.
+    record service-endpoint {
+        service: string,
+        major: u16,
+        minor: u16,
+    }
+
+    /// Bounded opaque frame routed across extensions via `ExtensionRouter`.
+    /// Host validates `1..=16384` byte bounds and enforces `caller ∩ provider` capability
+    /// intersection on `requested-capabilities`.
+    record service-call-frame {
+        request-id: string,
+        service: string,
+        requested-capabilities: list<string>,
+        payload: list<u8>,
+    }
 }
 
 /// Authority-controlled host capability broker imported by regular plugin worlds.
 /// Every call is validated and metered by the Host outside Wasm linear memory.
 interface broker {
-    use types.{error-code};
+    use types.{error-code, negotiated-capability, service-call-frame};
 
-    /// Invoke a Host capability request encoded per `extension-api` wire schema.
+    /// Invoke a Host capability request encoded per `extension-api` wire schema
+    /// (including `CoreKnowledgeRequest` with `protocol_version = 1` on Host API >= 0.8).
     call: func(request: list<u8>) -> result<list<u8>, error-code>;
+
+    /// Inspect per-capability negotiation status (active vs. degraded optional capabilities).
+    session-capabilities: func() -> list<negotiated-capability>;
+
+    /// Forward a bounded opaque frame to a Host-routed `ext.<provider_ns>.<endpoint>` provider.
+    call-service: func(frame: service-call-frame) -> result<list<u8>, error-code>;
 }
 
 /// Bounded streaming response sink imported from the Host (`qusor.emit_chunk`).

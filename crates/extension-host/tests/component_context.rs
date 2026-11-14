@@ -31,6 +31,9 @@ fn facts() -> ComponentInstallation {
                 kind: ContributionKind::ComponentProvider,
                 required_capabilities: vec![Capability::NoteDraftEdit],
             }],
+            orthogonal_capabilities: vec![],
+            provides: vec![],
+            requires: vec![],
         },
         composition: CompositionDescriptor {
             composition_protocol: COMPOSITION_PROTOCOL,

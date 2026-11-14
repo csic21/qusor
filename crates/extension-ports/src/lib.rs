@@ -206,6 +206,9 @@ mod tests {
             required_capabilities: required,
             optional_capabilities: optional,
             contributions: vec![],
+            orthogonal_capabilities: vec![],
+            provides: vec![],
+            requires: vec![],
         }
     }
 

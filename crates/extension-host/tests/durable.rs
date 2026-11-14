@@ -43,6 +43,9 @@ fn snapshot(id: i64, package: &str) -> AuthoritySnapshot {
             required_capabilities: vec![Capability::DocumentMetadataRead],
             optional_capabilities: vec![],
             contributions: vec![],
+            orthogonal_capabilities: vec![],
+            provides: vec![],
+            requires: vec![],
         },
         grants: vec![DurableGrant {
             grant: Grant {

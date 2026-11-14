@@ -24,6 +24,9 @@ fn manifest(name: &str) -> Manifest {
             kind: ContributionKind::NotesWorkspace,
             required_capabilities: vec![Capability::NotesRead],
         }],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     }
 }
 

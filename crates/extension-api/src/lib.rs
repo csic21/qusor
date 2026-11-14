@@ -1,4 +1,4 @@
-//! UI-independent extension policy wire: legacy 0.1 and explicitly negotiated 0.2–0.7.
+//! UI-independent extension policy wire: legacy 0.1 and explicitly negotiated 0.2–0.8.
 //!
 //! These DTOs describe requested capabilities, contribution registration, and an
 //! authorization query. They do not execute plugin code or read/write knowledge.
@@ -9,7 +9,11 @@
 //! directly must also call `validate` before accepting the value. Host policy is
 //! responsible for binding caller identity and checking grants and resource scope.
 
-use std::{collections::BTreeSet, error::Error, fmt};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    error::Error,
+    fmt,
+};
 
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
@@ -27,8 +31,11 @@ pub const HOST_API_V0_5: ApiVersion = ApiVersion { major: 0, minor: 5 };
 pub const HOST_API_V0_6: ApiVersion = ApiVersion { major: 0, minor: 6 };
 /// Explicit opt-in protocol for saved Library selection ranges.
 pub const HOST_API_V0_7: ApiVersion = ApiVersion { major: 0, minor: 7 };
+/// Explicit opt-in protocol for orthogonal capabilities, per-capability negotiation,
+/// and generic service routing.
+pub const HOST_API_V0_8: ApiVersion = ApiVersion { major: 0, minor: 8 };
 /// Implemented versions; support alone grants no authority.
-pub const SUPPORTED_HOST_APIS: [ApiVersion; 7] = [
+pub const SUPPORTED_HOST_APIS: [ApiVersion; 8] = [
     HOST_API,
     HOST_API_V0_2,
     HOST_API_V0_3,
@@ -36,6 +43,7 @@ pub const SUPPORTED_HOST_APIS: [ApiVersion; 7] = [
     HOST_API_V0_5,
     HOST_API_V0_6,
     HOST_API_V0_7,
+    HOST_API_V0_8,
 ];
 
 pub mod component_invocation;
@@ -45,6 +53,7 @@ pub mod draft;
 pub mod invocation;
 pub mod library;
 pub mod notes;
+pub mod orthogonal;
 pub mod platform;
 pub mod projection;
 pub mod surface;
@@ -236,22 +245,46 @@ pub struct Manifest {
     pub required_capabilities: Vec<Capability>,
     pub optional_capabilities: Vec<Capability>,
     pub contributions: Vec<Contribution>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub orthogonal_capabilities: Vec<orthogonal::CapabilityRequirement>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub provides: Vec<orthogonal::ServiceEndpoint>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub requires: Vec<orthogonal::CapabilityRequirement>,
 }
 
 impl Manifest {
     /// Validate structure, namespace containment, declarations, and manifest version.
     pub fn validate(&self) -> Result<(), ApiError> {
-        if self.manifest_version != 1 {
+        if !matches!(self.manifest_version, 1 | 2) {
             return Err(ApiError::new(
                 ErrorCode::UnsupportedVersion,
-                "unsupported manifest_version; expected 1",
+                "unsupported manifest_version; expected 1 or 2",
             ));
         }
         let code = ErrorCode::InvalidManifest;
+        if self.manifest_version == 1
+            && (!self.orthogonal_capabilities.is_empty()
+                || !self.provides.is_empty()
+                || !self.requires.is_empty())
+        {
+            return Err(ApiError::new(
+                code,
+                "orthogonal_capabilities, provides, and requires require manifest_version 2",
+            ));
+        }
         validate_namespace(&self.package_id, MAX_ID_BYTES, "package_id", code)?;
         validate_namespace(&self.publisher_id, MAX_ID_BYTES, "publisher_id", code)?;
         if self.host_api.min_minor > self.host_api.max_minor {
             return Err(ApiError::new(code, "host_api range is inverted"));
+        }
+        if self.manifest_version == 2
+            && (self.host_api.major != 0 || self.host_api.min_minor < HOST_API_V0_8.minor)
+        {
+            return Err(ApiError::new(
+                code,
+                "manifest_version 2 requires minimum Host API 0.8",
+            ));
         }
 
         let mut declared = validate_capabilities(&self.required_capabilities, code)?;
@@ -418,7 +451,99 @@ impl Manifest {
                 }
             }
         }
+        if self.orthogonal_capabilities.len() + self.requires.len()
+            > orthogonal::MAX_ORTHOGONAL_CAPABILITIES
+        {
+            return Err(ApiError::new(code, "too many orthogonal capabilities"));
+        }
+        let mut seen_orthogonal = BTreeSet::new();
+        for req in &self.orthogonal_capabilities {
+            req.validate(code)?;
+            if !seen_orthogonal.insert(req.id.clone()) {
+                return Err(ApiError::new(code, "duplicate orthogonal capability"));
+            }
+        }
+        let mut seen_requires = BTreeSet::new();
+        for req in &self.requires {
+            req.validate(code)?;
+            if !seen_requires.insert(req.id.clone()) {
+                return Err(ApiError::new(code, "duplicate service requirement"));
+            }
+        }
+        if self.provides.len() > orthogonal::MAX_SERVICE_ENDPOINTS {
+            return Err(ApiError::new(code, "too many provided service endpoints"));
+        }
+        let mut seen_provides = BTreeSet::new();
+        for endpoint in &self.provides {
+            endpoint.validate(code)?;
+            if !endpoint.service.is_extension() {
+                return Err(ApiError::new(
+                    code,
+                    "provided service endpoint must use ext.<provider_ns>.<endpoint> namespace",
+                ));
+            }
+            if !seen_provides.insert(endpoint.service.clone()) {
+                return Err(ApiError::new(code, "duplicate provided service endpoint"));
+            }
+            if seen_requires.contains(&endpoint.service)
+                || seen_orthogonal.contains(&endpoint.service)
+            {
+                return Err(ApiError::new(
+                    code,
+                    "manifest cannot require a service it provides",
+                ));
+            }
+        }
+        let mut merged =
+            BTreeMap::<orthogonal::CapabilityId, orthogonal::CapabilityRequirement>::new();
+        for req in self.orthogonal_capabilities.iter().chain(&self.requires) {
+            if let Some(existing) = merged.get_mut(&req.id) {
+                merge_orthogonal_requirement(existing, req, code)?;
+            } else {
+                merged.insert(req.id.clone(), req.clone());
+            }
+        }
         Ok(())
+    }
+
+    /// Project legacy v1 capabilities (read-only capabilities never yield
+    /// `core.knowledge.write`) and merge/deduplicate with `orthogonal_capabilities`
+    /// and `requires`.
+    pub fn effective_orthogonal_requirements(&self) -> Vec<orthogonal::CapabilityRequirement> {
+        let mut merged =
+            BTreeMap::<orthogonal::CapabilityId, orthogonal::CapabilityRequirement>::new();
+
+        for (cap, optional) in self
+            .required_capabilities
+            .iter()
+            .map(|cap| (*cap, false))
+            .chain(self.optional_capabilities.iter().map(|cap| (*cap, true)))
+        {
+            let id = orthogonal::CapabilityId::parse(orthogonal::project_legacy_capability(cap))
+                .expect("projected standard orthogonal capability is always valid");
+            let req = orthogonal::CapabilityRequirement {
+                id,
+                major: 1,
+                min_minor: 0,
+                max_minor: None,
+                optional,
+            };
+            if let Some(existing) = merged.get_mut(&req.id) {
+                let _ = merge_orthogonal_requirement(existing, &req, ErrorCode::InvalidManifest);
+            } else {
+                merged.insert(req.id.clone(), req);
+            }
+        }
+
+        for req in self.orthogonal_capabilities.iter().chain(&self.requires) {
+            if let Some(existing) = merged.get_mut(&req.id) {
+                let _ = merge_orthogonal_requirement(existing, req, ErrorCode::InvalidManifest);
+            } else {
+                merged.insert(req.id.clone(), req.clone());
+            }
+        }
+
+        merged.into_values().collect()
     }
 
     /// Compatibility includes the manifest wire's feature vocabulary, not just
@@ -426,6 +551,7 @@ impl Manifest {
     pub fn supports_api(&self, version: ApiVersion) -> bool {
         is_supported_api(version)
             && self.host_api.supports(version)
+            && (self.manifest_version == 1 || version >= HOST_API_V0_8)
             && self
                 .required_capabilities
                 .iter()
@@ -674,7 +800,7 @@ fn validate_namespace(
     Ok(())
 }
 
-fn validate_opaque_id(value: &str, field: &str) -> Result<(), ApiError> {
+pub fn validate_opaque_id(value: &str, field: &str) -> Result<(), ApiError> {
     if value.len() > MAX_ID_BYTES
         || !value
             .as_bytes()
@@ -725,4 +851,35 @@ fn encode_json<T: Serialize>(value: &T, limit: usize, code: ErrorCode) -> Result
         ));
     }
     Ok(json)
+}
+
+fn merge_orthogonal_requirement(
+    existing: &mut orthogonal::CapabilityRequirement,
+    incoming: &orthogonal::CapabilityRequirement,
+    code: ErrorCode,
+) -> Result<(), ApiError> {
+    if existing.major != incoming.major {
+        return Err(ApiError::new(
+            code,
+            "conflicting major versions for orthogonal capability",
+        ));
+    }
+    let min_minor = existing.min_minor.max(incoming.min_minor);
+    let max_minor = match (existing.max_minor, incoming.max_minor) {
+        (Some(a), Some(b)) => Some(a.min(b)),
+        (Some(a), None) | (None, Some(a)) => Some(a),
+        (None, None) => None,
+    };
+    if let Some(max) = max_minor
+        && min_minor > max
+    {
+        return Err(ApiError::new(
+            code,
+            "disjoint minor version ranges for orthogonal capability",
+        ));
+    }
+    existing.min_minor = min_minor;
+    existing.max_minor = max_minor;
+    existing.optional = existing.optional && incoming.optional;
+    Ok(())
 }

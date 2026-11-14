@@ -63,6 +63,9 @@ fn manifest(min_minor: u16) -> Manifest {
             kind: ContributionKind::LibraryWorkspace,
             required_capabilities: vec![Capability::LibraryRead],
         }],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     }
 }
 
@@ -390,7 +393,7 @@ fn library_vocabulary_supports_api_0_6_and_0_7() {
     ));
     for version in SUPPORTED_HOST_APIS
         .into_iter()
-        .filter(|version| !matches!(*version, HOST_API_V0_6 | HOST_API_V0_7))
+        .filter(|version| *version < HOST_API_V0_6)
     {
         assert!(!capability_available_in(Capability::LibraryRead, version));
     }

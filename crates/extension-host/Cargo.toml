@@ -9,6 +9,7 @@ publish.workspace = true
 description = "QUSOR headless extension authorization and lifecycle policy."
 
 [dependencies]
+capability-composition = { path = "../capability-composition" }
 extension-api = { path = "../extension-api" }
 extension-ports = { path = "../extension-ports" }
 

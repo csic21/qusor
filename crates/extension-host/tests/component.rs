@@ -23,6 +23,9 @@ fn manifest(name: &str) -> Manifest {
             kind: ContributionKind::ComponentProvider,
             required_capabilities: vec![Capability::NoteDraftEdit],
         }],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     }
 }
 fn descriptor(name: &str) -> CompositionDescriptor {

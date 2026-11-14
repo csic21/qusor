@@ -69,7 +69,7 @@ fn canonical_base64_and_strict_resource_versions() {
         ApiVersion { major: 0, minor: 0 },
         HOST_API,
         HOST_API_V0_2,
-        ApiVersion { major: 0, minor: 8 },
+        ApiVersion { major: 0, minor: 9 },
     ] {
         let mut r = request(ContinuationOperation::ReadMetadata {});
         r.api_version = version;

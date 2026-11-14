@@ -85,3 +85,20 @@
    - 包必须显式声明 `algorithm = "dev-unsigned"` 且无签名串（防止合法/伪造 Ed25519 包静默降级）。
    - 规范 JSON 排序、路径防穿越、SHA-256 文件哈希、Wasm 魔数检查、manifest schema 与 `PackageBudgets` 上限校验**全部照常执行**。
    - 返回的 `VerifiedPackage::is_dev_unsigned()` 恒为 `true`，供宿主在状态栏/审计记录中强制标记「未签名开发包」，且严禁写入正式生产信任库或长期签名授权记录。
+
+## 5. Host API 0.8 正交能力与通用服务路由（[ADR 0049](../docs/architecture/adr/0049-cumulative-host-api-and-capability-evolution.md)）
+
+为避免每新增一个领域便膨胀旧 `Capability` / `ContributionKind` 枚举，Host API `0.8`（`HOST_API_V0_8`）保持 `0.1–0.7` 全部契约累积向后兼容，并在 [orthogonal.rs](../crates/extension-api/src/orthogonal.rs) 与 [router.rs](../crates/extension-host/src/router.rs) 引入正交原语与通用路由：
+
+1. **命名空间能力原语与 `Manifest` v1/v2 演进**：
+   - 标准正交能力常量：`core.knowledge.read`、`core.knowledge.write`、`core.capture.propose`、`core.vocab.study`、`host.ui.slot`、`host.storage.kv`、`native.document.render`。
+   - 第三方/扩展服务命名空间：`ext.<provider_ns>.<endpoint>`（严格校验小写 ASCII 段式与长度上限，未知命名空间 fail-closed）。
+   - `Manifest` 在保持 `manifest_version = 1` 零破坏的前提下支持 `manifest_version = 2` 与可缺省字段 `orthogonal_capabilities`、`provides`、`requires`；`Manifest::effective_orthogonal_requirements()` 将旧只读能力投影为只读正交需求，**严禁向任何旧只读包隐式授予 `core.knowledge.write`**。
+2. **Core Knowledge Wire 协议（`CORE_KNOWLEDGE_PROTOCOL = 1`）**：
+   - `CoreKnowledgeRequest` / `CoreKnowledgeResponse`（`#[serde(deny_unknown_fields)]`、严格有界、不泄露本地路径/SQL/凭证）。
+   - Read 操作需要 `core.knowledge.read`；Write 操作（`UpdateCaptureNote`、`DeleteCapture`、`DeleteDocument`）需要显式声明并授予 `core.knowledge.write`；Capture 操作（`CaptureEpubSelection`）需要 `core.capture.propose`，归属 provenance 由 Host 权威上下文填充，请求中禁止伪造安装或身份字段。
+3. **每能力协商与独立降级（`SessionCapabilityTable`）**：
+   - `Host::open_orthogonal_session` 与 `Host::open_negotiated_session` 为每个会话冻结 `SessionCapabilityTable`，记录每项能力的 `(major, negotiated_minor, optional, degraded)`；可选能力不兼容或缺失时独立标记为 `degraded = true` 而不阻断会话，必选能力缺失则 fail-closed。
+4. **通用服务路由器（`ExtensionRouter`）**：
+   - 接入 `capability-composition` 对 `provides`/`requires` 依赖图执行静态无环与版本兼容性校验（`DependencyCycle` 等映射为显式错误）。
+   - `authorize_service_call`、`authorize_forwarded_call` 与 `dispatch_service_call` 校验有界不透明帧（`1..=16 KiB`），强制计算调用链委托能力交集 `caller ∩ provider`（严禁借高权限 provider 提权），并在禁用、撤销 grant（epoch 围栏）或卸载后立即停用路由与使在途 permit 失效。

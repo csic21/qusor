@@ -84,6 +84,9 @@ fn cross_domain_manifest() -> Manifest {
                 required_capabilities: vec![Capability::ReaderSurface, Capability::SelectionRead],
             },
         ],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     }
 }
 
@@ -330,6 +333,9 @@ fn legacy_packages_keep_old_session_behavior_and_reject_unupgraded_versions() {
             title: "Notes".into(),
             required_capabilities: vec![Capability::NotesRead],
         }],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     };
     let notes_id = host.register(notes_manifest, "c".repeat(64)).unwrap();
     host.replace_grants(
@@ -388,6 +394,9 @@ fn legacy_packages_keep_old_session_behavior_and_reject_unupgraded_versions() {
             title: "Vocab".into(),
             required_capabilities: vec![Capability::VocabRead],
         }],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     };
     let vocab_id = host.register(vocab_manifest, "d".repeat(64)).unwrap();
     host.replace_grants(
@@ -450,6 +459,9 @@ fn component_provider_works_above_api_0_3_and_rejects_unsupported() {
             title: "Editor".into(),
             required_capabilities: vec![Capability::NoteDraftEdit],
         }],
+        orthogonal_capabilities: vec![],
+        provides: vec![],
+        requires: vec![],
     };
     let id = host.register(manifest, "e".repeat(64)).unwrap();
     let descriptor = CompositionDescriptor {
@@ -505,7 +517,7 @@ fn component_provider_works_above_api_0_3_and_rejects_unsupported() {
 
     // Unsupported version fails closed.
     let bad_cont = ContinuationRequest {
-        api_version: ApiVersion { major: 0, minor: 8 },
+        api_version: ApiVersion { major: 0, minor: 9 },
         continuation_protocol: CONTINUATION_PROTOCOL,
         request_id: "ct-bad".into(),
         resource: Resource::Draft {

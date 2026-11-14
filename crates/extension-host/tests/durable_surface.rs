@@ -78,6 +78,9 @@ fn snapshot(id: i64, package: &str) -> AuthoritySnapshot {
                 kind: ContributionKind::ReaderWorkspace,
                 required_capabilities: vec![Capability::ReaderSurface],
             }],
+            orthogonal_capabilities: vec![],
+            provides: vec![],
+            requires: vec![],
         },
         grants: vec![Capability::ReaderSurface, Capability::SelectionRead]
             .into_iter()
