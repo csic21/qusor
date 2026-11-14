@@ -2,7 +2,7 @@
 //!
 //! This query returns metadata only. It never returns original PDF bytes, CAS
 //! blobs, filesystem paths, selections, notes or plugin authority.
-use crate::KnowledgeApplication;
+use crate::knowledge::KnowledgeApplication;
 use core_api::{
     knowledge::{KnowledgeError, KnowledgeErrorCode, PdfReceipt, Provenance, Result},
     pdf_contract::{PDF_TEXT_UNIT, PdfDraft},

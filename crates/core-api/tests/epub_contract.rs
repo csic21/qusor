@@ -5,7 +5,7 @@ use core_api::{
         EpubDraft, EpubSnapshot, EpubTocEntry, MAX_EPUB_CHAPTER_BYTES, MAX_EPUB_CHAPTERS,
         MAX_EPUB_TOC_ENTRIES, resolve_epub,
     },
-    knowledge::{ArchiveV2, KnowledgeErrorCode, validate_archive},
+    knowledge::{ArchiveV2, KnowledgeErrorCode},
 };
 
 fn sample_snapshot() -> EpubSnapshot {
@@ -196,12 +196,12 @@ fn archive_v2_without_epub_fields_deserializes_and_validates() {
     let decoded: ArchiveV2 = serde_json::from_str(legacy_json).unwrap();
     assert!(decoded.epub_documents.is_empty());
     assert!(decoded.epub_captures.is_empty());
-    assert!(validate_archive(&decoded).is_ok());
+    assert!(decoded.validate_envelope().is_ok());
 
     let mut wrong_version = decoded;
     wrong_version.schema_version = 4;
     assert_eq!(
-        validate_archive(&wrong_version).unwrap_err().code,
+        wrong_version.validate_envelope().unwrap_err().code,
         KnowledgeErrorCode::UnsupportedVersion
     );
 }

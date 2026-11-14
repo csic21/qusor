@@ -5,7 +5,6 @@ use core_api::{
     knowledge::{
         ArchiveV2, BinaryBlob, CommitEntry, KnowledgeErrorCode, PdfCaptureRecord,
         PdfDocumentReceipt, PdfDocumentRecord, PdfOperationEntry, PdfReceipt, Provenance,
-        archive_schema_version, commit_for_pdf, operation_for_capture, operation_for_document,
     },
     pdf_contract::{PDF_NORMALIZATION, PDF_TEXT_UNIT, PdfDraft, PdfSnapshot},
     vocab::{NewWord, StudyRating, WordbookSeed},
@@ -14,6 +13,9 @@ use learning_application::{
     KnowledgeApplication, pdf_notes::NoteBodyField, study::StudyApplication,
 };
 use learning_ports::KnowledgeArchive;
+use learning_ports::archive::{
+    archive_schema_version, commit_for_pdf, operation_for_capture, operation_for_document,
+};
 use std::{
     fs,
     path::PathBuf,

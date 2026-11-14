@@ -5,7 +5,9 @@
 //! Review history is the durable audit record. The current schedule is derived
 //! state that must stay consistent with it; export and restore carry both so a
 //! reopened Core can continue studying without the plugin that seeded a book.
-use crate::error::{KnowledgeError, KnowledgeErrorCode, KnowledgeResult as Result};
+use crate::error::{
+    KnowledgeError, KnowledgeErrorCode, KnowledgeResult as Result, is_bounded_text,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -63,24 +65,15 @@ pub const DAILY_NEW_LIMIT: u32 = 10;
 pub const MAX_QUEUE_SIZE: usize = 50;
 
 fn invalid<T>(message: &'static str) -> Result<T> {
-    Err(KnowledgeError::new(
-        KnowledgeErrorCode::InvalidInput,
-        message,
-    ))
+    Err(KnowledgeError::invalid_input(message))
 }
 
 fn corrupt<T>(message: &'static str) -> Result<T> {
-    Err(KnowledgeError::new(KnowledgeErrorCode::Integrity, message))
+    Err(KnowledgeError::integrity(message))
 }
 
 fn text_ok(value: &str, max: usize, required: bool, allow_newline: bool) -> bool {
-    if required && value.is_empty() {
-        return false;
-    }
-    value.len() <= max
-        && value
-            .chars()
-            .all(|ch| !ch.is_control() || (allow_newline && ch == '\n'))
+    is_bounded_text(value, max, required, allow_newline, false)
 }
 
 fn vault_ok(vault: &str) -> bool {

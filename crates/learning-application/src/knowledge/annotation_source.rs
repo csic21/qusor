@@ -1,5 +1,5 @@
 //! Immutable application source facts, never a plugin authorization or Surface lease.
-use crate::KnowledgeApplication;
+use crate::knowledge::KnowledgeApplication;
 use core_api::{
     knowledge::{
         KnowledgeError, KnowledgeErrorCode, PdfReceipt, Provenance, Result, validate_native,

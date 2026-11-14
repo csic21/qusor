@@ -1,8 +1,13 @@
 //! Immutable EPUB chapter and table-of-contents contract.
 //! No parser, filesystem, SQL, runtime, or UI implementation belongs here.
-use crate::contract::sha256;
+use crate::{
+    contract::sha256,
+    error::{
+        encode_bounded_json, is_bounded_label, is_bounded_text, is_grapheme_boundary,
+        is_sha256_hex, parse_bounded_json,
+    },
+};
 use serde::{Deserialize, Serialize};
-use unicode_segmentation::UnicodeSegmentation;
 
 /// Protocol version for EPUB anchor drafts and capture selections.
 pub const EPUB_PROTOCOL_VERSION: u16 = 1;
@@ -52,71 +57,54 @@ pub enum EpubContractErrorCode {
     NoText,
 }
 
-/// Typed EPUB contract error.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct EpubContractError {
-    pub code: EpubContractErrorCode,
-    pub message: &'static str,
-}
-
-impl std::fmt::Display for EpubContractError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}: {}", self.code, self.message)
+crate::define_contract_error! {
+    /// Typed EPUB contract error.
+    pub struct EpubContractError(EpubContractErrorCode) {
+        Malformed => InvalidInput,
+        BudgetExceeded => BudgetExceeded,
+        UnsupportedVersion => UnsupportedVersion,
+        InvalidIdentity => InvalidInput,
+        InvalidSelector => InvalidInput,
+        InvalidBoundary => InvalidInput,
+        QuoteMismatch => InvalidInput,
+        HashMismatch => Integrity,
+        OriginalMismatch => Integrity,
+        NoText => InvalidInput,
     }
 }
 
-impl std::error::Error for EpubContractError {}
-
-fn err(code: EpubContractErrorCode, message: &'static str) -> EpubContractError {
-    EpubContractError { code, message }
+const fn err(code: EpubContractErrorCode, message: &'static str) -> EpubContractError {
+    EpubContractError::new(code, message)
 }
 
 fn digest_ok(value: &str) -> bool {
-    value.len() == 64
-        && value
-            .bytes()
-            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+    is_sha256_hex(value)
 }
 
 fn label_ok(value: &str, max: usize, required: bool) -> bool {
-    if required && value.is_empty() {
-        return false;
-    }
-    value.len() <= max && !value.chars().any(char::is_control)
+    is_bounded_label(value, max, required)
 }
 
 fn chapter_text_ok(value: &str, max: usize) -> bool {
-    value.len() <= max
-        && !value
-            .chars()
-            .any(|ch| ch.is_control() && !matches!(ch, '\n' | '\r' | '\t'))
+    is_bounded_text(value, max, false, true, true)
 }
 
 fn encode<T: Serialize>(value: &T, limit: usize) -> Result<Vec<u8>> {
-    let bytes = serde_json::to_vec(value)
-        .map_err(|_| err(EpubContractErrorCode::Malformed, "cannot encode EPUB JSON"))?;
-    if bytes.len() > limit {
-        return Err(err(
-            EpubContractErrorCode::BudgetExceeded,
-            "EPUB JSON exceeds budget",
-        ));
-    }
-    Ok(bytes)
+    encode_bounded_json(
+        value,
+        limit,
+        "cannot encode EPUB JSON",
+        "EPUB JSON exceeds budget",
+    )
 }
 
 fn parse<T: serde::de::DeserializeOwned>(bytes: &[u8], limit: usize) -> Result<T> {
-    if bytes.len() > limit {
-        return Err(err(
-            EpubContractErrorCode::BudgetExceeded,
-            "EPUB JSON exceeds budget",
-        ));
-    }
-    serde_json::from_slice(bytes).map_err(|_| {
-        err(
-            EpubContractErrorCode::Malformed,
-            "invalid, unknown or duplicate EPUB JSON fields",
-        )
-    })
+    parse_bounded_json(
+        bytes,
+        limit,
+        "EPUB JSON exceeds budget",
+        "invalid, unknown or duplicate EPUB JSON fields",
+    )
 }
 
 /// Extracted immutable text snapshot of one EPUB spine chapter.
@@ -375,14 +363,9 @@ pub fn resolve_epub(snapshot: &EpubSnapshot, draft: &EpubDraft) -> Result<EpubSe
     let (Some(byte_start), Some(byte_end)) = (byte_start, byte_end) else {
         return Err(err(InvalidSelector, "range outside chapter"));
     };
-    let boundary = |byte| {
-        byte == chapter.text.len()
-            || chapter
-                .text
-                .grapheme_indices(true)
-                .any(|(idx, _)| idx == byte)
-    };
-    if !boundary(byte_start) || !boundary(byte_end) {
+    if !is_grapheme_boundary(&chapter.text, byte_start)
+        || !is_grapheme_boundary(&chapter.text, byte_end)
+    {
         return Err(err(
             InvalidBoundary,
             "EPUB selection splits an extended grapheme",

@@ -4,7 +4,7 @@
 //! with drafts. A window is a provider view: range validation does not prove
 //! paragraph ordinals or EOF are semantically truthful. This registry never
 //! parses paragraphs, writes draft text, or touches an editing owner/upload.
-use crate::{
+use crate::session::{
     annotation_draft::AnnotationDrafts,
     draft_text::{DraftId, MAX_CHUNK_BYTES, MAX_DRAFTS, MAX_TEXT_BYTES},
 };

@@ -1,6 +1,6 @@
 //! Bounded EPUB import, library listing, chapter text reading, TOC queries,
 //! selection captures, and note management for trusted consumers.
-use crate::{
+use crate::knowledge::{
     KnowledgeApplication,
     pdf_library::{MAX_LIBRARY_PAGE, MAX_SAVED_SELECTIONS, MIN_LIBRARY_TEXT_CHUNK},
     pdf_notes::{MAX_NOTE_CHUNK_BYTES, MAX_NOTE_PAGE, NOTE_PREVIEW_BYTES, NoteBodyField},

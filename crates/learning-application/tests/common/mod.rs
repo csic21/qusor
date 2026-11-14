@@ -1,6 +1,9 @@
 //! Shared synthetic Core fixture and explicitly injected lost-reply store.
 use core_api::knowledge::*;
 use learning_application::KnowledgeApplication;
+use learning_ports::archive::{
+    archive_schema_version, epub_capture_input, operation_for_capture, validate_archive,
+};
 #[allow(deprecated)]
 use learning_ports::{CommitPlan, KnowledgeStore};
 pub struct Memory {
