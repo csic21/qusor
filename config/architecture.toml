@@ -22,6 +22,8 @@ workspace_manifests = [
   "apps/qusor/bridges/Cargo.toml",
   "apps/qusor/android-jni/Cargo.toml",
   "apps/qusor/native/Cargo.toml",
+  "sdk/qusor-sdk/Cargo.toml",
+  "plugins/vocab/Cargo.toml",
 ]
 
 # C-17: the packaged app is assembled under apps/ as independent workspaces so the
@@ -42,7 +44,17 @@ allowed_dependencies = ["jni", "libc"]
 
 [apps.qusor.packages.qusor-app-native]
 manifest = "apps/qusor/native/Cargo.toml"
-allowed_dependencies = ["capability-composition", "core-api", "extension-api", "extension-host", "extension-package", "learning-application", "learning-ports", "nsh-core", "png", "qusor-android-jni", "qusor-app-bridges", "qusor-pdf-provider", "serde", "serde_json", "storage-sqlite", "zip"]
+allowed_dependencies = ["capability-composition", "core-api", "extension-api", "extension-host", "extension-package", "extension-runtime-api", "learning-application", "learning-ports", "nsh-core", "png", "qusor-android-jni", "qusor-app-bridges", "qusor-pdf-provider", "runtime-wasm", "serde", "serde_json", "storage-sqlite", "zip"]
+
+[sdk.qusor-sdk.packages.qusor-sdk]
+manifest = "sdk/qusor-sdk/Cargo.toml"
+allowed_dependencies = ["extension-api", "serde", "serde_json"]
+allowed_transitive_dependencies = ["base64", "extension-api", "itoa", "memchr", "proc-macro2", "quote", "serde", "serde_core", "serde_derive", "serde_json", "syn", "unicode-ident", "zmij"]
+
+[plugins.vocab.packages.qusor-vocab]
+manifest = "plugins/vocab/Cargo.toml"
+allowed_dependencies = ["extension-api", "qusor-sdk", "serde", "serde_json"]
+allowed_transitive_dependencies = ["base64", "extension-api", "itoa", "memchr", "proc-macro2", "quote", "qusor-sdk", "serde", "serde_core", "serde_derive", "serde_json", "syn", "unicode-ident", "zmij"]
 
 # See ADR 0004: the policy kernel does not execute plugins or write knowledge.
 [packages.learning-domain]

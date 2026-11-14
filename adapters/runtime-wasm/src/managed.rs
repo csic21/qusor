@@ -116,47 +116,24 @@ impl WasmiSession {
             .begin_turn(&turn_limits, streaming_active);
 
         let result = (|| {
-            let (mut slice, _) = prepare_turn_fuel(&mut self.store, &turn_limits)?;
-            let mut spent = 0u64;
+            let (slice, _) = prepare_turn_fuel(&mut self.store, &turn_limits)?;
+            let spent;
 
             let (pointer, length) = if let Ok(func) = self
                 .instance
                 .get_typed_func::<(i32, i32), (i32, i32)>(&self.store, entrypoint)
             {
-                let input_len_i32 = i32::try_from(input.len())
-                    .map_err(|_| RuntimeError::new("host_buffer_limit"))?;
-                let input_ptr = if input.is_empty() {
-                    0
-                } else {
-                    let alloc = self
-                        .instance
-                        .get_typed_func::<i32, i32>(&self.store, "qusor_alloc")
-                        .or_else(|_| {
-                            self.instance
-                                .get_typed_func::<i32, i32>(&self.store, "alloc")
-                        })
-                        .map_err(|_| RuntimeError::new("invalid_entrypoint"))?;
-                    let (ptr, alloc_spent, next_slice) = drive_resumable(
-                        &mut self.store,
-                        &self.memory,
-                        &self.budgets,
-                        &turn_limits,
-                        alloc,
-                        input_len_i32,
-                        slice,
-                        0,
-                        broker,
-                        &mut sink,
-                    )?;
-                    spent = alloc_spent;
-                    slice = next_slice;
-                    let offset =
-                        usize::try_from(ptr).map_err(|_| RuntimeError::new("invalid_pointer"))?;
-                    self.memory
-                        .write(&mut self.store, offset, input)
-                        .map_err(|_| RuntimeError::new("invalid_pointer"))?;
-                    ptr
-                };
+                let (input_ptr, input_len_i32, alloc_spent, next_slice) = write_guest_input(
+                    &self.instance,
+                    &mut self.store,
+                    &self.memory,
+                    &self.budgets,
+                    &turn_limits,
+                    input,
+                    slice,
+                    broker,
+                    &mut sink,
+                )?;
                 let (output_pair, total_spent, _) = drive_resumable(
                     &mut self.store,
                     &self.memory,
@@ -164,32 +141,81 @@ impl WasmiSession {
                     &turn_limits,
                     func,
                     (input_ptr, input_len_i32),
-                    slice,
-                    spent,
+                    next_slice,
+                    alloc_spent,
                     broker,
                     &mut sink,
                 )?;
                 spent = total_spent;
                 output_pair
-            } else if input.is_empty() {
-                let func = self
-                    .instance
-                    .get_typed_func::<(), (i32, i32)>(&self.store, entrypoint)
-                    .map_err(|_| RuntimeError::new("invalid_entrypoint"))?;
-                let (output_pair, total_spent, _) = drive_resumable(
+            } else if let Ok(func) = self
+                .instance
+                .get_typed_func::<(i32, i32), i64>(&self.store, entrypoint)
+            {
+                let (input_ptr, input_len_i32, alloc_spent, next_slice) = write_guest_input(
+                    &self.instance,
+                    &mut self.store,
+                    &self.memory,
+                    &self.budgets,
+                    &turn_limits,
+                    input,
+                    slice,
+                    broker,
+                    &mut sink,
+                )?;
+                let (packed, total_spent, _) = drive_resumable(
                     &mut self.store,
                     &self.memory,
                     &self.budgets,
                     &turn_limits,
                     func,
-                    (),
-                    slice,
-                    0,
+                    (input_ptr, input_len_i32),
+                    next_slice,
+                    alloc_spent,
                     broker,
                     &mut sink,
                 )?;
                 spent = total_spent;
-                output_pair
+                unpack_ptr_len(packed)
+            } else if input.is_empty() {
+                if let Ok(func) = self
+                    .instance
+                    .get_typed_func::<(), (i32, i32)>(&self.store, entrypoint)
+                {
+                    let (output_pair, total_spent, _) = drive_resumable(
+                        &mut self.store,
+                        &self.memory,
+                        &self.budgets,
+                        &turn_limits,
+                        func,
+                        (),
+                        slice,
+                        0,
+                        broker,
+                        &mut sink,
+                    )?;
+                    spent = total_spent;
+                    output_pair
+                } else {
+                    let func = self
+                        .instance
+                        .get_typed_func::<(), i64>(&self.store, entrypoint)
+                        .map_err(|_| RuntimeError::new("invalid_entrypoint"))?;
+                    let (packed, total_spent, _) = drive_resumable(
+                        &mut self.store,
+                        &self.memory,
+                        &self.budgets,
+                        &turn_limits,
+                        func,
+                        (),
+                        slice,
+                        0,
+                        broker,
+                        &mut sink,
+                    )?;
+                    spent = total_spent;
+                    unpack_ptr_len(packed)
+                }
             } else {
                 return Err(RuntimeError::new("invalid_entrypoint"));
             };
@@ -608,4 +634,51 @@ fn prepare_stream_chunk(
     caller.data_mut().turn_chunks += 1;
     caller.data_mut().turn_stream_bytes = next_total;
     Ok(HostYield::StreamChunk { chunk })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn write_guest_input(
+    instance: &wasmi::Instance,
+    store: &mut Store<SessionState>,
+    memory: &Memory,
+    budgets: &RuntimeBudgets,
+    turn_limits: &ExecutionLimits,
+    input: &[u8],
+    slice: u64,
+    broker: &mut dyn CapabilityBroker,
+    sink: &mut Option<&mut dyn ResponseSink>,
+) -> Result<(i32, i32, u64, u64)> {
+    let input_len_i32 =
+        i32::try_from(input.len()).map_err(|_| RuntimeError::new("host_buffer_limit"))?;
+    if input.is_empty() {
+        return Ok((0, 0, 0, slice));
+    }
+    let alloc = instance
+        .get_typed_func::<i32, i32>(&*store, "qusor_alloc")
+        .or_else(|_| instance.get_typed_func::<i32, i32>(&*store, "alloc"))
+        .map_err(|_| RuntimeError::new("invalid_entrypoint"))?;
+    let (ptr, alloc_spent, next_slice) = drive_resumable(
+        store,
+        memory,
+        budgets,
+        turn_limits,
+        alloc,
+        input_len_i32,
+        slice,
+        0,
+        broker,
+        sink,
+    )?;
+    let offset = usize::try_from(ptr).map_err(|_| RuntimeError::new("invalid_pointer"))?;
+    memory
+        .write(&mut *store, offset, input)
+        .map_err(|_| RuntimeError::new("invalid_pointer"))?;
+    Ok((ptr, input_len_i32, alloc_spent, next_slice))
+}
+
+fn unpack_ptr_len(packed: i64) -> (i32, i32) {
+    let raw = packed as u64;
+    let pointer = (raw & 0xffff_ffff) as u32 as i32;
+    let length = (raw >> 32) as u32 as i32;
+    (pointer, length)
 }

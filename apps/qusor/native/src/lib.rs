@@ -16,6 +16,7 @@ pub mod pdf_page;
 pub mod pdf_reader;
 #[cfg(unix)]
 mod pdf_service;
+pub mod plugin_slot;
 pub mod profile;
 mod runtime;
 pub mod vault;
@@ -29,6 +30,7 @@ fn native(registry: &mut Registry) {
     registry.module::<app_info::AppInfo>();
     registry.module::<composition_native::CompositionHost>();
     registry.module::<notes_native::NotesHost>();
+    registry.module::<plugin_slot::PluginSlotHost>();
     registry.module::<vocab_native::VocabHost>();
     registry.module::<library_native::LibraryHost>();
 }

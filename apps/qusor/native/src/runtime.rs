@@ -182,9 +182,26 @@ pub(crate) fn set_package_enabled(
             if let Some(replacement) = replacement {
                 *guard = Some(replacement);
             }
+            crate::plugin_slot::unmount_for_package(package_id);
         }
     }
     workspace_report(sys)
+}
+
+pub(crate) fn ensure_contribution_active(
+    sys: &System,
+    contribution_id: &str,
+) -> Result<(), String> {
+    let entry_id = EntryId::parse(contribution_id).map_err(|error| error.to_string())?;
+    with_runtime(sys, |runtime| {
+        if runtime.scope.plan().entry(&entry_id).is_some() {
+            Ok(())
+        } else {
+            Err(format!(
+                "contribution `{contribution_id}` is not active in the current composition"
+            ))
+        }
+    })
 }
 
 pub(crate) fn workspace_report(sys: &System) -> Result<String, String> {

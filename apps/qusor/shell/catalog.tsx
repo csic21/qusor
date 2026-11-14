@@ -3,7 +3,7 @@ import { CompositionHost } from "qusor/pdf-surface";
 import { LibraryWorkspace } from "../features/library/LibraryWorkspace";
 import { NotesWorkspace } from "../features/notes/NotesWorkspace";
 import { ReadingWorkspace } from "../features/reader/ReadingWorkspace";
-import { VocabWorkspace } from "../features/vocab/VocabWorkspace";
+import { PluginSlotView } from "./PluginSlotView";
 import { type PluginPackage, type PluginWorkspace } from "./opener";
 
 type WorkspaceRenderer = {
@@ -19,12 +19,6 @@ const workspaceRenderers: Record<string, WorkspaceRenderer> = {
         icon: "pen",
         description: "引用、个人观点和按资料浏览",
         render: (props) => <NotesWorkspace compact={props.compact} />,
-    },
-    vocab_workspace: {
-        kind: "词汇",
-        icon: "book",
-        description: "词书、复习安排与四档评分",
-        render: (props) => <VocabWorkspace compact={props.compact} />,
     },
     reader_workspace: {
         kind: "阅读",
@@ -54,6 +48,27 @@ function applyWorkspaceCatalog(value: any) {
             typeof raw?.title !== "string" ||
             typeof raw?.kind !== "string"
         ) {
+            continue;
+        }
+        if (raw.kind === "ui_slot") {
+            const contributionId = raw.id;
+            const contributionTitle = raw.title;
+            workspaces.push({
+                id: contributionId,
+                package: raw.package,
+                title: contributionTitle,
+                kind: "扩展",
+                role: raw.kind,
+                icon: "plug",
+                description: "声明式原生扩展工作区",
+                render: (props) => (
+                    <PluginSlotView
+                        contributionId={contributionId}
+                        title={contributionTitle}
+                        compact={props.compact}
+                    />
+                ),
+            });
             continue;
         }
         const renderer = workspaceRenderers[raw.kind];

@@ -57,14 +57,10 @@ FROZEN_LEGACY_BYPASS_FNS = frozenset({
     "update_epub_capture_note",
     "delete_pdf_capture",
     "delete_epub_capture",
-    "vocab_queue_with_limit",
-    "vocab_wordbook_cards",
-    "vocab_delete_wordbook",
 })
 
 FROZEN_WORKSPACE_RENDERER_KINDS = frozenset({
     "notes_workspace",
-    "vocab_workspace",
     "reader_workspace",
     "library_workspace",
 })

@@ -219,10 +219,14 @@ fn catalog_feature_entries(disabled_packages: &BTreeSet<String>) -> Result<Vec<E
                 &contribution.required_capabilities
             };
             for capability in capabilities {
+                let min_minor = manifest
+                    .host_api
+                    .min_minor
+                    .min(capability_min_minor(*capability));
                 entry = entry.requiring(ServiceRequirement::new(
                     ServiceId::parse(capability_service_name(*capability))
                         .map_err(|error| error.to_string())?,
-                    VersionRequirement::new(manifest.host_api.major, manifest.host_api.min_minor),
+                    VersionRequirement::new(manifest.host_api.major, min_minor),
                 ));
             }
             entries.push(entry);
@@ -244,6 +248,21 @@ fn capability_service_name(capability: extension_api::Capability) -> &'static st
         Capability::VocabReview => "vocab.review",
         Capability::LibraryRead => "library.read",
         Capability::UiSlot => "ui.slot",
+    }
+}
+
+fn capability_min_minor(capability: extension_api::Capability) -> u16 {
+    use extension_api::Capability;
+    match capability {
+        Capability::SelectionRead
+        | Capability::DocumentMetadataRead
+        | Capability::CapturePropose => 1,
+        Capability::ReaderSurface => 2,
+        Capability::NoteDraftEdit => 3,
+        Capability::NotesRead => 4,
+        Capability::VocabRead | Capability::VocabReview => 5,
+        Capability::LibraryRead => 6,
+        Capability::UiSlot => 7,
     }
 }
 

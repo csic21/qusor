@@ -9,21 +9,23 @@
   },
   "host_api": {
     "major": 0,
-    "min_minor": 5,
-    "max_minor": 5
+    "min_minor": 7,
+    "max_minor": 7
   },
   "required_capabilities": [
     "vocab.read",
-    "vocab.review"
+    "vocab.review",
+    "ui.slot"
   ],
   "optional_capabilities": [],
   "contributions": [
     {
       "id": "org.qusor.vocab.workspace",
       "title": "背单词",
-      "kind": "vocab_workspace",
+      "kind": "ui_slot",
       "required_capabilities": [
-        "vocab.read"
+        "vocab.read",
+        "ui.slot"
       ]
     }
   ]

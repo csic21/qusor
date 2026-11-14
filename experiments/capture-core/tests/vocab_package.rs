@@ -24,7 +24,7 @@ use std::{
 };
 use storage_sqlite::SqliteStore;
 
-const MANIFEST: &str = include_str!("../../../plugins/vocab/manifest.json");
+const MANIFEST: &str = include_str!("../../../plugins/vocab/manifest.legacy.json");
 const GUEST: &str = include_str!("../../../plugins/vocab/guest.wat");
 const SEED: [u8; 32] = [0x33; 32];
 const NOW: i64 = 1_767_225_600_000;

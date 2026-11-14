@@ -16,7 +16,6 @@ import { titleBar } from "nsh/desktop";
 import { BackHandler } from "nsh/mobile";
 import {
     captureNotesEvidence,
-    captureVocabEvidence,
     bootWorkspaceCatalog,
     entries,
     pluginPackages,
@@ -148,8 +147,8 @@ function openPluginWorkspace(id: string) {
     searchOpen.set(false);
     if (workspace.role === "notes_workspace") refreshNotes();
 }
-function openWorkspaceOrLibrary(role: string) {
-    if (!openPluginWorkspaceByRole(role)) openLibrary();
+function openWorkspaceOrLibrary(role: string, preferredTitle?: string) {
+    if (!openPluginWorkspaceByRole(role, preferredTitle)) openLibrary();
 }
 function allWorkspaces() {
     return pluginWorkspaces();
@@ -159,10 +158,16 @@ function togglePluginPackage(packageId: string, enabled: boolean) {
     if (!setWorkspacePackageEnabled(packageId, enabled)) return;
     if (!enabled && activePackage === packageId) closePluginWorkspace();
 }
-function openPluginWorkspaceByRole(role: string) {
-    const workspace = pluginWorkspaces().find(
-        (candidate) => candidate.role === role,
-    );
+function openPluginWorkspaceByRole(role: string, preferredTitle?: string) {
+    const workspace =
+        (preferredTitle
+            ? pluginWorkspaces().find(
+                  (candidate) =>
+                      candidate.role === role &&
+                      candidate.title === preferredTitle,
+              )
+            : undefined) ??
+        pluginWorkspaces().find((candidate) => candidate.role === role);
     if (!workspace) return false;
     openPluginWorkspace(workspace.id);
     return true;
@@ -750,7 +755,7 @@ function MobileHome() {
                         subtitle="FSRS-5 间隔记忆与词汇复习"
                         icon="clock"
                         onPress={() =>
-                            openWorkspaceOrLibrary("vocab_workspace")
+                            openWorkspaceOrLibrary("ui_slot", "背单词")
                         }
                     />
                     <MobileHomeCard
@@ -1935,10 +1940,13 @@ void (async () => {
     try {
         await runUpdateEvidence();
         let target = "";
+        let vocabDir = "";
         try {
             const vocab = JSON.parse(await VocabHost.evidence());
-            if (vocab.ok && vocab.value?.active)
+            if (vocab.ok && vocab.value?.active) {
                 target = String(vocab.value.target ?? "notes");
+                vocabDir = String(vocab.value.dir ?? "");
+            }
         } catch (_) {
             // Older hosts expose the evidence switch only through NotesHost.
         }
@@ -1949,11 +1957,13 @@ void (async () => {
         }
         setTimeout(() => {
             if (target === "vocab") {
-                if (!openPluginWorkspaceByRole("vocab_workspace")) return;
-                void (async () => {
-                    await new Promise((resolve) => setTimeout(resolve, 700));
-                    await captureVocabEvidence();
-                })();
+                if (!openPluginWorkspaceByRole("ui_slot", "背单词")) return;
+                if (vocabDir) {
+                    void (async () => {
+                        await new Promise((resolve) => setTimeout(resolve, 700));
+                        await VocabHost.capture(`${vocabDir}/slot.png`);
+                    })();
+                }
                 return;
             }
             if (!openPluginWorkspaceByRole("notes_workspace")) return;
