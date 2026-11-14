@@ -98,60 +98,6 @@
           ]
         }
       ]
-    },
-    {
-      "name": "features",
-      "entries": [
-        {
-          "id": "org.qusor.notes.workspace",
-          "package": "org.qusor.notes",
-          "requires": [
-            {
-              "service": "notes.read",
-              "major": 0,
-              "min_minor": 4
-            }
-          ]
-        },
-        {
-          "id": "org.qusor.vocab.workspace",
-          "package": "org.qusor.vocab",
-          "requires": [
-            {
-              "service": "vocab.read",
-              "major": 0,
-              "min_minor": 5
-            },
-            {
-              "service": "vocab.review",
-              "major": 0,
-              "min_minor": 5
-            }
-          ]
-        },
-        {
-          "id": "org.qusor.reader.preview.workspace",
-          "package": "org.qusor.reader.preview",
-          "requires": [
-            {
-              "service": "reader.surface",
-              "major": 0,
-              "min_minor": 2
-            }
-          ]
-        },
-        {
-          "id": "org.qusor.library.workspace",
-          "package": "org.qusor.library",
-          "requires": [
-            {
-              "service": "library.read",
-              "major": 0,
-              "min_minor": 7
-            }
-          ]
-        }
-      ]
     }
   ]
 }

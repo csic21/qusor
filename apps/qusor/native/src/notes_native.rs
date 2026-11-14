@@ -1,8 +1,8 @@
 //! Trusted notes Host mounted by the application composition runtime.
-use crate::{package_catalog, runtime, vault::VaultStore};
+use crate::{core_facade, package_catalog, profile, runtime, vault::VaultStore};
 use extension_api::{notes::*, *};
 use extension_host::{Grant, Host, Session};
-use learning_application::{KnowledgeApplication, pdf_notes::NoteBodyField};
+use learning_application::pdf_notes::NoteBodyField;
 use nsh_core::prelude::*;
 use qusor_app_bridges::notes_bridge::NotesReadBridge;
 use serde_json::{Value, json};
@@ -16,10 +16,24 @@ pub(crate) struct NotesRuntime {
 }
 
 impl NotesRuntime {
+    #[cfg(test)]
     pub(crate) fn mount(store: VaultStore) -> Result<Self, String> {
-        crate::profile::require_active(crate::profile::NOTES_HOST_ENTRY)?;
-        let verified = package_catalog::verify("org.qusor.notes")?;
-        let mut host = Host::new("qusor-vault", [Capability::NotesRead]).map_err(text)?;
+        let verified = package_catalog::verify_for_contribution(ContributionKind::NotesWorkspace)?;
+        Self::mount_verified(store, verified)
+    }
+
+    pub(crate) fn mount_for_package(store: VaultStore, package_id: &str) -> Result<Self, String> {
+        let verified = package_catalog::verify(package_id)?;
+        Self::mount_verified(store, verified)
+    }
+
+    fn mount_verified(
+        store: VaultStore,
+        verified: extension_package::package::VerifiedPackage,
+    ) -> Result<Self, String> {
+        profile::require_service_active(profile::NOTES_READ_SERVICE)?;
+        let vault_id = store.vault_id();
+        let mut host = Host::new(vault_id, [Capability::NotesRead]).map_err(text)?;
         let installation = host
             .register(verified.manifest().clone(), verified.digest())
             .map_err(text)?;
@@ -28,7 +42,7 @@ impl NotesRuntime {
             vec![Grant {
                 capability: Capability::NotesRead,
                 resource: extension_api::Resource::Vault {
-                    vault_id: "qusor-vault".into(),
+                    vault_id: vault_id.to_owned(),
                 },
             }],
         )
@@ -37,11 +51,12 @@ impl NotesRuntime {
         let session = host
             .open_session_for_api(installation, HOST_API_V0_4)
             .map_err(text)?;
+        let bridge = core_facade::new_notes_bridge(&store);
         Ok(Self {
             host,
             session,
-            store: store.clone(),
-            bridge: NotesReadBridge::new(KnowledgeApplication::new(store), "qusor-vault"),
+            store,
+            bridge,
             document: 0,
         })
     }
@@ -128,11 +143,9 @@ impl NotesRuntime {
     }
 
     pub(crate) fn epub_notes_page(&self, cursor: String, limit: u16) -> Result<Value, String> {
-        let app = KnowledgeApplication::new(self.store.clone());
         let after = (!cursor.is_empty()).then_some(cursor.as_str());
         let page_limit = usize::from(limit).clamp(1, MAX_NOTE_PAGE.into());
-        let page = app
-            .epub_notes_page("qusor-vault", None, after, page_limit)
+        let page = core_facade::legacy_plugin_bypass::epub_notes_page(&self.store, after, page_limit)
             .map_err(text)?;
         let notes = page
             .notes
@@ -172,16 +185,14 @@ impl NotesRuntime {
             "note" => NoteBodyField::Note,
             _ => return Err("unknown note field".into()),
         };
-        let app = KnowledgeApplication::new(self.store.clone());
-        let chunk = app
-            .epub_note_body(
-                "qusor-vault",
-                capture_id,
-                body_field,
-                offset as usize,
-                usize::from(max_bytes),
-            )
-            .map_err(text)?;
+        let chunk = core_facade::legacy_plugin_bypass::epub_note_body(
+            &self.store,
+            capture_id,
+            body_field,
+            offset as usize,
+            usize::from(max_bytes),
+        )
+        .map_err(text)?;
         Ok(json!({
             "capture_id": chunk.capture_id,
             "commit_rev": chunk.commit_rev,
@@ -195,14 +206,19 @@ impl NotesRuntime {
     }
 
     pub(crate) fn update_note(&mut self, capture_id: i64, format: String, note: String) -> Result<Value, String> {
-        let mut app = KnowledgeApplication::new(self.store.clone());
         match format.as_str() {
-            "pdf" => app
-                .update_pdf_capture_note("qusor-vault", capture_id, &note)
-                .map_err(text)?,
-            "epub" => app
-                .update_epub_capture_note("qusor-vault", capture_id, &note)
-                .map_err(text)?,
+            "pdf" => core_facade::legacy_plugin_bypass::update_pdf_capture_note(
+                &self.store,
+                capture_id,
+                &note,
+            )
+            .map_err(text)?,
+            "epub" => core_facade::legacy_plugin_bypass::update_epub_capture_note(
+                &self.store,
+                capture_id,
+                &note,
+            )
+            .map_err(text)?,
             _ => return Err("unknown note format".into()),
         }
         Ok(json!({
@@ -213,14 +229,15 @@ impl NotesRuntime {
     }
 
     pub(crate) fn delete_note(&mut self, capture_id: i64, format: String) -> Result<Value, String> {
-        let mut app = KnowledgeApplication::new(self.store.clone());
         match format.as_str() {
-            "pdf" => app
-                .delete_pdf_capture("qusor-vault", capture_id)
-                .map_err(text)?,
-            "epub" => app
-                .delete_epub_capture("qusor-vault", capture_id)
-                .map_err(text)?,
+            "pdf" => {
+                core_facade::legacy_plugin_bypass::delete_pdf_capture(&self.store, capture_id)
+                    .map_err(text)?
+            }
+            "epub" => {
+                core_facade::legacy_plugin_bypass::delete_epub_capture(&self.store, capture_id)
+                    .map_err(text)?
+            }
             _ => return Err("unknown note format".into()),
         }
         Ok(json!({
@@ -330,7 +347,7 @@ mod tests {
         epub_contract::{EpubChapterSnapshot, EpubSnapshot},
         knowledge::Provenance,
     };
-    use learning_application::epub_library::EpubSelectionRange;
+    use learning_application::{KnowledgeApplication, epub_library::EpubSelectionRange};
     use std::{
         fs,
         path::PathBuf,

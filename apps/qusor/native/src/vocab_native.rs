@@ -1,8 +1,7 @@
-use crate::{package_catalog, runtime, vault::VaultStore};
+use crate::{core_facade, package_catalog, profile, runtime, vault::VaultStore};
 use core_api::vocab::{MAX_DAILY_NEW_LIMIT, NewWord, StudyStage, WordbookSeed};
 use extension_api::{vocab::*, *};
 use extension_host::{Grant, Host, Session};
-use learning_application::study::StudyApplication;
 use nsh_core::prelude::*;
 use qusor_app_bridges::vocab_bridge::VocabBridge;
 use serde::Deserialize;
@@ -17,11 +16,19 @@ pub(crate) struct VocabRuntime {
 }
 
 impl VocabRuntime {
-    pub(crate) fn mount(store: VaultStore) -> Result<Self, String> {
-        crate::profile::require_active(crate::profile::VOCAB_HOST_ENTRY)?;
-        let verified = package_catalog::verify("org.qusor.vocab")?;
+    pub(crate) fn mount_for_package(store: VaultStore, package_id: &str) -> Result<Self, String> {
+        let verified = package_catalog::verify(package_id)?;
+        Self::mount_verified(store, verified)
+    }
+
+    fn mount_verified(
+        store: VaultStore,
+        verified: extension_package::package::VerifiedPackage,
+    ) -> Result<Self, String> {
+        profile::require_service_active(profile::VOCAB_READ_SERVICE)?;
+        let vault_id = store.vault_id();
         let mut host = Host::new(
-            "qusor-vault",
+            vault_id,
             [Capability::VocabRead, Capability::VocabReview],
         )
         .map_err(text)?;
@@ -34,13 +41,13 @@ impl VocabRuntime {
                 Grant {
                     capability: Capability::VocabRead,
                     resource: extension_api::Resource::Vault {
-                        vault_id: "qusor-vault".into(),
+                        vault_id: vault_id.to_owned(),
                     },
                 },
                 Grant {
                     capability: Capability::VocabReview,
                     resource: extension_api::Resource::Vault {
-                        vault_id: "qusor-vault".into(),
+                        vault_id: vault_id.to_owned(),
                     },
                 },
             ],
@@ -51,16 +58,12 @@ impl VocabRuntime {
             .open_session_for_api(installation, HOST_API_V0_5)
             .map_err(text)?;
         let now = now_ms();
+        let bridge = core_facade::new_vocab_bridge(&store, now, day_start_ms(now));
         Ok(Self {
             host,
             session,
-            store: store.clone(),
-            bridge: VocabBridge::new(
-                StudyApplication::new(store),
-                "qusor-vault",
-                now,
-                day_start_ms(now),
-            ),
+            store,
+            bridge,
         })
     }
 
@@ -170,21 +173,9 @@ impl VocabRuntime {
 
     fn import_wordbook(&mut self, document: String) -> Result<Value, String> {
         let seed = parse_import_wordbook(&document)?;
-        let title = seed.title.clone();
         let total = seed.words.len();
         let now = now_ms();
-        let mut study = StudyApplication::new(self.store.clone());
-        if study
-            .decks("qusor-vault", now)
-            .map_err(text)?
-            .iter()
-            .any(|deck| deck.wordbook.title == title)
-        {
-            return Err("a wordbook with this title already exists".into());
-        }
-        let wordbook = study
-            .seed_wordbook("qusor-vault", &seed, now)
-            .map_err(text)?;
+        let wordbook = core_facade::import_wordbook(&self.store, &seed, now)?;
         Ok(json!({
             "wordbook_id": wordbook.id,
             "title": wordbook.title,
@@ -194,16 +185,14 @@ impl VocabRuntime {
 
     fn queue_with_limit(&mut self, wordbook_id: i64, daily_new_limit: u32) -> Result<Value, String> {
         let now = now_ms();
-        let study = StudyApplication::new(self.store.clone());
-        let queue = study
-            .queue_with_limit(
-                "qusor-vault",
-                wordbook_id,
-                now,
-                20,
-                daily_new_limit.min(MAX_DAILY_NEW_LIMIT),
-            )
-            .map_err(text)?;
+        let queue = core_facade::legacy_plugin_bypass::vocab_queue_with_limit(
+            &self.store,
+            wordbook_id,
+            now,
+            20,
+            daily_new_limit.min(MAX_DAILY_NEW_LIMIT),
+        )
+        .map_err(text)?;
         let cards = queue
             .cards
             .into_iter()
@@ -237,10 +226,13 @@ impl VocabRuntime {
         limit: u16,
         offset: u32,
     ) -> Result<Value, String> {
-        let study = StudyApplication::new(self.store.clone());
-        let rows = study
-            .wordbook_cards("qusor-vault", wordbook_id, usize::from(limit), offset as usize)
-            .map_err(text)?;
+        let rows = core_facade::legacy_plugin_bypass::vocab_wordbook_cards(
+            &self.store,
+            wordbook_id,
+            usize::from(limit),
+            offset as usize,
+        )
+        .map_err(text)?;
         let cards = rows
             .into_iter()
             .map(|card| {
@@ -258,9 +250,7 @@ impl VocabRuntime {
     }
 
     fn delete_wordbook(&mut self, wordbook_id: i64) -> Result<Value, String> {
-        let mut study = StudyApplication::new(self.store.clone());
-        study
-            .delete_wordbook("qusor-vault", wordbook_id)
+        core_facade::legacy_plugin_bypass::vocab_delete_wordbook(&self.store, wordbook_id)
             .map_err(text)?;
         Ok(json!({
             "deleted": true,

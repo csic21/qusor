@@ -9,37 +9,28 @@ use extension_api::{ContributionKind, Manifest, SUPPORTED_HOST_APIS};
 use extension_package::package::{VerifiedPackage, verify_for_host};
 use serde_json::json;
 
-pub struct EmbeddedPackage {
-    pub package_id: &'static str,
-    pub bytes: &'static [u8],
-    pub key: &'static str,
+struct EmbeddedAsset {
+    bytes: &'static [u8],
+    key: &'static str,
 }
 
-const NOTES_PACKAGE: EmbeddedPackage = EmbeddedPackage {
-    package_id: "org.qusor.notes",
-    bytes: include_bytes!("../assets/notes.qpk"),
-    key: include_str!("../assets/notes.pub"),
-};
-const VOCAB_PACKAGE: EmbeddedPackage = EmbeddedPackage {
-    package_id: "org.qusor.vocab",
-    bytes: include_bytes!("../assets/vocab.qpk"),
-    key: include_str!("../assets/vocab.pub"),
-};
-const READER_PACKAGE: EmbeddedPackage = EmbeddedPackage {
-    package_id: "org.qusor.reader.preview",
-    bytes: include_bytes!("../assets/reader.qpk"),
-    key: include_str!("../assets/reader.pub"),
-};
-const LIBRARY_PACKAGE: EmbeddedPackage = EmbeddedPackage {
-    package_id: "org.qusor.library",
-    bytes: include_bytes!("../assets/library.qpk"),
-    key: include_str!("../assets/library.pub"),
-};
-const PACKAGES: [&EmbeddedPackage; 4] = [
-    &NOTES_PACKAGE,
-    &VOCAB_PACKAGE,
-    &READER_PACKAGE,
-    &LIBRARY_PACKAGE,
+const EMBEDDED_ASSETS: [EmbeddedAsset; 4] = [
+    EmbeddedAsset {
+        bytes: include_bytes!("../assets/notes.qpk"),
+        key: include_str!("../assets/notes.pub"),
+    },
+    EmbeddedAsset {
+        bytes: include_bytes!("../assets/vocab.qpk"),
+        key: include_str!("../assets/vocab.pub"),
+    },
+    EmbeddedAsset {
+        bytes: include_bytes!("../assets/reader.qpk"),
+        key: include_str!("../assets/reader.pub"),
+    },
+    EmbeddedAsset {
+        bytes: include_bytes!("../assets/library.qpk"),
+        key: include_str!("../assets/library.pub"),
+    },
 ];
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -50,19 +41,44 @@ pub struct WorkspaceDescriptor {
     pub kind: String,
 }
 
+pub fn verify_all() -> Result<Vec<VerifiedPackage>, String> {
+    let mut verified = Vec::with_capacity(EMBEDDED_ASSETS.len());
+    for asset in &EMBEDDED_ASSETS {
+        verified.push(
+            verify_for_host(asset.bytes, asset.key.trim(), &SUPPORTED_HOST_APIS)
+                .map_err(|error| error.to_string())?,
+        );
+    }
+    Ok(verified)
+}
+
 pub fn verify(package_id: &str) -> Result<VerifiedPackage, String> {
-    let package = PACKAGES
-        .iter()
-        .find(|package| package.package_id == package_id)
-        .ok_or_else(|| format!("no embedded package named {package_id}"))?;
-    verify_for_host(package.bytes, package.key.trim(), &SUPPORTED_HOST_APIS)
-        .map_err(|error| error.to_string())
+    verify_all()?
+        .into_iter()
+        .find(|package| package.manifest().package_id == package_id)
+        .ok_or_else(|| format!("no embedded package named {package_id}"))
+}
+
+#[cfg(test)]
+pub fn verify_for_contribution(kind: ContributionKind) -> Result<VerifiedPackage, String> {
+    verify_all()?
+        .into_iter()
+        .find(|package| {
+            package
+                .manifest()
+                .contributions
+                .iter()
+                .any(|contribution| contribution.kind == kind)
+        })
+        .ok_or_else(|| format!("no embedded package declares contribution {:?}", kind))
 }
 
 pub fn is_embedded_package(package_id: &str) -> bool {
-    PACKAGES
-        .iter()
-        .any(|package| package.package_id == package_id)
+    verify_all().is_ok_and(|packages| {
+        packages
+            .iter()
+            .any(|package| package.manifest().package_id == package_id)
+    })
 }
 
 pub fn workspace_contributions() -> Result<Vec<WorkspaceDescriptor>, String> {
@@ -74,8 +90,7 @@ pub fn workspace_contributions_for(
     plan: &CompositionPlan,
 ) -> Result<Vec<WorkspaceDescriptor>, String> {
     let mut workspaces = Vec::new();
-    for package in PACKAGES {
-        let verified = verify(package.package_id)?;
+    for verified in verify_all()? {
         let manifest: &Manifest = verified.manifest();
         for contribution in &manifest.contributions {
             let Some(kind) = workspace_kind(contribution.kind) else {
@@ -100,7 +115,7 @@ fn is_active(plan: &CompositionPlan, id: &str) -> Result<bool, String> {
     Ok(plan.entry(&id).is_some())
 }
 
-fn workspace_kind(kind: ContributionKind) -> Option<&'static str> {
+pub fn workspace_kind(kind: ContributionKind) -> Option<&'static str> {
     match kind {
         ContributionKind::NotesWorkspace => Some("notes_workspace"),
         ContributionKind::VocabWorkspace => Some("vocab_workspace"),
@@ -124,8 +139,7 @@ pub fn report_json_for(plan: &CompositionPlan) -> Result<String, String> {
 
 pub fn package_report_for(plan: &CompositionPlan) -> Result<String, String> {
     let mut packages = Vec::new();
-    for package in PACKAGES {
-        let verified = verify(package.package_id)?;
+    for verified in verify_all()? {
         let manifest = verified.manifest();
         let title = manifest
             .contributions
