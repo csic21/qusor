@@ -5,11 +5,8 @@
 //! one bounded chunk at a time after the caller has identified one saved
 //! capture. Queries never mutate Core, resolve anchors or grant authority.
 use crate::KnowledgeApplication;
-use core_api::knowledge::{
-    KnowledgeError, KnowledgeErrorCode, PdfCaptureRecord, PdfDocumentRecord, Result,
-};
-use learning_ports::KnowledgeStore;
-use std::collections::BTreeMap;
+use core_api::knowledge::{KnowledgeError, KnowledgeErrorCode, PdfCaptureRecord, Result};
+use learning_ports::{KnowledgeQuery, PdfNoteSummaryRow};
 
 /// Maximum entries in one page. Later entries are reached with `next_cursor`;
 /// the page size is not a product limit.
@@ -143,13 +140,13 @@ fn quote_text(capture: &PdfCaptureRecord) -> &str {
     }
 }
 
-impl<S: KnowledgeStore> KnowledgeApplication<S> {
+impl<S: KnowledgeQuery> KnowledgeApplication<S> {
     /// Return one newest-first page of note previews in one vault, optionally
     /// one document.
     ///
-    /// The query reads one validated Core snapshot. It does not resolve anchors,
-    /// grant authority, or expose the complete note/quote body. A cursor only
-    /// continues the exact vault/document scope that produced it.
+    /// The query runs against `KnowledgeQuery` without loading full archives or blobs.
+    /// It does not resolve anchors, grant authority, or expose the complete note/quote
+    /// body. A cursor only continues the exact vault/document scope that produced it.
     pub fn pdf_notes_page(
         &self,
         vault: &str,
@@ -164,62 +161,27 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 "note page limit is outside the supported range",
             ));
         }
-        let archive = self.export_all()?;
-        let documents: BTreeMap<i64, &PdfDocumentRecord> = archive
-            .pdf_documents
-            .iter()
-            .map(|document| (document.receipt.document_id, document))
-            .collect();
-        let mut captures = archive
-            .pdf_captures
-            .iter()
-            .filter(|capture| {
-                document_id.is_none_or(|id| capture.receipt.document_id == id)
-                    && documents
-                        .get(&capture.receipt.document_id)
-                        .is_some_and(|document| document.vault == vault)
-            })
-            .collect::<Vec<_>>();
-        captures.sort_by(|left, right| {
-            right
-                .receipt
-                .commit_rev
-                .cmp(&left.receipt.commit_rev)
-                .then_with(|| right.receipt.capture_id.cmp(&left.receipt.capture_id))
-        });
-        let start = match after {
-            None => 0,
-            Some(cursor) => {
-                let (cursor_document, commit_rev, capture_id) = decode_cursor(cursor)?;
+        let cursor = match after {
+            None => None,
+            Some(raw) => {
+                let (cursor_document, commit_rev, capture_id) = decode_cursor(raw)?;
                 if cursor_document != document_id {
                     return Err(invalid("note cursor does not belong to this query scope"));
                 }
-                let position = captures
-                    .iter()
-                    .position(|capture| {
-                        capture.receipt.commit_rev == commit_rev
-                            && capture.receipt.capture_id == capture_id
-                    })
-                    .ok_or_else(|| invalid("note cursor does not belong to this query scope"))?;
-                position + 1
+                Some((commit_rev, capture_id))
             }
         };
-        let end = start.saturating_add(limit).min(captures.len());
-        let notes = captures[start..end]
-            .iter()
-            .map(|capture| summary(&documents, capture))
+        let page = self
+            .store
+            .pdf_notes_page(vault, document_id, cursor, limit)?;
+        let notes = page
+            .notes
+            .into_iter()
+            .map(summary)
             .collect::<Result<Vec<_>>>()?;
-        let next_cursor = if end < captures.len() {
-            captures.get(end - 1).map(|capture| {
-                encode_cursor(
-                    document_id,
-                    capture.receipt.commit_rev,
-                    capture.receipt.capture_id,
-                )
-            })
-        } else {
-            None
-        };
+        let next_cursor = page
+            .next_cursor_key
+            .map(|(rev, cap_id)| encode_cursor(document_id, rev, cap_id));
         Ok(PdfNotePage { notes, next_cursor })
     }
 
@@ -245,30 +207,19 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 "note chunk size is outside the supported range",
             ));
         }
-        let archive = self.export_all()?;
-        let capture = archive
-            .pdf_captures
-            .iter()
-            .find(|capture| capture.receipt.capture_id == capture_id)
+        let found = self
+            .store
+            .pdf_capture_with_vault(capture_id)?
             .ok_or_else(|| {
                 KnowledgeError::new(KnowledgeErrorCode::NotFound, "note capture not found")
             })?;
-        let document = archive
-            .pdf_documents
-            .iter()
-            .find(|document| document.receipt.document_id == capture.receipt.document_id)
-            .ok_or_else(|| {
-                KnowledgeError::new(
-                    KnowledgeErrorCode::Integrity,
-                    "note document is missing from Core",
-                )
-            })?;
-        if document.vault != vault {
+        if found.document_vault != vault {
             return Err(KnowledgeError::new(
                 KnowledgeErrorCode::NotFound,
                 "note capture not found",
             ));
         }
+        let capture = &found.record;
         let text = match field {
             NoteBodyField::Quote => quote_text(capture),
             NoteBodyField::Note => capture.user_note.as_str(),
@@ -298,16 +249,8 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
     }
 }
 
-fn summary(
-    documents: &BTreeMap<i64, &PdfDocumentRecord>,
-    capture: &PdfCaptureRecord,
-) -> Result<PdfNoteSummary> {
-    let document = documents.get(&capture.receipt.document_id).ok_or_else(|| {
-        KnowledgeError::new(
-            KnowledgeErrorCode::Integrity,
-            "note document is missing from Core",
-        )
-    })?;
+fn summary(row: PdfNoteSummaryRow) -> Result<PdfNoteSummary> {
+    let capture = &row.record;
     let (quote, page_index, compound) = match &capture.compound {
         Some(compound) => (
             compound.exact.as_str(),
@@ -336,7 +279,7 @@ fn summary(
         commit_rev: capture.receipt.commit_rev,
         operation_id: capture.receipt.operation_id.clone(),
         document_id: capture.receipt.document_id,
-        document_title: document.title.clone(),
+        document_title: row.document_title,
         page_index,
         quote_preview,
         quote_bytes,

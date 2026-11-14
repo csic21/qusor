@@ -1,25 +1,21 @@
 //! Bounded EPUB import, library listing, chapter text reading, TOC queries,
 //! selection captures, and note management for trusted consumers.
 use crate::{
-    KnowledgeApplication, ensure_new_operation, fail,
+    KnowledgeApplication,
     pdf_library::{MAX_LIBRARY_PAGE, MAX_SAVED_SELECTIONS, MIN_LIBRARY_TEXT_CHUNK},
     pdf_notes::{MAX_NOTE_CHUNK_BYTES, MAX_NOTE_PAGE, NOTE_PREVIEW_BYTES, NoteBodyField},
 };
 use core_api::{
-    contract::sha256,
-    epub_contract::{
-        EPUB_PROTOCOL_VERSION, EPUB_TEXT_UNIT, EpubDraft, EpubSnapshot, EpubTocEntry,
-        MAX_EPUB_CHAPTER_BYTES, resolve_epub,
-    },
+    epub_contract::{EpubSnapshot, EpubTocEntry, MAX_EPUB_CHAPTER_BYTES},
     knowledge::{
-        EpubCaptureRecord, EpubChapterRecord, EpubDocumentReceipt, EpubDocumentRecord, EpubReceipt,
-        EpubTocRecord, KnowledgeError, KnowledgeErrorCode, Provenance, Result,
-        archive_schema_version, commit_for_epub_capture, commit_for_epub_document,
-        epub_capture_input, epub_document_input, native_import, validate_archive, validate_native,
-        validate_note_input,
+        EpubDocumentReceipt, EpubReceipt, KnowledgeError, KnowledgeErrorCode, Provenance, Result,
+        native_import, validate_note_input,
     },
 };
-use learning_ports::{CommitPlan, KnowledgeStore};
+use learning_ports::{
+    EpubChapterLookup, EpubDocumentSummaryRow, EpubNoteSummaryRow, EpubSavedSelectionsLookup,
+    KnowledgeCommand, KnowledgeQuery,
+};
 use std::collections::BTreeMap;
 
 /// Maximum UTF-8 bytes returned by one `epub_chapter_text` chunk request.
@@ -206,99 +202,39 @@ fn preview(value: &str) -> (String, usize, bool) {
     (value[..end].to_owned(), value.len(), true)
 }
 
-fn doc_summary(record: &EpubDocumentRecord) -> EpubDocumentSummary {
+fn doc_summary(row: EpubDocumentSummaryRow) -> EpubDocumentSummary {
     EpubDocumentSummary {
-        document_id: record.receipt.document_id,
-        commit_rev: record.receipt.commit_rev,
-        title: record.title.clone(),
-        author: record.author.clone(),
-        original_sha256: record.receipt.original_sha256.clone(),
-        original_bytes: record.original_bytes,
-        extraction_revision: record.receipt.extraction_revision.clone(),
-        chapter_count: record.chapters.len(),
+        document_id: row.document_id,
+        commit_rev: row.commit_rev,
+        title: row.title,
+        author: row.author,
+        original_sha256: row.original_sha256,
+        original_bytes: row.original_bytes,
+        extraction_revision: row.extraction_revision,
+        chapter_count: row.chapter_count,
     }
 }
 
-impl<S: KnowledgeStore> KnowledgeApplication<S> {
-    /// Atomically import an extracted EPUB snapshot into Core, keyed idempotently by `op`.
-    pub fn import_epub(
-        &mut self,
-        op: &str,
-        vault: &str,
-        snapshot: &EpubSnapshot,
-    ) -> Result<EpubDocumentReceipt> {
-        native_import(op, vault, &snapshot.title)?;
-        snapshot.validate()?;
-        if snapshot.vault != vault {
-            return Err(invalid("EPUB snapshot vault does not match target vault"));
-        }
-        let mut archive = self.export_all()?;
-        let max_rev = archive
-            .commits
-            .iter()
-            .map(|c| c.commit_rev)
-            .max()
-            .unwrap_or(0);
-        let id = archive
-            .epub_documents
-            .iter()
-            .map(|d| d.receipt.document_id)
-            .max()
-            .unwrap_or(0)
-            + 1;
-        let receipt = EpubDocumentReceipt {
-            operation_id: op.into(),
-            document_id: id,
-            commit_rev: max_rev + 1,
-            original_sha256: snapshot.original_sha256.clone(),
-            extraction_revision: snapshot.extraction_revision.clone(),
-        };
-        let record = EpubDocumentRecord {
-            receipt: receipt.clone(),
-            vault: vault.into(),
-            title: snapshot.title.clone(),
-            author: snapshot.author.clone(),
-            original_bytes: snapshot.original_bytes,
-            chapters: snapshot
-                .chapters
-                .iter()
-                .map(|c| EpubChapterRecord {
-                    chapter_index: c.chapter_index,
-                    title: c.title.clone(),
-                    href: c.href.clone(),
-                    text: c.text.clone(),
-                })
-                .collect(),
-            toc: snapshot
-                .toc
-                .iter()
-                .map(|t| EpubTocRecord {
-                    title: t.title.clone(),
-                    chapter_index: t.chapter_index,
-                    depth: t.depth,
-                })
-                .collect(),
-        };
-        let expected_input_hash = epub_document_input(&record)?;
-        if let Some(prior) = archive.commits.iter().find(|old| old.operation_id == op) {
-            if prior.kind != "epub_import" || prior.input_hash != expected_input_hash {
-                return fail("operation id payload conflict");
-            }
-            return Ok(serde_json::from_str(&prior.receipt)?);
-        }
-        ensure_new_operation(&archive, op)?;
-        let commit = commit_for_epub_document(&record)?;
-        archive.epub_documents.push(record);
-        archive.commits.push(commit);
-        archive.schema_version = archive_schema_version(&archive);
-        validate_archive(&archive)?;
-        self.store.commit(CommitPlan {
-            expected_revision: max_rev,
-            next: archive,
-        })?;
-        Ok(receipt)
+fn note_summary(row: EpubNoteSummaryRow) -> EpubNoteSummary {
+    let (quote_preview, quote_bytes, quote_truncated) = preview(&row.record.draft.exact);
+    let (note_preview, note_bytes, note_truncated) = preview(&row.record.user_note);
+    EpubNoteSummary {
+        capture_id: row.record.receipt.capture_id,
+        commit_rev: row.record.receipt.commit_rev,
+        operation_id: row.record.receipt.operation_id,
+        document_id: row.record.receipt.document_id,
+        document_title: row.document_title,
+        chapter_index: row.record.draft.chapter_index,
+        quote_preview,
+        quote_bytes,
+        quote_truncated,
+        note_preview,
+        note_bytes,
+        note_truncated,
     }
+}
 
+impl<S: KnowledgeQuery> KnowledgeApplication<S> {
     /// Return one newest-first page of EPUB metadata in `vault`.
     pub fn epub_documents_page(
         &self,
@@ -313,47 +249,13 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 "EPUB library page limit is outside the supported range",
             ));
         }
-        let archive = self.export_all()?;
-        let mut documents: Vec<&EpubDocumentRecord> = archive
-            .epub_documents
-            .iter()
-            .filter(|doc| doc.vault == vault)
-            .collect();
-        documents.sort_by(|left, right| {
-            right
-                .receipt
-                .commit_rev
-                .cmp(&left.receipt.commit_rev)
-                .then_with(|| right.receipt.document_id.cmp(&left.receipt.document_id))
-        });
-        let start = match after {
-            None => 0,
-            Some(cursor) => {
-                let (commit_rev, document_id) = decode_doc_cursor(cursor)?;
-                documents
-                    .iter()
-                    .position(|doc| {
-                        doc.receipt.commit_rev == commit_rev
-                            && doc.receipt.document_id == document_id
-                    })
-                    .ok_or_else(|| invalid("EPUB library cursor does not belong to this vault"))?
-                    + 1
-            }
-        };
-        let end = start.saturating_add(limit).min(documents.len());
-        let next_cursor = if end < documents.len() {
-            documents
-                .get(end - 1)
-                .map(|doc| encode_doc_cursor(doc.receipt.commit_rev, doc.receipt.document_id))
-        } else {
-            None
-        };
+        let cursor = after.map(decode_doc_cursor).transpose()?;
+        let page = self.store.epub_documents_page(vault, cursor, limit)?;
         Ok(EpubDocumentPage {
-            documents: documents[start..end]
-                .iter()
-                .map(|doc| doc_summary(doc))
-                .collect(),
-            next_cursor,
+            documents: page.documents.into_iter().map(doc_summary).collect(),
+            next_cursor: page
+                .next_cursor_key
+                .map(|(rev, doc_id)| encode_doc_cursor(rev, doc_id)),
         })
     }
 
@@ -379,21 +281,25 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 "EPUB text offset is outside the supported range",
             ));
         }
-        let archive = self.export_all()?;
-        let document = archive
-            .epub_documents
-            .iter()
-            .find(|doc| doc.receipt.document_id == document_id && doc.vault == vault)
-            .ok_or_else(|| {
-                KnowledgeError::new(KnowledgeErrorCode::NotFound, "EPUB document not found")
-            })?;
-        let chapter = document
-            .chapters
-            .get(chapter_index as usize)
-            .ok_or_else(|| {
-                KnowledgeError::new(KnowledgeErrorCode::NotFound, "EPUB chapter not found")
-            })?;
-        let text = &chapter.text;
+        let (title, href, text) =
+            match self
+                .store
+                .epub_chapter_text(vault, document_id, chapter_index)?
+            {
+                EpubChapterLookup::DocumentMissing => {
+                    return Err(KnowledgeError::new(
+                        KnowledgeErrorCode::NotFound,
+                        "EPUB document not found",
+                    ));
+                }
+                EpubChapterLookup::ChapterMissing => {
+                    return Err(KnowledgeError::new(
+                        KnowledgeErrorCode::NotFound,
+                        "EPUB chapter not found",
+                    ));
+                }
+                EpubChapterLookup::Found { title, href, text } => (title, href, text),
+            };
         if offset > text.len() || !text.is_char_boundary(offset) {
             return Err(invalid("EPUB text offset is not a UTF-8 boundary"));
         }
@@ -405,8 +311,8 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
         Ok(EpubChapterTextChunk {
             document_id,
             chapter_index,
-            title: chapter.title.clone(),
-            href: chapter.href.clone(),
+            title,
+            href,
             offset,
             total_bytes: text.len(),
             text: text[offset..end].to_owned(),
@@ -417,126 +323,17 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
     /// Return the stored table of contents for one EPUB document in `vault`.
     pub fn epub_toc(&self, vault: &str, document_id: i64) -> Result<Vec<EpubTocEntry>> {
         validate_vault(vault)?;
-        let archive = self.export_all()?;
-        let document = archive
-            .epub_documents
-            .iter()
-            .find(|doc| doc.receipt.document_id == document_id && doc.vault == vault)
-            .ok_or_else(|| {
-                KnowledgeError::new(KnowledgeErrorCode::NotFound, "EPUB document not found")
-            })?;
-        Ok(document
-            .toc
-            .iter()
+        let toc = self.store.epub_toc(vault, document_id)?.ok_or_else(|| {
+            KnowledgeError::new(KnowledgeErrorCode::NotFound, "EPUB document not found")
+        })?;
+        Ok(toc
+            .into_iter()
             .map(|entry| EpubTocEntry {
-                title: entry.title.clone(),
+                title: entry.title,
                 chapter_index: entry.chapter_index,
                 depth: entry.depth,
             })
             .collect())
-    }
-
-    /// Capture one scalar range from an EPUB chapter into Core.
-    pub fn capture_epub_selection(
-        &mut self,
-        operation_id: &str,
-        vault: &str,
-        range: EpubSelectionRange,
-        origin: &Provenance,
-        user_note: &str,
-    ) -> Result<EpubReceipt> {
-        validate_vault(vault)?;
-        if range.start >= range.end {
-            return Err(invalid("EPUB selection range is empty or inverted"));
-        }
-        let mut archive = self.export_all()?;
-        let document = archive
-            .epub_documents
-            .iter()
-            .find(|doc| doc.receipt.document_id == range.document_id && doc.vault == vault)
-            .ok_or_else(|| {
-                KnowledgeError::new(KnowledgeErrorCode::NotFound, "EPUB document not found")
-            })?
-            .clone();
-        validate_native(operation_id, &document.vault, origin, user_note)?;
-        let chapter = document
-            .chapters
-            .get(range.chapter_index as usize)
-            .ok_or_else(|| {
-                KnowledgeError::new(KnowledgeErrorCode::NotFound, "EPUB chapter not found")
-            })?;
-        let scalar_count = chapter.text.chars().count() as u64;
-        if range.end > scalar_count {
-            return Err(invalid("EPUB selection exceeds the stored chapter"));
-        }
-        let exact = chapter
-            .text
-            .chars()
-            .skip(range.start as usize)
-            .take((range.end - range.start) as usize)
-            .collect::<String>();
-        let draft = EpubDraft {
-            protocol_version: EPUB_PROTOCOL_VERSION,
-            original_sha256: document.receipt.original_sha256.clone(),
-            extraction_revision: document.receipt.extraction_revision.clone(),
-            chapter_index: range.chapter_index,
-            chapter_text_sha256: sha256(chapter.text.as_bytes()),
-            unit: EPUB_TEXT_UNIT.into(),
-            start: range.start,
-            end: range.end,
-            exact,
-        };
-        resolve_epub(&document.to_snapshot(), &draft)?;
-        let max_rev = archive
-            .commits
-            .iter()
-            .map(|c| c.commit_rev)
-            .max()
-            .unwrap_or(0);
-        let capture_id = archive
-            .epub_captures
-            .iter()
-            .map(|c| c.receipt.capture_id)
-            .max()
-            .unwrap_or(0)
-            + 1;
-        let receipt = EpubReceipt {
-            operation_id: operation_id.into(),
-            capture_id,
-            document_id: range.document_id,
-            commit_rev: max_rev + 1,
-            original_sha256: document.receipt.original_sha256.clone(),
-            extraction_revision: document.receipt.extraction_revision.clone(),
-            draft_hash: draft.draft_hash()?,
-        };
-        let record = EpubCaptureRecord {
-            receipt: receipt.clone(),
-            draft,
-            provenance: origin.clone(),
-            user_note: user_note.into(),
-        };
-        let expected_input_hash = epub_capture_input(&record, &document)?;
-        if let Some(prior) = archive
-            .commits
-            .iter()
-            .find(|old| old.operation_id == operation_id)
-        {
-            if prior.kind != "epub_capture" || prior.input_hash != expected_input_hash {
-                return fail("operation id payload conflict");
-            }
-            return Ok(serde_json::from_str(&prior.receipt)?);
-        }
-        ensure_new_operation(&archive, operation_id)?;
-        let commit = commit_for_epub_capture(&record, &document)?;
-        archive.epub_captures.push(record);
-        archive.commits.push(commit);
-        archive.schema_version = archive_schema_version(&archive);
-        validate_archive(&archive)?;
-        self.store.commit(CommitPlan {
-            expected_revision: max_rev,
-            next: archive,
-        })?;
-        Ok(receipt)
     }
 
     /// Return deduplicated saved scalar ranges for one EPUB chapter.
@@ -547,27 +344,31 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
         chapter_index: u32,
     ) -> Result<Vec<EpubSavedSelection>> {
         validate_vault(vault)?;
-        let archive = self.export_all()?;
-        let document = archive
-            .epub_documents
-            .iter()
-            .find(|doc| doc.receipt.document_id == document_id && doc.vault == vault)
-            .ok_or_else(|| {
-                KnowledgeError::new(KnowledgeErrorCode::NotFound, "EPUB document not found")
-            })?;
-        let chapter = document
-            .chapters
-            .get(chapter_index as usize)
-            .ok_or_else(|| {
-                KnowledgeError::new(KnowledgeErrorCode::NotFound, "EPUB chapter not found")
-            })?;
-        let scalar_count = chapter.text.chars().count() as u64;
+        let (scalar_count, raw_ranges) =
+            match self
+                .store
+                .epub_saved_selections(vault, document_id, chapter_index)?
+            {
+                EpubSavedSelectionsLookup::DocumentMissing => {
+                    return Err(KnowledgeError::new(
+                        KnowledgeErrorCode::NotFound,
+                        "EPUB document not found",
+                    ));
+                }
+                EpubSavedSelectionsLookup::ChapterMissing => {
+                    return Err(KnowledgeError::new(
+                        KnowledgeErrorCode::NotFound,
+                        "EPUB chapter not found",
+                    ));
+                }
+                EpubSavedSelectionsLookup::Found {
+                    chapter_scalar_count,
+                    ranges,
+                } => (chapter_scalar_count, ranges),
+            };
         let mut ranges = BTreeMap::<(u64, u64), i64>::new();
-        for capture in archive.epub_captures.iter().filter(|capture| {
-            capture.receipt.document_id == document_id
-                && capture.draft.chapter_index == chapter_index
-        }) {
-            let (start, end) = (capture.draft.start, capture.draft.end);
+        for raw in raw_ranges {
+            let (start, end) = (raw.start, raw.end);
             if start >= end || end > scalar_count {
                 return Err(KnowledgeError::new(
                     KnowledgeErrorCode::Integrity,
@@ -577,9 +378,9 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
             ranges
                 .entry((start, end))
                 .and_modify(|capture_id| {
-                    *capture_id = (*capture_id).min(capture.receipt.capture_id);
+                    *capture_id = (*capture_id).min(raw.capture_id);
                 })
-                .or_insert(capture.receipt.capture_id);
+                .or_insert(raw.capture_id);
         }
         if ranges.len() > MAX_SAVED_SELECTIONS {
             return Err(KnowledgeError::new(
@@ -612,90 +413,27 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 "EPUB note page limit is outside the supported range",
             ));
         }
-        let archive = self.export_all()?;
-        let documents: BTreeMap<i64, &EpubDocumentRecord> = archive
-            .epub_documents
-            .iter()
-            .map(|doc| (doc.receipt.document_id, doc))
-            .collect();
-        let mut captures: Vec<&EpubCaptureRecord> = archive
-            .epub_captures
-            .iter()
-            .filter(|capture| {
-                document_id.is_none_or(|id| capture.receipt.document_id == id)
-                    && documents
-                        .get(&capture.receipt.document_id)
-                        .is_some_and(|doc| doc.vault == vault)
-            })
-            .collect();
-        captures.sort_by(|left, right| {
-            right
-                .receipt
-                .commit_rev
-                .cmp(&left.receipt.commit_rev)
-                .then_with(|| right.receipt.capture_id.cmp(&left.receipt.capture_id))
-        });
-        let start = match after {
-            None => 0,
-            Some(cursor) => {
-                let (cursor_document, commit_rev, capture_id) = decode_note_cursor(cursor)?;
+        let cursor = match after {
+            None => None,
+            Some(raw) => {
+                let (cursor_document, commit_rev, capture_id) = decode_note_cursor(raw)?;
                 if cursor_document != document_id {
                     return Err(invalid(
                         "EPUB note cursor does not belong to this query scope",
                     ));
                 }
-                let position = captures
-                    .iter()
-                    .position(|capture| {
-                        capture.receipt.commit_rev == commit_rev
-                            && capture.receipt.capture_id == capture_id
-                    })
-                    .ok_or_else(|| {
-                        invalid("EPUB note cursor does not belong to this query scope")
-                    })?;
-                position + 1
+                Some((commit_rev, capture_id))
             }
         };
-        let end = start.saturating_add(limit).min(captures.len());
-        let notes = captures[start..end]
-            .iter()
-            .map(|capture| {
-                let doc = documents.get(&capture.receipt.document_id).ok_or_else(|| {
-                    KnowledgeError::new(
-                        KnowledgeErrorCode::Integrity,
-                        "EPUB note document is missing from Core",
-                    )
-                })?;
-                let (quote_preview, quote_bytes, quote_truncated) = preview(&capture.draft.exact);
-                let (note_preview, note_bytes, note_truncated) = preview(&capture.user_note);
-                Ok(EpubNoteSummary {
-                    capture_id: capture.receipt.capture_id,
-                    commit_rev: capture.receipt.commit_rev,
-                    operation_id: capture.receipt.operation_id.clone(),
-                    document_id: capture.receipt.document_id,
-                    document_title: doc.title.clone(),
-                    chapter_index: capture.draft.chapter_index,
-                    quote_preview,
-                    quote_bytes,
-                    quote_truncated,
-                    note_preview,
-                    note_bytes,
-                    note_truncated,
-                })
-            })
-            .collect::<Result<Vec<_>>>()?;
-        let next_cursor = if end < captures.len() {
-            captures.get(end - 1).map(|capture| {
-                encode_note_cursor(
-                    document_id,
-                    capture.receipt.commit_rev,
-                    capture.receipt.capture_id,
-                )
-            })
-        } else {
-            None
-        };
-        Ok(EpubNotePage { notes, next_cursor })
+        let page = self
+            .store
+            .epub_notes_page(vault, document_id, cursor, limit)?;
+        Ok(EpubNotePage {
+            notes: page.notes.into_iter().map(note_summary).collect(),
+            next_cursor: page
+                .next_cursor_key
+                .map(|(rev, cap_id)| encode_note_cursor(document_id, rev, cap_id)),
+        })
     }
 
     /// Read one bounded window of a stored EPUB quote or note body.
@@ -714,30 +452,19 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 "EPUB note chunk size is outside the supported range",
             ));
         }
-        let archive = self.export_all()?;
-        let capture = archive
-            .epub_captures
-            .iter()
-            .find(|c| c.receipt.capture_id == capture_id)
+        let found = self
+            .store
+            .epub_capture_with_vault(capture_id)?
             .ok_or_else(|| {
                 KnowledgeError::new(KnowledgeErrorCode::NotFound, "EPUB note capture not found")
             })?;
-        let document = archive
-            .epub_documents
-            .iter()
-            .find(|doc| doc.receipt.document_id == capture.receipt.document_id)
-            .ok_or_else(|| {
-                KnowledgeError::new(
-                    KnowledgeErrorCode::Integrity,
-                    "EPUB note document is missing from Core",
-                )
-            })?;
-        if document.vault != vault {
+        if found.document_vault != vault {
             return Err(KnowledgeError::new(
                 KnowledgeErrorCode::NotFound,
                 "EPUB note capture not found",
             ));
         }
+        let capture = &found.record;
         let text = match field {
             NoteBodyField::Quote => capture.draft.exact.as_str(),
             NoteBodyField::Note => capture.user_note.as_str(),
@@ -764,6 +491,48 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
             text: text[offset..end].to_owned(),
             next_offset,
         })
+    }
+}
+
+impl<S: KnowledgeCommand> KnowledgeApplication<S> {
+    /// Atomically import an extracted EPUB snapshot into Core, keyed idempotently by `op`.
+    pub fn import_epub(
+        &mut self,
+        op: &str,
+        vault: &str,
+        snapshot: &EpubSnapshot,
+    ) -> Result<EpubDocumentReceipt> {
+        native_import(op, vault, &snapshot.title)?;
+        snapshot.validate()?;
+        if snapshot.vault != vault {
+            return Err(invalid("EPUB snapshot vault does not match target vault"));
+        }
+        self.store.import_epub(op, vault, snapshot)
+    }
+
+    /// Capture one scalar range from an EPUB chapter into Core.
+    pub fn capture_epub_selection(
+        &mut self,
+        operation_id: &str,
+        vault: &str,
+        range: EpubSelectionRange,
+        origin: &Provenance,
+        user_note: &str,
+    ) -> Result<EpubReceipt> {
+        validate_vault(vault)?;
+        if range.start >= range.end {
+            return Err(invalid("EPUB selection range is empty or inverted"));
+        }
+        self.store.capture_epub_selection(
+            operation_id,
+            vault,
+            range.document_id,
+            range.chapter_index,
+            range.start,
+            range.end,
+            origin,
+            user_note,
+        )
     }
 
     /// Update the user note on an EPUB capture scoped by `vault`.

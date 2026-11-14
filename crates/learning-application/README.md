@@ -1,12 +1,10 @@
 # 知识应用用例
 
-`KnowledgeApplication<S: KnowledgeStore>` 实现真实文本/PDF/复合捕获、PDF导入、查询、精确定位、完整导出与空库恢复。写用例从一致快照生成整体计划，保留独立意图、幂等 hash 和全局提交顺序；不依赖 SQL、文件系统、Host、插件运行时或 NSH。
+`KnowledgeApplication<S>` 现按用例职责分别约束 `KnowledgeQuery`、`KnowledgeCommand` 与 `KnowledgeArchive`，不再依赖整库 `snapshot()` 处理常规读写、分页或回执核对；仅完整导出与恢复走归档端口。支持真实文本/PDF/复合/EPUB 导入与捕获、查询、精确定位、完整导出与空库恢复，不依赖 SQL、文件系统、Host、插件运行时或 NSH。
 
-现由捕获实验的普通插件宿主实际消费，SQL/CAS 不再复制在实验内。旧 schema/归档兼容与完整性校验共享 [core-api](../core-api/README.md)。稳定错误分类供后续 UI 区分未找到、预算、冲突、损坏和存储故障。
+现由 `apps/qusor` 与捕获实验实际消费，SQL/CAS 不再复制在实验内。旧 schema/归档兼容与完整性校验共享 [core-api](../core-api/README.md)。稳定错误分类供后续 UI 区分未找到、预算、冲突、损坏和存储故障。
 
-当前是有界完整快照路径，尚未完成大资料库的增量查询/性能、生产平台适配或正式功能插件旅程。见 [ADR 0019](../../docs/architecture/adr/0019-atomic-knowledge-persistence.md)。
-
-`study::StudyApplication<S: StudyStore>` 提供词汇学习用例：幂等播种、词书计数、到期优先队列、四档评分与 FSRS 安排、导出/空库恢复。调度数学来自零依赖的 `learning-domain`；应用层固定每日新词预算 10、日起点由可信调用方传入。见 [ADR 0036](../../docs/architecture/adr/0036-vocabulary-study-capability.md)。
+`study::StudyApplication<S>` 同样按用例分别约束 `StudyQuery`、`StudyCommand` 与 `StudyArchivePort`：幂等播种、词书计数、卡片分页、到期优先队列、四档评分与 FSRS 安排、导出/空库恢复。调度数学来自零依赖的 `learning-domain`；应用层固定每日新词预算 10、日起点由可信调用方传入。端口拆分与事务语义见 [ADR 0050](../../docs/architecture/adr/0050-split-storage-ports-and-incremental-transactions.md)、[ADR 0019](../../docs/architecture/adr/0019-atomic-knowledge-persistence.md) 与 [ADR 0036](../../docs/architecture/adr/0036-vocabulary-study-capability.md)。
 
 ## 会话草稿基础
 

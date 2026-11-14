@@ -7,7 +7,7 @@ use core_api::vocab::{
     WordbookSeed,
 };
 use learning_application::study::StudyApplication;
-use learning_ports::StudyStore;
+use learning_ports::{StudyArchivePort, StudyCommand};
 use std::{
     fs,
     path::PathBuf,
@@ -248,8 +248,11 @@ fn export_and_restore_round_trip_into_empty_core() {
 fn store_rejects_a_stale_review_guard() {
     let scratch = Scratch::new();
     let mut store = open(&scratch);
-    let book = store.ensure_wordbook("vault", &seed(), NOW).unwrap();
-    let archive = store.study_snapshot().unwrap();
+    let book = store
+        .core_mut()
+        .ensure_wordbook("vault", &seed(), NOW)
+        .unwrap();
+    let archive = store.core().study_snapshot().unwrap();
     assert_eq!(archive.cards.len(), 3);
     let card = archive.cards[0].clone();
     let schedule = CardSchedule {
@@ -282,10 +285,13 @@ fn store_rejects_a_stale_review_guard() {
         expected_reps: 0,
         expected_last_review_at_ms: None,
     };
-    let stored = store.commit_review(&guard, &schedule, &entry).unwrap();
+    let stored = store
+        .core_mut()
+        .commit_review(&guard, &schedule, &entry)
+        .unwrap();
     assert!(stored.id > 0);
 
-    let stale = store.commit_review(
+    let stale = store.core_mut().commit_review(
         &guard,
         &CardSchedule {
             due_at_ms: NOW + 2 * DAY,
@@ -301,7 +307,7 @@ fn store_rejects_a_stale_review_guard() {
         stale.unwrap_err().code,
         core_api::error::KnowledgeErrorCode::Conflict
     );
-    assert_eq!(store.study_snapshot().unwrap().reviews.len(), 1);
+    assert_eq!(store.core().study_snapshot().unwrap().reviews.len(), 1);
     let _ = book;
 }
 
@@ -530,13 +536,13 @@ fn schema_v4_migrates_cleanly_to_v5_preserving_cards_and_adding_tables() {
     let version: i64 = db
         .query_row("PRAGMA user_version", [], |r| r.get(0))
         .unwrap();
-    assert_eq!(version, 5);
-    let v5_tables: i64 = db
+    assert_eq!(version, 6);
+    let v5_and_v6_tables: i64 = db
         .query_row(
-            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('epub_documents','epub_chapters','epub_toc','epub_captures','knowledge_audit')",
+            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('epub_documents','epub_chapters','epub_toc','epub_captures','knowledge_audit','pdf_document_meta','pdf_capture_meta')",
             [],
             |r| r.get(0),
         )
         .unwrap();
-    assert_eq!(v5_tables, 5);
+    assert_eq!(v5_and_v6_tables, 7);
 }

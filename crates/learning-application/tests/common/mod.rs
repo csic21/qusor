@@ -1,6 +1,7 @@
 //! Shared synthetic Core fixture and explicitly injected lost-reply store.
 use core_api::knowledge::*;
 use learning_application::KnowledgeApplication;
+#[allow(deprecated)]
 use learning_ports::{CommitPlan, KnowledgeStore};
 pub struct Memory {
     archive: ArchiveV2,
@@ -24,6 +25,7 @@ impl Memory {
         }
     }
 }
+#[allow(deprecated)]
 impl KnowledgeStore for Memory {
     fn snapshot(&self) -> Result<ArchiveV2> {
         Ok(self.archive.clone())

@@ -1,7 +1,7 @@
 //! Vocabulary study use cases: wordbook seeding, due queue, guided review and
 //! study export/restore. Scheduling math lives in `learning-domain`; this module
-//! binds a trusted `StudyStore`, keeps Core state consistent and never grants
-//! Host authority, package identity or UI behavior.
+//! binds split study ports, keeps Core state consistent and never grants Host
+//! authority, package identity or UI behavior.
 use core_api::{
     knowledge::{KnowledgeError, KnowledgeErrorCode, Result},
     vocab::{
@@ -12,8 +12,7 @@ use core_api::{
     },
 };
 use learning_domain::fsrs::{self, MemoryState, Policy, Rating, ScheduleInput, Stage};
-use learning_ports::StudyStore;
-use std::collections::{BTreeMap, BTreeSet};
+use learning_ports::{StudyArchivePort, StudyCommand, StudyQuery};
 
 /// Maximum cards returned in a single `wordbook_cards` page.
 pub const MAX_WORDBOOK_CARDS_PAGE: usize = 200;
@@ -27,10 +26,6 @@ fn validate_vault(vault: &str) -> Result<()> {
         return Err(invalid("invalid study vault"));
     }
     Ok(())
-}
-
-fn not_found(message: &'static str) -> KnowledgeError {
-    KnowledgeError::new(KnowledgeErrorCode::NotFound, message)
 }
 
 fn conflict(message: &'static str) -> KnowledgeError {
@@ -101,11 +96,11 @@ pub struct ReviewOutcome {
 }
 
 /// Vocabulary study application over one trusted store.
-pub struct StudyApplication<S: StudyStore> {
+pub struct StudyApplication<S> {
     store: S,
 }
 
-impl<S: StudyStore> StudyApplication<S> {
+impl<S> StudyApplication<S> {
     pub fn new(store: S) -> Self {
         Self { store }
     }
@@ -118,7 +113,9 @@ impl<S: StudyStore> StudyApplication<S> {
     pub fn into_store(self) -> S {
         self.store
     }
+}
 
+impl<S: StudyCommand> StudyApplication<S> {
     /// Commit a seeded wordbook once per `(vault, title)`. Repeating the same seed
     /// returns the existing wordbook and never duplicates cards.
     pub fn seed_wordbook(
@@ -134,43 +131,6 @@ impl<S: StudyStore> StudyApplication<S> {
         self.store.ensure_wordbook(vault, seed, now_ms)
     }
 
-    /// Wordbooks in one vault with total/due/new counters for the local day.
-    pub fn decks(&self, vault: &str, now_ms: i64) -> Result<Vec<DeckSummary>> {
-        if now_ms <= 0 {
-            return Err(invalid("invalid study timestamp"));
-        }
-        let archive = self.store.study_snapshot()?;
-        let mut cards: BTreeMap<i64, Vec<&StudyCard>> = BTreeMap::new();
-        for card in &archive.cards {
-            cards.entry(card.wordbook_id).or_default().push(card);
-        }
-        let mut schedules = BTreeMap::new();
-        for schedule in &archive.schedules {
-            schedules.insert(schedule.card_id, schedule);
-        }
-        let mut decks = Vec::new();
-        for book in archive.wordbooks.iter().filter(|book| book.vault == vault) {
-            let book_cards = cards.get(&book.id).map(Vec::as_slice).unwrap_or(&[]);
-            let mut due = 0u32;
-            let mut new = 0u32;
-            for card in book_cards {
-                match schedules.get(&card.id) {
-                    Some(schedule) if schedule.due_at_ms <= now_ms => due += 1,
-                    Some(_) => {}
-                    None => new += 1,
-                }
-            }
-            decks.push(DeckSummary {
-                wordbook: book.clone(),
-                total: u32::try_from(book_cards.len()).unwrap_or(u32::MAX),
-                due,
-                new,
-            });
-        }
-        decks.sort_by_key(|deck| deck.wordbook.id);
-        Ok(decks)
-    }
-
     /// Delete a wordbook scoped by `vault` along with its cards, schedules, and reviews.
     pub fn delete_wordbook(&mut self, vault: &str, wordbook_id: i64) -> Result<()> {
         validate_vault(vault)?;
@@ -178,6 +138,25 @@ impl<S: StudyStore> StudyApplication<S> {
             return Err(invalid("invalid wordbook id"));
         }
         self.store.delete_wordbook(vault, wordbook_id)
+    }
+}
+
+impl<S: StudyQuery> StudyApplication<S> {
+    /// Wordbooks in one vault with total/due/new counters for the local day.
+    pub fn decks(&self, vault: &str, now_ms: i64) -> Result<Vec<DeckSummary>> {
+        if now_ms <= 0 {
+            return Err(invalid("invalid study timestamp"));
+        }
+        let rows = self.store.study_decks(vault, now_ms)?;
+        Ok(rows
+            .into_iter()
+            .map(|row| DeckSummary {
+                wordbook: row.wordbook,
+                total: row.total,
+                due: row.due,
+                new: row.new_count,
+            })
+            .collect())
     }
 
     /// Return a bounded slice of cards belonging to one wordbook in `vault`, ordered by position.
@@ -198,21 +177,7 @@ impl<S: StudyStore> StudyApplication<S> {
                 "wordbook card page limit is outside the supported range",
             ));
         }
-        let archive = self.store.study_snapshot()?;
-        if !archive
-            .wordbooks
-            .iter()
-            .any(|book| book.id == wordbook_id && book.vault == vault)
-        {
-            return Err(not_found("wordbook not found in this vault"));
-        }
-        let mut cards: Vec<StudyCard> = archive
-            .cards
-            .into_iter()
-            .filter(|card| card.wordbook_id == wordbook_id)
-            .collect();
-        cards.sort_by_key(|card| (card.position, card.id));
-        Ok(cards.into_iter().skip(offset).take(limit).collect())
+        self.store.wordbook_cards(vault, wordbook_id, limit, offset)
     }
 
     /// One bounded queue page: due reviews first, then new cards while the daily
@@ -282,91 +247,30 @@ impl<S: StudyStore> StudyApplication<S> {
                 "study queue limit is outside the supported range",
             ));
         }
-        let archive = self.store.study_snapshot()?;
-        let book = archive
-            .wordbooks
-            .iter()
-            .find(|book| book.id == wordbook_id && book.vault == vault)
-            .ok_or_else(|| not_found("wordbook not found in this vault"))?;
-        let schedules: BTreeMap<i64, &CardSchedule> = archive
-            .schedules
-            .iter()
-            .map(|schedule| (schedule.card_id, schedule))
-            .collect();
-        let book_cards: Vec<&StudyCard> = archive
-            .cards
-            .iter()
-            .filter(|card| card.wordbook_id == book.id)
-            .collect();
-        let mut due: Vec<&StudyCard> = book_cards
-            .iter()
-            .copied()
-            .filter(|card| {
-                schedules
-                    .get(&card.id)
-                    .is_some_and(|schedule| schedule.due_at_ms <= now_ms)
-            })
-            .collect();
-        due.sort_by_key(|card| {
-            (
-                schedules.get(&card.id).map(|s| s.due_at_ms),
-                card.position,
-                card.id,
-            )
-        });
-        let mut new_cards: Vec<&StudyCard> = book_cards
-            .iter()
-            .copied()
-            .filter(|card| !schedules.contains_key(&card.id))
-            .collect();
-        new_cards.sort_by_key(|card| (card.position, card.id));
-
-        let card_ids: BTreeSet<i64> = book_cards.iter().map(|card| card.id).collect();
-        let introduced_today = archive
-            .reviews
-            .iter()
-            .filter(|review| {
-                card_ids.contains(&review.card_id)
-                    && review.stage_before == StudyStage::New
-                    && review.reviewed_at_ms >= day_start_ms
-                    && review.reviewed_at_ms <= now_ms
-            })
-            .count() as u32;
-        let new_allowance = daily_new_limit.saturating_sub(introduced_today);
-        let take_new = usize::try_from(new_allowance)
-            .unwrap_or(0)
-            .min(new_cards.len())
-            .min(limit.saturating_sub(due.len().min(limit)));
-        let due_take = limit.min(due.len());
-        let mut cards = Vec::with_capacity(due_take + take_new);
-        for card in &due[..due_take] {
-            let stage = schedules
-                .get(&card.id)
-                .map_or(StudyStage::New, |schedule| schedule.stage);
-            cards.push(StudyCardView {
-                card: (*card).clone(),
-                stage,
-            });
-        }
-        for card in &new_cards[..take_new] {
-            cards.push(StudyCardView {
-                card: (*card).clone(),
-                stage: StudyStage::New,
-            });
-        }
-        // Counts describe what is left after this page, matching the review outcome.
-        let remaining_due = due.len().saturating_sub(due_take);
-        let remaining_new = usize::try_from(new_allowance)
-            .unwrap_or(0)
-            .min(new_cards.len())
-            .saturating_sub(take_new);
+        let data = self.store.study_queue(
+            vault,
+            wordbook_id,
+            now_ms,
+            day_start_ms,
+            limit,
+            daily_new_limit,
+        )?;
         Ok(StudyQueue {
-            cards,
-            remaining_due: u32::try_from(remaining_due).unwrap_or(u32::MAX),
-            remaining_new: u32::try_from(remaining_new).unwrap_or(u32::MAX),
+            cards: data
+                .cards
+                .into_iter()
+                .map(|entry| StudyCardView {
+                    card: entry.card,
+                    stage: entry.stage,
+                })
+                .collect(),
+            remaining_due: data.remaining_due,
+            remaining_new: data.remaining_new,
         })
     }
+}
 
+impl<S: StudyQuery + StudyCommand> StudyApplication<S> {
     /// Grade one card. The operation id is the idempotency key: repeating the same
     /// card/rating returns the stored outcome; reusing it for another card or
     /// rating is a conflict. A stale schedule guard is also a conflict.
@@ -389,28 +293,21 @@ impl<S: StudyStore> StudyApplication<S> {
         if now_ms <= 0 || day_start_ms < 0 || day_start_ms > now_ms {
             return Err(invalid("invalid study time range"));
         }
-        let archive = self.store.study_snapshot()?;
-        let card = archive
-            .cards
-            .iter()
-            .find(|card| card.id == card_id)
-            .ok_or_else(|| not_found("card not found"))?;
-        let book = archive
-            .wordbooks
-            .iter()
-            .find(|book| book.id == card.wordbook_id && book.vault == vault)
-            .ok_or_else(|| not_found("card not found in this vault"))?;
-        if let Some(existing) = archive
-            .reviews
-            .iter()
-            .find(|review| review.operation_id == operation_id)
-        {
+        let ctx = self
+            .store
+            .card_review_context(vault, card_id, operation_id)?;
+        if let Some(existing) = ctx.existing_review {
             if existing.card_id != card_id || existing.rating != rating {
                 return Err(conflict(
                     "review operation id is already bound to another grade",
                 ));
             }
-            let counts = self.remaining_counts(&archive, book.id, now_ms, day_start_ms)?;
+            let counts = self.store.study_remaining_counts(
+                ctx.wordbook_id,
+                now_ms,
+                day_start_ms,
+                DAILY_NEW_LIMIT,
+            )?;
             return Ok(ReviewOutcome {
                 card_id,
                 stage: existing.stage_after,
@@ -420,10 +317,7 @@ impl<S: StudyStore> StudyApplication<S> {
                 remaining_new: counts.1,
             });
         }
-        let previous = archive
-            .schedules
-            .iter()
-            .find(|schedule| schedule.card_id == card_id);
+        let previous = ctx.current_schedule.as_ref();
         let input = match previous {
             Some(schedule) => ScheduleInput {
                 memory: Some(MemoryState {
@@ -485,8 +379,12 @@ impl<S: StudyStore> StudyApplication<S> {
             algorithm: STUDY_ALGORITHM.to_owned(),
         };
         self.store.commit_review(&guard, &schedule, &entry)?;
-        let after = self.store.study_snapshot()?;
-        let counts = self.remaining_counts(&after, book.id, now_ms, day_start_ms)?;
+        let counts = self.store.study_remaining_counts(
+            ctx.wordbook_id,
+            now_ms,
+            day_start_ms,
+            DAILY_NEW_LIMIT,
+        )?;
         Ok(ReviewOutcome {
             card_id,
             stage: stage_after,
@@ -496,7 +394,9 @@ impl<S: StudyStore> StudyApplication<S> {
             remaining_new: counts.1,
         })
     }
+}
 
+impl<S: StudyArchivePort> StudyApplication<S> {
     /// Complete study export; the archive is validated before it leaves Core.
     pub fn export_study(&self) -> Result<StudyArchive> {
         let archive = self.store.study_snapshot()?;
@@ -508,51 +408,5 @@ impl<S: StudyStore> StudyApplication<S> {
     pub fn restore_study(&mut self, archive: &StudyArchive) -> Result<()> {
         validate_archive(archive)?;
         self.store.restore_study(archive)
-    }
-
-    fn remaining_counts(
-        &self,
-        archive: &StudyArchive,
-        wordbook_id: i64,
-        now_ms: i64,
-        day_start_ms: i64,
-    ) -> Result<(u32, u32)> {
-        let card_ids: BTreeSet<i64> = archive
-            .cards
-            .iter()
-            .filter(|card| card.wordbook_id == wordbook_id)
-            .map(|card| card.id)
-            .collect();
-        let due = archive
-            .schedules
-            .iter()
-            .filter(|schedule| card_ids.contains(&schedule.card_id) && schedule.due_at_ms <= now_ms)
-            .count();
-        let introduced_today = archive
-            .reviews
-            .iter()
-            .filter(|review| {
-                card_ids.contains(&review.card_id)
-                    && review.stage_before == StudyStage::New
-                    && review.reviewed_at_ms >= day_start_ms
-                    && review.reviewed_at_ms <= now_ms
-            })
-            .count();
-        let new_cards = archive
-            .cards
-            .iter()
-            .filter(|card| card_ids.contains(&card.id))
-            .filter(|card| {
-                !archive
-                    .schedules
-                    .iter()
-                    .any(|schedule| schedule.card_id == card.id)
-            })
-            .count();
-        let allowance = DAILY_NEW_LIMIT.saturating_sub(introduced_today as u32);
-        Ok((
-            u32::try_from(due).unwrap_or(u32::MAX),
-            allowance.min(u32::try_from(new_cards).unwrap_or(u32::MAX)),
-        ))
     }
 }

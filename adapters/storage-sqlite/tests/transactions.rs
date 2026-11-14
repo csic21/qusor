@@ -1,8 +1,9 @@
 #![cfg(unix)]
+#![allow(deprecated)]
 use core_api::{contract::CaptureDraft, knowledge::*};
 use learning_application::KnowledgeApplication;
 use learning_application::pdf_notes::{MAX_NOTE_CHUNK_BYTES, NoteBodyField};
-use learning_ports::{CommitPlan, KnowledgeStore};
+use learning_ports::{CommitPlan, KnowledgeCommand, KnowledgeStore};
 use std::{
     fs,
     path::PathBuf,
@@ -46,7 +47,7 @@ fn origin() -> Provenance {
         installation_id: 1,
     }
 }
-fn commit<S: KnowledgeStore>(app: &mut KnowledgeApplication<S>, op: &str) -> Receipt {
+fn commit<S: KnowledgeCommand>(app: &mut KnowledgeApplication<S>, op: &str) -> Receipt {
     app.commit(op, "vault", &draft(), &origin(), "My view")
         .unwrap()
 }

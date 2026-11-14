@@ -4,12 +4,13 @@
 //! blobs, filesystem paths, selections, notes or plugin authority.
 use crate::KnowledgeApplication;
 use core_api::{
-    knowledge::{
-        KnowledgeError, KnowledgeErrorCode, PdfDocumentRecord, PdfReceipt, Provenance, Result,
-    },
+    knowledge::{KnowledgeError, KnowledgeErrorCode, PdfReceipt, Provenance, Result},
     pdf_contract::{PDF_TEXT_UNIT, PdfDraft},
 };
-use learning_ports::KnowledgeStore;
+use learning_ports::{
+    KnowledgeCommand, KnowledgeQuery, PdfDocumentSummaryRow, PdfPageTextLookup,
+    PdfSavedSelectionsLookup,
+};
 use std::collections::BTreeMap;
 
 /// Maximum entries in one Library page. Later entries use `next_cursor`.
@@ -111,19 +112,19 @@ fn decode_cursor(value: &str) -> Result<(i64, i64)> {
     Ok((commit, document))
 }
 
-fn summary(record: &PdfDocumentRecord) -> PdfDocumentSummary {
+fn summary(row: PdfDocumentSummaryRow) -> PdfDocumentSummary {
     PdfDocumentSummary {
-        document_id: record.receipt.document_id,
-        commit_rev: record.receipt.commit_rev,
-        title: record.title.clone(),
-        original_sha256: record.receipt.original_sha256.clone(),
-        original_bytes: record.snapshot.original_bytes,
-        extraction_revision: record.receipt.extraction_revision.clone(),
-        page_count: record.snapshot.pages.len(),
+        document_id: row.document_id,
+        commit_rev: row.commit_rev,
+        title: row.title,
+        original_sha256: row.original_sha256,
+        original_bytes: row.original_bytes,
+        extraction_revision: row.extraction_revision,
+        page_count: row.page_count,
     }
 }
 
-impl<S: KnowledgeStore> KnowledgeApplication<S> {
+impl<S: KnowledgeQuery> KnowledgeApplication<S> {
     /// Return one newest-first page of PDF metadata in one vault.
     ///
     /// The cursor binds the vault implicitly: a cursor from another vault cannot
@@ -141,47 +142,13 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 "library page limit is outside the supported range",
             ));
         }
-        let archive = self.export_all()?;
-        let mut documents = archive
-            .pdf_documents
-            .iter()
-            .filter(|document| document.vault == vault)
-            .collect::<Vec<_>>();
-        documents.sort_by(|left, right| {
-            right
-                .receipt
-                .commit_rev
-                .cmp(&left.receipt.commit_rev)
-                .then_with(|| right.receipt.document_id.cmp(&left.receipt.document_id))
-        });
-        let start = match after {
-            None => 0,
-            Some(cursor) => {
-                let (commit_rev, document_id) = decode_cursor(cursor)?;
-                documents
-                    .iter()
-                    .position(|document| {
-                        document.receipt.commit_rev == commit_rev
-                            && document.receipt.document_id == document_id
-                    })
-                    .ok_or_else(|| invalid("library cursor does not belong to this vault"))?
-                    + 1
-            }
-        };
-        let end = start.saturating_add(limit).min(documents.len());
-        let next_cursor = if end < documents.len() {
-            documents.get(end - 1).map(|document| {
-                encode_cursor(document.receipt.commit_rev, document.receipt.document_id)
-            })
-        } else {
-            None
-        };
+        let cursor = after.map(decode_cursor).transpose()?;
+        let page = self.store.pdf_documents_page(vault, cursor, limit)?;
         Ok(PdfDocumentPage {
-            documents: documents[start..end]
-                .iter()
-                .map(|document| summary(document))
-                .collect(),
-            next_cursor,
+            documents: page.documents.into_iter().map(summary).collect(),
+            next_cursor: page
+                .next_cursor_key
+                .map(|(rev, doc_id)| encode_cursor(rev, doc_id)),
         })
     }
 
@@ -211,22 +178,21 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 "library text offset is outside the supported range",
             ));
         }
-        let archive = self.export_all()?;
-        let document = archive
-            .pdf_documents
-            .iter()
-            .find(|document| document.receipt.document_id == document_id && document.vault == vault)
-            .ok_or_else(|| {
-                KnowledgeError::new(KnowledgeErrorCode::NotFound, "library document not found")
-            })?;
-        let page = document
-            .snapshot
-            .pages
-            .get(page_index as usize)
-            .ok_or_else(|| {
-                KnowledgeError::new(KnowledgeErrorCode::NotFound, "library page not found")
-            })?;
-        let text = &page.engine_text;
+        let text = match self.store.pdf_page_text(vault, document_id, page_index)? {
+            PdfPageTextLookup::DocumentMissing => {
+                return Err(KnowledgeError::new(
+                    KnowledgeErrorCode::NotFound,
+                    "library document not found",
+                ));
+            }
+            PdfPageTextLookup::PageMissing => {
+                return Err(KnowledgeError::new(
+                    KnowledgeErrorCode::NotFound,
+                    "library page not found",
+                ));
+            }
+            PdfPageTextLookup::Found { engine_text } => engine_text,
+        };
         if offset > text.len() || !text.is_char_boundary(offset) {
             return Err(KnowledgeError::new(
                 KnowledgeErrorCode::InvalidInput,
@@ -248,6 +214,85 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
         })
     }
 
+    /// Return saved scalar ranges for one PDF page.
+    ///
+    /// Multiple captures with the same exact range collapse to one visual range;
+    /// compound captures contribute each segment that belongs to this page.
+    /// This is a read-only projection and performs no text search or remapping.
+    pub fn pdf_saved_selections(
+        &self,
+        vault: &str,
+        document_id: i64,
+        page_index: u32,
+    ) -> Result<Vec<PdfSavedSelection>> {
+        validate_vault(vault)?;
+        let (scalar_count, raw_ranges) =
+            match self
+                .store
+                .pdf_saved_selections(vault, document_id, page_index)?
+            {
+                PdfSavedSelectionsLookup::DocumentMissing => {
+                    return Err(KnowledgeError::new(
+                        KnowledgeErrorCode::NotFound,
+                        "library document not found",
+                    ));
+                }
+                PdfSavedSelectionsLookup::PageMissing => {
+                    return Err(KnowledgeError::new(
+                        KnowledgeErrorCode::NotFound,
+                        "library page not found",
+                    ));
+                }
+                PdfSavedSelectionsLookup::Found {
+                    page_scalar_count,
+                    ranges,
+                } => (page_scalar_count, ranges),
+            };
+        let mut ranges = BTreeMap::<(u32, u32), i64>::new();
+        for raw in raw_ranges {
+            let start = u32::try_from(raw.start).map_err(|_| {
+                KnowledgeError::new(
+                    KnowledgeErrorCode::Integrity,
+                    "saved selection start is unsupported",
+                )
+            })?;
+            let end = u32::try_from(raw.end).map_err(|_| {
+                KnowledgeError::new(
+                    KnowledgeErrorCode::Integrity,
+                    "saved selection end is unsupported",
+                )
+            })?;
+            if start >= end || end as usize > scalar_count {
+                return Err(KnowledgeError::new(
+                    KnowledgeErrorCode::Integrity,
+                    "saved selection range is invalid",
+                ));
+            }
+            ranges
+                .entry((start, end))
+                .and_modify(|capture_id| {
+                    *capture_id = (*capture_id).min(raw.capture_id);
+                })
+                .or_insert(raw.capture_id);
+        }
+        if ranges.len() > MAX_SAVED_SELECTIONS {
+            return Err(KnowledgeError::new(
+                KnowledgeErrorCode::BudgetExceeded,
+                "saved selection page exceeds its range budget",
+            ));
+        }
+        Ok(ranges
+            .into_iter()
+            .map(|((start, end), capture_id)| PdfSavedSelection {
+                capture_id,
+                start,
+                end,
+            })
+            .collect())
+    }
+}
+
+impl<S: KnowledgeQuery + KnowledgeCommand> KnowledgeApplication<S> {
     /// Capture one scalar range from a PDF text layer into Core.
     ///
     /// The range is checked against the stored page before a draft is formed;
@@ -268,13 +313,10 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
                 "library selection range is empty or inverted",
             ));
         }
-        let archive = self.export_all()?;
-        let document = archive
-            .pdf_documents
-            .iter()
-            .find(|document| {
-                document.receipt.document_id == range.document_id && document.vault == vault
-            })
+        let document = self
+            .store
+            .pdf_document(range.document_id)?
+            .filter(|doc| doc.vault == vault)
             .ok_or_else(|| {
                 KnowledgeError::new(KnowledgeErrorCode::NotFound, "library document not found")
             })?;
@@ -300,8 +342,8 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
             .collect::<String>();
         let draft = PdfDraft {
             protocol_version: 1,
-            original_sha256: document.receipt.original_sha256.clone(),
-            extraction_revision: document.receipt.extraction_revision.clone(),
+            original_sha256: document.receipt.original_sha256,
+            extraction_revision: document.receipt.extraction_revision,
             page_index: range.page_index,
             page_text_sha256: page.text_sha256.clone(),
             unit: PDF_TEXT_UNIT.into(),
@@ -310,89 +352,5 @@ impl<S: KnowledgeStore> KnowledgeApplication<S> {
             exact,
         };
         self.capture_pdf(operation_id, range.document_id, &draft, origin, user_note)
-    }
-
-    /// Return saved scalar ranges for one PDF page.
-    ///
-    /// Multiple captures with the same exact range collapse to one visual range;
-    /// compound captures contribute each segment that belongs to this page.
-    /// This is a read-only projection and performs no text search or remapping.
-    pub fn pdf_saved_selections(
-        &self,
-        vault: &str,
-        document_id: i64,
-        page_index: u32,
-    ) -> Result<Vec<PdfSavedSelection>> {
-        validate_vault(vault)?;
-        let archive = self.export_all()?;
-        let document = archive
-            .pdf_documents
-            .iter()
-            .find(|document| document.receipt.document_id == document_id && document.vault == vault)
-            .ok_or_else(|| {
-                KnowledgeError::new(KnowledgeErrorCode::NotFound, "library document not found")
-            })?;
-        let page = document
-            .snapshot
-            .pages
-            .get(page_index as usize)
-            .ok_or_else(|| {
-                KnowledgeError::new(KnowledgeErrorCode::NotFound, "library page not found")
-            })?;
-        let scalar_count = page.engine_text.chars().count();
-        let mut ranges = BTreeMap::<(u32, u32), i64>::new();
-        for capture in archive
-            .pdf_captures
-            .iter()
-            .filter(|capture| capture.receipt.document_id == document_id)
-        {
-            let drafts = match &capture.compound {
-                Some(compound) => compound.segments.iter().collect::<Vec<_>>(),
-                None => vec![&capture.draft],
-            };
-            for draft in drafts {
-                if draft.page_index != page_index {
-                    continue;
-                }
-                let start = u32::try_from(draft.start).map_err(|_| {
-                    KnowledgeError::new(
-                        KnowledgeErrorCode::Integrity,
-                        "saved selection start is unsupported",
-                    )
-                })?;
-                let end = u32::try_from(draft.end).map_err(|_| {
-                    KnowledgeError::new(
-                        KnowledgeErrorCode::Integrity,
-                        "saved selection end is unsupported",
-                    )
-                })?;
-                if start >= end || end as usize > scalar_count {
-                    return Err(KnowledgeError::new(
-                        KnowledgeErrorCode::Integrity,
-                        "saved selection range is invalid",
-                    ));
-                }
-                ranges
-                    .entry((start, end))
-                    .and_modify(|capture_id| {
-                        *capture_id = (*capture_id).min(capture.receipt.capture_id);
-                    })
-                    .or_insert(capture.receipt.capture_id);
-            }
-        }
-        if ranges.len() > MAX_SAVED_SELECTIONS {
-            return Err(KnowledgeError::new(
-                KnowledgeErrorCode::BudgetExceeded,
-                "saved selection page exceeds its range budget",
-            ));
-        }
-        Ok(ranges
-            .into_iter()
-            .map(|((start, end), capture_id)| PdfSavedSelection {
-                capture_id,
-                start,
-                end,
-            })
-            .collect())
     }
 }
