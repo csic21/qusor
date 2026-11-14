@@ -1,5 +1,5 @@
 //! Trusted Library Host mounted by the application composition runtime.
-use crate::{epub_reader, package_catalog, profile, runtime, vault::VaultStore};
+use crate::{core_facade, epub_reader, package_catalog, profile, runtime, vault::VaultStore};
 use core_api::{
     contract::sha256,
     epub_contract::{
@@ -11,10 +11,7 @@ use core_api::{
 };
 use extension_api::{ApiError, Capability, HOST_API_V0_7, Resource, library::*};
 use extension_host::{Grant, Host, Session};
-use learning_application::{
-    KnowledgeApplication,
-    epub_library::{EpubSelectionRange, MAX_EPUB_TEXT_CHUNK},
-};
+use learning_application::epub_library::{EpubSelectionRange, MAX_EPUB_TEXT_CHUNK};
 use nsh_core::prelude::*;
 use qusor_app_bridges::library_bridge::LibraryReadBridge;
 use serde_json::{Value, json};
@@ -34,11 +31,27 @@ pub(crate) struct LibraryRuntime {
 }
 
 impl LibraryRuntime {
+    #[cfg(test)]
     pub(crate) fn mount(store: VaultStore) -> Result<Self, String> {
-        profile::require_active(profile::LIBRARY_HOST_ENTRY)?;
-        let verified = package_catalog::verify("org.qusor.library")?;
+        let verified = package_catalog::verify_for_contribution(
+            extension_api::ContributionKind::LibraryWorkspace,
+        )?;
+        Self::mount_verified(store, verified)
+    }
+
+    pub(crate) fn mount_for_package(store: VaultStore, package_id: &str) -> Result<Self, String> {
+        let verified = package_catalog::verify(package_id)?;
+        Self::mount_verified(store, verified)
+    }
+
+    fn mount_verified(
+        store: VaultStore,
+        verified: extension_package::package::VerifiedPackage,
+    ) -> Result<Self, String> {
+        profile::require_service_active(profile::LIBRARY_READ_SERVICE)?;
+        let vault_id = store.vault_id();
         let mut host = Host::new(
-            "qusor-vault",
+            vault_id,
             [Capability::LibraryRead, Capability::CapturePropose],
         )
         .map_err(text)?;
@@ -51,13 +64,13 @@ impl LibraryRuntime {
                 Grant {
                     capability: Capability::LibraryRead,
                     resource: Resource::Vault {
-                        vault_id: "qusor-vault".into(),
+                        vault_id: vault_id.to_owned(),
                     },
                 },
                 Grant {
                     capability: Capability::CapturePropose,
                     resource: Resource::Vault {
-                        vault_id: "qusor-vault".into(),
+                        vault_id: vault_id.to_owned(),
                     },
                 },
             ],
@@ -74,11 +87,12 @@ impl LibraryRuntime {
             package_digest: verified.digest().to_string(),
             installation_id,
         };
+        let bridge = core_facade::new_library_bridge(&store);
         Ok(Self {
             host,
             session,
-            store: store.clone(),
-            bridge: LibraryReadBridge::new(KnowledgeApplication::new(store), "qusor-vault"),
+            store,
+            bridge,
             provenance,
         })
     }
@@ -289,14 +303,17 @@ impl LibraryRuntime {
     }
 
     fn delete_document(&mut self, document_id: i64, format: &str) -> Result<Value, String> {
-        let mut app = KnowledgeApplication::new(self.store.clone());
         match format {
-            "pdf" => app
-                .delete_pdf_document("qusor-vault", document_id)
-                .map_err(text)?,
-            "epub" => app
-                .delete_epub_document("qusor-vault", document_id)
-                .map_err(text)?,
+            "pdf" => core_facade::legacy_plugin_bypass::delete_pdf_document(
+                &self.store,
+                document_id,
+            )
+            .map_err(text)?,
+            "epub" => core_facade::legacy_plugin_bypass::delete_epub_document(
+                &self.store,
+                document_id,
+            )
+            .map_err(text)?,
             _ => return Err("unknown document format".into()),
         }
         Ok(json!({
@@ -307,12 +324,14 @@ impl LibraryRuntime {
     }
 
     fn epub_page(&self, cursor: String, limit: u16) -> Result<Value, String> {
-        let app = KnowledgeApplication::new(self.store.clone());
         let after = (!cursor.is_empty()).then_some(cursor.as_str());
         let page_limit = usize::from(limit).clamp(1, MAX_LIBRARY_PAGE.into());
-        let page = app
-            .epub_documents_page("qusor-vault", after, page_limit)
-            .map_err(text)?;
+        let page = core_facade::legacy_plugin_bypass::epub_documents_page(
+            &self.store,
+            after,
+            page_limit,
+        )
+        .map_err(text)?;
         let items = page
             .documents
             .into_iter()
@@ -336,8 +355,8 @@ impl LibraryRuntime {
     }
 
     fn epub_toc(&self, document_id: i64) -> Result<Value, String> {
-        let app = KnowledgeApplication::new(self.store.clone());
-        let toc = app.epub_toc("qusor-vault", document_id).map_err(text)?;
+        let toc =
+            core_facade::legacy_plugin_bypass::epub_toc(&self.store, document_id).map_err(text)?;
         Ok(json!({
             "document_id": document_id,
             "toc": toc,
@@ -345,21 +364,19 @@ impl LibraryRuntime {
     }
 
     fn epub_chapter(&self, document_id: i64, chapter_index: u32) -> Result<Value, String> {
-        let app = KnowledgeApplication::new(self.store.clone());
         let mut offset = 0usize;
         let mut title = String::new();
         let mut href = String::new();
         let mut full_text = String::new();
         loop {
-            let chunk = app
-                .epub_chapter_text(
-                    "qusor-vault",
-                    document_id,
-                    chapter_index,
-                    offset,
-                    MAX_EPUB_TEXT_CHUNK,
-                )
-                .map_err(text)?;
+            let chunk = core_facade::legacy_plugin_bypass::epub_chapter_text(
+                &self.store,
+                document_id,
+                chapter_index,
+                offset,
+                MAX_EPUB_TEXT_CHUNK,
+            )
+            .map_err(text)?;
             if offset == 0 {
                 title = chunk.title;
                 href = chunk.href;
@@ -384,10 +401,12 @@ impl LibraryRuntime {
     }
 
     fn epub_saved_selections(&self, document_id: i64, chapter_index: u32) -> Result<Value, String> {
-        let app = KnowledgeApplication::new(self.store.clone());
-        let ranges = app
-            .epub_saved_selections("qusor-vault", document_id, chapter_index)
-            .map_err(text)?;
+        let ranges = core_facade::legacy_plugin_bypass::epub_saved_selections(
+            &self.store,
+            document_id,
+            chapter_index,
+        )
+        .map_err(text)?;
         let serialized = ranges
             .into_iter()
             .map(|r| {
@@ -414,21 +433,19 @@ impl LibraryRuntime {
         note: String,
         operation_id: String,
     ) -> Result<Value, String> {
-        let mut app = KnowledgeApplication::new(self.store.clone());
-        let receipt = app
-            .capture_epub_selection(
-                &operation_id,
-                "qusor-vault",
-                EpubSelectionRange {
-                    document_id,
-                    chapter_index,
-                    start: u64::from(start),
-                    end: u64::from(end),
-                },
-                &self.provenance,
-                &note,
-            )
-            .map_err(text)?;
+        let receipt = core_facade::legacy_plugin_bypass::capture_epub_selection(
+            &self.store,
+            &operation_id,
+            EpubSelectionRange {
+                document_id,
+                chapter_index,
+                start: u64::from(start),
+                end: u64::from(end),
+            },
+            &self.provenance,
+            &note,
+        )
+        .map_err(text)?;
         Ok(json!({
             "capture_id": receipt.capture_id,
             "commit_rev": receipt.commit_rev,
@@ -464,7 +481,7 @@ fn sanitize_chapter_text(input: &str, max_bytes: usize) -> String {
     out
 }
 
-fn build_epub_snapshot(title: &str, bytes: &[u8]) -> Result<EpubSnapshot, String> {
+fn build_epub_snapshot(vault_id: &str, title: &str, bytes: &[u8]) -> Result<EpubSnapshot, String> {
     if bytes.is_empty() || bytes.len() > MAX_EPUB_BYTES {
         return Err("EPUB 文件为空或超过 16 MiB 限制".into());
     }
@@ -536,7 +553,7 @@ fn build_epub_snapshot(title: &str, bytes: &[u8]) -> Result<EpubSnapshot, String
         .take(MAX_EPUB_TOC_ENTRIES)
         .collect::<Vec<_>>();
     let snapshot = EpubSnapshot {
-        vault: "qusor-vault".into(),
+        vault: vault_id.into(),
         title: resolved_title,
         author: resolved_author,
         original_sha256: sha256(bytes),
@@ -576,7 +593,7 @@ impl Future for EpubFuture {
 }
 
 fn import_epub_with_store(store: VaultStore, title: &str, bytes: &[u8]) -> Result<Value, String> {
-    let snapshot = build_epub_snapshot(title, bytes)?;
+    let snapshot = build_epub_snapshot(store.vault_id(), title, bytes)?;
     let op = format!(
         "library-epub-{}",
         &sha256(format!("{}\0{}", snapshot.title, snapshot.original_sha256).as_bytes())[..32]
@@ -584,9 +601,7 @@ fn import_epub_with_store(store: VaultStore, title: &str, bytes: &[u8]) -> Resul
     let chapter_count = snapshot.chapters.len();
     let doc_title = snapshot.title.clone();
     let author = snapshot.author.clone();
-    let receipt = KnowledgeApplication::new(store)
-        .import_epub(&op, "qusor-vault", &snapshot)
-        .map_err(text)?;
+    let receipt = core_facade::import_epub_document(&store, &op, &snapshot).map_err(text)?;
     Ok(json!({
         "document_id": receipt.document_id,
         "commit_rev": receipt.commit_rev,

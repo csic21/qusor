@@ -11,11 +11,11 @@
 //! neither, so it cannot write receipts, arm a restart or quit through this
 //! module. Core knowledge and package authority never pass through here.
 
+use crate::core_facade;
 use core_api::{
     knowledge::{ArchiveV2, validate_archive},
     vocab::{StudyArchive, validate_archive as validate_study_archive},
 };
-use learning_application::{KnowledgeApplication, study::StudyApplication};
 use nsh_core::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -222,12 +222,7 @@ fn export_backup_with_store(
     sys: &System,
     store: crate::vault::VaultStore,
 ) -> Result<Value, String> {
-    let knowledge = KnowledgeApplication::new(store.clone())
-        .export_all()
-        .map_err(|e| e.to_string())?;
-    let study = StudyApplication::new(store)
-        .export_study()
-        .map_err(|e| e.to_string())?;
+    let (knowledge, study) = core_facade::export_backup_archives(&store).map_err(|e| e.to_string())?;
     let now = now_ms();
     let payload = CombinedBackup {
         format: Some(BACKUP_FORMAT.into()),
@@ -256,15 +251,14 @@ fn restore_backup_with_store(
     document: &str,
 ) -> Result<Value, String> {
     let parsed = parse_backup_document(document)?;
-    let mut knowledge_app = KnowledgeApplication::new(store.clone());
-    let current_knowledge = knowledge_app.export_all().map_err(|e| e.to_string())?;
+    let (current_knowledge, current_study) =
+        core_facade::inspect_backup_state(&store).map_err(|e| e.to_string())?;
     if !current_knowledge.commits.is_empty() {
         return Err("restore requires empty Core; existing data was preserved".into());
     }
     match parsed {
         ParsedBackup::KnowledgeOnly(knowledge) => {
-            let receipt = knowledge_app
-                .restore_all(&knowledge)
+            let receipt = core_facade::restore_knowledge_archive(&store, &knowledge)
                 .map_err(|e| e.to_string())?;
             Ok(json!({
                 "text_captures": receipt.text_captures,
@@ -276,8 +270,6 @@ fn restore_backup_with_store(
             }))
         }
         ParsedBackup::Combined { knowledge, study } => {
-            let mut study_app = StudyApplication::new(store);
-            let current_study = study_app.export_study().map_err(|e| e.to_string())?;
             let has_user_study = !current_study.reviews.is_empty()
                 || current_study.wordbooks.len() > 1
                 || (current_study.wordbooks.len() == 1
@@ -288,19 +280,19 @@ fn restore_backup_with_store(
                 );
             }
             let incoming_has_study = !study.wordbooks.is_empty() || !study.cards.is_empty();
-            let receipt = knowledge_app
-                .restore_all(&knowledge)
+            let receipt = core_facade::restore_knowledge_archive(&store, &knowledge)
                 .map_err(|e| e.to_string())?;
             if incoming_has_study {
-                if current_study.wordbooks.len() == 1
+                let replace_starter_wordbook_id = if current_study.wordbooks.len() == 1
                     && current_study.wordbooks[0].title == STARTER_WORDBOOK_TITLE
                     && current_study.reviews.is_empty()
                 {
-                    study_app
-                        .delete_wordbook("qusor-vault", current_study.wordbooks[0].id)
-                        .map_err(|e| e.to_string())?;
-                }
-                study_app.restore_study(&study).map_err(|e| e.to_string())?;
+                    Some(current_study.wordbooks[0].id)
+                } else {
+                    None
+                };
+                core_facade::restore_study_archive(&store, replace_starter_wordbook_id, &study)
+                    .map_err(|e| e.to_string())?;
             }
             Ok(json!({
                 "text_captures": receipt.text_captures,
@@ -513,6 +505,7 @@ mod tests {
     }
 
     use crate::vault::VaultStore;
+    use learning_application::{KnowledgeApplication, study::StudyApplication};
     use core_api::{
         contract::{
             CaptureDraft, ExternalReturn, NORMALIZATION, PROTOCOL_VERSION, SourceDescriptor,

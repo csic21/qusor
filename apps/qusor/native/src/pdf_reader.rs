@@ -5,11 +5,11 @@
 //! commits the immutable original and semantic snapshot through Core, and can
 //! later render a page from the retained original as native `ImageData`.
 
+use crate::core_facade;
 use crate::pdf_page::PdfPageData;
 use crate::vault::VaultStore;
 use core_api::contract::sha256;
 use core_api::pdf_contract::PdfSnapshot;
-use learning_application::KnowledgeApplication;
 use nsh_core::{ImageData, element::System};
 use qusor_pdf_provider::{BookmarkEntry, DocumentReport, MAX_PDF_BYTES, PageReport};
 use serde_json::{Value, json};
@@ -260,8 +260,7 @@ pub(crate) fn import(
         "library-pdf-{}",
         &sha256(format!("{title}\0{}", report.original_sha256).as_bytes())[..32]
     );
-    let receipt = KnowledgeApplication::new(store)
-        .import_document(&operation, "qusor-vault", &title, &bytes, &snapshot)
+    let receipt = core_facade::import_pdf_document(&store, &operation, &title, &bytes, &snapshot)
         .map_err(text)?;
     Ok(PdfImport {
         document_id: receipt.document_id,
@@ -367,13 +366,12 @@ pub(crate) fn render_page(
     document_id: i64,
     page_index: u32,
 ) -> Result<PdfPageData, String> {
-    let application = KnowledgeApplication::new(store);
-    let document = application.query_document(document_id).map_err(text)?;
+    let document = core_facade::query_pdf_document(&store, document_id).map_err(text)?;
     let page_count = u32::try_from(document.snapshot.pages.len()).map_err(text)?;
     if page_index >= page_count {
         return Err("the requested PDF page does not exist".into());
     }
-    let original = application.original_pdf(document_id).map_err(text)?;
+    let original = core_facade::read_original_pdf(&store, document_id).map_err(text)?;
     let job = JobDirectory::create(sys)?;
     let original_path = write_original(&job, &original)?;
     let (report, _) = inspect(&job, &original_path)?;
@@ -451,12 +449,11 @@ pub(crate) fn extract_toc(
     store: VaultStore,
     document_id: i64,
 ) -> Result<Value, String> {
-    let application = KnowledgeApplication::new(store);
-    let document = application.query_document(document_id).map_err(text)?;
+    let document = core_facade::query_pdf_document(&store, document_id).map_err(text)?;
     let toc = if let Some(cached) = read_toc_cache(sys, &document.snapshot.original_sha256) {
         cached
     } else {
-        let original = application.original_pdf(document_id).map_err(text)?;
+        let original = core_facade::read_original_pdf(&store, document_id).map_err(text)?;
         let job = JobDirectory::create(sys)?;
         let original_path = write_original(&job, &original)?;
         let (report, _) = inspect(&job, &original_path)?;

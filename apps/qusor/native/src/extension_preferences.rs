@@ -82,7 +82,7 @@ impl Preferences {
     }
 
     pub fn set_enabled(&mut self, package_id: &str, enabled: bool) -> Result<bool, String> {
-        if package_id == "org.qusor.core" {
+        if crate::profile::is_required_package(package_id)? {
             return Err("the Core provider cannot be disabled".into());
         }
         if !package_catalog::is_embedded_package(package_id) {

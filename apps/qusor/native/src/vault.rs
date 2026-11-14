@@ -10,7 +10,6 @@ use core_api::{
         CardSchedule, NewWord, ReviewEntry, ReviewGuard, StudyArchive, Wordbook, WordbookSeed,
     },
 };
-use learning_application::study::StudyApplication;
 use learning_ports::{CommitPlan, KnowledgeStore, StudyStore};
 use nsh_core::prelude::*;
 use std::{
@@ -22,18 +21,31 @@ use storage_sqlite::SqliteStore;
 
 const CORE_DIRECTORY: &str = "core";
 const LEGACY_DIRECTORIES: [&str; 2] = ["notes", "vocab"];
+const DEFAULT_VAULT_ID: &str = "qusor-vault";
 
 #[derive(Clone)]
 pub struct VaultStore {
+    vault_id: String,
     inner: Arc<Mutex<SqliteStore>>,
 }
 
 impl VaultStore {
     pub fn open_app(data_dir: &Path) -> Result<Self, String> {
+        Self::open_app_for_vault(data_dir, DEFAULT_VAULT_ID)
+    }
+
+    pub fn open_app_for_vault(
+        data_dir: &Path,
+        vault_id: impl Into<String>,
+    ) -> Result<Self, String> {
+        let vault_id = vault_id.into();
+        if vault_id.trim().is_empty() {
+            return Err("vault id cannot be empty".into());
+        }
         fs::create_dir_all(data_dir).map_err(text)?;
         let core = data_dir.join(CORE_DIRECTORY);
         if core.join("core.sqlite").is_file() {
-            return Self::open_path(&core);
+            return Self::open_path(&core, vault_id);
         }
         if core.exists() {
             return Err("the Core directory exists without core.sqlite".into());
@@ -41,35 +53,29 @@ impl VaultStore {
 
         let legacy = LegacyArchives::read(data_dir)?;
         if legacy.knowledge.is_none() && legacy.study.is_none() {
-            return Self::open_path(&core);
+            return Self::open_path(&core, vault_id);
         }
         migrate_legacy(data_dir, &core, legacy)?;
-        Self::open_path(&core)
+        Self::open_path(&core, vault_id)
+    }
+
+    pub fn vault_id(&self) -> &str {
+        &self.vault_id
     }
 
     pub fn ensure_starter_wordbook(&self) -> Result<(), String> {
-        let mut study = StudyApplication::new(self.clone());
-        if !study
-            .export_study()
-            .map_err(|error| error.to_string())?
-            .wordbooks
-            .is_empty()
-        {
-            return Ok(());
-        }
         let now_ms = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map_err(|error| error.to_string())?
             .as_millis();
         let now_ms = i64::try_from(now_ms).map_err(|_| "system time is unsupported")?;
-        study
-            .seed_wordbook("qusor-vault", &starter_wordbook(), now_ms)
-            .map(|_| ())
+        crate::core_facade::ensure_starter_wordbook(self, &starter_wordbook(), now_ms)
             .map_err(|error| error.to_string())
     }
 
-    fn open_path(path: &Path) -> Result<Self, String> {
+    fn open_path(path: &Path, vault_id: String) -> Result<Self, String> {
         Ok(Self {
+            vault_id,
             inner: Arc::new(Mutex::new(SqliteStore::open(path).map_err(text)?)),
         })
     }
@@ -290,7 +296,7 @@ impl StudyStore for VaultStore {
 
 /// Resolve the one Core handle owned by the application runtime.
 pub fn open(sys: &System) -> Result<VaultStore, String> {
-    crate::profile::require_active(crate::profile::CORE_ENTRY)?;
+    crate::profile::require_service_active(crate::profile::VAULT_READ_SERVICE)?;
     let data_dir = sys
         .data_dir
         .clone()

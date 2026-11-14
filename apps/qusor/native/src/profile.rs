@@ -1,8 +1,10 @@
 //! Declarative desktop composition for the packaged application.
 //!
-//! The profile is data, not executable configuration. It is parsed once, resolved
-//! through `capability-composition`, and used to gate Host activation. Plugin
+//! The profile is data, not executable configuration. Base service providers
+//! come from `desktop-profile.json`, while workspace feature entries are
+//! generated from the verified package catalog (`package_catalog`). Plugin
 //! permissions and package verification remain separate.
+use crate::package_catalog;
 use capability_composition::{
     CompositionLayer, CompositionPlan, CompositionProfile, Entry, EntryId, ServiceId,
     ServiceProvision, ServiceRequirement, ServiceVersion, VersionRequirement,
@@ -12,10 +14,10 @@ use serde_json::json;
 use std::{collections::BTreeSet, sync::OnceLock};
 
 const PROFILE_JSON: &str = include_str!("../../desktop-profile.json");
-pub const CORE_ENTRY: &str = "app.qusor.core";
-pub const NOTES_HOST_ENTRY: &str = "app.qusor.notes.host";
-pub const VOCAB_HOST_ENTRY: &str = "app.qusor.vocab.host";
-pub const LIBRARY_HOST_ENTRY: &str = "app.qusor.library.host";
+pub const VAULT_READ_SERVICE: &str = "vault.read";
+pub const NOTES_READ_SERVICE: &str = "notes.read";
+pub const VOCAB_READ_SERVICE: &str = "vocab.read";
+pub const LIBRARY_READ_SERVICE: &str = "library.read";
 static PROFILE: OnceLock<Result<CompositionPlan, String>> = OnceLock::new();
 
 #[derive(Deserialize)]
@@ -99,6 +101,27 @@ pub fn require_active(entry: &str) -> Result<(), String> {
     }
 }
 
+/// Gate a Host initializer on an active provider of `service`.
+pub fn require_service_active(service: &str) -> Result<(), String> {
+    let service = ServiceId::parse(service).map_err(|error| error.to_string())?;
+    let plan = plan()?;
+    if plan.provider(&service).is_some() {
+        Ok(())
+    } else {
+        Err(format!(
+            "composition provider for service is missing or disabled: {service}"
+        ))
+    }
+}
+
+/// Whether `package_id` is declared as `required` in the resolved base profile.
+pub fn is_required_package(package_id: &str) -> Result<bool, String> {
+    let plan = plan()?;
+    Ok(plan.entries().iter().any(|planned| {
+        planned.entry().is_required() && planned.entry().package().as_str() == package_id
+    }))
+}
+
 /// Diagnostic receipt consumed by the native host and evidence tests. It exposes
 /// only the resolved composition; no package bytes, paths or grants are included.
 pub fn report_json() -> String {
@@ -166,7 +189,61 @@ fn load_with_disabled(disabled_packages: &BTreeSet<String>) -> Result<Compositio
             .push_layer(layer)
             .map_err(|error| error.to_string())?;
     }
+    let feature_entries = catalog_feature_entries(disabled_packages)?;
+    if !feature_entries.is_empty() {
+        let features = CompositionLayer::new("features", feature_entries)
+            .map_err(|error| error.to_string())?;
+        profile
+            .push_layer(features)
+            .map_err(|error| error.to_string())?;
+    }
     profile.resolve().map_err(|error| error.to_string())
+}
+
+fn catalog_feature_entries(disabled_packages: &BTreeSet<String>) -> Result<Vec<Entry>, String> {
+    let mut entries = Vec::new();
+    for verified in package_catalog::verify_all()? {
+        let manifest = verified.manifest();
+        let enabled = !disabled_packages.contains(&manifest.package_id);
+        for contribution in &manifest.contributions {
+            if package_catalog::workspace_kind(contribution.kind).is_none() {
+                continue;
+            }
+            let mut entry = Entry::new(contribution.id.clone(), manifest.package_id.clone())
+                .map_err(|error| error.to_string())?
+                .enabled(enabled)
+                .required(false);
+            let capabilities = if contribution.required_capabilities.is_empty() {
+                &manifest.required_capabilities
+            } else {
+                &contribution.required_capabilities
+            };
+            for capability in capabilities {
+                entry = entry.requiring(ServiceRequirement::new(
+                    ServiceId::parse(capability_service_name(*capability))
+                        .map_err(|error| error.to_string())?,
+                    VersionRequirement::new(manifest.host_api.major, manifest.host_api.min_minor),
+                ));
+            }
+            entries.push(entry);
+        }
+    }
+    Ok(entries)
+}
+
+fn capability_service_name(capability: extension_api::Capability) -> &'static str {
+    use extension_api::Capability;
+    match capability {
+        Capability::SelectionRead => "selection.read",
+        Capability::DocumentMetadataRead => "document.metadata.read",
+        Capability::CapturePropose => "capture.propose",
+        Capability::ReaderSurface => "reader.surface",
+        Capability::NoteDraftEdit => "note.draft.edit",
+        Capability::NotesRead => "notes.read",
+        Capability::VocabRead => "vocab.read",
+        Capability::VocabReview => "vocab.review",
+        Capability::LibraryRead => "library.read",
+    }
 }
 
 fn parse_entry(source: EntrySource, disabled_packages: &BTreeSet<String>) -> Result<Entry, String> {
