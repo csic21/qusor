@@ -14,6 +14,12 @@ use core_api::vocab::{
     validate_archive as validate_study_archive, validate_review as validate_study_review,
     validate_schedule as validate_study_schedule, validate_seed as validate_study_seed,
 };
+use learning_ports::archive::{
+    archive_schema_version, capture_input, commit_for_epub_capture, commit_for_epub_document,
+    commit_for_pdf, document_input, epub_capture_input, epub_document_input, event, input_hash,
+    operation_for_capture, operation_for_document, text_commit, validate_archive,
+    validate_text_bundle,
+};
 #[allow(deprecated)]
 use learning_ports::{CommitPlan, KnowledgeStore, StudyStore};
 use learning_ports::{

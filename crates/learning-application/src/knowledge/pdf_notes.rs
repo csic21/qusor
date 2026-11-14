@@ -4,7 +4,7 @@
 //! previews plus a stable keyset cursor. Full content stays in Core and is read
 //! one bounded chunk at a time after the caller has identified one saved
 //! capture. Queries never mutate Core, resolve anchors or grant authority.
-use crate::KnowledgeApplication;
+use crate::knowledge::KnowledgeApplication;
 use core_api::knowledge::{KnowledgeError, KnowledgeErrorCode, PdfCaptureRecord, Result};
 use learning_ports::{KnowledgeQuery, PdfNoteSummaryRow};
 

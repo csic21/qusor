@@ -4,9 +4,14 @@
 //! order. Every rectangle is unrotated PDF user space (x right, y up), independent
 //! of viewport, pixels, zoom and DPI. Unknown Unicode mappings are preserved as
 //! U+FFFD evidence but cannot establish an exact text anchor.
-use crate::contract::sha256;
+use crate::{
+    contract::sha256,
+    error::{
+        encode_bounded_json, is_bounded_identifier, is_grapheme_boundary, is_sha256_hex,
+        parse_bounded_json,
+    },
+};
 use serde::{Deserialize, Serialize};
-use unicode_segmentation::UnicodeSegmentation;
 
 pub const PDF_PROTOCOL_VERSION: u16 = 1;
 pub const MAX_PDF_BYTES: usize = 16 * 1024 * 1024;
@@ -34,19 +39,25 @@ pub enum PdfContractErrorCode {
     QuoteMismatch,
     NoText,
 }
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct PdfContractError {
-    pub code: PdfContractErrorCode,
-    pub message: &'static str,
-}
-impl std::fmt::Display for PdfContractError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}: {}", self.code, self.message)
+crate::define_contract_error! {
+    pub struct PdfContractError(PdfContractErrorCode) {
+        Malformed => InvalidInput,
+        BudgetExceeded => BudgetExceeded,
+        UnsupportedVersion => UnsupportedVersion,
+        InvalidIdentity => InvalidInput,
+        InvalidGeometry => InvalidInput,
+        InvalidMap => InvalidInput,
+        UnknownMapping => InvalidInput,
+        HashMismatch => Integrity,
+        OriginalMismatch => Integrity,
+        InvalidSelector => InvalidInput,
+        InvalidBoundary => InvalidInput,
+        QuoteMismatch => InvalidInput,
+        NoText => InvalidInput,
     }
 }
-impl std::error::Error for PdfContractError {}
-fn err(code: PdfContractErrorCode, message: &'static str) -> PdfContractError {
-    PdfContractError { code, message }
+const fn err(code: PdfContractErrorCode, message: &'static str) -> PdfContractError {
+    PdfContractError::new(code, message)
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -173,10 +184,7 @@ pub struct PdfCaptureRequest {
     pub draft: PdfDraft,
 }
 fn digest(value: &str) -> bool {
-    value.len() == 64
-        && value
-            .bytes()
-            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+    is_sha256_hex(value)
 }
 fn version(value: u16) -> Result<()> {
     if value != PDF_PROTOCOL_VERSION {
@@ -188,29 +196,20 @@ fn version(value: u16) -> Result<()> {
     Ok(())
 }
 fn encode<T: Serialize>(value: &T, limit: usize) -> Result<Vec<u8>> {
-    let bytes = serde_json::to_vec(value)
-        .map_err(|_| err(PdfContractErrorCode::Malformed, "cannot encode PDF JSON"))?;
-    if bytes.len() > limit {
-        return Err(err(
-            PdfContractErrorCode::BudgetExceeded,
-            "PDF JSON exceeds budget",
-        ));
-    }
-    Ok(bytes)
+    encode_bounded_json(
+        value,
+        limit,
+        "cannot encode PDF JSON",
+        "PDF JSON exceeds budget",
+    )
 }
 fn parse<T: serde::de::DeserializeOwned>(bytes: &[u8], limit: usize) -> Result<T> {
-    if bytes.len() > limit {
-        return Err(err(
-            PdfContractErrorCode::BudgetExceeded,
-            "PDF JSON exceeds budget",
-        ));
-    }
-    serde_json::from_slice(bytes).map_err(|_| {
-        err(
-            PdfContractErrorCode::Malformed,
-            "invalid, unknown or duplicate PDF JSON fields",
-        )
-    })
+    parse_bounded_json(
+        bytes,
+        limit,
+        "PDF JSON exceeds budget",
+        "invalid, unknown or duplicate PDF JSON fields",
+    )
 }
 impl ExtractionIdentity {
     fn validate(&self) -> Result<()> {
@@ -414,13 +413,7 @@ impl PdfCaptureRequest {
     }
     pub fn validate(&self) -> Result<()> {
         version(self.capture_protocol)?;
-        if self.request_id.is_empty()
-            || self.request_id.len() > 128
-            || !self
-                .request_id
-                .bytes()
-                .all(|b| b.is_ascii_alphanumeric() || b"._:-".contains(&b))
-        {
+        if !is_bounded_identifier(&self.request_id, 128) {
             return Err(err(
                 PdfContractErrorCode::Malformed,
                 "invalid PDF request correlation id",
@@ -471,14 +464,9 @@ pub fn resolve_pdf(snapshot: &PdfSnapshot, draft: &PdfDraft) -> Result<PdfSelect
         .ok_or_else(|| err(InvalidSelector, "empty selection"))?;
     let last = characters.last().unwrap();
     let (byte_start, byte_end) = (first.utf8_start as usize, last.utf8_end as usize);
-    let boundary = |byte| {
-        byte == page.engine_text.len()
-            || page
-                .engine_text
-                .grapheme_indices(true)
-                .any(|(i, _)| i == byte)
-    };
-    if !boundary(byte_start) || !boundary(byte_end) {
+    if !is_grapheme_boundary(&page.engine_text, byte_start)
+        || !is_grapheme_boundary(&page.engine_text, byte_end)
+    {
         return Err(err(
             InvalidBoundary,
             "PDF selection splits an extended grapheme",

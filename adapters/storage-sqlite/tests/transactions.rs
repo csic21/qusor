@@ -3,6 +3,7 @@
 use core_api::{contract::CaptureDraft, knowledge::*};
 use learning_application::KnowledgeApplication;
 use learning_application::pdf_notes::{MAX_NOTE_CHUNK_BYTES, NoteBodyField};
+use learning_ports::archive::{input_hash, validate_archive};
 use learning_ports::{CommitPlan, KnowledgeCommand, KnowledgeStore};
 use std::{
     fs,

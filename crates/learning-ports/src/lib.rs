@@ -4,6 +4,13 @@
 //! incremental transactional command ports (`KnowledgeCommand`, `StudyCommand`), and whole-store
 //! archive/restore ports (`KnowledgeArchive`, `StudyArchivePort`). Legacy `KnowledgeStore` and
 //! `StudyStore` traits remain temporarily for source compatibility via blanket delegation.
+pub mod archive;
+
+use crate::archive::{
+    archive_schema_version, capture_input, commit_for_epub_capture, commit_for_epub_document,
+    commit_for_pdf, document_input, epub_capture_input, epub_document_input, event, input_hash,
+    operation_for_capture, operation_for_document, text_commit, validate_archive,
+};
 use core_api::{
     contract::{CaptureDraft, sha256},
     epub_contract::{EPUB_PROTOCOL_VERSION, EPUB_TEXT_UNIT, EpubDraft, EpubSnapshot, resolve_epub},
@@ -12,10 +19,7 @@ use core_api::{
         ArchiveV2, BinaryBlob, CaptureRecord, CommitEntry, EpubCaptureRecord, EpubDocumentReceipt,
         EpubDocumentRecord, EpubReceipt, EpubTocRecord, ExportEntry, MAX_ORIGINAL,
         PdfCaptureRecord, PdfDocumentReceipt, PdfDocumentRecord, PdfReceipt, Provenance, Receipt,
-        Result, archive_schema_version, capture_input, commit_for_epub_capture,
-        commit_for_epub_document, commit_for_pdf, document_input, epub_capture_input,
-        epub_document_input, event, input_hash, native_import, operation_for_capture,
-        operation_for_document, text_commit, validate_archive, validate_native,
+        Result, native_import, validate_native,
     },
     pdf_compound::PdfCompoundDraft,
     pdf_contract::{PdfDraft, PdfSnapshot, resolve_pdf},

@@ -1,8 +1,11 @@
 //! Public, bounded capture wire and immutable raw-text location contract.
 //! URI metadata is never fetched. This module has no storage or host authority.
+use crate::error::{
+    encode_bounded_json, is_bounded_identifier, is_bounded_label, is_grapheme_boundary,
+    parse_bounded_json,
+};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use unicode_segmentation::UnicodeSegmentation;
 
 pub const MAX_WIRE_BYTES: usize = 65_536;
 pub const PROTOCOL_VERSION: u16 = 1;
@@ -24,19 +27,23 @@ pub enum ContractErrorCode {
     VersionMismatch,
     HashMismatch,
 }
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct ContractError {
-    pub code: ContractErrorCode,
-    pub message: &'static str,
-}
-impl std::fmt::Display for ContractError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}: {}", self.code, self.message)
+crate::define_contract_error! {
+    pub struct ContractError(ContractErrorCode) {
+        Malformed => InvalidInput,
+        BudgetExceeded => BudgetExceeded,
+        UnsupportedVersion => UnsupportedVersion,
+        InvalidSource => InvalidInput,
+        InvalidSelector => InvalidInput,
+        InvalidBoundary => InvalidInput,
+        QuoteMismatch => InvalidInput,
+        Ambiguous => InvalidInput,
+        NotFound => NotFound,
+        VersionMismatch => Conflict,
+        HashMismatch => InvalidInput,
     }
 }
-impl std::error::Error for ContractError {}
-fn err(code: ContractErrorCode, message: &'static str) -> ContractError {
-    ContractError { code, message }
+const fn err(code: ContractErrorCode, message: &'static str) -> ContractError {
+    ContractError::new(code, message)
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -105,39 +112,26 @@ pub struct ResolvedRange {
 }
 
 fn parse<T: serde::de::DeserializeOwned>(bytes: &[u8]) -> Result<T> {
-    if bytes.len() > MAX_WIRE_BYTES {
-        return Err(err(
-            ContractErrorCode::BudgetExceeded,
-            "wire exceeds 64 KiB",
-        ));
-    }
-    serde_json::from_slice(bytes).map_err(|_| {
-        err(
-            ContractErrorCode::Malformed,
-            "invalid or non-unique JSON fields",
-        )
-    })
+    parse_bounded_json(
+        bytes,
+        MAX_WIRE_BYTES,
+        "wire exceeds 64 KiB",
+        "invalid or non-unique JSON fields",
+    )
 }
 fn encode<T: Serialize>(value: &T) -> Result<Vec<u8>> {
-    let bytes = serde_json::to_vec(value)
-        .map_err(|_| err(ContractErrorCode::Malformed, "cannot encode JSON"))?;
-    if bytes.len() > MAX_WIRE_BYTES {
-        return Err(err(
-            ContractErrorCode::BudgetExceeded,
-            "canonical wire exceeds 64 KiB",
-        ));
-    }
-    Ok(bytes)
+    encode_bounded_json(
+        value,
+        MAX_WIRE_BYTES,
+        "cannot encode JSON",
+        "canonical wire exceeds 64 KiB",
+    )
 }
 fn identifier(value: &str, max: usize) -> bool {
-    !value.is_empty()
-        && value.len() <= max
-        && value
-            .bytes()
-            .all(|b| b.is_ascii_alphanumeric() || b"._:-".contains(&b))
+    is_bounded_identifier(value, max)
 }
 fn label(value: &str, max: usize) -> bool {
-    !value.is_empty() && value.len() <= max && !value.chars().any(char::is_control)
+    is_bounded_label(value, max, true)
 }
 impl CaptureRequest {
     pub fn from_slice(bytes: &[u8]) -> Result<Self> {
@@ -300,8 +294,7 @@ pub fn resolve_selector(text: &str, selector: &TextSelector) -> Result<ResolvedR
         _ => return Err(err(InvalidSelector, "range endpoints must be paired")),
     };
     let (byte_start, byte_end) = (offsets[start], offsets[end]);
-    let boundary = |byte| byte == text.len() || text.grapheme_indices(true).any(|(i, _)| i == byte);
-    if !boundary(byte_start) || !boundary(byte_end) {
+    if !is_grapheme_boundary(text, byte_start) || !is_grapheme_boundary(text, byte_end) {
         return Err(err(InvalidBoundary, "range splits an extended grapheme"));
     }
     if text[byte_start..byte_end] != selector.exact {

@@ -1,6 +1,6 @@
 //! Bounded own-event input and atomic effect/checkpoint continuation.
 //! A trusted caller owns fresh authorization and serializes this registry with drafts.
-use crate::{annotation_draft::AnnotationDrafts, draft_text::*};
+use crate::session::{annotation_draft::AnnotationDrafts, draft_text::*};
 use core_api::{
     contract::sha256,
     knowledge::{KnowledgeError, KnowledgeErrorCode as Code, Result},

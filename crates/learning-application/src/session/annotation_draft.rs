@@ -1,8 +1,10 @@
 //! Bound source/text application drafts. Callers must independently enforce fresh Host authority.
 use crate::{
-    KnowledgeApplication,
-    annotation_source::{FrozenAnnotationSource, FrozenPdfCompoundSource, FrozenPdfSource},
-    draft_text::*,
+    knowledge::{
+        KnowledgeApplication,
+        annotation_source::{FrozenAnnotationSource, FrozenPdfCompoundSource, FrozenPdfSource},
+    },
+    session::draft_text::*,
 };
 use core_api::{
     knowledge::{KnowledgeError, KnowledgeErrorCode as Code, PdfReceipt, Provenance, Result},

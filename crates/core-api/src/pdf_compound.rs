@@ -5,6 +5,7 @@
 //! Separators are presentation text, never invented characters in a source map.
 use crate::{
     contract::sha256,
+    error::{encode_bounded_json, is_bounded_identifier, parse_bounded_json},
     pdf_contract::{
         MAX_PDF_REQUEST_BYTES, PdfContractError, PdfContractErrorCode, PdfDraft, PdfSelection,
         PdfSnapshot, Result,
@@ -42,37 +43,24 @@ pub struct PdfCompoundCaptureRequest {
     pub request_id: String,
     pub draft: PdfCompoundDraft,
 }
-fn err(code: PdfContractErrorCode, message: &'static str) -> PdfContractError {
-    PdfContractError { code, message }
+const fn err(code: PdfContractErrorCode, message: &'static str) -> PdfContractError {
+    PdfContractError::new(code, message)
 }
 fn encode<T: Serialize>(value: &T) -> Result<Vec<u8>> {
-    let bytes = serde_json::to_vec(value).map_err(|_| {
-        err(
-            PdfContractErrorCode::Malformed,
-            "cannot encode compound PDF JSON",
-        )
-    })?;
-    if bytes.len() > MAX_PDF_REQUEST_BYTES {
-        return Err(err(
-            PdfContractErrorCode::BudgetExceeded,
-            "compound PDF wire exceeds 4 KiB",
-        ));
-    }
-    Ok(bytes)
+    encode_bounded_json(
+        value,
+        MAX_PDF_REQUEST_BYTES,
+        "cannot encode compound PDF JSON",
+        "compound PDF wire exceeds 4 KiB",
+    )
 }
 fn parse<T: serde::de::DeserializeOwned>(bytes: &[u8]) -> Result<T> {
-    if bytes.len() > MAX_PDF_REQUEST_BYTES {
-        return Err(err(
-            PdfContractErrorCode::BudgetExceeded,
-            "compound PDF wire exceeds 4 KiB",
-        ));
-    }
-    serde_json::from_slice(bytes).map_err(|_| {
-        err(
-            PdfContractErrorCode::Malformed,
-            "invalid, unknown or duplicate compound PDF JSON fields",
-        )
-    })
+    parse_bounded_json(
+        bytes,
+        MAX_PDF_REQUEST_BYTES,
+        "compound PDF wire exceeds 4 KiB",
+        "invalid, unknown or duplicate compound PDF JSON fields",
+    )
 }
 impl PdfCompoundDraft {
     pub fn from_slice(bytes: &[u8]) -> Result<Self> {
@@ -178,13 +166,7 @@ impl PdfCompoundCaptureRequest {
                 "unsupported compound PDF capture protocol",
             ));
         }
-        if self.request_id.is_empty()
-            || self.request_id.len() > 128
-            || !self
-                .request_id
-                .bytes()
-                .all(|byte| byte.is_ascii_alphanumeric() || b"._:-".contains(&byte))
-        {
+        if !is_bounded_identifier(&self.request_id, 128) {
             return Err(err(
                 PdfContractErrorCode::Malformed,
                 "invalid compound PDF correlation id",
