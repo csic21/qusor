@@ -1,0 +1,20 @@
+[workspace]
+resolver = "3"
+
+[package]
+name = "qusor-plugin-ui-probe"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97.1"
+license = "MIT"
+publish = false
+description = "Isolated M-1 probe for QUSOR declarative native plugin UI tree protocol, validation, patching and ADR 0028 slot binding."
+
+[dependencies]
+capability-composition = { path = "../../crates/capability-composition" }
+extension-api = { path = "../../crates/extension-api" }
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = "=1.0.149"
+
+[lints.rust]
+unsafe_code = "forbid"
