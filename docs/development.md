@@ -1,5 +1,7 @@
 # QUSOR 基座开发与验证
 
+> 权威范围：本文件是**本地检查命令、实验/打包复现入口与检查覆盖边界**的权威说明（[ADR 0048](architecture/adr/0048-doc-governance.md)）。各 Feature 与模块的实时验证状态见 [项目状态表](status.md)。
+
 ## 环境
 
 Rust 版本以 [rust-toolchain.toml](../rust-toolchain.toml) 为准；Python 3.11+ 用于标准库检查脚本。没有 Node/npm、数据库、Supabase CLI 或模型服务的启动要求。
@@ -176,139 +178,16 @@ GitHub Actions 采用官方 [checkout](https://github.com/actions/checkout) 与 
 
 三个项目技能都是仓库文件；格式为 YAML frontmatter 加 Markdown。创建/修改时运行环境中 skill-creator 的 quick_validate.py，并检查引用路径。本仓库不复制该系统技能的校验器，也不依赖用户机器上的绝对技能路径来运行 CI。
 
-## 基座验证记录（2026-11-07）
+## 专项持久与捕获回归入口
 
-已在本地 WSL Ubuntu、Rust 1.97.1 下通过格式检查、Clippy、离线编译/测试和库文档生成。依赖边界检查通过，6 个 Python 测试方法通过；三个项目技能通过系统 skill-creator 的格式校验，仓库 Markdown 本地链接检查通过。
-
-上述初始骨架记录中 Rust 业务测试为 0，当时仅有空库边界。未运行远端 GitHub Actions、原生 Windows/macOS、NSH 或移动端验收；上述检查不代表 M-1 通过。
-
-同日插件化设计增量：已复核依赖允许清单、22份Markdown文件目标和两个修改后的项目技能格式。新增插件架构/ADR、范围与验证计划；没有新增Rust依赖、插件运行时或业务代码。EXT-P01–P10均未执行。
-
-同日C-07确认后：第一阶段第三方开发/安装/分发和第一方功能插件化已写入ADR 0003，新增EXT-B01–B08与EXT-P11–P13。23份Markdown的本地文件目标及两个修改后的技能格式校验通过，旧的待确认分期已清理。此轮只修改文档/技能，未重跑无变更的Rust构建；SDK、独立包、隔离和平台验收均未执行。
-
-## 无界面插件策略实现验证（2026-11-07）
-
-用户已授权从工程骨架推进基座功能，实现范围见 [功能规格](product/foundation.md) 与 [ADR 0004](architecture/adr/0004-headless-extension-policy.md)。本次在 WSL Ubuntu / Rust 1.97.1 实测：
-
-- 35 个 Rust 测试通过：21 个 JSON 协议测试，14 个宿主授权与生命周期测试。
-- policy_walkthrough 示例执行通过，展示注册、授权、跨库拒绝、撤权拒绝旧回调、升级清空授权及重装后旧会话失效。
-- fmt、Clippy 全目标检查和库文档构建通过；Clippy / rustdoc 均将警告视为错误。
-- 直接依赖声明与配置模块的已解析传递闭包检查通过；21 个 Python 反例测试通过。
-- 本地 Markdown 文件目标检查通过；不涵盖远端 URL 与页内锚点。
-
-协议 Schema 已进行 Draft 2020-12 结构检查及合法/非法输入校验；该补充检查使用本机已有 jsonschema，不增加项目 Python 运行依赖。Rust 校验仍是 wire 入口的运行时强制约束。
-
-检查使用本机依赖缓存离线完成，没有在此会话提交或推送。保留并行会话新增的 MIT / GitHub 元数据。CI 已加入锁定依赖准备与无界面示例，但本轮未执行远端流水线；未验证原生 Windows/macOS、NSH、移动、发布渠道、独立插件包、沙箱、持久化或真实知识读写。
-
-## 插件目录与 NSH 前置验证（2026-11-07）
-
-落实 [ADR 0006](architecture/adr/0006-plugin-workspace-layout.md) 的目录/功能归属，新增 Cargo 目录登记和生产本地依赖边界检查。WSL 实测 42 项 Python 回归通过（新增 21 项），生产架构守卫通过；现有 Wasm 执行器/作者两个 Workspace 的真实离线 Cargo metadata 与原 validate_graph 兼容检查通过。本地文档链接、git diff --check 和三个项目技能的 quick_validate 通过。
-
-NSH 前置脚本实际检查固定源码、工具链、可加载 libclang、原生库与显示线索，并尝试离线 Cargo check；另有 3 项 libclang 缺失/无效及就绪状态回归通过。本机依赖准备阻断，未进入应用编译/窗口或阅读交互，详见 [实验结果](../experiments/nsh-reader/RESULTS.md)。持久包管理仍为架构/验收设计，无生产安装器、SDK 发行或真实知识写入成果。
-
-本轮未改变 Rust 代码或依赖，不重跑无关 Rust/Wasm 执行测试；没有远端 CI、其他原生平台或移动验收。目录检查不代替独立插件内部依赖审计、仓库外构建或执行隔离。
-
-## 签名包与持久安装事务增量（2026-11-07）
-
-运行 [包实验](../experiments/extension-package/README.md)：
+修改 `core-api`、`learning-ports`、`learning-application`、`storage-sqlite`、`extension-package`、`extension-store` 或 Host 公开契约后，除根 Workspace 检查外，须同时运行对应真实消费者与仓库外 SDK 实验：
 
 ```sh
 python3 experiments/extension-package/validate.py --output /tmp/qusor-package-validation.json
-```
-
-本机 20 项包/存储测试、84 个 CLI 场景通过，其中安装/更新/卸载共 12 次真实进程终止注入；仓库外仅用导出 SDK/API 编译两版本并保持宿主 hash 不变。两个 Workspace 的 fmt/test/clippy、独立依赖图和生产依赖图通过，源/工件/hash 见 [证据](../experiments/extension-package/RESULTS.md)。
-
-原 Wasm 实验仅增加冻结字节入口，16 项运行回归及 fmt/clippy 通过；生产架构守卫与 42 项 Python 回归通过。NSH 固定 Linux 缓存 online/offline fetch 均通过，编译在 gstreamer-sys 缺开发库处失败，未运行窗口。
-
-此次没有生产 Rust 行为/依赖改动，不重复无关 Core 业务检查；没有提交/推送、远端 CI、其他原生平台、断电或移动验收。完整授权/执行恢复、正式安装器与阅读仍待各自门槛。
-
-
-## 持续授权与策略会话恢复增量（2026-11-07）
-
-同一包实验验证入口现覆盖 [ADR 0008](architecture/adr/0008-durable-grant-recovery-probe.md)。最终 [机器证据](../experiments/extension-package/evidence/linux-grant-recovery.json) 为 29 项 Rust 测试、156 次 CLI 检查、20 次进程中止；两个实验 Workspace 的 fmt/test/clippy、仓库外作者构建和依赖图均通过，宿主构建前后 hash 相同。12 份源/测试/锁文件摘要与当前文件已核对。生产架构守卫、42 项 Python 回归、文档链接和 diff 空白检查通过。
-
-仅新增实验对权威 extension-host 的直接依赖，生产 Rust 行为不变；恢复验证不含 Wasm 调度或真实 Core 写入。NSH 前置条件再次只读检查，仍缺 GTK4/Graphene/GStreamer/WebKitGTK，未重跑已知阻断的编译或启动窗口。实际执行恢复、私有状态迁移/回滚、长驻监督及业务阅读仍待各自验证；没有远端 CI、提交或推送。
-
-
-## 授权恢复后受限执行增量（2026-11-07）
-
-按 [ADR 0009](architecture/adr/0009-restored-wasm-execution-probe.md) 执行同一包验证入口：[执行证据](../experiments/extension-package/evidence/linux-execution-recovery.json) 为 30 项 Rust 测试、194 次 CLI 检查（含既有 20 次进程终止）；仓库外作者、fmt/clippy 和依赖图通过。已核对20份源/测试/fixture/锁文件摘要与当前文件。
-
-受影响 Wasm 运行器另完整运行原 validate.py，[回归证据](../experiments/extension-package/evidence/linux-runtime-authority-regression.json) 为20项Rust运行回归及20个受监护场景，84份摘要核对通过。架构守卫、42项Python架构回归、文档链接和diff空白检查通过。生产行为/依赖未改；此证据不证明长驻双插件、并行持久撤权、真实Core/阅读或NSH平台通过。下一项迁移/回滚见[实验设计](../experiments/extension-package/MIGRATION.md)，仍待实现。
-
-
-## 私有状态成对迁移/回滚增量（2026-11-07）
-
-按 [ADR 0010](architecture/adr/0010-paired-private-state-probe.md) 使用同一包验证入口。最终 [包证据](../experiments/extension-package/evidence/linux-private-lifecycle.json) 通过37项Rust、432次CLI检查（含40次真实进程中止），仓库外签名作者、fmt/clippy/依赖图均通过；38份源/测试/fixture/锁文件摘要核对当前文件。
-
-[运行器回归证据](../experiments/extension-package/evidence/linux-private-runtime-regression.json) 通过25项运行器与4项作者Rust测试、20个受监护场景，99份摘要核对。仅两个实验增加dev-only wat，生产依赖不变。根架构守卫、42项Python架构回归、Markdown本地目标和diff空白检查通过。未验长驻双插件、真实Core、断电、多平台/渠道或NSH阅读；下一项为长驻监督，不能以独立进程看门狗替代。
-
-
-## 长驻双插件监督增量（2026-11-08）
-
-按 [ADR 0011](architecture/adr/0011-persistent-supervisor-probe.md) 使用原包验证入口：[最新证据](../experiments/extension-package/evidence/linux-persistent-supervisor.json) 通过43项Rust、454次CLI（含此前40次管理进程中止），另同PID62条管理命令、14项监督场景。46份源/测试/fixture/锁文件摘要与当前文件核对，宿主独立作者构建前后hash相同。新增Rust测试全部使用真实父子进程。
-
-[运行器证据](../experiments/extension-package/evidence/linux-managed-runtime-regression.json) 通过31项运行器、4项作者测试和20个旧受监护场景，101份摘要核对。无新依赖或生产行为变动；根架构守卫、42项Python回归、文档本地目标、diff空白检查通过。kill/wait失败为明确注入，异步broker pending不代表可抢占任意同步父I/O。正常关闭已验证，异常崩溃/残留协调仍待下一项，Core/NSH/移动/远端CI未验。
-
-
-## 宿主异常退出协调增量（2026-11-08）
-
-[ADR 0012](architecture/adr/0012-supervisor-crash-reconciliation.md) 使用原包验证入口追加真实身份/启动/恢复；[正式证据](../experiments/extension-package/evidence/linux-supervisor-crash-recovery.json) 通过59项Rust和543次CLI（含既有40次事务进程中止），另正常长驻14项/本次72条管理命令、异常恢复14项/本次97条管理命令与10次父进程异常退出。50份源码/测试/fixture/锁文件摘要与当前文件一致，独立作者构建期间宿主hash不变。查询次数受调度影响，不是性能指标。
-
-新增仅实验rustix=1.1.4，SDK导出仍剔除进程/SQLite/Host；normal/dev/build/目标声明及解析闭包检查通过，生产依赖不变。未变更Wasm运行器，不重复无关完整回归；本轮真实包/能力/监督路径已执行。59项包含共享纯授权门、GuardReady、Boot前过期拒绝、显式锁释放与live pidfd清理，未以sleep重试放宽安全门。
-
-根架构守卫、42项Python架构回归、本地文档目标、diff空白检查通过。已尝试spawn但无身份的同内核窗口仍隔离；Terminated不等于非子进程已reaped；没有真实内核重启/断电或OS沙箱成绩。[NSH只读前置记录](../experiments/nsh-reader/evidence/linux-20261108-preflight.json) 仍缺6个库组，未重跑已知阻断的编译。下一项为捕获存储/定位资格切片，真实Core和正式阅读尚未交付。
-
-
-## Core 公开捕获契约
-
-[core-api](../crates/core-api/README.md) 已承接文本/PDF/复合摘录契约与纯测试，包含在根 fmt/clippy/test 和依赖闭包守卫中。实验兼容模块转发同一实现，SDK 直接导出该权威源；因此更改契约需要同时运行实验真实消费者与仓库外作者验证：
-
-```sh
-cargo test -p core-api --locked --offline
+cargo test -p core-api -p storage-sqlite --locked --offline
 cargo test --manifest-path experiments/capture-core/Cargo.toml --locked --offline
-python3 experiments/capture-core/validate_compound.py
+cargo test --manifest-path experiments/capture-core/Cargo.toml --test durable_installation --locked --offline
 ```
 
-完整 C3 脚本包含 SDK 仓库外构建/依赖路径核验、普通签名插件、真实 PDF 页图选段、单事务保存、生命周期与恢复；不是 NSH 窗口或完整阅读旅程验收。架构决定见 [ADR 0018](architecture/adr/0018-core-api-contract-source.md)。
-
-
-## 知识应用与持久适配器
-
-[ADR 0019](architecture/adr/0019-atomic-knowledge-persistence.md) 的 production application/ports 与 SQLite/CAS 现由实验 Host 直接消费，实验不复制存储实现。根工作区检查包含这些真实成员，补充边界测试与完整插件/原生回归：
-
-```sh
-cargo test -p storage-sqlite --locked --offline
-cargo test --manifest-path experiments/capture-core/Cargo.toml --locked --offline
-python3 experiments/capture-core/validate_compound.py
-```
-
-[实际结果](../experiments/capture-core/PERSISTENCE_RESULTS.md) 区分根测试、新整体计划/事务边界和完整 C3 通路。修改源码时指纹覆盖根 manifest/lock、core-api、application/ports、SQL/CAS及实验Host，不以只有协议测试代替持久路径。其他平台adapter与正式阅读工作区仍待独立验证。
-
-
-## 包与执行适配器生产集成
-
-[ADR 0021](architecture/adr/0021-signed-package-authority.md) 的纯签名包、[ADR 0022](architecture/adr/0022-authority-free-wasm-runtime.md) 的执行端口/Wasmi适配器已由旧实验实际消费。根工作区现88项测试，包含14项包格式及3项直接运行端口测试；包543场景、Wasm20受监护场景和最后一次完整C3均已通过，详见 [C5统一记录](../experiments/capture-core/PLUGIN_PRODUCTION_RESULTS.md)。精确VM燃料断言使用记录过的串行测试参数，未放宽250ms生产期限；测试内部的撤权/监督并发仍照常执行。
-
-公开Surface的 [UX/权限规格](product/reader-surface-capability.md) 和 [0.2兼容设计](architecture/adr/0023-public-reader-surface.md) 已实现公开wire与Host registry，独立原生消费者已有集成资格，不代表已经发布新Host API。生产持久安装/监督、正式功能插件与完整阅读旅程继续按门槛推进。
-
-
-## 公开 Surface 兼容回归
-
-0.2契约/Host registry改动后运行根检查、包 `validate.py`、Wasm `validate.py` 和 `validate_compound.py`；最近结果为 [108项根测试与完整兼容回归](../experiments/capture-core/SURFACE_COMPATIBILITY_RESULTS.md)。版本、权限和SDK改动须继续运行这些真实消费者，不能只跑Surface DTO测试。原生输入与产品旅程由NSH独立实验分别留证。
-
-
-普通签名包的原生选文/非空笔记/持久回执和完整恢复，复现步骤见 [NSH集成资格](../experiments/nsh-reader/plugin-surface/RESULTS.md)：`prepare_plugin_surface.py`、`qualify_plugin_surface.py`、`recover_plugin_surface.py`。键盘需支持焦点的X11显示；本机记录为隔离Xvfb中的真实GTK/XTest，不代表当前桌面焦点或中文IME通过。
-
-
-## 持久安装与进程身份生产内核
-
-[extension-store](../adapters/extension-store/README.md) 与 [runtime-process](../adapters/runtime-process/README.md) 已注册根工作区；根检查覆盖121项Rust。旧包实验真实消费同一SQL/进程身份实现；完整回归入口仍为包validate、Wasm validate及C3 validate_compound，精确范围与源码快照见 [C7结果](../experiments/extension-package/INSTALLATION_PRODUCTION_RESULTS.md)。
-
-统一Host+真实Core metadata消费者为 `cargo test --manifest-path experiments/capture-core/Cargo.toml --test durable_installation --locked --offline`。该测试有真实签名/Wasmi/持久Core，但属于受控文本fixture的接口/事务集成，不代替进程监督或UI验收。原生消费者迁移后另以新工件/新数据实际重跑，见 [原生C7](../experiments/nsh-reader/evidence/installation-production/RESULTS.md)。
-
-## C8 阅读权限与动态PDF
-
-根当前134项Rust及42项边界守卫通过，完整包/Wasm/C3入口保持；`durable_installation`另含真实双Store跨库卸载证明拒绝后继续读取Core。Surface/持续权限或生命周期改动必须复验这些消费者，保留旧profile1语义。汇总、日志与185份精确源码归档见 [C8结果](../experiments/capture-core/READER_AUTHORITY_RESULTS.md)。
-
-动态原生入口见 [dynamic-pdf](../experiments/nsh-reader/dynamic-pdf/README.md)：先prepare通用binary/bundle，再生成新fixture、启动真实native chooser；用当前构建的第三/四页交互与保存恢复取证，不能换report或重编PNG冒充动态。最终native11项测试、Clippy及主链恢复通过；首次异常状态与最终工件明确分开，尚无长书/IME/真实mount释放ack成绩。
+- 公开 Surface 兼容改动（`extension-api` / `extension-host`）：同步重跑包 `validate.py`、Wasm `validate.py` 与 `validate_compound.py`，并按 [NSH 集成资格](../experiments/nsh-reader/plugin-surface/RESULTS.md) 与 [dynamic-pdf](../experiments/nsh-reader/dynamic-pdf/README.md) 核验原生消费端。
+- 历史各轮机器快照与测试计数保留在对应 `experiments/*/RESULTS.md` 及 `experiments/*/evidence/`；日常状态汇总统一更新到 [项目状态表](status.md)，不再在本文件追加日期流水。

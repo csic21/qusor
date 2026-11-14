@@ -1,29 +1,29 @@
 # 目录与插件职责
 
-日期：2026-11-07。状态：采用目录与依赖边界；下文区分现有实现与规划路径。用户已同意推进最小阅读闭环的前置实验，并再次要求阅读及其他核心用户功能插件化。决策见 [ADR 0006](adr/0006-plugin-workspace-layout.md)，阶段入口见 [下一阶段计划](../product/next-phase.md)。
+> 权威范围：本文件定义仓库目录归属、独立 Workspace 边界与功能插件划分（[ADR 0006](adr/0006-plugin-workspace-layout.md)）。当前实际 crate 依赖图与 ADR 索引见 [架构入口](README.md)，实施与验证状态见 [项目状态表](../status.md)，阶段顺序见 [下一阶段计划](../product/next-phase.md)。
 
 ## 目录总览
 
 ```text
 qusor/
-├── apps/                 应用入口、装配、打包；当前 qusor 独立 Workspace
+├── apps/                 应用入口、装配、打包；当前 apps/qusor 为独立 Workspace
 ├── crates/               Core、公开协议、宿主策略等平台无关 Rust 库
-│   ├── learning-domain/  现有：零外部依赖；FSRS-5 词汇调度内核
-│   ├── core-api/         现有：捕获/锚点与纯知识归档不变量
-│   ├── capability-composition/ 现有：零依赖 service 接缝、profile 与激活规划
-│   ├── learning-ports/   现有：完整原子提交/恢复端口
-│   ├── learning-application/  现有：真实知识用例与计划
-│   ├── extension-api/    现有：0.1 wire 协议、schema、校验
-│   └── extension-host/   现有：内存授权、会话、生命周期策略
-├── adapters/             已有 SQLite/CAS、插件持久内核与受限执行；平台与渲染仍按门槛推进
-├── plugins/              独立功能包；notes 读取与 vocab 词汇包为资格切片
-├── sdk/                  公共契约的发行、绑定与作者入口；尚未发布 SDK
-├── experiments/          独立验证，不属于生产 Workspace
-│   ├── extension-wasm/   已有本机执行证据
-│   └── nsh-reader/       本阶段 NSH 环境与最小阅读宿主验证
-├── config/               依赖与目录登记允许清单
-├── scripts/              工程检查和回归
-└── docs/                 产品范围、架构决定、研究与开发入口
+│   ├── learning-domain/         零外部依赖；FSRS-5 词汇调度内核
+│   ├── core-api/                捕获/来源/锚点、知识记录、词汇学习契约与纯归档不变量
+│   ├── capability-composition/  零外部依赖；service 接缝、profile 与激活规划
+│   ├── learning-ports/          一致快照/原子提交恢复与词汇学习端口
+│   ├── learning-application/    文本/PDF/复合知识用例与词汇学习用例
+│   ├── extension-package/       有界签名容器与发布者键绑定校验
+│   ├── extension-runtime-api/   Host 侧无授权副作用执行端口与预算
+│   ├── extension-api/           Host API 0.1–0.7 JSON 策略协议、manifest 投影与校验
+│   └── extension-host/          安装元数据、授权、会话、生命周期与贡献查询
+├── adapters/             SQLite/CAS、插件持久内核、Wasmi 执行与进程身份适配器
+├── plugins/              独立功能包（vocab / notes / library / reader 预览切片）
+├── sdk/                  公共契约的发行、绑定与作者入口（尚未正式发行）
+├── experiments/          独立验证 Workspace，不属于生产 Workspace
+├── config/               成员登记与依赖允许清单
+├── scripts/              工程边界、原生 UI 与文档检查
+└── docs/                 产品范围、设计、架构决策、状态表与研究
 ```
 
 目录说明不生成全套空 crate、占位 API 或假界面。C3 后按 [ADR 0018](adr/0018-core-api-contract-source.md) 将捕获契约迁入 core-api，实验兼容入口转发同一实现；现有三个 crate 不搬家。
@@ -141,8 +141,6 @@ F-EXT-01/03/04/05/06 是全部插件的 SDK、Host、包管理和贡献接口要
 [ADR 0019](adr/0019-atomic-knowledge-persistence.md) 说明新增生产实现的单事务计划、公开计划的重新校验、稳定错误和平台限制；实验不保留分叉的 SQL/CAS。
 
 
-## Agent 工作台新增职责（设计，未创建模块）
+## Agent 工作台与开发工作区职责（设计，未创建模块）
 
-C-13 / F-AGENT-01–05 的完整边界见 [ADR 0029](adr/0029-local-agent-workbench.md)。`plugins/agent-workbench/` 提供任务工作流，`plugins/agent-backends/<backend>/` 提供公开后端贡献，`plugins/agent-orchestrator/` 提供可替换调度策略。任务/会话/事件/委派的通用协议与 Host 策略留 crates；操作存储、协议传输、PTY 与电脑服务留 adapters；apps 只装配。具体拆分按真实切片确定，本轮不创建空 crate、不新增依赖。后端不能直写知识库，外部源码修改与 Core 知识提交是不同边界；现有同程序 Wasm worker 不直接等同外部 Agent 进程监督。
-
-2026-11-09日常开发细化：规划 `plugins/development-workspace/` 组合项目/文件/搜索和开发流程；代码编辑、Git/运行/检查、终端与预览作为独立普通提供者接入，具体包粒度在真实切片中决定。项目文件版本/监视、仓库/工作树、LSP/DAP连接、进程/PTY和预览引擎是受控适配服务，纯契约和冲突/输入状态机留crates，源码仍在用户文件系统中。详见 [开发工作区](../design/development-workspace.md)；本轮不创建模块、不新增根Workspace成员或依赖。
+C-13 / F-AGENT-01–05 的完整边界见 [ADR 0029](adr/0029-local-agent-workbench.md)。`plugins/agent-workbench/` 提供任务工作流，`plugins/agent-backends/<backend>/` 提供公开后端贡献，`plugins/agent-orchestrator/` 提供可替换调度策略；`plugins/development-workspace/` 规划组合项目/文件/搜索和开发流程（编辑、Git、终端与预览作为独立提供者，详见 [开发工作区](../design/development-workspace.md)）。任务/会话/事件/委派的通用协议与 Host 策略留 `crates/`；操作存储、协议传输、PTY 与服务留 `adapters/`；`apps/` 只装配，具体包粒度在真实切片中决定，本阶段不预建空 crate。后端不能直写知识库，外部源码修改与 Core 知识提交是不同边界。
