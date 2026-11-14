@@ -1,7 +1,9 @@
-use extension_api::Manifest;
+use extension_api::{HOST_API, Manifest};
 use extension_package::package::{
-    EXECUTION_PROFILE, MAX_FILE_BYTES, MAX_FILES, MAX_PACKAGE_BYTES, MAX_PATH_BYTES,
-    MAX_PATH_DEPTH, PackageErrorCode, PackageFile, build_signed, publisher_key, verify,
+    DevUnsignedOptions, EXECUTION_PROFILE, HARD_MAX_PACKAGE_BYTES, MAX_FILE_BYTES, MAX_FILES,
+    MAX_PACKAGE_BYTES, MAX_PATH_BYTES, MAX_PATH_DEPTH, PackageBudgets, PackageErrorCode,
+    PackageFile, build_signed, build_signed_with_budgets, dev_unsigned_supported, publisher_key,
+    verify, verify_with_budgets,
 };
 use sha2::{Digest, Sha256};
 
@@ -550,4 +552,134 @@ fn explicit_host_compatibility_does_not_upgrade_legacy_verifier_or_signed_bytes(
     let position = corrupted.len() - 3;
     corrupted[position] = b'0';
     assert!(verify_for_host(&corrupted, &publisher_key(&SEED), &SUPPORTED_HOST_APIS).is_err());
+}
+
+#[test]
+fn host_injected_mib_budgets_accept_real_rust_wasm_size_and_fail_closed() {
+    let mut big_wasm = WASM.to_vec();
+    big_wasm.resize(1_200_000, 0x00);
+    let big_file = PackageFile {
+        path: "module.wasm".to_owned(),
+        mime: "application/wasm".to_owned(),
+        bytes: big_wasm,
+    };
+
+    assert_eq!(
+        build_signed(manifest(), "module.wasm", vec![big_file.clone()], &SEED)
+            .unwrap_err()
+            .code,
+        PackageErrorCode::BudgetExceeded
+    );
+
+    let desktop = PackageBudgets::desktop_standard();
+    let encoded = build_signed_with_budgets(
+        manifest(),
+        "module.wasm",
+        vec![big_file],
+        &SEED,
+        &[HOST_API],
+        &desktop,
+    )
+    .unwrap();
+    assert_eq!(
+        verify(&encoded, &publisher_key(&SEED)).unwrap_err().code,
+        PackageErrorCode::BudgetExceeded
+    );
+    let verified =
+        verify_with_budgets(&encoded, &publisher_key(&SEED), &[HOST_API], &desktop).unwrap();
+    assert_eq!(verified.module_bytes().len(), 1_200_000);
+    assert!(!verified.is_dev_unsigned());
+
+    let mut invalid_ceiling = desktop;
+    invalid_ceiling.max_package_bytes = HARD_MAX_PACKAGE_BYTES + 1;
+    assert_eq!(
+        verify_with_budgets(
+            &encoded,
+            &publisher_key(&SEED),
+            &[HOST_API],
+            &invalid_ceiling,
+        )
+        .unwrap_err()
+        .code,
+        PackageErrorCode::BudgetExceeded
+    );
+
+    let mut invalid_order = desktop;
+    invalid_order.max_file_bytes = invalid_order.max_total_file_bytes + 1;
+    assert_eq!(
+        invalid_order.validate().unwrap_err().code,
+        PackageErrorCode::BudgetExceeded
+    );
+
+    assert_eq!(dev_unsigned_supported(), cfg!(debug_assertions));
+    assert!(!DevUnsignedOptions::default().allow_unsigned);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+fn dev_unsigned_switch_requires_explicit_opt_in_and_keeps_structural_checks() {
+    use extension_package::package::{
+        build_dev_unsigned_with_budgets, verify_dev_unsigned_with_budgets,
+    };
+
+    assert!(dev_unsigned_supported());
+    let budgets = PackageBudgets::mobile_standard();
+    let unsigned_qpk = build_dev_unsigned_with_budgets(
+        manifest(),
+        "module.wasm",
+        vec![module("module.wasm"), asset("assets/notice.txt")],
+        &[HOST_API],
+        &budgets,
+    )
+    .unwrap();
+
+    // Default DevUnsignedOptions { allow_unsigned: false } must fail closed.
+    assert_eq!(
+        verify_dev_unsigned_with_budgets(
+            &unsigned_qpk,
+            &[HOST_API],
+            &budgets,
+            DevUnsignedOptions::default(),
+        )
+        .unwrap_err()
+        .code,
+        PackageErrorCode::UntrustedKey
+    );
+
+    // Production verify_with_budgets must always reject dev-unsigned packages.
+    assert_eq!(
+        verify_with_budgets(&unsigned_qpk, &publisher_key(&SEED), &[HOST_API], &budgets)
+            .unwrap_err()
+            .code,
+        PackageErrorCode::Incompatible
+    );
+
+    // Explicit dev opt-in succeeds and surfaces is_dev_unsigned() == true.
+    let verified = verify_dev_unsigned_with_budgets(
+        &unsigned_qpk,
+        &[HOST_API],
+        &budgets,
+        DevUnsignedOptions {
+            allow_unsigned: true,
+        },
+    )
+    .unwrap();
+    assert!(verified.is_dev_unsigned());
+    assert_eq!(verified.publisher_key(), "dev-unsigned");
+
+    // Signed packages must not silently pass through the dev-unsigned gate.
+    let signed_qpk = fixture();
+    assert_eq!(
+        verify_dev_unsigned_with_budgets(
+            &signed_qpk,
+            &[HOST_API],
+            &budgets,
+            DevUnsignedOptions {
+                allow_unsigned: true,
+            },
+        )
+        .unwrap_err()
+        .code,
+        PackageErrorCode::InvalidSignature
+    );
 }

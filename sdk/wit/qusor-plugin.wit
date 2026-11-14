@@ -1,0 +1,94 @@
+// Target Component Model ABI specification for QUSOR plugins (design draft, Stage 2).
+// Stage 1 executes Core Wasm (`qusor.call`, `qusor.emit_chunk`, `qusor_alloc`, `run`) on wasmi 2.0.0;
+// this WIT contract defines the canonical typed surface for `qusor-sdk` and future Component Model hosts.
+
+package qusor:plugin@0.8.0;
+
+interface types {
+    /// Coarse error categories aligned with `extension_runtime_api::RuntimeErrorKind`
+    /// and Host capability broker error codes.
+    enum error-code {
+        invalid-request,
+        invalid-buffer,
+        capability-denied,
+        budget-exceeded,
+        stream-not-active,
+        session-poisoned,
+        private-state-rejected,
+        internal-fault,
+    }
+
+    record invoke-request {
+        entrypoint: string,
+        /// Canonical JSON or binary wire payload governed by `extension-api` Host API version.
+        payload: list<u8>,
+    }
+
+    record invoke-response {
+        /// UTF-8 canonical JSON response or declarative NSH Surface tree (`extension-api`).
+        payload: list<u8>,
+    }
+
+    record migration-request {
+        from-schema: u32,
+        to-schema: u32,
+        snapshot: list<u8>,
+    }
+}
+
+/// Authority-controlled host capability broker imported by regular plugin worlds.
+/// Every call is validated and metered by the Host outside Wasm linear memory.
+interface broker {
+    use types.{error-code};
+
+    /// Invoke a Host capability request encoded per `extension-api` wire schema.
+    call: func(request: list<u8>) -> result<list<u8>, error-code>;
+}
+
+/// Bounded streaming response sink imported from the Host (`qusor.emit_chunk`).
+interface stream {
+    use types.{error-code};
+
+    /// Emit one bounded response chunk (for long reading, search, or incremental UI results).
+    emit-chunk: func(chunk: list<u8>) -> result<_, error-code>;
+}
+
+/// Optional plugin lifecycle and private-state schema migration exports.
+interface lifecycle {
+    use types.{error-code, migration-request};
+
+    /// Validate private state snapshot without granting business capabilities.
+    preflight: func(schema-version: u32, snapshot: list<u8>) -> result<_, error-code>;
+
+    /// Transform private state snapshot between plugin-owned schema versions.
+    migrate: func(req: migration-request) -> result<list<u8>, error-code>;
+}
+
+/// Primary plugin invocation interface supporting single-shot and long-lived session turns.
+interface handler {
+    use types.{error-code, invoke-request, invoke-response};
+
+    handle: func(req: invoke-request) -> result<invoke-response, error-code>;
+}
+
+/// Streaming variant allowing incremental `stream.emit-chunk` emission before final response.
+interface streaming-handler {
+    use types.{error-code, invoke-request, invoke-response};
+
+    handle-stream: func(req: invoke-request) -> result<invoke-response, error-code>;
+}
+
+/// Standard capability-brokered plugin world.
+world qusor-plugin {
+    import broker;
+    import stream;
+
+    export handler;
+    export streaming-handler;
+    export lifecycle;
+}
+
+/// Authority-free private state migration world (no `broker` or `stream` imports).
+world qusor-migration-plugin {
+    export lifecycle;
+}

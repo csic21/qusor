@@ -23,6 +23,41 @@
 
 桌面/移动是展示分组，不能替代具体系统判断。窗口大小、触控、键鼠和布局偏好单独协商，不能从 Android 推导“只触控”，也不能从 Linux 推导固定桌面环境。未声明的系统/渠道视为不匹配；未知必需能力或 profile 视为不支持。
 
+## 六端执行与基础设施现状矩阵
+
+截至 2026-11-14，六端在插件执行引擎、存储适配器、进程监督与原生宿主服务上的代码级现状与缺口如下（编译通过不代表真机通过，详见 [跨平台结果](../../experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md) 与 [ADR 0053](adr/0053-runtime-budgets-abi-and-platforms.md)）：
+
+| 平台 | 插件执行形态（Wasm / 进程） | 存储与包 Store 现状（代码证据） | 进程监督现状（代码证据） | 原生宿主服务现状与缺口 |
+|---|---|---|---|---|
+| **macOS** (`aarch64` / `x86_64`) | `runtime-wasm`（[wasmi 2.0.0](../../adapters/runtime-wasm/Cargo.toml#L13) 纯 Rust `portable-dispatch`，无 JIT）+ `DesktopStandard` 预算；桌面外置 helper 可选 `runtime-process` | **已实现（Unix）**：[storage-sqlite](../../adapters/storage-sqlite/Cargo.toml#L16-L17)（`rusqlite`）、[blob-store](../../adapters/blob-store/src/unix.rs#L165-L168)（`fs::hard_link`）、[extension-store](../../adapters/extension-store/src/lib.rs#L79-L87)（`0700` 目录、`writer.lock`）；arm64 本机已实测 | **已实现（macOS）**：[runtime-process](../../adapters/runtime-process/src/lib.rs#L14-L17) 使用 `libproc` + 启动身份核对；仅覆盖同一可执行 `--managed-worker` | `macos-aarch64` 已接通 PDFium `chromium/8125`（[pdf_reader.rs](../../apps/qusor/native/src/pdf_reader.rs#L115-L129)）与系统读音 `/usr/bin/say`（[vocab_native.rs](../../apps/qusor/native/src/vocab_native.rs#L512-L554)）。缺口：`x86_64` 仅摘要未实窗、PDFium 尚未进程隔离、中文 IME / 公证与商店签名未完成 |
+| **Linux** (`x86_64` / `aarch64`) | `runtime-wasm`（`wasmi 2.0.0`）+ `DesktopStandard` 预算；桌面外置 helper 可选 `runtime-process` | **已实现（Unix）**：`storage-sqlite`（`cfg(unix)`）、[blob-store](../../adapters/blob-store/src/unix.rs#L152-L163)（`renameat_with` `NOREPLACE`）、`extension-store`（`cfg(unix)`） | **已实现（Linux）**：[runtime-process](../../adapters/runtime-process/src/lib.rs#L9-L12)（`rustix` pidfd/prctl）；注意 `runtime-process --test controller` 与平台环境耦合度高 | [apps/qusor/native](../../apps/qusor/native/src/pdf_reader.rs#L141-L149) 未打包 Linux PDFium 运行库且无系统 TTS（[vocab_native.rs](../../apps/qusor/native/src/vocab_native.rs#L565-L571) 返回无语音）。缺口：PDFium 分发包、发行版打包更新与 `aarch64` 实窗复验 |
+| **Windows** (`x86_64`) | `runtime-wasm` 共享库交叉编译通过；`runtime-process` 返回 `Unsupported` | **未实现（明确拒绝）**：[storage-sqlite](../../adapters/storage-sqlite/src/unsupported.rs#L5-L33) 在 `#[cfg(not(unix))]` 返回 `Unavailable`；[blob-store](../../adapters/blob-store/src/lib.rs#L2-L5) 仅编译 Unix 模块；[extension-store](../../adapters/extension-store/tests/platform_profile.rs#L26-L44) 在 Windows CI 明确断言 `StoreErrorCode::Unsupported` | **未实现（明确拒绝）**：[runtime-process](../../adapters/runtime-process/src/lib.rs#L19-L48) 与 [controller.rs](../../adapters/runtime-process/src/controller.rs#L188-L194) 返回 `Unsupported` | [apps/qusor/native/Cargo.toml](../../apps/qusor/native/Cargo.toml#L32-L34) 与 [src/lib.rs](../../apps/qusor/native/src/lib.rs#L14-L17) 将 `png`/`pdf_reader` 门控在 `cfg(unix)`。缺口：Windows ACL 私有目录存储、SQLite/CAS 适配、Job Object 进程监督（仅桌面 helper）、PDFium DLL 与 MSVC 构建 |
+| **Android** (`aarch64`) | 进程内 `runtime-wasm`（`wasmi 2.0.0` 纯解释器，无 JIT/RWX 要求）+ `MobileStandard` 预算；**不使用独立子进程隔离插件** | **已实现（Unix/Android）**：`storage-sqlite`、`extension-store` 可编译运行；[blob-store](../../adapters/blob-store/src/unix.rs#L152-L163) 专门改用 `renameat_with(RenameFlags::NOREPLACE)` 绕过应用数据目录禁止硬链接限制 | **不可用**：[runtime-process](../../adapters/runtime-process/src/controller.rs#L189-L194) 显式返回 `Unsupported`，且 Android 应用沙箱禁止桌面式任意子进程模型 | API 36 arm64 模拟器已运行 APK、PDFium `libpdfium.so`（[pdf_reader.rs](../../apps/qusor/native/src/pdf_reader.rs#L131-L139)）与 Android JNI TTS（[vocab_native.rs](../../apps/qusor/native/src/vocab_native.rs#L556-L563)）。缺口：移动插件动态安装/更新授权界面、真机与平板性能/耗电、商店签名、公开插件 Wasm 实窗闭环 |
+| **iOS** (`aarch64`) | 进程内 `runtime-wasm`（`wasmi 2.0.0` 纯解释器，满足 iOS 禁止第三方 JIT/W^X 内存约束）+ `MobileStandard` 预算 | **条件可编译（Unix 子集）**：`storage-sqlite`/`blob-store`/`extension-store` 在 Darwin Unix 族下可编译，但仅完成 arm64 Simulator 交叉检查，未在 UIKit 沙箱路径与文件保护属性下实测 | **不可用**：iOS 沙箱禁止派生通用子进程，[runtime-process](../../adapters/runtime-process/src/controller.rs#L189-L194) 返回 `Unsupported` | PDFium 与系统 TTS（`AVSpeechSynthesizer`）均未登记 iOS 实现；缺口：UIKit 启动链接、文档选择器、App Store 审核策略定型（见下文待决项）、真机测试 |
+| **Web** (`wasm32`) | 进程内 / Web Worker 内运行 `runtime-wasm`（`wasmi 2.0.0` 无 `cfg(unix)` 限制，已过 `wasm32` 库交叉编译检查，运行于浏览器 Wasm 沙箱）+ `MobileStandard` 或更低预算 | **未实现（无 OS 文件系统）**：`storage-sqlite`、`blob-store`、`extension-store` 均因依赖 POSIX 文件系统与本地文件锁在 `wasm32` 不可用/拒绝；需面向浏览器的 `StoragePort`（OPFS / IndexedDB） | **不适用**：浏览器无 OS 进程控制，依赖 Web Worker 隔离线程 | 无 PDFium 原生动态库、无原生 `qusor/pdf-surface` 文件系统桥接；缺口：Web Storage/CAS 适配、Worker 消息通道、CSP 下可加载插件形态与浏览器持久化恢复 |
+
+## `runtime-process` 定位与待决平台策略（Proposed）
+
+> 以下条目属于 **Proposed** 架构建议与待用户拍板事项，不替代正式用户决策。
+
+### 1. `runtime-process` 定位建议：仅服务桌面原生 Helper / MCP
+
+建议明确将 [adapters/runtime-process](../../adapters/runtime-process/src/lib.rs) 的职责边界收敛为**桌面平台（macOS、Linux 及后续补齐 Job Object 适配的 Windows）原生辅助进程与外部 MCP / Hex 服务监督器**，而不是通用六端插件隔离运行器：
+
+- **通用插件隔离**：统一由进程内 `runtime-wasm`（`wasmi 2.0.0` 解释器 + Host 注入的 `RuntimeBudgets` 内存/表/fuel/deadline/chunk 预算 + `CapabilityBroker`）承担，保证 Wasm 插件语义与能力边界在六端一致，且兼容 iOS / Android / Web 的进程/JIT 限制。
+- **`runtime-process` 专职场景**：仅在桌面端用于崩溃/资源隔离原生 C/C++ 库（如后续独立的 PDFium worker 进程）、本地 MCP server / CLI 工具与受控桌面服务连接；Android / iOS / Web 显式不启用该路径，由 Host 原生平台能力（如系统 API 或进程内单线程服务）替代并在 [扩展平台解析器](../../crates/extension-host/src/platform.rs) 中拒绝声明需要桌面进程服务的插件实现。
+
+### 2. 待用户拍板：iOS 与 Web 是否允许动态安装第三方代码插件
+
+该决策影响 App Store 合规、Web 安全边界与包分发体系（参见 [ADR 0053](adr/0053-runtime-budgets-abi-and-platforms.md)）：
+
+| 选项 | iOS 策略 | Web 策略 | 优势 | 代价与风险 |
+|---|---|---|---|---|
+| **选项 A（Proposed 推荐默认）：商店/浏览器合规分级** | **随包附带已审核第一方/精选插件 + 声明式配置扩展**（如主题、键位、声明式规则/词汇词书资源），禁用未随包任意第三方 `.qpk` 下载执行 | 仅允许加载 **受同源/CSP 审查的可信静态/内置 Wasm 插件或纯声明式配置**，不提供任意 URL 上传 Wasm 执行 | 符合 App Store 2.5.2（禁止下载未随包可解释动态代码/可执行逻辑）与浏览器 CSP 沙箱预期；降低审核退回与存储配额失效风险 | iOS 第三方插件生态无法像桌面/Android 那样随时侧载更新，只能随宿主发版或走纯声明式/数据扩展 |
+| **选项 B：全平台开放动态第三方 `.qpk`（Wasm 解释器）** | 允许用户导入第三方 `.qpk` 并在 `wasmi` 纯解释器中运行 | 允许浏览器导入 `.qpk` 并在 Web Worker 内的 `wasmi` 解释器运行（存 OPFS / IndexedDB） | 六端插件安装体验高度一致，第三方插件可直接复用 | **iOS 面临 App Store Review Guidelines 2.5.2 拒审高风险**（虽是字节码解释器而非 JIT，仍常被判定为可下载可执行功能模块）；Web 需承担大量浏览器存储持久化、跨源隔离与滥用防护成本 |
+
+> 若同时涉及「第一方核心功能是否允许随宿主编译或继续全部独立签名包（ADR 0003）」，需与上表一并由用户确认后再修改生产安装与分发门控。
+
 ## 包与实现契约
 
 以下是拟议新版本概念模型，不是现有 JSON Schema，也不向旧 Manifest 追加未知字段：
