@@ -2,6 +2,8 @@
 
 # runtime-process：进程身份、受控传输与独立监督
 
+> 职责边界（[ADR 0055](../../docs/architecture/adr/0055-lifecycle-and-port-decoupling.md)）：`runtime-process` 仅用于桌面原生 helper 与外部 MCP 进程监督，不承担普通插件生命周期；普通跨平台插件统一走进程内 `runtime-wasm` 沙箱。
+
 关联 F-EXT-01/03/05/06。Linux `/proc` 身份、父死守卫与 pidfd 清理从已有监督实验迁入，实验兼容模块转发同一实现；现已增加有界原始字节传输、独立controller/watchdog及注入执行器的worker入口；不包含Host授权、数据库、具体guest执行器或完整产品supervisor。
 
 `extension-runtime-api::ProcessIdentity` 只是可持久化观测，不能直接授权 signal。回收先打开 pidfd 固定内核对象，再核对启动时间、kernel boot、UID、可执行文件设备/inode及带 nonce 的 managed-worker 精确命令。不退回裸 PID kill。已经退出的对象可以先于旧 executable 不匹配得到退出确认；`Terminated` 仍可能是待父进程 reap 的 zombie。

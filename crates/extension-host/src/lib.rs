@@ -53,14 +53,7 @@ pub enum Status {
     Enabled,
 }
 
-/// A host-approved capability and exact resource scope.
-/// Only a vault-wide metadata grant covers individual documents. Capture proposals
-/// target a vault directly; selection reads always require an exact selection grant.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Grant {
-    pub capability: Capability,
-    pub resource: Resource,
-}
+pub use extension_ports::Grant;
 
 /// Opaque handle bound to one host instance and one live connection.
 /// The runtime adapter keeps it outside untrusted plugin payloads.

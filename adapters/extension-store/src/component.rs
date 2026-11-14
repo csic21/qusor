@@ -1,7 +1,7 @@
 //! Verified component installation facts. Vault affinity is not an execution grant.
 use super::*;
 use extension_api::{HOST_API_V0_3, composition::CompositionDescriptor};
-use extension_host::durable::{AuthorityRead, ComponentAuthoritySource, ComponentInstallation};
+use extension_ports::{AuthorityRead, ComponentAuthoritySource, ComponentInstallation};
 const COMPOSITION_ASSET: &str = "assets/ui-composition.json";
 
 fn composition(package: &VerifiedPackage) -> Result<(CompositionDescriptor, String)> {

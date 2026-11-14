@@ -4,33 +4,12 @@ use crate::component::{
     AuthorizedComponentContext, AuthorizedDraftContext, ComponentCleanupTicket, MountHandle,
 };
 use extension_api::{
-    Resource,
-    component_invocation::ComponentInvocationRequest,
-    composition::{ComponentContextRequest, CompositionDescriptor},
-    continuation::ContinuationRequest,
-    draft::DraftRequest,
+    Resource, component_invocation::ComponentInvocationRequest,
+    composition::ComponentContextRequest, continuation::ContinuationRequest, draft::DraftRequest,
     projection::ProjectionRequest,
 };
 
-/// Fresh authenticated installation facts, never a grant or an enabled session.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct ComponentInstallation {
-    pub installation_id: i64,
-    pub revision: i64,
-    pub generation: i64,
-    pub manifest: Manifest,
-    pub digest: String,
-    pub vault_id: String,
-    pub composition: CompositionDescriptor,
-    pub composition_sha256: String,
-}
-pub trait ComponentAuthoritySource {
-    fn component_installation(
-        &self,
-        package_id: &str,
-        read: AuthorityRead<'_>,
-    ) -> Result<ComponentInstallation, ApiError>;
-}
+pub use extension_ports::{ComponentAuthoritySource, ComponentInstallation};
 
 /// Only trusted native user interaction may construct this local approval.
 /// Preferences, installation existence and guest JSON never imply this intent.

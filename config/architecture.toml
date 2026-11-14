@@ -71,10 +71,16 @@ allowed_transitive_dependencies = ["base64", "block-buffer", "cfg-if", "cpufeatu
 manifest = "crates/capability-composition/Cargo.toml"
 allowed_dependencies = []
 
-[packages.extension-host]
-manifest = "crates/extension-host/Cargo.toml"
+# ADR 0055: pure durable authority and recovery ports; depends only on extension-api.
+[packages.extension-ports]
+manifest = "crates/extension-ports/Cargo.toml"
 allowed_dependencies = ["extension-api"]
 allowed_transitive_dependencies = ["base64", "extension-api", "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]
+
+[packages.extension-host]
+manifest = "crates/extension-host/Cargo.toml"
+allowed_dependencies = ["extension-api", "extension-ports"]
+allowed_transitive_dependencies = ["base64", "extension-api", "extension-ports", "serde", "serde_core", "serde_derive", "serde_json", "itoa", "memchr", "zmij", "proc-macro2", "quote", "syn", "unicode-ident"]
 
 # ADR 0021: pure signed-package format, immutable content and bound-key verification.
 # No installation state, filesystem, Host or execution dependency.
@@ -437,11 +443,11 @@ manifest = "adapters/storage-sqlite/Cargo.toml"
 allowed_dependencies = ["blob-store", "core-api", "learning-application", "learning-ports", "rusqlite", "serde_json"]
 allowed_transitive_dependencies = ["ahash", "base64", "bitflags", "blob-store", "block-buffer", "cc", "cfg-if", "core-api", "cpufeatures", "crypto-common", "digest", "errno", "fallible-iterator", "fallible-streaming-iterator", "find-msvc-tools", "fs2", "generic-array", "hashbrown", "hashlink", "itoa", "learning-application", "learning-domain", "learning-ports", "libc", "linux-raw-sys", "libsqlite3-sys", "memchr", "once_cell", "pkg-config", "proc-macro2", "quote", "rusqlite", "rustix", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "shlex", "smallvec", "syn", "typenum", "unicode-ident", "unicode-segmentation", "vcpkg", "version_check", "winapi", "winapi-i686-pc-windows-gnu", "winapi-x86_64-pc-windows-gnu", "windows-link", "windows-sys", "zerocopy", "zerocopy-derive", "zmij"]
 
-# ADR 0025: same durable kernel; Host dependency implements pure authority-source port, no Host/Session instances or VM/UI.
+# ADR 0025 / 0055: same durable kernel; depends on pure extension-ports rather than extension-host.
 [packages.extension-store]
 manifest = "adapters/extension-store/Cargo.toml"
-allowed_dependencies = ["extension-host", "extension-api", "extension-package", "extension-runtime-api", "fs2", "libc", "rusqlite", "serde", "serde_json", "sha2"]
-allowed_transitive_dependencies = ["base64", "extension-host", "ahash", "base64ct", "bitflags", "block-buffer", "cc", "cfg-if", "const-oid", "cpufeatures", "crypto-common", "curve25519-dalek", "curve25519-dalek-derive", "der", "digest", "ed25519", "ed25519-dalek", "extension-api", "extension-package", "extension-runtime-api", "fallible-iterator", "fallible-streaming-iterator", "fiat-crypto", "find-msvc-tools", "fs2", "generic-array", "getrandom", "hashbrown", "hashlink", "itoa", "libc", "libsqlite3-sys", "memchr", "once_cell", "pkcs8", "pkg-config", "proc-macro2", "quote", "rand_core", "rusqlite", "rustc_version", "semver", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "shlex", "signature", "smallvec", "spki", "subtle", "syn", "typenum", "unicode-ident", "vcpkg", "version_check", "wasi", "winapi", "winapi-i686-pc-windows-gnu", "winapi-x86_64-pc-windows-gnu", "zerocopy", "zerocopy-derive", "zeroize", "zmij"]
+allowed_dependencies = ["extension-ports", "extension-api", "extension-package", "extension-runtime-api", "fs2", "libc", "rusqlite", "serde", "serde_json", "sha2"]
+allowed_transitive_dependencies = ["base64", "extension-ports", "ahash", "base64ct", "bitflags", "block-buffer", "cc", "cfg-if", "const-oid", "cpufeatures", "crypto-common", "curve25519-dalek", "curve25519-dalek-derive", "der", "digest", "ed25519", "ed25519-dalek", "extension-api", "extension-package", "extension-runtime-api", "fallible-iterator", "fallible-streaming-iterator", "fiat-crypto", "find-msvc-tools", "fs2", "generic-array", "getrandom", "hashbrown", "hashlink", "itoa", "libc", "libsqlite3-sys", "memchr", "once_cell", "pkcs8", "pkg-config", "proc-macro2", "quote", "rand_core", "rusqlite", "rustc_version", "semver", "serde", "serde_core", "serde_derive", "serde_json", "sha2", "shlex", "signature", "smallvec", "spki", "subtle", "syn", "typenum", "unicode-ident", "vcpkg", "version_check", "wasi", "winapi", "winapi-i686-pc-windows-gnu", "winapi-x86_64-pc-windows-gnu", "zerocopy", "zerocopy-derive", "zeroize", "zmij"]
 
 # ADR 0025 / 0027: identity-pinned Linux cleanup and bounded process transport.
 # Serde/JSON encode private IPC only; no Host, Store, Probe, Wasmi or UI dependency.

@@ -1,12 +1,9 @@
 #![cfg(target_os = "linux")]
 use extension_api::*;
-use extension_host::{
-    Grant,
-    durable::{AuthorityRead, AuthoritySource, DurableHost},
-};
 use extension_package::package::{
     PackageFile, VerifiedPackage, build_signed_for_host, publisher_key, verify_for_host,
 };
+use extension_ports::{AuthorityRead, AuthoritySource, Grant};
 use extension_store::*;
 use rusqlite::Connection;
 use std::{
@@ -42,38 +39,77 @@ impl Drop for Scratch {
         fs::remove_dir_all(&self.0).unwrap();
     }
 }
-struct Policy(Mutex<DurableHost>);
+struct Policy {
+    vault_id: String,
+    supported: Vec<Capability>,
+}
 impl Policy {
     fn new() -> Self {
-        Self(Mutex::new(
-            DurableHost::new(
-                "vault",
-                [
-                    Capability::DocumentMetadataRead,
-                    Capability::ReaderSurface,
-                    Capability::SelectionRead,
-                    Capability::CapturePropose,
-                ],
-            )
-            .unwrap(),
-        ))
+        Self {
+            vault_id: "vault".into(),
+            supported: vec![
+                Capability::DocumentMetadataRead,
+                Capability::ReaderSurface,
+                Capability::SelectionRead,
+                Capability::CapturePropose,
+            ],
+        }
+    }
+    fn validate_intent(
+        &self,
+        manifest: &Manifest,
+        grants: &[Grant],
+        api: ApiVersion,
+    ) -> Result<()> {
+        manifest.validate()?;
+        if !is_supported_api(api) || !manifest.supports_api(api) {
+            return Err(StoreError::unsupported("activation API is unsupported"));
+        }
+        if manifest
+            .required_capabilities
+            .iter()
+            .any(|c| !self.supported.contains(c))
+        {
+            return Err(StoreError::invalid("required capability unavailable"));
+        }
+        for (idx, grant) in grants.iter().enumerate() {
+            grant.resource.validate()?;
+            if !self.supported.contains(&grant.capability)
+                || (!manifest.required_capabilities.contains(&grant.capability)
+                    && !manifest.optional_capabilities.contains(&grant.capability))
+                || grant.resource.vault_id() != self.vault_id
+                || !capability_resource_valid(grant.capability, &grant.resource, api)
+            {
+                return Err(StoreError::invalid(
+                    "grant exceeds declared capability or vault scope",
+                ));
+            }
+            if grants[..idx].contains(grant) {
+                return Err(StoreError::invalid("duplicate grant"));
+            }
+        }
+        if !manifest
+            .required_capabilities
+            .iter()
+            .all(|req| grants.iter().any(|g| g.capability == *req))
+        {
+            return Err(StoreError::invalid(
+                "required capabilities need explicit grants",
+            ));
+        }
+        Ok(())
     }
 }
 impl GrantValidator for Policy {
     fn validate(&self, package: &VerifiedPackage, scope: &GrantScope) -> Result<()> {
-        self.0
-            .lock()
-            .unwrap()
-            .validate_activation_intent(
-                package.manifest(),
-                package.digest(),
-                &[Grant {
-                    capability: scope.capability,
-                    resource: scope.resource(),
-                }],
-                HOST_API,
-            )
-            .map_err(StoreError::from)
+        self.validate_intent(
+            package.manifest(),
+            &[Grant {
+                capability: scope.capability,
+                resource: scope.resource(),
+            }],
+            HOST_API,
+        )
     }
     fn validate_set(&self, package: &VerifiedPackage, scope: &GrantSet) -> Result<()> {
         let grants = scope
@@ -84,16 +120,7 @@ impl GrantValidator for Policy {
                 resource: g.resource.clone(),
             })
             .collect::<Vec<_>>();
-        self.0
-            .lock()
-            .unwrap()
-            .validate_activation_intent(
-                package.manifest(),
-                package.digest(),
-                &grants,
-                scope.api_version,
-            )
-            .map_err(StoreError::from)
+        self.validate_intent(package.manifest(), &grants, scope.api_version)
     }
 }
 fn services() -> StoreServices {
@@ -208,19 +235,7 @@ fn real_three_capability_set_survives_reopen_without_legacy_projection() {
         .unwrap();
     assert_eq!(snapshot.grants.len(), 3);
     assert_eq!(snapshot.required_api, Some(HOST_API_V0_2));
-    let mut host = DurableHost::new(
-        "vault",
-        [
-            Capability::ReaderSurface,
-            Capability::SelectionRead,
-            Capability::CapturePropose,
-        ],
-    )
-    .unwrap();
-    assert!(
-        host.activate(&store, "org.test.reader", HOST_API_V0_2, 1)
-            .is_ok()
-    );
+    assert!(snapshot.enable_intent);
     assert!(matches!(
         store.saved_authorization(&receipt).unwrap(),
         SavedAuthorization::V2(_)
@@ -403,15 +418,10 @@ fn profile2_metadata_cannot_downgrade_even_when_manifest_supports_legacy() {
         resource_version: Some("version".into()),
     }];
     store.grant_set("set", 1, "org.test.reader", scope).unwrap();
-    let mut host = DurableHost::new("vault", [Capability::DocumentMetadataRead]).unwrap();
-    assert!(
-        host.activate(&store, "org.test.reader", HOST_API, 1)
-            .is_err()
-    );
-    assert!(
-        host.activate(&store, "org.test.reader", HOST_API_V0_2, 1)
-            .is_ok()
-    );
+    let snapshot = store
+        .authority_snapshot("org.test.reader", AuthorityRead::Activation)
+        .unwrap();
+    assert_eq!(snapshot.required_api, Some(HOST_API_V0_2));
     drop(store);
     assert!(Store::open(&scratch.store()).is_err());
 }

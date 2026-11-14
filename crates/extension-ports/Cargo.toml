@@ -1,0 +1,15 @@
+[package]
+name = "extension-ports"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+description = "QUSOR authority-free durable extension installation, grant and recovery port contracts."
+
+[dependencies]
+extension-api = { path = "../extension-api" }
+
+[lints]
+workspace = true

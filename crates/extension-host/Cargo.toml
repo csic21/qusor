@@ -10,6 +10,7 @@ description = "QUSOR headless extension authorization and lifecycle policy."
 
 [dependencies]
 extension-api = { path = "../extension-api" }
+extension-ports = { path = "../extension-ports" }
 
 [lints]
 workspace = true
