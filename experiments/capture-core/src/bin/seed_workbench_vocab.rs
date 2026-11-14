@@ -27,16 +27,22 @@ fn books() -> Vec<WordbookSeed> {
             words: vec![
                 NewWord {
                     term: "abandon".into(),
+                    phonetic: String::new(),
+                    pos: String::new(),
                     meaning: "放弃；抛弃".into(),
                     example: "Do not abandon the plan.".into(),
                 },
                 NewWord {
                     term: "benefit".into(),
+                    phonetic: String::new(),
+                    pos: String::new(),
                     meaning: "益处；使受益".into(),
                     example: "Reading has many benefits.".into(),
                 },
                 NewWord {
                     term: "candidate".into(),
+                    phonetic: String::new(),
+                    pos: String::new(),
                     meaning: "候选人；申请者".into(),
                     example: "The candidate answered well.".into(),
                 },
@@ -48,11 +54,15 @@ fn books() -> Vec<WordbookSeed> {
             words: vec![
                 NewWord {
                     term: "plugin".into(),
+                    phonetic: String::new(),
+                    pos: String::new(),
                     meaning: "插件；通过公开能力接入的功能包".into(),
                     example: "The plugin only submits bounded requests.".into(),
                 },
                 NewWord {
                     term: "vault".into(),
+                    phonetic: String::new(),
+                    pos: String::new(),
                     meaning: "本地库；Core 的绑定范围".into(),
                     example: "The Host binds the vault for the guest.".into(),
                 },

@@ -24,6 +24,9 @@ workspace_manifests = [
   "apps/qusor/native/Cargo.toml",
   "sdk/qusor-sdk/Cargo.toml",
   "plugins/vocab/Cargo.toml",
+  "plugins/notes/Cargo.toml",
+  "plugins/library/Cargo.toml",
+  "plugins/reader/Cargo.toml",
 ]
 
 # C-17: the packaged app is assembled under apps/ as independent workspaces so the
@@ -53,6 +56,21 @@ allowed_transitive_dependencies = ["base64", "extension-api", "itoa", "memchr", 
 
 [plugins.vocab.packages.qusor-vocab]
 manifest = "plugins/vocab/Cargo.toml"
+allowed_dependencies = ["extension-api", "qusor-sdk", "serde", "serde_json"]
+allowed_transitive_dependencies = ["base64", "extension-api", "itoa", "memchr", "proc-macro2", "quote", "qusor-sdk", "serde", "serde_core", "serde_derive", "serde_json", "syn", "unicode-ident", "zmij"]
+
+[plugins.notes.packages.qusor-notes]
+manifest = "plugins/notes/Cargo.toml"
+allowed_dependencies = ["extension-api", "qusor-sdk", "serde", "serde_json"]
+allowed_transitive_dependencies = ["base64", "extension-api", "itoa", "memchr", "proc-macro2", "quote", "qusor-sdk", "serde", "serde_core", "serde_derive", "serde_json", "syn", "unicode-ident", "zmij"]
+
+[plugins.library.packages.qusor-library]
+manifest = "plugins/library/Cargo.toml"
+allowed_dependencies = ["extension-api", "qusor-sdk", "serde", "serde_json"]
+allowed_transitive_dependencies = ["base64", "extension-api", "itoa", "memchr", "proc-macro2", "quote", "qusor-sdk", "serde", "serde_core", "serde_derive", "serde_json", "syn", "unicode-ident", "zmij"]
+
+[plugins.reader.packages.qusor-reader]
+manifest = "plugins/reader/Cargo.toml"
 allowed_dependencies = ["extension-api", "qusor-sdk", "serde", "serde_json"]
 allowed_transitive_dependencies = ["base64", "extension-api", "itoa", "memchr", "proc-macro2", "quote", "qusor-sdk", "serde", "serde_core", "serde_derive", "serde_json", "syn", "unicode-ident", "zmij"]
 

@@ -15,15 +15,15 @@ use learning_application::{
     KnowledgeApplication,
     pdf_notes::{NoteBodyField, PdfNoteSummary},
 };
-use learning_ports::KnowledgeStore;
+use learning_ports::KnowledgeQuery;
 
 /// One trusted note reader bound to the same vault as its Host.
-pub struct NotesReadBridge<S: KnowledgeStore> {
+pub struct NotesReadBridge<S: KnowledgeQuery> {
     app: KnowledgeApplication<S>,
     vault: String,
 }
 
-impl<S: KnowledgeStore> NotesReadBridge<S> {
+impl<S: KnowledgeQuery> NotesReadBridge<S> {
     pub fn new(app: KnowledgeApplication<S>, vault: impl Into<String>) -> Self {
         Self {
             app,

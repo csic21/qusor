@@ -24,7 +24,7 @@ use std::{
 };
 use storage_sqlite::SqliteStore;
 
-const MANIFEST: &str = include_str!("../../../plugins/notes/manifest.json");
+const MANIFEST: &str = include_str!("../../../plugins/notes/manifest.legacy.json");
 const GUEST: &str = include_str!("../../../plugins/notes/guest.wat");
 const SEED: [u8; 32] = [0x33; 32];
 
