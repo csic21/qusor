@@ -29,10 +29,10 @@ fn invalid(message: &'static str) -> ApiError {
     ApiError::new(ErrorCode::InvalidRequest, message)
 }
 fn header(api: ApiVersion, protocol: u16, request: &str) -> Result<(), ApiError> {
-    if api != HOST_API_V0_3 || protocol != PROJECTION_PROTOCOL {
+    if !crate::is_supported_api(api) || api < HOST_API_V0_3 || protocol != PROJECTION_PROTOCOL {
         return Err(ApiError::new(
             ErrorCode::UnsupportedVersion,
-            "projection requires API0.3 protocol1",
+            "projection requires minimum API0.3 protocol1",
         ));
     }
     if request.len() > 32 {

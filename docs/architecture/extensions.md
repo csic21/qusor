@@ -1,12 +1,12 @@
 # QUSOR 插件扩展架构
 
-日期：2026-11-07。状态：**插件化是用户已明确要求的基座能力；已推进 0.1 协议与无界面宿主策略实现，完整 SDK、包安装、运行隔离和具体插件仍未交付。** 插件与扩展在本文中同义。决策见 [ADR 0002](adr/0002-extension-boundary.md)，产品范围见 [功能矩阵](../product/scope.md)。用户后续已确认第一阶段开放第三方且第一方功能插件化，分期以 [ADR 0003](adr/0003-plugin-first-delivery.md) 及第12节为准。
+日期：2026-11-07（协议版本段落更新于 2026-11-14）。状态：**插件化是用户已明确要求的基座能力；已推进 0.1–0.7 累积兼容策略协议与无界面宿主策略实现，完整 SDK、包安装、运行隔离和具体插件仍未交付。** 插件与扩展在本文中同义。决策见 [ADR 0002](adr/0002-extension-boundary.md)，协议版本兼容与演进见 [ADR 0049](adr/0049-cumulative-host-api-and-capability-evolution.md)，产品范围见 [功能矩阵](../product/scope.md)。用户后续已确认第一阶段开放第三方且第一方功能插件化，分期以 [ADR 0003](adr/0003-plugin-first-delivery.md) 及第12节为准。
 
 本阶段的代码目录、全部 Feature 的功能插件归属与依赖约束见 [目录架构](workspace-layout.md)；持久安装、授权恢复、升级/回滚与长驻宿主见 [包生命周期设计](plugin-lifecycle.md) 和 [验收规格](../product/plugin-lifecycle.md)。新授权及实施顺序见 [ADR 0006](adr/0006-plugin-workspace-layout.md)。
 
 ## 0 本轮实现与验证边界
 
-用户在前期材料收集后明确先实现基座，见 [功能规格](../product/foundation.md) 与 [ADR 0004](adr/0004-headless-extension-policy.md)。本轮新增 extension-api 与 extension-host：0.1 JSON 策略协议、manifest 策略投影、三项能力协商、内存安装元数据、资源范围授权、宿主会话、启停/撤权/升级/卸载及贡献查询。
+用户后续明确先实现基座，见 [功能规格](../product/foundation.md) 与 [ADR 0004](adr/0004-headless-extension-policy.md)。本轮及后续基座已覆盖 `extension-api` 与 `extension-host`：0.1–0.7 累积兼容 JSON 策略协议、manifest 策略投影、跨域能力协商、内存安装元数据、资源范围授权、宿主会话（含 `open_negotiated_session`）、启停/撤权/升级/卸载及贡献查询。
 
 一个宿主实例绑定一个库，身份不能由插件载荷自报。会话和许可绑定宿主实例、安装实例与授权世代；同步分派在调用受信任回调前重新验证并消费许可。升级仅接受同包同发布者的更高版本及不同摘要，成功后禁用并清空授权；旧会话/许可失效。失败升级保持原有效状态。
 
@@ -22,7 +22,7 @@ SelectionRead、DocumentMetadataRead 与 CapturePropose 在本轮只实施策略
 
 插件负责发现资料、转换内容、提供动作或呈现方式；Core 负责知识实体、来源、事务、审核、撤销、索引和导出。卸载插件不得导致已收录段落、用户笔记、引用和关系不可读。真正新增领域语义仍可能需要受控 Core Schema 升级；不承诺任意新功能永远无需改变核心。
 
-learning-domain 已实现 FSRS-5 词汇调度内核（仍零外部依赖）；extension-api 与 extension-host 已按本轮具体职责创建并将公开能力推进到 0.7。下面其余模块表达未来职责，出现实际用例时再创建 crate。
+learning-domain 已实现 FSRS-5 词汇调度内核（仍零外部依赖）；extension-api 与 extension-host 已将公开能力推进到 0.7 并采用累积向后兼容规则（[ADR 0049](adr/0049-cumulative-host-api-and-capability-evolution.md)）。下面其余模块表达未来职责，出现实际用例时再创建 crate。
 
 ## 1.1 功能围绕插件开发
 
@@ -69,7 +69,7 @@ flowchart TD
 
 | 当前与规划模块 | 编译依赖与职责 | 不允许 |
 |---|---|---|
-| extension-api | 已实现 0.1 策略 wire DTO、manifest 投影、贡献点与错误；完整能力后续由 host 映射到 core-api | NSH、SQLite、Core内部实体布局、具体服务SDK |
+| extension-api | 已实现 0.1–0.7 累积兼容策略 wire DTO、manifest 投影、贡献点、子域协议与错误；完整能力后续由 host 映射到 core-api，并计划按 [ADR 0049](adr/0049-cumulative-host-api-and-capability-evolution.md)（Proposed）向正交能力演进 | NSH、SQLite、Core内部实体布局、具体服务SDK |
 | extension-host | 当前只依赖 extension-api，执行内存策略；后续按用例接入 core-api/平台 ports 和运行适配器 | 直接使用 SQLite repository 提交业务写入 |
 | 执行适配器 | 实现宿主侧运行port；随应用编译、沙箱解释器、桌面隔离进程分别实现 | 将 runtime 句柄带入领域模型 |
 | nsh-adapter | 将声明式贡献映射为原生菜单/面板/表单/选择动作 | 将任意插件脚本注入 NSH 主 QuickJS 上下文 |
@@ -93,7 +93,7 @@ flowchart TD
 
 manifest 描述 package_id、publisher_id、package_version、manifest_version、host_api_range、required/optional capabilities、各平台/渠道的runtime profiles、contributions、settings_schema、private_state_version、包摘要及签名信息。名称采用命名空间，显示名称不能证明发布者身份。
 
-安装后由宿主协商实际启用能力；缺少 required capability 则禁用对应功能并说明原因，缺 optional capability 可降级。不同平台的能力表不能仅靠“支持Android/iOS”两个布尔值。未知权限、未知必需贡献点或不兼容主版本拒绝激活；普通可选字段按协议规则保留或忽略。
+安装后由宿主协商实际启用能力；缺少 required capability 则禁用对应功能并说明原因，缺 optional capability 可降级。不同平台的能力表不能仅靠“支持Android/iOS”两个布尔值。未知权限、未知必需贡献点或不兼容主版本拒绝激活；普通可选字段按协议规则保留或忽略。在当前 `0.1`–`0.7` 基座中，能力与贡献点自其引入的 minor 版本起在后续所有受支持 `0.x` 版本累积可用，单包可联合声明跨域能力并在最高共同版本上通过 `open_negotiated_session` 打开会话；下一步向命名空间化正交能力、每能力独立 Semver 协商与扩展点路由演进方案（Proposed）见 [ADR 0049](adr/0049-cumulative-host-api-and-capability-evolution.md)。
 
 声明式UI由宿主控制主题、焦点、无障碍和信任标识。插件不能伪装宿主授权/审核对话框、提升来源可信标记或常驻遮挡阅读；自定义HTML/TSX/Surface另设执行等级。移动端贡献采用原生适配布局，不要求与桌面像素一致。
 

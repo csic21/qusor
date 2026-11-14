@@ -65,6 +65,14 @@ fn explicit_version_vocabulary_never_extends_legacy() {
         Capability::CapturePropose,
         Capability::ReaderSurface,
     ] {
+        assert!(capability_available_in(c, HOST_API_V0_3));
+    }
+    for c in [
+        Capability::NotesRead,
+        Capability::VocabRead,
+        Capability::VocabReview,
+        Capability::LibraryRead,
+    ] {
         assert!(!capability_available_in(c, HOST_API_V0_3));
     }
     let mut old = m.clone();
@@ -72,10 +80,13 @@ fn explicit_version_vocabulary_never_extends_legacy() {
     assert!(old.validate().is_err());
     let mut mixed = m;
     mixed.contributions[0].kind = ContributionKind::Command;
-    assert!(!mixed.supports_api(HOST_API_V0_3));
+    assert!(mixed.supports_api(HOST_API_V0_3));
     let mut r = request();
     r.api_version = HOST_API_V0_2;
     assert!(r.validate().is_err());
+    let mut r_later = request();
+    r_later.api_version = HOST_API_V0_4;
+    assert!(r_later.validate().is_ok());
 }
 #[test]
 fn draft_wire_budgets_unknown_fields_and_exact_identities() {

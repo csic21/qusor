@@ -3,7 +3,7 @@
 //! this module owns identity, grants, generations and result acceptance only.
 use super::*;
 use extension_api::{
-    ContributionKind, HOST_API_V0_2,
+    ContributionKind,
     surface::{
         FrameMetadata, SURFACE_PROTOCOL, SourceVersion, SurfaceDescriptor, SurfaceOperation,
         SurfaceRequest, SurfaceResponse, SurfaceResult, SurfaceStatus,
@@ -276,6 +276,7 @@ impl Host {
             } => {
                 self.surface_open_authority(
                     session,
+                    request.api_version,
                     &request.request_id,
                     resource,
                     contribution_id,
@@ -304,12 +305,18 @@ impl Host {
     fn surface_open_authority(
         &self,
         session: &Session,
+        api_version: ApiVersion,
         request_id: &str,
         resource: &Resource,
         contribution_id: &str,
     ) -> Result<(InstallationId, u64, String), ApiError> {
         self.check_owner(&session.owner)?;
-        let policy = surface_policy(request_id, Capability::ReaderSurface, resource.clone());
+        let policy = surface_policy(
+            api_version,
+            request_id,
+            Capability::ReaderSurface,
+            resource.clone(),
+        );
         let (connection, installed) = self.check_request(session.id, &policy)?;
         let contribution = installed
             .manifest
@@ -333,7 +340,10 @@ impl Host {
                 },
                 _ => resource.clone(),
             };
-            self.check_request(session.id, &surface_policy(request_id, *capability, scope))?;
+            self.check_request(
+                session.id,
+                &surface_policy(api_version, request_id, *capability, scope),
+            )?;
         }
         Ok((
             connection.installation,
@@ -356,8 +366,13 @@ impl Host {
         else {
             return Err(invalid_operation());
         };
-        let (installation, epoch, digest) =
-            self.surface_open_authority(session, &request.request_id, resource, contribution_id)?;
+        let (installation, epoch, digest) = self.surface_open_authority(
+            session,
+            request.api_version,
+            &request.request_id,
+            resource,
+            contribution_id,
+        )?;
         if document.resource != *resource
             || document.source != *expected
             || document.page_count == 0
@@ -543,12 +558,17 @@ impl Host {
                 "complete selection exceeds wire budget",
             ));
         }
+        let session_api = self
+            .sessions
+            .get(&record.session)
+            .ok_or_else(stale)?
+            .api_version;
         let lease = self.surfaces.identity("sl", self.identity)?;
         // Reject the whole lease before publishing when any legal response id
         // would exceed the bounded broker wire. Never truncate draft segments.
         let response = SurfaceResponse {
             surface_protocol: SURFACE_PROTOCOL,
-            api_version: HOST_API_V0_2,
+            api_version: session_api,
             request_id: "a".repeat(extension_api::MAX_ID_BYTES),
             result: SurfaceResult::Selection {
                 handle: gesture.handle().into(),
@@ -619,6 +639,7 @@ impl Host {
         };
         let record = self.surface_for_session(session, handle)?;
         let policy = surface_policy(
+            request.api_version,
             &request.request_id,
             Capability::SelectionRead,
             record.resource.clone(),
@@ -633,7 +654,7 @@ impl Host {
         }
         let response = SurfaceResponse {
             surface_protocol: SURFACE_PROTOCOL,
-            api_version: HOST_API_V0_2,
+            api_version: request.api_version,
             request_id: request.request_id.clone(),
             result: SurfaceResult::Selection {
                 handle: handle.clone(),
@@ -749,7 +770,13 @@ impl Host {
         self.record_authority(record)
     }
     fn record_authority(&self, record: &Record) -> Result<(), ApiError> {
+        let session_api = self
+            .sessions
+            .get(&record.session)
+            .ok_or_else(stale)?
+            .api_version;
         let request = surface_policy(
+            session_api,
             "native-surface",
             Capability::ReaderSurface,
             record.resource.clone(),
@@ -791,9 +818,14 @@ impl Host {
         Ok(record)
     }
 }
-fn surface_policy(id: &str, capability: Capability, resource: Resource) -> CapabilityRequest {
+fn surface_policy(
+    api_version: ApiVersion,
+    id: &str,
+    capability: Capability,
+    resource: Resource,
+) -> CapabilityRequest {
     CapabilityRequest {
-        api_version: HOST_API_V0_2,
+        api_version,
         request_id: id.into(),
         capability,
         resource,

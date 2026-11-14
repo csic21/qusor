@@ -384,6 +384,26 @@ impl Host {
         self.open_session_for_api(id, HOST_API)
     }
 
+    /// Open a session at the highest protocol version shared by the package
+    /// manifest and `supported`.
+    pub fn open_negotiated_session(
+        &mut self,
+        id: InstallationId,
+        supported: &[ApiVersion],
+    ) -> Result<Session, ApiError> {
+        let negotiated = self
+            .installation(id)?
+            .manifest
+            .negotiate_api(supported)
+            .ok_or_else(|| {
+                error(
+                    ErrorCode::UnsupportedVersion,
+                    "session API is incompatible with the package",
+                )
+            })?;
+        self.open_session_for_api(id, negotiated)
+    }
+
     /// Freeze one explicitly negotiated API version into the connection.
     pub fn open_session_for_api(
         &mut self,

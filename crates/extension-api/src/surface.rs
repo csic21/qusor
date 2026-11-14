@@ -16,10 +16,13 @@ fn invalid(message: &'static str) -> ApiError {
     ApiError::new(ErrorCode::InvalidRequest, message)
 }
 fn protocol(surface_protocol: u16, api_version: ApiVersion) -> Result<(), ApiError> {
-    if surface_protocol != SURFACE_PROTOCOL || api_version != HOST_API_V0_2 {
+    if surface_protocol != SURFACE_PROTOCOL
+        || !crate::is_supported_api(api_version)
+        || api_version < HOST_API_V0_2
+    {
         return Err(ApiError::new(
             ErrorCode::UnsupportedVersion,
-            "Surface requires protocol1 and Host API0.2",
+            "Surface requires protocol1 and minimum Host API0.2",
         ));
     }
     Ok(())

@@ -19,10 +19,10 @@ fn invalid(message: &'static str) -> ApiError {
     ApiError::new(ErrorCode::InvalidRequest, message)
 }
 fn version(api: ApiVersion, protocol: u16) -> Result<(), ApiError> {
-    if api != HOST_API_V0_3 || protocol != 1 {
+    if !crate::is_supported_api(api) || api < HOST_API_V0_3 || protocol != 1 {
         Err(ApiError::new(
             ErrorCode::UnsupportedVersion,
-            "component protocol requires version1 and Host API0.3",
+            "component protocol requires version1 and minimum Host API0.3",
         ))
     } else {
         Ok(())
@@ -124,7 +124,7 @@ impl CompositionDescriptor {
     pub fn validate_for_manifest(&self, manifest: &Manifest) -> Result<(), ApiError> {
         self.validate()?;
         manifest.validate()?;
-        if !manifest.supports_api(HOST_API_V0_3)
+        if !manifest.supports_api(self.api_version)
             || !manifest.contributions.iter().any(|c| {
                 c.id == self.contribution_id
                     && c.kind == ContributionKind::ComponentProvider

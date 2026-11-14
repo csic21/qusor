@@ -33,10 +33,13 @@ fn invalid(message: &'static str) -> ApiError {
 }
 
 fn protocol(notes_protocol: u16, api_version: ApiVersion) -> Result<(), ApiError> {
-    if notes_protocol != NOTES_PROTOCOL || api_version != HOST_API_V0_4 {
+    if notes_protocol != NOTES_PROTOCOL
+        || !crate::is_supported_api(api_version)
+        || api_version < HOST_API_V0_4
+    {
         return Err(ApiError::new(
             ErrorCode::UnsupportedVersion,
-            "notes require protocol1 and Host API0.4",
+            "notes require protocol1 and minimum Host API0.4",
         ));
     }
     Ok(())

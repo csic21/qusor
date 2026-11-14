@@ -9,10 +9,13 @@ pub const COMPONENT_INVOCATION_PROTOCOL: u16 = 1;
 pub const MAX_COMPONENT_INVOCATION_REQUEST_BYTES: usize = 65536;
 pub const MAX_COMPONENT_INVOCATION_RESPONSE_BYTES: usize = 4096;
 fn header(api: ApiVersion, protocol: u16, request: &str) -> Result<(), ApiError> {
-    if api != HOST_API_V0_3 || protocol != COMPONENT_INVOCATION_PROTOCOL {
+    if !crate::is_supported_api(api)
+        || api < HOST_API_V0_3
+        || protocol != COMPONENT_INVOCATION_PROTOCOL
+    {
         return Err(ApiError::new(
             ErrorCode::UnsupportedVersion,
-            "component invocation requires API0.3 protocol1",
+            "component invocation requires minimum API0.3 protocol1",
         ));
     }
     if request.len() > 32 {

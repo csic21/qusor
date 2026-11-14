@@ -323,8 +323,12 @@ fn notes_vocabulary_is_api_0_4_only() {
         Capability::NotesRead,
         HOST_API_V0_3
     ));
-    assert!(!capability_available_in(
+    assert!(capability_available_in(
         Capability::ReaderSurface,
+        HOST_API_V0_4
+    ));
+    assert!(!capability_available_in(
+        Capability::VocabRead,
         HOST_API_V0_4
     ));
     assert!(capability_resource_valid(

@@ -162,8 +162,9 @@ impl Host {
         }
         let item = self.installation(installation)?;
         descriptor.validate_for_manifest(&item.manifest)?;
-        if item.manifest.host_api.min_minor != 3
-            || !item.manifest.supports_api(HOST_API_V0_3)
+        if !extension_api::SUPPORTED_HOST_APIS
+            .iter()
+            .any(|v| *v >= HOST_API_V0_3 && item.manifest.supports_api(*v))
             || !self.supported.contains(&Capability::NoteDraftEdit)
         {
             return Err(error(
@@ -262,7 +263,10 @@ impl Host {
     ) -> Result<T, ApiError> {
         request.validate()?;
         let record = self.component_record(mount)?;
-        if request.api_version != HOST_API_V0_3
+        let item = self.installation(record.identity.installation)?;
+        if !extension_api::is_supported_api(request.api_version)
+            || request.api_version < HOST_API_V0_3
+            || !item.manifest.supports_api(request.api_version)
             || request.mount_id != record.identity.mount_id
             || request.resource != record.identity.resource
         {
@@ -271,7 +275,6 @@ impl Host {
                 "draft request differs from mount scope",
             ));
         }
-        let item = self.installation(record.identity.installation)?;
         handler(&AuthorizedDraftContext {
             installation_id: record.identity.installation,
             package_id: item.manifest.package_id.clone(),
@@ -321,7 +324,10 @@ impl Host {
     ) -> Result<T, ApiError> {
         request.validate()?;
         let context = self.authorized_component_context(mount)?;
-        if request.api_version != HOST_API_V0_3
+        let item = self.installation(context.installation_id)?;
+        if !extension_api::is_supported_api(request.api_version)
+            || request.api_version < HOST_API_V0_3
+            || !item.manifest.supports_api(request.api_version)
             || request.mount_id != context.mount_id
             || request.resource != context.resource
         {

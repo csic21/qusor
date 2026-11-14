@@ -55,7 +55,7 @@ fn unknown_fields_cannot_supply_identity_or_approval() {
 }
 #[test]
 fn versions_tags_and_ascii_ids_are_closed() {
-    for minor in [1, 2, 4] {
+    for minor in [0, 1, 2, 8] {
         let mut r = request();
         r.api_version.minor = minor;
         assert_eq!(
@@ -63,6 +63,9 @@ fn versions_tags_and_ascii_ids_are_closed() {
             ErrorCode::UnsupportedVersion
         );
     }
+    let mut r_later = request();
+    r_later.api_version = HOST_API_V0_4;
+    r_later.validate().unwrap();
     let mut r = request();
     r.component_invocation_protocol = 2;
     assert!(r.validate().is_err());
