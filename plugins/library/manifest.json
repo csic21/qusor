@@ -1,5 +1,5 @@
 {
-  "manifest_version": 1,
+  "manifest_version": 2,
   "package_id": "org.qusor.library",
   "publisher_id": "org.qusor",
   "package_version": {
@@ -9,21 +9,46 @@
   },
   "host_api": {
     "major": 0,
-    "min_minor": 7,
-    "max_minor": 7
+    "min_minor": 8,
+    "max_minor": 8
   },
   "required_capabilities": [
     "library.read",
+    "ui.slot"
+  ],
+  "optional_capabilities": [
     "capture.propose"
   ],
-  "optional_capabilities": [],
+  "orthogonal_capabilities": [
+    {
+      "id": "core.knowledge.read",
+      "major": 1,
+      "min_minor": 0
+    },
+    {
+      "id": "core.knowledge.write",
+      "major": 1,
+      "min_minor": 0
+    },
+    {
+      "id": "core.capture.propose",
+      "major": 1,
+      "min_minor": 0
+    },
+    {
+      "id": "host.ui.slot",
+      "major": 1,
+      "min_minor": 0
+    }
+  ],
   "contributions": [
     {
       "id": "org.qusor.library.workspace",
       "title": "资料库",
-      "kind": "library_workspace",
+      "kind": "ui_slot",
       "required_capabilities": [
-        "library.read"
+        "library.read",
+        "ui.slot"
       ]
     }
   ]
