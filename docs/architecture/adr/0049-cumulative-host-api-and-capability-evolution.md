@@ -1,8 +1,8 @@
 # ADR 0049: Host API 累积版本兼容与正交能力演进方案
 
 - 日期：2026-11-14
-- 状态：Proposed
-- 关联：[2026-11-14 架构评审报告](../reviews/2026-11-14-architecture-review.md)、[插件扩展架构](../extensions.md)、[ADR 0003](0003-plugin-first-delivery.md)、[ADR 0004](0004-headless-extension-policy.md)、[ADR 0038](0038-capability-composition.md)、[ADR 0046](0046-library-host-api-0-6.md)、[extension-api](../../../crates/extension-api/src/lib.rs)、[extension-host](../../../crates/extension-host/src/lib.rs)、[capability-composition](../../../crates/capability-composition/src/lib.rs)
+- 状态：Accepted（第一部分已随基座合入；第二部分为下一阶段演进规划）
+- 关联：[2026-11-14 架构评审报告](../reviews/2026-11-14-architecture-review.md)、[插件扩展架构](../extensions.md)、[ADR 0003](0003-plugin-first-delivery.md)、[ADR 0004](0004-headless-extension-policy.md)、[ADR 0038](0038-capability-composition.md)、[ADR 0046](0046-library-host-api-0-6.md)、[ADR 0052](0052-plugin-ui-protocol.md)、[ADR 0053](0053-runtime-budgets-abi-and-platforms.md)、[extension-api](../../../crates/extension-api/src/lib.rs)、[extension-host](../../../crates/extension-host/src/lib.rs)、[capability-composition](../../../crates/capability-composition/src/lib.rs)
 
 ## 背景
 
@@ -26,11 +26,11 @@ QUSOR 插件协议在 `0.1` 至 `0.7` 演进过程中逐步引入了表面渲染
    - 缺点：破坏既有插件清单与资产包兼容，且在三项产品/平台待决事项未拍板前过早锁定上层装配。
 3. **两步演进方案（采用）**
    - **第一部分（在 `0.1`–`0.7` 上直接落地）**：将 Host API 改为“能力与贡献点自引入 minor 起向后累积兼容”，提供统一协商会话入口，保持现有清单/资产包兼容，立即解除单包跨域能力锁死。
-   - **第二部分（Proposed 设计，暂不实现）**：冻结新增业务专属枚举与 Host 子模块，设计“命名空间化正交能力 + 每能力独立 semver 协商 + 业务协议由提供者声明为扩展点、Host 只路由与授权”的下一代协议，并与 `capability-composition` 的 `provides`/`requires` 合并。
+   - **第二部分（下一阶段规划，暂不实现）**：冻结新增业务专属枚举与 Host 子模块，设计“命名空间化正交能力 + 每能力独立 semver 协商 + 业务协议由提供者声明为扩展点、Host 只路由与授权”的下一代协议，并与 `capability-composition` 的 `provides`/`requires` 合并。
 
 ## 决定
 
-### 第一部分：Host API `0.1`–`0.7` 累积兼容规则（已随本阶段实现）
+### 第一部分：Host API `0.1`–`0.7` 累积兼容规则（Accepted，已合入基座）
 
 1. **能力累积可用**：`capability_available_in(capability, version)` 要求 `is_supported_api(version)` 且 `version >= intro_version(capability)`：
    - `0.1+`：`SelectionRead`、`DocumentMetadataRead`、`CapturePropose`
@@ -48,7 +48,7 @@ QUSOR 插件协议在 `0.1` 至 `0.7` 演进过程中逐步引入了表面渲染
    - 各子域 wire 校验与 Host 策略适配（`notes`、`vocab`、`library`、`surface`、`component`、`draft`、`continuation`、`projection`、`invocation`、`component_invocation`、`composition`）改为检查 `is_supported_api(api) && api >= intro_version`（`LibraryOperation::SavedSelections` 要求 `>= 0.7`），并使响应/策略帧与会话协商版本保持一致而非硬编码旧 minor。
 4. **旧包兼容**：既有锁定单一 minor 区间（如 `0.2..=0.2`、`0.4..=0.4`、`0.5..=0.5`、`0.7..=0.7`）的清单仍受 `host_api` 上下界严格约束，既不会静默越界升级，也可继续按原版本打开会话与授权。
 
-### 第二部分：正交能力、独立 Semver 协商与扩展点路由演进（Proposed，仅设计不实现）
+### 第二部分：正交能力、独立 Semver 协商与扩展点路由演进（下一阶段演进方案，仅设计不实现）
 
 1. **冻结新增业务专属枚举与 Host 业务模块**
    - 自本 ADR 起，冻结在 `extension_api::Capability` 与 `extension_api::ContributionKind` 中新增具体业务域变体（不再新增如画布、AI 助手、特定来源同步等域专属能力枚举），并冻结在 `extension-api` / `extension-host` 中新增具体业务协议子模块。
@@ -73,17 +73,17 @@ QUSOR 插件协议在 `0.1` 至 `0.7` 演进过程中逐步引入了表面渲染
      2. 策略授权与委托交集（调用链 `caller -> provider` 的能力取交集，禁止提权）；
      3. 资源配额、帧大小上限、取消令牌与崩溃/卸载围栏；
      4. 将有界不透明消息帧（opaque bounded envelope）路由至对应提供者端点或受控 Core Adapter，由端点执行域内解码与事务校验。
-5. **分期迁移步骤（Proposed）**
-   - **M1（当前已满足）**：在 `0.1`–`0.7` 保持累积向后兼容；执行“冻结新增业务专属 `Capability`/`ContributionKind`”护栏。
+5. **分期迁移步骤（下一阶段规划）**
+   - **M1（当前基座能力）**：在 `0.1`–`0.7` 保持累积向后兼容；执行“冻结新增业务专属 `Capability`/`ContributionKind`”护栏（除 `ui.slot` 等经独立 ADR 批准的通用正交原语外，不新增具体业务域分支）。
    - **M2（`manifest_version = 2` 与组合清单映射）**：在 `extension-api` 定义 `CapabilityId` / `CapabilityRequirement` 与 `provides`/`requires` 清单扩展；为 `manifest_version = 1` 提供只读映射投影（将现有 `0.1`–`0.7` 能力/贡献自动投影为命名空间需求），不破坏旧包验证。
    - **M3（通用 `ExtensionRouter` 落地）**：在 `extension-host` 接入基于 `capability-composition::CompositionPlan` 的服务注册表与通用授权路由；新业务（AI、画布、外部来源等）完全通过提供者扩展点 + 宿主正交原语交付。
    - **M4（存量域逐步迁出与收口）**：将既有的 `notes`、`vocab`、`library`、`surface` 子域适配为标准扩展点端点，保留 `0.1`–`0.7` 兼容桥接直到所有第一方/存量包完成迁移后再评估废弃计划。
-6. **待用户决策事项（本 ADR 不作裁定）**
-   - 以下三项全局决策继续保持 `Proposed / 待用户决定`，第二部分架构设计同时兼容多种最终取舍：
-     1. **第一方功能交付形态**：是否维持 [ADR 0003](0003-plugin-first-delivery.md)“第一方全部插件化”，或允许部分核心能力内置装配；
-     2. **iOS / Web 第三方动态插件要求**：移动与 Web 端是否必须具备第三方包动态安装与执行；
-     3. **插件 UI 技术路线**：声明式原生描述、受控 Surface 或 NSH 受限 TSX/JS 的最终主路线。
-   - 无论上述决策结果如何，正交能力命名空间、独立 Semver 协商以及基于 `provides`/`requires` 的路由授权边界均保持有效，只影响提供者的装载形态（独立包或受控内置模块）。
+6. **与已拍板全局决策的衔接（2026-11-14 用户确认）**
+   - 用户已正式拍板三项全局架构决策：
+     1. **1A 第一方交付形态**（[ADR 0003](0003-plugin-first-delivery.md)、[ADR 0053](0053-runtime-budgets-abi-and-platforms.md)）：允许第一方同构编译或内置打包，但必须走同一公开 SDK / Capability 契约；
+     2. **2A iOS / Web 策略**（[ADR 0053](0053-runtime-budgets-abi-and-platforms.md)）：桌面与 Android 支持动态 `.qpk`，iOS / Web 仅支持随包审核内置与纯声明式扩展；
+     3. **3A 插件 UI 路线**（[ADR 0052](0052-plugin-ui-protocol.md)）：采用声明式原生 UI 树协议 + `ControlledSurfaceRef` + `ui.slot`。
+   - 正交能力命名空间、独立 Semver 协商以及基于 `provides`/`requires` 的路由授权边界同时服务于内置第一方提供者与动态第三方提供者，按阶段三排期推进 M2–M4。
 
 ## 后果
 

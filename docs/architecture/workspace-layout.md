@@ -9,14 +9,15 @@ qusor/
 ├── apps/                 应用入口、装配、打包；当前 apps/qusor 为独立 Workspace
 ├── crates/               Core、公开协议、宿主策略等平台无关 Rust 库
 │   ├── learning-domain/         零外部依赖；FSRS-5 词汇调度内核
-│   ├── core-api/                捕获/来源/锚点、知识记录、词汇学习契约与纯归档不变量
+│   ├── core-api/                捕获/来源/锚点、知识记录与词汇学习纯契约及统一错误基元
 │   ├── capability-composition/  零外部依赖；service 接缝、profile 与激活规划
-│   ├── learning-ports/          一致快照/原子提交恢复与词汇学习端口
-│   ├── learning-application/    文本/PDF/复合知识用例与词汇学习用例
+│   ├── learning-ports/          Query/Command/Archive 六端口与归档/outbox/index_job 整库核验
+│   ├── learning-application/    knowledge / session / study 三层用例与交互会话状态机
 │   ├── extension-package/       有界签名容器与发布者键绑定校验
 │   ├── extension-runtime-api/   Host 侧无授权副作用执行端口与预算
-│   ├── extension-api/           Host API 0.1–0.7 JSON 策略协议、manifest 投影与校验
-│   └── extension-host/          安装元数据、授权、会话、生命周期与贡献查询
+│   ├── extension-api/           Host API 0.1–0.7 JSON 策略协议、声明式 UI 契约、manifest 投影与校验
+│   ├── extension-ports/         持久安装/授权/恢复纯端口（仅依赖 extension-api）
+│   └── extension-host/          安装元数据、授权、会话、生命周期、UI 槽位状态机与贡献查询
 ├── adapters/             SQLite/CAS、插件持久内核、Wasmi 执行与进程身份适配器
 ├── plugins/              独立功能包（vocab / notes / library / reader 预览切片）
 ├── sdk/                  公共契约的发行、绑定与作者入口（尚未正式发行）
@@ -52,16 +53,17 @@ qusor/
 | `crates/capability-composition/` | 已落位：服务 provides/requires、profile 层、确定性激活规划；不含运行时、权限或存储 | 桌面 Notes/Vocab 启用门消费；通用挂载与用户覆盖待实现 |
 
 应用级 `VaultStore` 位于 `apps/qusor/native`，只作为 `vault.read`/`vault.write` 的可信 provider；它不是插件 SDK 类型，也不把 SQLite 连接交给插件。`runtime.rs` 使用 `RuntimeScope` 挂载 Core/Notes/Vocab Host 并统一释放顺序。迁移与边界见 [ADR 0039](adr/0039-single-core-provider.md) 与 [ADR 0040](adr/0040-runtime-mount-scope.md)。
-| `crates/learning-ports/` | 已落位：一致快照与完整原子提交/恢复端口 | 由真实知识 application 与 SQLite 消费 |
-| `crates/learning-application/` | 已落位：文本/PDF/复合用例、校验与整体提交计划 | 捕获实验已通过同一实现执行 |
+| `crates/learning-ports/` | 已落位：Query/Command/Archive 六端口与归档/outbox/index_job 整库核验（`learning_ports::archive`） | 由真实知识 application 与 SQLite 消费（[ADR 0050](adr/0050-split-storage-ports-and-incremental-transactions.md) · [ADR 0054](adr/0054-core-layering-and-naming.md)） |
+| `crates/learning-application/` | 已落位：`knowledge/`、`session/`、`study/` 三层用例、校验与事务计划 | 捕获实验与生产壳通过同一实现执行（[ADR 0054](adr/0054-core-layering-and-naming.md)） |
 | `crates/document-engine/`、`crates/anchor-engine/` | 规范文档/来源与定位算法；无平台 view | 阅读、导入、引用用例需要 |
 | `crates/extension-package/` | 包格式、内容清单、身份/兼容证据校验；不保存安装状态 | 包格式实验通过；受信任校验结果交给 Host |
-| `crates/extension-host/`（现有） | 唯一的安装/授权/升级状态机，后续经 ports 提交持久管理记录 | 持久生命周期实验通过后扩展；不另建第二套安装状态机 |
+| `crates/extension-ports/` | 已落位：持久安装/授权/恢复纯端口（`Grant`、`DurableGrant`、`AuthoritySnapshot`、`AuthorityRead`、`AuthoritySource`、`RemovedInstallation`、`VersionedRequest`、`ComponentInstallation`、`ComponentAuthoritySource`、`GrantUpgradeDecision` 与 `preserve_grants`），仅依赖 `extension-api` | 消除 `extension-store -> extension-host` 依赖倒置（[ADR 0055](adr/0055-lifecycle-and-port-decoupling.md)） |
+| `crates/extension-host/`（现有） | 唯一的安装/授权/升级/UI 槽位状态机，经 `extension-ports` 与持久存储解耦 | 持久生命周期与同权升级保留授权已落位；不另建第二套安装状态机 |
 | `crates/extension-runtime-api/` | Host 侧执行、取消、预算端口；不属于作者 SDK | 实验转生产执行适配器 |
-| `adapters/storage-sqlite/`、`adapters/blob-store/` | 已落位：整体事务、schema迁移与耐久CAS/单writer | 当前Linux本机证据；其他平台仍待资格验证 |
-| `adapters/extension-store/` | 已落位：包、安装/授权材料、私有成对状态和worker lease的唯一SQL实现 | 不存规范知识；默认缺少服务失败关闭，完整安装UI/监督仍待验 |
-| `adapters/runtime-wasm/` | 已落位：不自带授权的受限Wasmi执行 | managed/raw/private实际消费者；不代表完整监督 |
-| `adapters/runtime-process/` | 已落位：Linux进程身份、父死守卫与pidfd确认清理 | 不等于supervisor；其他平台明确Unsupported |
+| `adapters/storage-sqlite/`、`adapters/blob-store/` | 已落位：增量与整体事务、schema 迁移与耐久 CAS/单 writer | 当前 Linux/macOS 本机证据；其他平台仍待资格验证 |
+| `adapters/extension-store/` | 已落位：包、安装/授权材料、同权升级保留授权、私有成对状态和 worker lease 的唯一 SQL 实现 | 不存规范知识；默认缺少服务失败关闭，完整安装 UI/监督仍待验 |
+| `adapters/runtime-wasm/` | 已落位：不自带授权的受限 Wasmi 执行与长驻/流式会话 | 六端通用插件隔离运行器（[ADR 0053](adr/0053-runtime-budgets-abi-and-platforms.md)） |
+| `adapters/runtime-process/` | 已落位：仅用于桌面原生 helper / 外部 MCP 进程身份、父死守卫与清理 | 普通插件统一走 `runtime-wasm`；其他平台明确 `Unsupported`（[ADR 0053](adr/0053-runtime-budgets-abi-and-platforms.md) · [ADR 0055](adr/0055-lifecycle-and-port-decoupling.md)） |
 | `adapters/nsh/`、`adapters/platform/` | 贡献 UI、Surface、平台资源与安全存储 | NSH bridge/输入/资源门槛通过 |
 | `adapters/pdf/`、`adapters/epub/` | 解析、渲染和选区的受控服务 | 对应格式实验通过 |
 

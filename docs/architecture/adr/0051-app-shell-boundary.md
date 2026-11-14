@@ -12,7 +12,7 @@
 2. `library_native`、`notes_native`、`vocab_native`、`pdf_reader`、`app_info` 各自直接实例化 `KnowledgeApplication` / `StudyApplication`，使 Host 能力边界与业务功能直调混杂。
 3. 前端界面集中在近七千行的 `contributions.tsx` 中，既包含应用壳组件与目录注册，又内联四个业务工作区及其跨模块私有状态读取，无法直接迁出为独立插件。
 
-完整把业务功能与 UI 迁出到 `plugins/` 依赖尚未定案的插件 UI 协议（待决事项 3）及第一方交付形态决策（待决事项 1）。本 ADR 先冻结并收口应用壳边界，消除持续腐化风险，同时不越权替待决事项拍板。
+完整把业务功能与 UI 迁出到 `plugins/` 与 [ADR 0052](0052-plugin-ui-protocol.md) 的插件 UI 协议及第一方交付形态（1A）直接相关。本 ADR 先冻结并收口应用壳边界，消除持续腐化风险，并明确功能迁出顺序。
 
 ## 选项
 
@@ -62,21 +62,21 @@
 3. Notes 列表加载读取 `LibraryWorkspace` 的 `libraryOpenDoc` 以判定“当前资料”。
 4. Reading 侧栏状态读取 `NotesWorkspace` 的 `notesSource`。
 
-### 4. 建议迁移顺序（Proposed，依赖待决事项）
+### 4. 迁出顺序（Accepted，2026-11-14 用户拍板确认）
 
-以下迁移顺序为工程建议，实际启动插件化迁出仍待第一方交付形态与插件 UI 路线拍板：
+确定第一方功能从 `apps/qusor` 按 **`词汇（Vocab）→ 笔记（Notes）→ 资料库/阅读（Library/Reader）`** 顺序基于声明式原生 UI 协议（[ADR 0052](0052-plugin-ui-protocol.md)）迁出，同时持续保持同一公开 SDK / Capability 契约与静态守卫：
 
-1. **第一顺位：`vocab`（词汇学习）**：FSRS-5 调度逻辑已位于 `learning-domain`/`learning-application`，前端不依赖原生页图或复杂手势，仅存在 3 个冻结直调接口与 1 处来自 Library 的收词调用；将词书队列选项与删除补入标准化 Host 能力后，最适合作为首个真实功能插件迁出闭环。
-2. **第二顺位：`notes`（想法与笔记）**：只读部分已走 Host API 0.4，迁出前需补全笔记编辑/删除能力及 EPUB 笔记统一查询，并用应用壳上下文/事件解耦 `libraryOpenDoc` 与 `refreshNotes`。
-3. **第三顺位：`library` 与 `reader`（资料库、PDF/EPUB 阅读器）**：涉及可信文件导入、原生 PDF 渲染缓存、几何选文与大块文本阅读体验；需将原件选择与原生渲染能力保留在 Host 通用文档服务中，仅把工作区交互与数据操作迁入插件，并强依赖插件 UI 协议的原生 Surface 表达能力。
+1. **第一顺位：`vocab`（词汇学习）**：FSRS-5 调度逻辑已位于 `learning-domain`/`learning-application`，前端不依赖原生页图或复杂手势，仅存在 3 个冻结直调接口与 1 处来自 Library 的收词调用；将词书队列选项与删除补入标准化 Host 能力后，作为首个真实功能插件迁出闭环。
+2. **第二顺位：`notes`（想法与笔记）**：只读部分已走 Host API 0.4，迁出前补全笔记编辑/删除能力及 EPUB 笔记统一查询，并用应用壳上下文/事件解耦 `libraryOpenDoc` 与 `refreshNotes`。
+3. **第三顺位：`library` 与 `reader`（资料库、PDF/EPUB 阅读器）**：涉及可信文件导入、原生 PDF 渲染缓存、几何选文与大块文本阅读体验；将原件选择与原生渲染能力保留在 Host 通用文档服务（`ControlledSurfaceRef`）中，仅把工作区交互与数据操作迁入插件。
 
-### 5. 对三项待用户拍板事项的依赖（Proposed / 待用户决定）
+### 5. 与已拍板全局决策的衔接（Accepted，2026-11-14 用户拍板）
 
-本 ADR 刻意不对下列待决事项作出决定，同时说明它们对后续阶段的影响：
+用户于 2026-11-14 拍板的三项决定与本 ADR 边界直接衔接如下：
 
-1. **第一方交付形态是否放宽 ADR 0003**（待用户决定）：决定 `vocab` 等功能迁出为仓库外独立 `.qpk` 运行隔离包，还是采用“同契约 SDK + 应用内置第一方包”。止血阶段的 `package_catalog` 与 `core_facade` 边界对两种结果均兼容。
-2. **iOS / Web 动态插件与执行 profile 策略**（待用户决定）：决定移动端与 Web 对独立功能包的装载形态与禁用回退机制，影响后续包分发与原生文档服务适配层，不阻断本轮应用壳解耦。
-3. **插件 UI 路线**（待用户决定，由后续 ADR 0052 承载）：决定 `apps/qusor/features/*` 如何从原生 TSX 组件转为插件可声明或运行的 UI 载体。在该协议确定前，禁止将 `contributions` 中的业务 TSX 临时改造成私有桥梁协议。
+1. **第一方交付形态（1A，[ADR 0003](0003-plugin-first-delivery.md)、[ADR 0053](0053-runtime-budgets-abi-and-platforms.md)）**：允许第一方功能随应用同构编译或内置打包，但代码与权限必须走与第三方完全一致的公开 SDK / Capability / `UiTree` 契约，严禁私有直调或绕过 Core 事务直写 SQLite，由 `scripts/check_app_boundary.py` 与 `scripts/check_architecture.py` 持续守卫。
+2. **iOS / Web 动态插件策略（2A，[ADR 0053](0053-runtime-budgets-abi-and-platforms.md)）**：桌面（macOS/Windows/Linux）与 Android 支持签名 `.qpk`（Wasm）动态安装；iOS（App Store 版）与 Web 仅支持随包审核内置插件与纯声明式扩展，不开放任意外部可执行代码下载。
+3. **插件 UI 路线（3A，[ADR 0052](0052-plugin-ui-protocol.md)）**：采用声明式原生 UI 树/Patch 协议 + `ControlledSurfaceRef` + `ui.slot`；`apps/qusor/features/*` 迁出时转为输出 `UiTree`/`UiPatch`，高复杂度受控视图（如 PDF 页图）通过宿主签发的 `ControlledSurfaceRef` 挂载。
 
 ## 后果
 
@@ -88,4 +88,4 @@
 
 ### 代价与局限
 
-- `legacy_plugin_bypass` 内的 16 个直调函数与 TSX 侧 4 处跨功能调用在本阶段仍然存在，实际业务功能仍运行于 `apps/qusor` 进程内；真实功能剥离需等待插件 UI 协议与第一方交付形态决策落地后按“先词汇”顺序推进。
+- `legacy_plugin_bypass` 内的 16 个直调函数与 TSX 侧 4 处跨功能调用仍待按“词汇（Vocab）→ 笔记（Notes）→ 资料库/阅读（Library/Reader）”顺序基于声明式原生 UI 协议（[ADR 0052](0052-plugin-ui-protocol.md)）逐步清零并迁出应用壳。

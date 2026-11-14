@@ -7,19 +7,20 @@
 ```text
 Cargo workspace（根生产成员）
 ├── learning-domain         FSRS-5 词汇调度内核；零外部依赖
-├── core-api                捕获/来源/锚点、知识记录、词汇学习契约与归档校验（含待下沉的归档逻辑）
+├── core-api                捕获/来源/锚点、知识记录与词汇学习纯契约及统一错误基元
 ├── capability-composition  能力接缝、分层 profile 与确定性激活规划；零外部依赖
-├── learning-ports          一致快照/原子提交恢复与词汇学习端口（待拆 Query/Command/Archive）
-├── learning-application    文本/PDF/复合知识用例与词汇学习用例
+├── learning-ports          Query/Command/Archive 六端口与归档/outbox/index_job 整库核验
+├── learning-application    knowledge / session / study 三层用例与交互会话状态机
 ├── blob-store              Unix 私有目录、单 writer 与耐久 CAS 适配器
-├── storage-sqlite          schema/关系核验、整体 SQL 事务与词汇学习表（非 Unix 待补）
+├── storage-sqlite          schema/关系核验、增量/整体 SQL 事务与词汇学习表
 ├── extension-package       有界签名容器、内容/发布者键绑定验证
 ├── extension-runtime-api   无授权副作用的执行端口与预算契约
 ├── runtime-wasm            Wasmi 执行适配器；不创建 Host 或读取包路径
-├── runtime-process         Linux 进程身份、父死守卫与 pidfd 清理（仅 Linux/macOS 部分）
+├── runtime-process         桌面原生 helper / 外部 MCP 进程身份、父死守卫与清理
+├── extension-ports         持久安装/授权/恢复纯端口（仅依赖 extension-api）
 ├── extension-store         包/安装/授权/私有配对与 worker lease SQL 持久化内核
-├── extension-api           Host API 0.1–0.7 JSON 策略协议、manifest 投影与能力校验
-└── extension-host          内存/持久安装元数据、授权、会话、生命周期与贡献查询
+├── extension-api           Host API 0.1–0.7 JSON 策略协议、声明式 UI 契约、manifest 投影与能力校验
+└── extension-host          内存/持久安装元数据、授权、会话、生命周期、UI 槽位与贡献查询
 
 独立 Workspace 与治理目录
 ├── apps/qusor/             生产应用独立 Workspace（provider / bridges / android-jni / native）
@@ -66,20 +67,22 @@ flowchart TD
     Sqlite --> LearnPorts
     Sqlite -. "dev-dependency" .-> LearnApp
 
+    ExtPorts["extension-ports"] --> ExtAPI
     ExtHost --> ExtAPI
+    ExtHost --> ExtPorts
     ExtPkg --> ExtAPI
     RuntimeWasm["runtime-wasm"] --> ExtAPI
     RuntimeWasm --> RuntimeAPI["extension-runtime-api"]
     RuntimeProc["runtime-process"] --> RuntimeAPI
 
     ExtStore["extension-store"] --> ExtAPI
-    ExtStore -. "已知层间倒置：adapter 依赖宿主策略" .-> ExtHost
+    ExtStore --> ExtPorts
     ExtStore --> ExtPkg
     ExtStore --> RuntimeAPI
 ```
 
 > [!NOTE]
-> 核对结论：当前源码中 `core-api`、`learning-ports` 均**不**依赖 `learning-domain`，`extension-host` **不**依赖 `core-api`；`extension-store`（adapter）依赖 `extension-host` 属于已知层间倒置，计划在第二阶段抽离 `extension-ports` 消除。
+> 核对结论：当前源码中 `core-api`、`learning-ports` 均**不**依赖 `learning-domain`，`extension-host` **不**依赖 `core-api`；`extension-store`（adapter）与 `extension-host` 已通过纯端口 `extension-ports` 解耦（[ADR 0055](adr/0055-lifecycle-and-port-decoupling.md)），消除了 adapter 依赖宿主策略的层间倒置。
 
 ## 目标依赖方向与层间边界
 
@@ -112,7 +115,7 @@ Core API、文档版本、ReaderAnchor 与持久化 Schema 均独立版本化。
 
 插件化是正式基座要求，见 [插件架构与验证计划](extensions.md)。扩展提供能力，Core 持有知识；外部选段经统一 `CaptureDraft` 成为本地不可变快照，外部回跳单独表达能力等级。
 
-第一阶段支持第三方独立包闭环及受限执行能力，官方功能亦须走公开 SDK（第一方静态 vs 动态交付细节待用户拍板，见 [ADR 0003](adr/0003-plugin-first-delivery.md) 与待决项）。当前生产协议已实现 Host API 0.1–0.7（0.1 策略基础、0.2 Reader Surface、0.3 组件草稿、0.4 `notes.read`、0.5 `vocab`、0.6–0.7 `library`）及累积兼容演进设计（[ADR 0049](adr/0049-cumulative-host-api-and-capability-evolution.md)，Proposed）；插件 UI 协议候选方案与 NSH 上游核对见 [插件 UI 协议设计](plugin-ui-protocol.md) 与 [ADR 0052](adr/0052-plugin-ui-protocol.md)（Proposed，待用户拍板），仓库外生产 SDK 发行与六端隔离运行器仍待完成。
+第一阶段支持第三方独立包闭环及受限执行能力；按 2026-11-14 用户拍板（1A/2A/3A），第一方功能可随应用同构编译或内置打包但必须走同一公开 SDK / `Capability` 契约并受边界脚本守卫（[ADR 0003](adr/0003-plugin-first-delivery.md) · [ADR 0053](adr/0053-runtime-budgets-abi-and-platforms.md)），桌面与 Android 支持签名 `.qpk` 动态安装、iOS 与 Web 仅支持随包审核内置及纯声明式插件，插件 UI 采用声明式原生 UI 树协议 + `ControlledSurfaceRef` + `ui.slot`（[ADR 0052](adr/0052-plugin-ui-protocol.md) Accepted）。当前生产协议已实现 Host API 0.1–0.7（0.1 策略基础、0.2 Reader Surface、0.3 组件草稿、0.4 `notes.read`、0.5 `vocab`、0.6–0.7 `library`）及累积兼容演进方案（[ADR 0049](adr/0049-cumulative-host-api-and-capability-evolution.md) Accepted，第二部分为下一阶段正交演进规划）；仓库外生产 SDK 发行与六端隔离运行器仍待完成。
 
 ## 工程策略
 
@@ -127,7 +130,7 @@ Core API、文档版本、ReaderAnchor 与持久化 Schema 均独立版本化。
 |---|---|---|---|
 | 0001 | [技术架构基座的当前边界](adr/0001-foundation-boundary.md) | Accepted | 先建工程边界与守卫，暂缓未经验证的渲染器/SQLite/云接入 |
 | 0002 | [将插件扩展作为基座能力](adr/0002-extension-boundary.md) | Superseded | 确立插件扩展基座与来源快照边界（分期已被 ADR 0003 更新） |
-| 0003 | [第一阶段开放第三方，功能以插件交付](adr/0003-plugin-first-delivery.md) | Accepted | 第一阶段开放第三方开发安装分发，第一方功能围绕同一公开插件契约开发 |
+| 0003 | [第一阶段开放第三方，功能以插件交付](adr/0003-plugin-first-delivery.md) | Accepted | 第一阶段开放第三方开发安装分发；第一方按 1A 可同构/内置交付但强制同一公开契约、无特权且受脚本守卫 |
 | 0004 | [先实现无界面的插件宿主策略内核](adr/0004-headless-extension-policy.md) | Accepted | 优先交付无界面策略/授权/会话内核，不将内存注册视作完整运行隔离 |
 | 0005 | [用独立 Wasm 实验验证外部代码执行边界](adr/0005-wasm-runtime-probe.md) | Accepted | 用隔离 Wasmi 实验验证预算/撤权/看门狗边界，暂不锁死生产运行时 |
 | 0006 | [明确插件优先的目录与下一阶段边界](adr/0006-plugin-workspace-layout.md) | Accepted | 确立 apps/crates/adapters/plugins/sdk/experiments 六分目录边界 |
@@ -173,11 +176,13 @@ Core API、文档版本、ReaderAnchor 与持久化 Schema 均独立版本化。
 | 0046 | [Library Host API 0.6](adr/0046-library-host-api-0-6.md) | Accepted | 定义 0.6 `library.read`/`capture.propose` 与文字层浏览提交 wire |
 | 0047 | [原生 PDF 导入与页图阅读](adr/0047-native-pdf-import-and-page-images.md) | Accepted | 接通原生 PDF 导入、LRU 页图缓存、页图选文与 0.7 保存范围高亮 |
 | 0048 | [文档治理与单一状态源](adr/0048-doc-governance.md) | Accepted | 确立 ADR 只记决策、单一 `docs/status.md`、`AGENTS.md` 瘦身与脚本校验 |
-| 0049 | [Host API 累积版本兼容与正交能力演进方案](adr/0049-cumulative-host-api-and-capability-evolution.md) | Proposed | 0.1–0.7 能力/贡献点累积向后兼容与统一会话协商；下一阶段正交能力、独立 Semver 与扩展点路由（仅设计） |
+| 0049 | [Host API 累积版本兼容与正交能力演进方案](adr/0049-cumulative-host-api-and-capability-evolution.md) | Accepted | 0.1–0.7 能力/贡献点累积向后兼容与统一会话协商（已落基座）；第二部分正交能力、独立 Semver 与扩展点路由为下一阶段演进规划 |
 | 0050 | [拆分存储端口与增量事务持久化](adr/0050-split-storage-ports-and-incremental-transactions.md) | Accepted | 三组六端口拆分、SQLite schema v6 索引迁移、单 writer/单事务不变式与非 Unix 完整端口/无泄露结构化错误 |
-| 0051 | [应用壳止血边界与功能迁出准备](adr/0051-app-shell-boundary.md) | Accepted | 应用壳写死标识清理、可信 Core 服务门面与只减不增边界守卫、`contributions.tsx` 机械拆分与迁移顺序建议（迁出本身为 Proposed，依赖三项待决决策） |
-| 0052 | [插件 UI 协议与受控原生槽位路线（Proposed）](adr/0052-plugin-ui-protocol.md) | Proposed | 2026-11-14 核对 NSH 上游后给出候选 A（声明式原生 UI 树）与候选 B（NSH TSX/JS 受限运行时）六维对比并推荐候选 A，待用户对「插件 UI 路线」拍板 |
-| 0053 | [运行时预算配置化、插件 ABI 演进与六端执行策略](adr/0053-runtime-budgets-abi-and-platforms.md) | Proposed | Host 注入 MiB 级运行时/包预算、`qusor.emit_chunk` 流式分块与 `WasmiSession` 长驻会话、WIT/Component Model ABI 与 `wasmi 2.0.0` 评估、`qusor-sdk`/`qusor dev` 未签名调试门禁、六端代码级矩阵与 `runtime-process` 桌面 helper 定位建议（含第一方形态与 iOS/Web 动态插件两项待用户拍板选项） |
+| 0051 | [应用壳止血边界与功能迁出准备](adr/0051-app-shell-boundary.md) | Accepted | 应用壳写死标识清理、可信 Core 服务门面与只减不增边界守卫、`contributions.tsx` 机械拆分与已确认迁出顺序（词汇 → 笔记 → 资料库/阅读） |
+| 0052 | [插件 UI 协议与受控原生槽位路线](adr/0052-plugin-ui-protocol.md) | Accepted | 2026-11-14 用户拍板选定候选 A（3A）：声明式原生 UI 树/Patch + `ControlledSurfaceRef` + `ui.slot` |
+| 0053 | [运行时预算配置化、插件 ABI 演进与六端执行策略](adr/0053-runtime-budgets-abi-and-platforms.md) | Accepted | Host 注入 MiB 级预算、流式与长驻会话、WIT/Component ABI、`qusor dev` 调试门禁、`runtime-process` 桌面专职定位及已拍板 1A/2A 策略 |
+| 0054 | [Core 分层清理与命名演进路线](adr/0054-core-layering-and-naming.md) | Accepted | 统一 `core-api` 错误基元、下沉归档/outbox/index_job 核验至 `learning-ports::archive`，确立 `learning-application`（`knowledge`/`session`/`study`）三层及渐进拆分为 `knowledge-*`/`study-*` 的迁移路线 |
+| 0055 | [生命周期简化与扩展端口解耦](adr/0055-lifecycle-and-port-decoupling.md) | Accepted | 抽出仅依 `extension-api` 的 `crates/extension-ports` 消除 `extension-store` 依赖倒置；新增 `preserve_grants`/`upgrade_package` 同权升级保留授权与 `enable_intent`、扩权清除重授；将 `runtime-process` 收敛为桌面原生 helper/外部 MCP 监督 |
 <!-- ADR-INDEX-END -->
 
 ## 相关研究
