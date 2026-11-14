@@ -391,6 +391,7 @@ name = "extension-host"
 version = "0.0.0"
 dependencies = [
  "extension-api",
+ "extension-ports",
 ]
 
 [[package]]
@@ -402,6 +403,13 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+]
+
+[[package]]
+name = "extension-ports"
+version = "0.0.0"
+dependencies = [
+ "extension-api",
 ]
 
 [[package]]
