@@ -5,8 +5,8 @@
 //! by the resolved profile. It never mounts a package or grants a capability.
 use crate::profile;
 use capability_composition::{CompositionPlan, EntryId};
-use extension_api::{ContributionKind, Manifest, SUPPORTED_HOST_APIS};
-use extension_package::package::{VerifiedPackage, verify_for_host};
+use extension_api::{Contribution, ContributionKind, Manifest, SUPPORTED_HOST_APIS};
+use extension_package::package::{PackageBudgets, VerifiedPackage, verify_with_budgets};
 use serde_json::json;
 
 struct EmbeddedAsset {
@@ -41,15 +41,49 @@ pub struct WorkspaceDescriptor {
     pub kind: String,
 }
 
+pub fn package_budgets() -> PackageBudgets {
+    #[cfg(any(target_os = "android", target_os = "ios", target_arch = "wasm32"))]
+    {
+        PackageBudgets::mobile_standard()
+    }
+    #[cfg(not(any(target_os = "android", target_os = "ios", target_arch = "wasm32")))]
+    {
+        PackageBudgets::desktop_standard()
+    }
+}
+
 pub fn verify_all() -> Result<Vec<VerifiedPackage>, String> {
+    let budgets = package_budgets();
     let mut verified = Vec::with_capacity(EMBEDDED_ASSETS.len());
     for asset in &EMBEDDED_ASSETS {
         verified.push(
-            verify_for_host(asset.bytes, asset.key.trim(), &SUPPORTED_HOST_APIS)
-                .map_err(|error| error.to_string())?,
+            verify_with_budgets(
+                asset.bytes,
+                asset.key.trim(),
+                &SUPPORTED_HOST_APIS,
+                &budgets,
+            )
+            .map_err(|error| error.to_string())?,
         );
     }
     Ok(verified)
+}
+
+pub fn find_ui_slot(contribution_id: &str) -> Result<(VerifiedPackage, Contribution), String> {
+    for verified in verify_all()? {
+        if let Some(contribution) = verified
+            .manifest()
+            .contributions
+            .iter()
+            .find(|item| item.id == contribution_id && item.kind == ContributionKind::UiSlot)
+            .cloned()
+        {
+            return Ok((verified, contribution));
+        }
+    }
+    Err(format!(
+        "no embedded ui_slot contribution named `{contribution_id}`"
+    ))
 }
 
 pub fn verify(package_id: &str) -> Result<VerifiedPackage, String> {
@@ -121,10 +155,10 @@ pub fn workspace_kind(kind: ContributionKind) -> Option<&'static str> {
         ContributionKind::VocabWorkspace => Some("vocab_workspace"),
         ContributionKind::ReaderWorkspace => Some("reader_workspace"),
         ContributionKind::LibraryWorkspace => Some("library_workspace"),
+        ContributionKind::UiSlot => Some("ui_slot"),
         ContributionKind::Command
         | ContributionKind::SelectionAction
-        | ContributionKind::ComponentProvider
-        | ContributionKind::UiSlot => None,
+        | ContributionKind::ComponentProvider => None,
     }
 }
 
@@ -193,7 +227,7 @@ mod tests {
         }));
         assert!(workspaces.iter().any(|workspace| {
             workspace.id == "org.qusor.vocab.workspace"
-                && workspace.kind == "vocab_workspace"
+                && workspace.kind == "ui_slot"
                 && workspace.title == "背单词"
         }));
         assert!(workspaces.iter().any(|workspace| {

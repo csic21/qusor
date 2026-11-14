@@ -1,5 +1,5 @@
 use crate::{core_facade, package_catalog, profile, runtime, vault::VaultStore};
-use core_api::vocab::{MAX_DAILY_NEW_LIMIT, NewWord, StudyStage, WordbookSeed};
+use core_api::vocab::{NewWord, WordbookSeed};
 use extension_api::{vocab::*, *};
 use extension_host::{Grant, Host, Session};
 use nsh_core::prelude::*;
@@ -29,7 +29,11 @@ impl VocabRuntime {
         let vault_id = store.vault_id();
         let mut host = Host::new(
             vault_id,
-            [Capability::VocabRead, Capability::VocabReview],
+            [
+                Capability::VocabRead,
+                Capability::VocabReview,
+                Capability::UiSlot,
+            ],
         )
         .map_err(text)?;
         let installation = host
@@ -50,12 +54,18 @@ impl VocabRuntime {
                         vault_id: vault_id.to_owned(),
                     },
                 },
+                Grant {
+                    capability: Capability::UiSlot,
+                    resource: extension_api::Resource::Vault {
+                        vault_id: vault_id.to_owned(),
+                    },
+                },
             ],
         )
         .map_err(text)?;
         host.enable(installation).map_err(text)?;
         let session = host
-            .open_session_for_api(installation, HOST_API_V0_5)
+            .open_negotiated_session(installation, &SUPPORTED_HOST_APIS)
             .map_err(text)?;
         let now = now_ms();
         let bridge = core_facade::new_vocab_bridge(&store, now, day_start_ms(now));
@@ -74,9 +84,10 @@ impl VocabRuntime {
 
     fn decks(&mut self) -> Result<Value, String> {
         self.clock();
+        let api_version = self.host.session_api(&self.session).map_err(text)?;
         let request = VocabRequest {
             vocab_protocol: VOCAB_PROTOCOL,
-            api_version: HOST_API_V0_5,
+            api_version,
             request_id: "workbench-decks".into(),
             operation: VocabOperation::Decks {},
         };
@@ -100,9 +111,10 @@ impl VocabRuntime {
 
     fn queue(&mut self, wordbook_id: i64, limit: u16) -> Result<Value, String> {
         self.clock();
+        let api_version = self.host.session_api(&self.session).map_err(text)?;
         let request = VocabRequest {
             vocab_protocol: VOCAB_PROTOCOL,
-            api_version: HOST_API_V0_5,
+            api_version,
             request_id: "workbench-queue".into(),
             operation: VocabOperation::Queue { wordbook_id, limit },
         };
@@ -140,9 +152,10 @@ impl VocabRuntime {
     ) -> Result<Value, String> {
         self.clock();
         let rating = parse_rating(&rating)?;
+        let api_version = self.host.session_api(&self.session).map_err(text)?;
         let request = VocabRequest {
             vocab_protocol: VOCAB_PROTOCOL,
-            api_version: HOST_API_V0_5,
+            api_version,
             request_id: operation_id,
             operation: VocabOperation::Review { card_id, rating },
         };
@@ -180,81 +193,6 @@ impl VocabRuntime {
             "wordbook_id": wordbook.id,
             "title": wordbook.title,
             "total": total,
-        }))
-    }
-
-    fn queue_with_limit(&mut self, wordbook_id: i64, daily_new_limit: u32) -> Result<Value, String> {
-        let now = now_ms();
-        let queue = core_facade::legacy_plugin_bypass::vocab_queue_with_limit(
-            &self.store,
-            wordbook_id,
-            now,
-            20,
-            daily_new_limit.min(MAX_DAILY_NEW_LIMIT),
-        )
-        .map_err(text)?;
-        let cards = queue
-            .cards
-            .into_iter()
-            .map(|item| {
-                let stage = match item.stage {
-                    StudyStage::New => "new",
-                    StudyStage::Learning => "learning",
-                    StudyStage::Review => "review",
-                };
-                json!({
-                    "card_id": item.card.id,
-                    "term": item.card.term,
-                    "pos": item.card.pos,
-                    "phonetic": item.card.phonetic,
-                    "meaning": item.card.meaning,
-                    "example": item.card.example,
-                    "stage": stage,
-                })
-            })
-            .collect::<Vec<_>>();
-        Ok(json!({
-            "cards": cards,
-            "remaining_due": queue.remaining_due,
-            "remaining_new": queue.remaining_new,
-        }))
-    }
-
-    fn wordbook_cards(
-        &self,
-        wordbook_id: i64,
-        limit: u16,
-        offset: u32,
-    ) -> Result<Value, String> {
-        let rows = core_facade::legacy_plugin_bypass::vocab_wordbook_cards(
-            &self.store,
-            wordbook_id,
-            usize::from(limit),
-            offset as usize,
-        )
-        .map_err(text)?;
-        let cards = rows
-            .into_iter()
-            .map(|card| {
-                json!({
-                    "id": card.id,
-                    "term": card.term,
-                    "pos": card.pos,
-                    "phonetic": card.phonetic,
-                    "meaning": card.meaning,
-                    "example": card.example,
-                })
-            })
-            .collect::<Vec<_>>();
-        Ok(json!({ "cards": cards }))
-    }
-
-    fn delete_wordbook(&mut self, wordbook_id: i64) -> Result<Value, String> {
-        core_facade::legacy_plugin_bypass::vocab_delete_wordbook(&self.store, wordbook_id)
-            .map_err(text)?;
-        Ok(json!({
-            "deleted": true,
-            "wordbook_id": wordbook_id,
         }))
     }
 }
@@ -615,27 +553,6 @@ impl VocabHost {
         // says it cannot read instead of starting the system voice anyway.
         answer(runtime::with_vocab(&sys, |_| {
             speak_now(&text, &accent, rate).map(|voice| json!({ "accent": accent, "voice": voice }))
-        }))
-    }
-
-    /// Study queue respecting a configurable daily new-word cap, returning `pos` and `phonetic`.
-    pub fn queue_with_limit(sys: System, wordbook_id: i64, daily_new_limit: u32) -> String {
-        answer(runtime::with_vocab(&sys, |vocab| {
-            vocab.queue_with_limit(wordbook_id, daily_new_limit)
-        }))
-    }
-
-    /// One bounded page of cards belonging to a wordbook for vocabulary browsing.
-    pub fn wordbook_cards(sys: System, wordbook_id: i64, limit: u16, offset: u32) -> String {
-        answer(runtime::with_vocab(&sys, |vocab| {
-            vocab.wordbook_cards(wordbook_id, limit, offset)
-        }))
-    }
-
-    /// Delete one wordbook and all its cards/schedules/reviews from Core.
-    pub fn delete_wordbook(sys: System, wordbook_id: i64) -> String {
-        answer(runtime::with_vocab(&sys, |vocab| {
-            vocab.delete_wordbook(wordbook_id)
         }))
     }
 

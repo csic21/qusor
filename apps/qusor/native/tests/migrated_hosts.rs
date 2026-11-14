@@ -263,7 +263,7 @@ fn packaged_host_initializers_read_one_migrated_core() {
     assert!(workspaces.iter().any(|workspace| {
         workspace["id"] == "org.qusor.vocab.workspace"
             && workspace["title"] == "背单词"
-            && workspace["kind"] == "vocab_workspace"
+            && workspace["kind"] == "ui_slot"
     }));
     assert!(workspaces.iter().any(|workspace| {
         workspace["id"] == "org.qusor.reader.preview.workspace"

@@ -26,12 +26,12 @@ def value(item):
     raise TypeError(item)
 
 
-def manifest(package, dependencies):
+def manifest(package, dependencies, unsafe_lint='forbid'):
     return '\n'.join(['[workspace]', 'resolver = "3"', '', '[package]',
                       *(f'{key} = {value(val)}' for key, val in package.items()),
                       '', '[dependencies]',
                       *(f'{key} = {value(val)}' for key, val in dependencies.items()),
-                      '', '[lints.rust]', 'unsafe_code = "forbid"', ''])
+                      '', '[lints.rust]', f'unsafe_code = {json.dumps(unsafe_lint)}', ''])
 
 
 def export_sdk(destination: Path):
@@ -82,6 +82,24 @@ def export_sdk(destination: Path):
                 assert hashlib.sha256(exported.read_bytes()).hexdigest() == authority_hash
                 fingerprints[f'api/{relative.as_posix()}'] = authority_hash
     (destination / 'api/Cargo.toml').write_text(manifest(package, cargo['dependencies']))
+
+    sdk_root = ROOT / 'sdk/qusor-sdk'
+    sdk_cargo = tomllib.loads((sdk_root / 'Cargo.toml').read_text())
+    sdk_deps = copy.deepcopy(sdk_cargo['dependencies'])
+    sdk_deps['extension-api'] = {'path': '../api'}
+    shutil.copytree(sdk_root / 'src', destination / 'qusor-sdk/src')
+    for path in sorted((sdk_root / 'src').rglob('*')):
+        if path.is_file():
+            relative = path.relative_to(sdk_root)
+            exported = destination / 'qusor-sdk' / relative
+            authority_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+            assert hashlib.sha256(exported.read_bytes()).hexdigest() == authority_hash
+            fingerprints[f'qusor-sdk/{relative.as_posix()}'] = authority_hash
+    sdk_unsafe_lint = sdk_cargo.get('lints', {}).get('rust', {}).get('unsafe_code', 'deny')
+    (destination / 'qusor-sdk/Cargo.toml').write_text(
+        manifest(sdk_cargo['package'], sdk_deps, unsafe_lint=sdk_unsafe_lint)
+    )
+
     cargo = tomllib.loads((HERE / 'author/Cargo.toml').read_text())
     dependencies = copy.deepcopy(cargo['dependencies'])
     for name, path in [('extension-api', 'api'), ('qusor-capture-probe', 'capture'),

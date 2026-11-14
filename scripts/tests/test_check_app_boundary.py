@@ -44,7 +44,6 @@ def make_clean_app(root: Path) -> None:
     (root / "apps" / "qusor" / "shell" / "catalog.tsx").write_text(
         "const workspaceRenderers = {\n"
         "  notes_workspace: () => null,\n"
-        "  vocab_workspace: () => null,\n"
         "  reader_workspace: () => null,\n"
         "  library_workspace: () => null,\n"
         "};\n",

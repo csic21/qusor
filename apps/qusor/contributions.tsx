@@ -14,5 +14,4 @@ export {
     setWorkspacePackageEnabled,
 } from "./shell/catalog";
 export { captureNotesEvidence, refreshNotes } from "./features/notes/NotesWorkspace";
-export { captureVocabEvidence } from "./features/vocab/VocabWorkspace";
 export { LibraryWorkspace } from "./features/library/LibraryWorkspace";

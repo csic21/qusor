@@ -28,7 +28,7 @@ use core_api::{
         Provenance, RestoreAllReceipt, Result as CoreResult,
     },
     pdf_contract::PdfSnapshot,
-    vocab::{StudyArchive, StudyCard, Wordbook, WordbookSeed},
+    vocab::{StudyArchive, Wordbook, WordbookSeed},
 };
 use learning_application::{
     KnowledgeApplication,
@@ -37,7 +37,7 @@ use learning_application::{
         EpubSelectionRange,
     },
     pdf_notes::NoteBodyField,
-    study::{StudyApplication, StudyQueue},
+    study::StudyApplication,
 };
 use qusor_app_bridges::{
     library_bridge::LibraryReadBridge, notes_bridge::NotesReadBridge, vocab_bridge::VocabBridge,
@@ -328,42 +328,5 @@ pub(crate) mod legacy_plugin_bypass {
     /// Pending Notes plugin command: delete an EPUB capture.
     pub(crate) fn delete_epub_capture(store: &VaultStore, capture_id: i64) -> CoreResult<()> {
         KnowledgeApplication::new(store.clone()).delete_epub_capture(store.vault_id(), capture_id)
-    }
-
-    /// Pending Vocab plugin query: study queue with configurable daily new-word limit.
-    pub(crate) fn vocab_queue_with_limit(
-        store: &VaultStore,
-        wordbook_id: i64,
-        now_ms: i64,
-        page_limit: usize,
-        daily_new_limit: u32,
-    ) -> CoreResult<StudyQueue> {
-        StudyApplication::new(store.clone()).queue_with_limit(
-            store.vault_id(),
-            wordbook_id,
-            now_ms,
-            page_limit,
-            daily_new_limit,
-        )
-    }
-
-    /// Pending Vocab plugin query: paginated word cards in a wordbook.
-    pub(crate) fn vocab_wordbook_cards(
-        store: &VaultStore,
-        wordbook_id: i64,
-        limit: usize,
-        offset: usize,
-    ) -> CoreResult<Vec<StudyCard>> {
-        StudyApplication::new(store.clone()).wordbook_cards(
-            store.vault_id(),
-            wordbook_id,
-            limit,
-            offset,
-        )
-    }
-
-    /// Pending Vocab plugin command: delete a wordbook.
-    pub(crate) fn vocab_delete_wordbook(store: &VaultStore, wordbook_id: i64) -> CoreResult<()> {
-        StudyApplication::new(store.clone()).delete_wordbook(store.vault_id(), wordbook_id)
     }
 }

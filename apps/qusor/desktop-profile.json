@@ -19,6 +19,11 @@
               "service": "vault.write",
               "major": 0,
               "minor": 1
+            },
+            {
+              "service": "ui.slot",
+              "major": 0,
+              "minor": 7
             }
           ]
         },

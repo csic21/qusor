@@ -8,11 +8,6 @@ import { DEFAULT_EPUB_FONT_SIZE, DEFAULT_EPUB_LINE_HEIGHT, formatEpubPosition, l
 import { adjustSelectionEnd, adjustSelectionStart, boxesForRange, boxesForSavedRanges, glyphAt, parsePageGeometry, selectionBetween, selectionHandles, type PageGeometry, type SavedSelectionRange } from "../../reading_selection";
 import { openPluginWorkspace } from "../../shell/opener";
 import { refreshNotes } from "../notes/NotesWorkspace";
-import {
-    loadVocabDecks,
-    vocabAnswer,
-    vocabFailureText,
-} from "../vocab/VocabWorkspace";
 
 type LibraryRow = {
     document_id: number;
@@ -198,11 +193,17 @@ async function collectSelectionToVocab(
         ],
     });
     try {
-        vocabAnswer(await VocabHost.importWordbook(payload));
-        void loadVocabDecks();
+        const answer = JSON.parse(await VocabHost.importWordbook(payload));
+        if (!answer || answer.ok !== true) {
+            throw new Error(String(answer?.error ?? "本机 Core 未返回结果"));
+        }
         onStatus(`已将「${term}」收录到「阅读生词本」词书。`);
     } catch (error) {
-        onStatus(`收词未完成：${vocabFailureText(error)}`);
+        const message =
+            error instanceof Error && error.message
+                ? error.message
+                : String(error || "词书写入失败");
+        onStatus(`收词未完成：${message}`);
     }
 }
 

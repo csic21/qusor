@@ -53,7 +53,7 @@
 将 [contributions.tsx](../../../apps/qusor/contributions.tsx) 保留为兼容导出入口，按目录边界纯机械拆分为：
 
 - 共享应用壳：[apps/qusor/shell/](../../../apps/qusor/shell/catalog.tsx)（`catalog.tsx`、`entries.tsx`、`editorial.tsx`、`opener.ts`）。
-- 业务工作区：[apps/qusor/features/library/](../../../apps/qusor/features/library/LibraryWorkspace.tsx)、[apps/qusor/features/notes/](../../../apps/qusor/features/notes/NotesWorkspace.tsx)、[apps/qusor/features/reader/](../../../apps/qusor/features/reader/ReadingWorkspace.tsx)、[apps/qusor/features/vocab/](../../../apps/qusor/features/vocab/VocabWorkspace.tsx)。
+- 业务工作区：[apps/qusor/features/library/](../../../apps/qusor/features/library/LibraryWorkspace.tsx)、[apps/qusor/features/notes/](../../../apps/qusor/features/notes/NotesWorkspace.tsx)、[apps/qusor/features/reader/](../../../apps/qusor/features/reader/ReadingWorkspace.tsx)、`apps/qusor/features/vocab/VocabWorkspace.tsx`（阶段二已迁出）。
 
 拆分后显性保留的 4 处跨功能直接依赖（后续迁出前必须通过 Host 事件、扩展动作或应用壳上下文接口替换）：
 

@@ -381,3 +381,39 @@ fn private_runtime_honors_host_injected_mib_budgets() {
     .unwrap();
     assert_eq!(migrated.len(), oversized_for_legacy.len());
 }
+
+#[test]
+fn wasmi_session_supports_packed_i64_entrypoints_for_rust_cdylib_guests() {
+    let wasm = wat::parse_str(
+        r#"(module
+ (memory (export "memory") 1 2)
+ (global $bump (mut i32) (i32.const 1024))
+ (func (export "qusor_alloc") (param $n i32) (result i32)
+  (local $p i32)
+  (local.set $p (global.get $bump))
+  (global.set $bump (i32.add (global.get $bump) (local.get $n)))
+  (local.get $p))
+ (func (export "handle_packed") (param $ptr i32) (param $len i32) (result i64)
+  (i64.or
+   (i64.extend_i32_u (local.get $ptr))
+   (i64.shl (i64.extend_i32_u (local.get $len)) (i64.const 32))))
+ (data (i32.const 64) "hello-i64")
+ (func (export "run_packed") (result i64)
+  (i64.or
+   (i64.extend_i32_u (i32.const 64))
+   (i64.shl (i64.extend_i32_u (i32.const 9)) (i64.const 32)))))"#,
+    )
+    .unwrap();
+    let mut session = WasmiRuntime
+        .instantiate(&wasm, &RuntimeBudgets::desktop_standard())
+        .unwrap();
+    let mut broker = |_: &[u8]| Ok(vec![]);
+    let echoed = session
+        .invoke("handle_packed", b"packed-rust-abi", None, &mut broker)
+        .unwrap();
+    assert_eq!(echoed.output, "packed-rust-abi");
+    let zero_arg = session
+        .invoke("run_packed", b"", None, &mut broker)
+        .unwrap();
+    assert_eq!(zero_arg.output, "hello-i64");
+}
