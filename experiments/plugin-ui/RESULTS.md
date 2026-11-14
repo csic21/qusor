@@ -58,4 +58,4 @@
 1. **候选 B 实机运行时探针未执行**：本机未安装 `nsh` CLI，且 `experiments/plugin-ui` 未链接 `nsh-core` / `nsh-engine` / `nsh-platform-*`；候选 B 对多 `AppView`、QuickJS `Limits`、内存与线程开销、`nsh/host` 跨上下文吞吐量的评估来自对上游 `913fd76` / `v0.5.0` / `main` 源码的核查，尚未形成实机运行证据。
 2. **真实 NSH 渲染器与输入闭环未验证**：候选 A 输出尚未接入生产 `apps/qusor` 的 NSH 组件映射层，未在真窗口中验证布局性能、IME 组合输入、系统焦点切换、屏幕阅读器无障碍树映射与高频增量 diff 帧率。
 3. **跨平台真机与 Web 未验证**：macOS 真窗、Windows、Linux、iOS、Android（模拟器和真机）及 Web（`nsh-platform-web`）均未实测。
-4. **Wasm 宿主传输基准未测**：本次在进程内 Rust 结构体与 JSON 反序列化路径验证，未叠加 `wasmtime` 宿主-客体序列化/调用开销基准。
+4. **Wasm 宿主传输基准未测**：本次在进程内 Rust 结构体与 JSON 反序列化路径验证，未叠加 `wasmi`（`adapters/runtime-wasm`）宿主-客体序列化/调用开销基准。
