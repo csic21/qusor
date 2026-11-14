@@ -112,7 +112,7 @@ Core API、文档版本、ReaderAnchor 与持久化 Schema 均独立版本化。
 
 插件化是正式基座要求，见 [插件架构与验证计划](extensions.md)。扩展提供能力，Core 持有知识；外部选段经统一 `CaptureDraft` 成为本地不可变快照，外部回跳单独表达能力等级。
 
-第一阶段支持第三方独立包闭环及受限执行能力，官方功能亦须走公开 SDK（第一方静态 vs 动态交付细节待用户拍板，见 [ADR 0003](adr/0003-plugin-first-delivery.md) 与待决项）。当前生产协议已实现 Host API 0.1–0.7（0.1 策略基础、0.2 Reader Surface、0.3 组件草稿、0.4 `notes.read`、0.5 `vocab`、0.6–0.7 `library`），但独立第三方插件 UI 协议、仓库外生产 SDK 发行与六端隔离运行器仍待完成。
+第一阶段支持第三方独立包闭环及受限执行能力，官方功能亦须走公开 SDK（第一方静态 vs 动态交付细节待用户拍板，见 [ADR 0003](adr/0003-plugin-first-delivery.md) 与待决项）。当前生产协议已实现 Host API 0.1–0.7（0.1 策略基础、0.2 Reader Surface、0.3 组件草稿、0.4 `notes.read`、0.5 `vocab`、0.6–0.7 `library`）及累积兼容演进设计（[ADR 0049](adr/0049-cumulative-host-api-and-capability-evolution.md)，Proposed）；插件 UI 协议候选方案与 NSH 上游核对见 [插件 UI 协议设计](plugin-ui-protocol.md) 与 [ADR 0052](adr/0052-plugin-ui-protocol.md)（Proposed，待用户拍板），仓库外生产 SDK 发行与六端隔离运行器仍待完成。
 
 ## 工程策略
 
@@ -173,6 +173,11 @@ Core API、文档版本、ReaderAnchor 与持久化 Schema 均独立版本化。
 | 0046 | [Library Host API 0.6](adr/0046-library-host-api-0-6.md) | Accepted | 定义 0.6 `library.read`/`capture.propose` 与文字层浏览提交 wire |
 | 0047 | [原生 PDF 导入与页图阅读](adr/0047-native-pdf-import-and-page-images.md) | Accepted | 接通原生 PDF 导入、LRU 页图缓存、页图选文与 0.7 保存范围高亮 |
 | 0048 | [文档治理与单一状态源](adr/0048-doc-governance.md) | Accepted | 确立 ADR 只记决策、单一 `docs/status.md`、`AGENTS.md` 瘦身与脚本校验 |
+| 0049 | [Host API 累积版本兼容与正交能力演进方案](adr/0049-cumulative-host-api-and-capability-evolution.md) | Proposed | 0.1–0.7 能力/贡献点累积向后兼容与统一会话协商；下一阶段正交能力、独立 Semver 与扩展点路由（仅设计） |
+| 0050 | [拆分存储端口与增量事务持久化](adr/0050-split-storage-ports-and-incremental-transactions.md) | Accepted | 三组六端口拆分、SQLite schema v6 索引迁移、单 writer/单事务不变式与非 Unix 完整端口/无泄露结构化错误 |
+| 0051 | [应用壳止血边界与功能迁出准备](adr/0051-app-shell-boundary.md) | Accepted | 应用壳写死标识清理、可信 Core 服务门面与只减不增边界守卫、`contributions.tsx` 机械拆分与迁移顺序建议（迁出本身为 Proposed，依赖三项待决决策） |
+| 0052 | [插件 UI 协议与受控原生槽位路线（Proposed）](adr/0052-plugin-ui-protocol.md) | Proposed | 2026-11-14 核对 NSH 上游后给出候选 A（声明式原生 UI 树）与候选 B（NSH TSX/JS 受限运行时）六维对比并推荐候选 A，待用户对「插件 UI 路线」拍板 |
+| 0053 | [运行时预算配置化、插件 ABI 演进与六端执行策略](adr/0053-runtime-budgets-abi-and-platforms.md) | Proposed | Host 注入 MiB 级运行时/包预算、`qusor.emit_chunk` 流式分块与 `WasmiSession` 长驻会话、WIT/Component Model ABI 与 `wasmi 2.0.0` 评估、`qusor-sdk`/`qusor dev` 未签名调试门禁、六端代码级矩阵与 `runtime-process` 桌面 helper 定位建议（含第一方形态与 iOS/Web 动态插件两项待用户拍板选项） |
 <!-- ADR-INDEX-END -->
 
 ## 相关研究
