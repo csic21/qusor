@@ -119,7 +119,14 @@ impl<S: KnowledgeQuery + KnowledgeCommand> OrthogonalKnowledgeBridge<S> {
                 field,
                 offset,
                 max_bytes,
-            } => self.note_body(&request_id, *format, *capture_id, *field, *offset, *max_bytes),
+            } => self.note_body(
+                &request_id,
+                *format,
+                *capture_id,
+                *field,
+                *offset,
+                *max_bytes,
+            ),
             CoreKnowledgeOperation::PdfMetadata { document_id } => self.pdf_metadata(*document_id),
             CoreKnowledgeOperation::UpdateCaptureNote {
                 format,
@@ -188,10 +195,7 @@ impl<S: KnowledgeQuery + KnowledgeCommand> OrthogonalKnowledgeBridge<S> {
         let page_limit = usize::from(limit);
         match format {
             Some(DocumentFormat::Pdf) => {
-                match self
-                    .app
-                    .pdf_documents_page(&self.vault, cursor, page_limit)
-                {
+                match self.app.pdf_documents_page(&self.vault, cursor, page_limit) {
                     Ok(page) => CoreKnowledgeResult::DocumentsPage {
                         documents: page
                             .documents
@@ -568,10 +572,7 @@ impl<S: KnowledgeQuery + KnowledgeCommand> OrthogonalKnowledgeBridge<S> {
     ) -> CoreKnowledgeResult {
         if limit == 0 || limit > MAX_KNOWLEDGE_PAGE {
             return CoreKnowledgeResult::Error {
-                error: ApiError::new(
-                    ErrorCode::BudgetExceeded,
-                    "notes page limit exceeds budget",
-                ),
+                error: ApiError::new(ErrorCode::BudgetExceeded, "notes page limit exceeds budget"),
             };
         }
         let page_limit = usize::from(limit);
@@ -838,8 +839,8 @@ impl<S: KnowledgeQuery + KnowledgeCommand> OrthogonalKnowledgeBridge<S> {
 
     fn pdf_metadata(&self, document_id: i64) -> CoreKnowledgeResult {
         match self.app.query_document(document_id) {
-            Ok(doc) if doc.vault == self.vault => CoreKnowledgeResult::PdfMetadata(
-                KnowledgePdfMetadata {
+            Ok(doc) if doc.vault == self.vault => {
+                CoreKnowledgeResult::PdfMetadata(KnowledgePdfMetadata {
                     document_id: doc.receipt.document_id,
                     commit_rev: doc.receipt.commit_rev,
                     title: sanitize_singleline(&doc.title, MAX_KNOWLEDGE_TITLE_BYTES, "?"),
@@ -847,8 +848,8 @@ impl<S: KnowledgeQuery + KnowledgeCommand> OrthogonalKnowledgeBridge<S> {
                     original_bytes: doc.snapshot.original_bytes,
                     extraction_revision: doc.receipt.extraction_revision,
                     page_count: u32::try_from(doc.snapshot.pages.len()).unwrap_or(u32::MAX),
-                },
-            ),
+                })
+            }
             Ok(_) => CoreKnowledgeResult::Error {
                 error: ApiError::new(ErrorCode::NotFound, "PDF document not found"),
             },
@@ -867,7 +868,9 @@ impl<S: KnowledgeQuery + KnowledgeCommand> OrthogonalKnowledgeBridge<S> {
         let min_chunk = usize::from(MIN_KNOWLEDGE_CHUNK_BYTES);
         match format {
             DocumentFormat::Pdf => {
-                if let Err(error) = self.app.update_pdf_capture_note(&self.vault, capture_id, note)
+                if let Err(error) = self
+                    .app
+                    .update_pdf_capture_note(&self.vault, capture_id, note)
                 {
                     return CoreKnowledgeResult::Error {
                         error: map_error(&error),
@@ -949,11 +952,7 @@ impl<S: KnowledgeQuery + KnowledgeCommand> OrthogonalKnowledgeBridge<S> {
         }
     }
 
-    fn delete_document(
-        &mut self,
-        format: DocumentFormat,
-        document_id: i64,
-    ) -> CoreKnowledgeResult {
+    fn delete_document(&mut self, format: DocumentFormat, document_id: i64) -> CoreKnowledgeResult {
         match format {
             DocumentFormat::Pdf => {
                 let pre_rev = self
@@ -1015,10 +1014,13 @@ impl<S: KnowledgeQuery + KnowledgeCommand> OrthogonalKnowledgeBridge<S> {
             start: u64::from(start),
             end: u64::from(end),
         };
-        match self
-            .app
-            .capture_epub_selection(operation_id, &self.vault, selection, provenance, note)
-        {
+        match self.app.capture_epub_selection(
+            operation_id,
+            &self.vault,
+            selection,
+            provenance,
+            note,
+        ) {
             Ok(receipt) => CoreKnowledgeResult::CaptureCreated {
                 format: DocumentFormat::Epub,
                 capture_id: receipt.capture_id,
@@ -1506,21 +1508,18 @@ mod tests {
             s.insert_pdf_capture(103, 3, 18, 0, 0, 6, "secret", "foreign note");
 
             s.insert_epub_capture(151, "v1", 10, 12, 0, 6, 16, "Beta Gamma", "epub note 1");
-            s.insert_epub_capture(
-                152,
-                "v1",
-                11,
-                16,
-                0,
-                0,
-                4,
-                "Some",
-                &"z".repeat(160),
-            );
+            s.insert_epub_capture(152, "v1", 11, 16, 0, 0, 4, "Some", &"z".repeat(160));
             s
         }
 
-        fn insert_pdf_doc(&mut self, id: i64, vault: &str, commit_rev: i64, title: &str, pages: &[&str]) {
+        fn insert_pdf_doc(
+            &mut self,
+            id: i64,
+            vault: &str,
+            commit_rev: i64,
+            title: &str,
+            pages: &[&str],
+        ) {
             let pdf_pages = pages
                 .iter()
                 .enumerate()
@@ -1657,7 +1656,8 @@ mod tests {
             exact: &str,
             note: &str,
         ) {
-            self.epub_capture_vaults.insert(capture_id, vault.to_owned());
+            self.epub_capture_vaults
+                .insert(capture_id, vault.to_owned());
             self.epub_captures.insert(
                 capture_id,
                 EpubCaptureRecord {
@@ -1802,7 +1802,9 @@ mod tests {
             let ranges = self
                 .pdf_captures
                 .values()
-                .filter(|c| c.receipt.document_id == document_id && c.draft.page_index == page_index)
+                .filter(|c| {
+                    c.receipt.document_id == document_id && c.draft.page_index == page_index
+                })
                 .map(|c| PdfSavedSelectionRaw {
                     capture_id: c.receipt.capture_id,
                     start: c.draft.start,
@@ -1912,7 +1914,11 @@ mod tests {
             document_id: i64,
             chapter_index: u32,
         ) -> CoreResult<EpubChapterLookup> {
-            let Some(doc) = self.epub_docs.get(&document_id).filter(|d| d.vault == vault) else {
+            let Some(doc) = self
+                .epub_docs
+                .get(&document_id)
+                .filter(|d| d.vault == vault)
+            else {
                 return Ok(EpubChapterLookup::DocumentMissing);
             };
             match doc.chapters.get(chapter_index as usize) {
@@ -1941,7 +1947,11 @@ mod tests {
             document_id: i64,
             chapter_index: u32,
         ) -> CoreResult<EpubSavedSelectionsLookup> {
-            let Some(doc) = self.epub_docs.get(&document_id).filter(|d| d.vault == vault) else {
+            let Some(doc) = self
+                .epub_docs
+                .get(&document_id)
+                .filter(|d| d.vault == vault)
+            else {
                 return Ok(EpubSavedSelectionsLookup::DocumentMissing);
             };
             let Some((_, _, text)) = doc.chapters.get(chapter_index as usize) else {
@@ -2014,10 +2024,12 @@ mod tests {
         }
         fn epub_capture_with_vault(&self, id: i64) -> CoreResult<Option<EpubCaptureWithVault>> {
             Ok(self.epub_captures.get(&id).and_then(|record| {
-                self.epub_capture_vaults.get(&id).map(|vault| EpubCaptureWithVault {
-                    record: record.clone(),
-                    document_vault: vault.clone(),
-                })
+                self.epub_capture_vaults
+                    .get(&id)
+                    .map(|vault| EpubCaptureWithVault {
+                        record: record.clone(),
+                        document_vault: vault.clone(),
+                    })
             }))
         }
     }
@@ -2031,7 +2043,10 @@ mod tests {
             _origin: &Provenance,
             _user_note: &str,
         ) -> CoreResult<Receipt> {
-            Err(KnowledgeError::new(KnowledgeErrorCode::Unavailable, "unused"))
+            Err(KnowledgeError::new(
+                KnowledgeErrorCode::Unavailable,
+                "unused",
+            ))
         }
         fn import_pdf_document(
             &mut self,
@@ -2041,7 +2056,10 @@ mod tests {
             _original: &[u8],
             _snapshot: &PdfSnapshot,
         ) -> CoreResult<PdfDocumentReceipt> {
-            Err(KnowledgeError::new(KnowledgeErrorCode::Unavailable, "unused"))
+            Err(KnowledgeError::new(
+                KnowledgeErrorCode::Unavailable,
+                "unused",
+            ))
         }
         fn capture_pdf(
             &mut self,
@@ -2051,7 +2069,10 @@ mod tests {
             _origin: &Provenance,
             _user_note: &str,
         ) -> CoreResult<PdfReceipt> {
-            Err(KnowledgeError::new(KnowledgeErrorCode::Unavailable, "unused"))
+            Err(KnowledgeError::new(
+                KnowledgeErrorCode::Unavailable,
+                "unused",
+            ))
         }
         fn capture_pdf_compound(
             &mut self,
@@ -2061,7 +2082,10 @@ mod tests {
             _origin: &Provenance,
             _user_note: &str,
         ) -> CoreResult<PdfReceipt> {
-            Err(KnowledgeError::new(KnowledgeErrorCode::Unavailable, "unused"))
+            Err(KnowledgeError::new(
+                KnowledgeErrorCode::Unavailable,
+                "unused",
+            ))
         }
         fn import_epub(
             &mut self,
@@ -2069,7 +2093,10 @@ mod tests {
             _vault: &str,
             _snapshot: &EpubSnapshot,
         ) -> CoreResult<EpubDocumentReceipt> {
-            Err(KnowledgeError::new(KnowledgeErrorCode::Unavailable, "unused"))
+            Err(KnowledgeError::new(
+                KnowledgeErrorCode::Unavailable,
+                "unused",
+            ))
         }
         fn capture_epub_selection(
             &mut self,
@@ -2082,7 +2109,11 @@ mod tests {
             origin: &Provenance,
             user_note: &str,
         ) -> CoreResult<EpubReceipt> {
-            let Some(doc) = self.epub_docs.get(&document_id).filter(|d| d.vault == vault) else {
+            let Some(doc) = self
+                .epub_docs
+                .get(&document_id)
+                .filter(|d| d.vault == vault)
+            else {
                 return Err(KnowledgeError::new(
                     KnowledgeErrorCode::NotFound,
                     "EPUB document not found",
@@ -2112,7 +2143,8 @@ mod tests {
                 extraction_revision: ext_rev.clone(),
                 draft_hash: sha256(exact.as_bytes()),
             };
-            self.epub_capture_vaults.insert(capture_id, vault.to_owned());
+            self.epub_capture_vaults
+                .insert(capture_id, vault.to_owned());
             self.epub_captures.insert(
                 capture_id,
                 EpubCaptureRecord {
@@ -2190,7 +2222,12 @@ mod tests {
             capture_id: i64,
             note: &str,
         ) -> CoreResult<()> {
-            if self.epub_capture_vaults.get(&capture_id).map(String::as_str) != Some(vault) {
+            if self
+                .epub_capture_vaults
+                .get(&capture_id)
+                .map(String::as_str)
+                != Some(vault)
+            {
                 return Err(KnowledgeError::new(
                     KnowledgeErrorCode::NotFound,
                     "EPUB capture not found",
@@ -2203,7 +2240,12 @@ mod tests {
             Ok(())
         }
         fn delete_epub_capture(&mut self, vault: &str, capture_id: i64) -> CoreResult<()> {
-            if self.epub_capture_vaults.get(&capture_id).map(String::as_str) != Some(vault) {
+            if self
+                .epub_capture_vaults
+                .get(&capture_id)
+                .map(String::as_str)
+                != Some(vault)
+            {
                 return Err(KnowledgeError::new(
                     KnowledgeErrorCode::NotFound,
                     "EPUB capture not found",
@@ -2251,7 +2293,9 @@ mod tests {
         operation: CoreKnowledgeOperation,
     ) -> CoreKnowledgeResponse {
         let resp = bridge.respond(&req(id, operation), &test_provenance());
-        let json = resp.to_json().expect("every reply must stay inside wire budget");
+        let json = resp
+            .to_json()
+            .expect("every reply must stay inside wire budget");
         assert!(json.len() <= MAX_KNOWLEDGE_RESPONSE_BYTES);
         resp.validate().expect("reply must validate");
         resp
@@ -2308,9 +2352,7 @@ mod tests {
         assert_eq!(docs2[1].document_id, 1); // PDF rev 2
         assert!(cursor2.is_none());
         assert!(
-            docs1.iter()
-                .chain(docs2.iter())
-                .all(|d| d.document_id != 3),
+            docs1.iter().chain(docs2.iter()).all(|d| d.document_id != 3),
             "other-vault PDF must never appear"
         );
     }

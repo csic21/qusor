@@ -146,19 +146,14 @@ mod platform {
             .get_string(&jstr)
             .map_err(|err| take_jni_error(env, err))?
             .into();
-        if text == "ok" {
-            Ok(())
-        } else {
-            Err(text)
-        }
+        if text == "ok" { Ok(()) } else { Err(text) }
     }
 
     pub(super) fn speak(text: &str, accent: &str, rate: f32) -> Result<(), String> {
         let b = bridge()?;
-        let mut env = b
-            .vm
-            .attach_current_thread()
-            .map_err(|err| format!("failed to attach thread to JavaVM: {err}"))?;
+        let mut env =
+            b.vm.attach_current_thread()
+                .map_err(|err| format!("failed to attach thread to JavaVM: {err}"))?;
         let class: &JClass<'_> = b.platform_class.as_obj().into();
         let j_text = env
             .new_string(text)
@@ -190,7 +185,9 @@ mod platform {
             return;
         };
         let class: &JClass<'_> = b.platform_class.as_obj().into();
-        if env.call_static_method(class, "stopSpeak", "()V", &[]).is_err()
+        if env
+            .call_static_method(class, "stopSpeak", "()V", &[])
+            .is_err()
             && env.exception_check().unwrap_or(false)
         {
             let _ = env.exception_clear();
@@ -199,10 +196,9 @@ mod platform {
 
     pub(super) fn share_file(path: &str, mime: &str, title: &str) -> Result<(), String> {
         let b = bridge()?;
-        let mut env = b
-            .vm
-            .attach_current_thread()
-            .map_err(|err| format!("failed to attach thread to JavaVM: {err}"))?;
+        let mut env =
+            b.vm.attach_current_thread()
+                .map_err(|err| format!("failed to attach thread to JavaVM: {err}"))?;
         let class: &JClass<'_> = b.platform_class.as_obj().into();
         let j_path = env
             .new_string(path)

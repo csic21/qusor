@@ -1,38 +1,7 @@
 import { signal } from "nsh";
 import { CompositionHost } from "qusor/pdf-surface";
-import { LibraryWorkspace } from "../features/library/LibraryWorkspace";
-import { NotesWorkspace } from "../features/notes/NotesWorkspace";
-import { ReadingWorkspace } from "../features/reader/ReadingWorkspace";
 import { PluginSlotView } from "./PluginSlotView";
 import { type PluginPackage, type PluginWorkspace } from "./opener";
-
-type WorkspaceRenderer = {
-    kind: string;
-    icon: string;
-    description: string;
-    render: PluginWorkspace["render"];
-};
-
-const workspaceRenderers: Record<string, WorkspaceRenderer> = {
-    notes_workspace: {
-        kind: "想法",
-        icon: "pen",
-        description: "引用、个人观点和按资料浏览",
-        render: (props) => <NotesWorkspace compact={props.compact} />,
-    },
-    reader_workspace: {
-        kind: "阅读",
-        icon: "book",
-        description: "原生阅读界面资格；窗口内样例不写入 Core",
-        render: (props) => <ReadingWorkspace compact={props.compact} />,
-    },
-    library_workspace: {
-        kind: "资料库",
-        icon: "book",
-        description: "本机 Core 的 PDF 元数据列表",
-        render: (props) => <LibraryWorkspace compact={props.compact} />,
-    },
-};
 
 const installedWorkspaces = signal<PluginWorkspace[]>([]);
 const installedPackages = signal<PluginPackage[]>([]);
@@ -69,20 +38,7 @@ function applyWorkspaceCatalog(value: any) {
                     />
                 ),
             });
-            continue;
         }
-        const renderer = workspaceRenderers[raw.kind];
-        if (!renderer) continue;
-        workspaces.push({
-            id: raw.id,
-            package: raw.package,
-            title: raw.title,
-            kind: renderer.kind,
-            role: raw.kind,
-            icon: renderer.icon,
-            description: renderer.description,
-            render: renderer.render,
-        });
     }
     installedWorkspaces.set(workspaces);
     return true;

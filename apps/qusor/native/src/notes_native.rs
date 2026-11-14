@@ -6,7 +6,6 @@ use extension_api::{
     *,
 };
 use extension_host::{Grant, Host, OrthogonalGrant, Session};
-use learning_application::pdf_notes::NoteBodyField;
 use nsh_core::prelude::*;
 use qusor_app_bridges::notes_bridge::NotesReadBridge;
 use serde_json::{Value, json};
@@ -14,17 +13,11 @@ use serde_json::{Value, json};
 pub(crate) struct NotesRuntime {
     host: Host,
     session: Session,
-    store: VaultStore,
     bridge: NotesReadBridge<VaultStore>,
     document: i64,
 }
 
 impl NotesRuntime {
-    #[cfg(test)]
-    pub(crate) fn mount(store: VaultStore) -> Result<Self, String> {
-        Self::mount_for_package(store, "org.qusor.notes")
-    }
-
     pub(crate) fn mount_for_package(store: VaultStore, package_id: &str) -> Result<Self, String> {
         let verified = package_catalog::verify(package_id)?;
         Self::mount_verified(store, verified)
@@ -87,7 +80,6 @@ impl NotesRuntime {
         Ok(Self {
             host,
             session,
-            store,
             bridge,
             document: 0,
         })
@@ -175,115 +167,6 @@ impl NotesRuntime {
             NotesResult::Error { error } => Err(wire_error(error)),
         }
     }
-
-    pub(crate) fn epub_notes_page(&self, cursor: String, limit: u16) -> Result<Value, String> {
-        let after = (!cursor.is_empty()).then_some(cursor.as_str());
-        let page_limit = usize::from(limit).clamp(1, MAX_NOTE_PAGE.into());
-        let page =
-            core_facade::legacy_plugin_bypass::epub_notes_page(&self.store, after, page_limit)
-                .map_err(text)?;
-        let notes = page
-            .notes
-            .into_iter()
-            .map(|item| {
-                json!({
-                    "capture_id": item.capture_id,
-                    "commit_rev": item.commit_rev,
-                    "operation_id": item.operation_id,
-                    "document_id": item.document_id,
-                    "document_title": item.document_title,
-                    "chapter_index": item.chapter_index,
-                    "quote_preview": item.quote_preview,
-                    "quote_bytes": item.quote_bytes,
-                    "quote_truncated": item.quote_truncated,
-                    "note_preview": item.note_preview,
-                    "note_bytes": item.note_bytes,
-                    "note_truncated": item.note_truncated,
-                })
-            })
-            .collect::<Vec<_>>();
-        Ok(json!({
-            "notes": notes,
-            "next_cursor": page.next_cursor,
-        }))
-    }
-
-    pub(crate) fn epub_body(
-        &self,
-        capture_id: i64,
-        field: String,
-        offset: u32,
-        max_bytes: u16,
-    ) -> Result<Value, String> {
-        let body_field = match field.as_str() {
-            "quote" => NoteBodyField::Quote,
-            "note" => NoteBodyField::Note,
-            _ => return Err("unknown note field".into()),
-        };
-        let chunk = core_facade::legacy_plugin_bypass::epub_note_body(
-            &self.store,
-            capture_id,
-            body_field,
-            offset as usize,
-            usize::from(max_bytes),
-        )
-        .map_err(text)?;
-        Ok(json!({
-            "capture_id": chunk.capture_id,
-            "commit_rev": chunk.commit_rev,
-            "document_id": chunk.document_id,
-            "field": field,
-            "offset": chunk.offset,
-            "total_bytes": chunk.total_bytes,
-            "text": chunk.text,
-            "next_offset": chunk.next_offset,
-        }))
-    }
-
-    pub(crate) fn update_note(
-        &mut self,
-        capture_id: i64,
-        format: String,
-        note: String,
-    ) -> Result<Value, String> {
-        match format.as_str() {
-            "pdf" => core_facade::legacy_plugin_bypass::update_pdf_capture_note(
-                &self.store,
-                capture_id,
-                &note,
-            )
-            .map_err(text)?,
-            "epub" => core_facade::legacy_plugin_bypass::update_epub_capture_note(
-                &self.store,
-                capture_id,
-                &note,
-            )
-            .map_err(text)?,
-            _ => return Err("unknown note format".into()),
-        }
-        Ok(json!({
-            "capture_id": capture_id,
-            "format": format,
-            "updated": true,
-        }))
-    }
-
-    pub(crate) fn delete_note(&mut self, capture_id: i64, format: String) -> Result<Value, String> {
-        match format.as_str() {
-            "pdf" => core_facade::legacy_plugin_bypass::delete_pdf_capture(&self.store, capture_id)
-                .map_err(text)?,
-            "epub" => {
-                core_facade::legacy_plugin_bypass::delete_epub_capture(&self.store, capture_id)
-                    .map_err(text)?
-            }
-            _ => return Err("unknown note format".into()),
-        }
-        Ok(json!({
-            "capture_id": capture_id,
-            "format": format,
-            "deleted": true,
-        }))
-    }
 }
 
 fn text(error: impl std::fmt::Display) -> String {
@@ -341,40 +224,6 @@ impl NotesHost {
             notes.body(capture_id, field, offset, max_bytes)
         }))
     }
-
-    /// One bounded newest-first page of EPUB note previews.
-    pub fn epub_notes_page(sys: System, cursor: String, limit: u16) -> String {
-        answer(runtime::with_notes(&sys, |notes| {
-            notes.epub_notes_page(cursor, limit)
-        }))
-    }
-
-    /// One bounded UTF-8 chunk of a saved EPUB quote or note.
-    pub fn epub_body(
-        sys: System,
-        capture_id: i64,
-        field: String,
-        offset: u32,
-        max_bytes: u16,
-    ) -> String {
-        answer(runtime::with_notes(&sys, |notes| {
-            notes.epub_body(capture_id, field, offset, max_bytes)
-        }))
-    }
-
-    /// Update the user note attached to a saved PDF or EPUB capture.
-    pub fn update_note(sys: System, capture_id: i64, format: String, note: String) -> String {
-        answer(runtime::with_notes(&sys, |notes| {
-            notes.update_note(capture_id, format, note)
-        }))
-    }
-
-    /// Delete a saved PDF or EPUB capture/note.
-    pub fn delete_note(sys: System, capture_id: i64, format: String) -> String {
-        answer(runtime::with_notes(&sys, |notes| {
-            notes.delete_note(capture_id, format)
-        }))
-    }
 }
 
 #[cfg(test)]
@@ -384,6 +233,10 @@ mod tests {
         contract::sha256,
         epub_contract::{EpubChapterSnapshot, EpubSnapshot},
         knowledge::Provenance,
+    };
+    use extension_api::orthogonal::{
+        CORE_KNOWLEDGE_PROTOCOL, CoreKnowledgeOperation, CoreKnowledgeRequest, CoreKnowledgeResult,
+        DocumentFormat,
     };
     use learning_application::{KnowledgeApplication, epub_library::EpubSelectionRange};
     use std::{
@@ -460,35 +313,83 @@ mod tests {
             )
             .unwrap();
 
-        let mut notes = NotesRuntime::mount(store).unwrap();
-        let page = notes.epub_notes_page(String::new(), 10).unwrap();
-        assert_eq!(page["notes"].as_array().unwrap().len(), 1);
-        assert_eq!(page["notes"][0]["capture_id"], cap.capture_id);
-        assert_eq!(page["notes"][0]["quote_preview"], "Beta Gamma");
-        assert_eq!(page["notes"][0]["note_preview"], "Original epub note");
+        let mut notes = NotesRuntime::mount_for_package(store.clone(), "org.qusor.notes").unwrap();
+        let mut ortho = core_facade::new_orthogonal_bridge(&store);
+        let vault_resource = extension_api::Resource::Vault {
+            vault_id: store.vault_id().to_owned(),
+        };
+        let mut call =
+            |notes: &mut NotesRuntime, req_id: &str, operation: CoreKnowledgeOperation| {
+                let req = CoreKnowledgeRequest {
+                    protocol_version: CORE_KNOWLEDGE_PROTOCOL,
+                    api_version: HOST_API_V0_8,
+                    request_id: req_id.into(),
+                    operation,
+                };
+                let permit = notes
+                    .host
+                    .authorize_core_knowledge(&notes.session, &req, vault_resource.clone())
+                    .unwrap();
+                notes
+                    .host
+                    .dispatch_orthogonal(permit, |_ctx| Ok(ortho.respond(&req, &provenance)))
+                    .unwrap()
+                    .result
+            };
 
-        let quote_body = notes
-            .epub_body(cap.capture_id, "quote".into(), 0, 256)
-            .unwrap();
-        assert_eq!(quote_body["text"], "Beta Gamma");
+        let CoreKnowledgeResult::NotesPage { notes: items, .. } = call(
+            &mut notes,
+            "n1",
+            CoreKnowledgeOperation::NotesPage {
+                format: Some(DocumentFormat::Epub),
+                document_id: None,
+                cursor: None,
+                limit: 10,
+            },
+        ) else {
+            panic!("expected NotesPage");
+        };
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].capture_id, cap.capture_id);
+        assert_eq!(items[0].quote_preview, "Beta Gamma");
+        assert_eq!(items[0].note_preview, "Original epub note");
 
-        notes
-            .update_note(cap.capture_id, "epub".into(), "Updated epub note".into())
-            .unwrap();
-        let note_body = notes
-            .epub_body(cap.capture_id, "note".into(), 0, 256)
-            .unwrap();
-        assert_eq!(note_body["text"], "Updated epub note");
+        let CoreKnowledgeResult::NoteUpdated { .. } = call(
+            &mut notes,
+            "n2",
+            CoreKnowledgeOperation::UpdateCaptureNote {
+                format: DocumentFormat::Epub,
+                capture_id: cap.capture_id,
+                note: "Updated epub note".into(),
+            },
+        ) else {
+            panic!("expected NoteUpdated");
+        };
 
-        assert!(
-            notes
-                .update_note(cap.capture_id, "unknown".into(), "x".into())
-                .is_err()
-        );
-        assert!(notes.delete_note(cap.capture_id, "unknown".into()).is_err());
+        let CoreKnowledgeResult::NoteBody(body) = call(
+            &mut notes,
+            "n3",
+            CoreKnowledgeOperation::NoteBody {
+                format: DocumentFormat::Epub,
+                capture_id: cap.capture_id,
+                field: NoteField::Note,
+                offset: 0,
+                max_bytes: 256,
+            },
+        ) else {
+            panic!("expected NoteBody");
+        };
+        assert_eq!(body.text, "Updated epub note");
 
-        notes.delete_note(cap.capture_id, "epub".into()).unwrap();
-        let empty = notes.epub_notes_page(String::new(), 10).unwrap();
-        assert!(empty["notes"].as_array().unwrap().is_empty());
+        let CoreKnowledgeResult::CaptureDeleted { .. } = call(
+            &mut notes,
+            "n4",
+            CoreKnowledgeOperation::DeleteCapture {
+                format: DocumentFormat::Epub,
+                capture_id: cap.capture_id,
+            },
+        ) else {
+            panic!("expected CaptureDeleted");
+        };
     }
 }

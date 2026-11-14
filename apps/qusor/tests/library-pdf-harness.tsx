@@ -1,6 +1,6 @@
 import { mount, signal, Text, View } from "nsh";
 import { LibraryHost } from "qusor/pdf-surface";
-import { LibraryWorkspace } from "../contributions";
+import { PluginSlotView } from "../contributions";
 import { saveReadingPosition } from "../reading_position";
 
 const fixture = Uint8Array.from(
@@ -34,7 +34,15 @@ function App() {
         <View style={{ flex: 1 }}>
             <Text>{ready() ? `ready ${title}` : error() || "preparing"}</Text>
             <View style={{ flex: 1 }}>
-                {ready() ? <LibraryWorkspace compact={false} /> : <View />}
+                {ready() ? (
+                    <PluginSlotView
+                        contributionId="org.qusor.library.workspace"
+                        title="资料库"
+                        compact={false}
+                    />
+                ) : (
+                    <View />
+                )}
             </View>
         </View>
     );

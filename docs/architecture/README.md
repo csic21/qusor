@@ -19,12 +19,12 @@ Cargo workspace（根生产成员）
 ├── runtime-process         桌面原生 helper / 外部 MCP 进程身份、父死守卫与清理
 ├── extension-ports         持久安装/授权/恢复纯端口（仅依赖 extension-api）
 ├── extension-store         包/安装/授权/私有配对与 worker lease SQL 持久化内核
-├── extension-api           Host API 0.1–0.7 JSON 策略协议、声明式 UI 契约、manifest 投影与能力校验
-└── extension-host          内存/持久安装元数据、授权、会话、生命周期、UI 槽位与贡献查询
+├── extension-api           Host API 0.1–0.8 JSON 策略协议、正交能力契约、声明式 UI 契约、manifest v1/v2 投影与能力校验
+└── extension-host          内存/持久安装元数据、授权、会话、生命周期、UI 槽位、ExtensionRouter 与贡献查询
 
 独立 Workspace 与治理目录
 ├── apps/qusor/             生产应用独立 Workspace（provider / bridges / android-jni / native）
-├── plugins/                独立功能包（vocab 已落位真实 Rust wasm32 + 声明式 UI 插件；notes / library / reader 仍待按序迁出）
+├── plugins/                独立功能包（vocab / notes / library / reader 均已落位真实 Rust wasm32 + 声明式 UI 插件）
 ├── sdk/                    公开契约发行与作者 SDK（qusor-sdk 已落位并支持仓外导出构建；完整外部发行与 qusor dev CLI 待完善）
 ├── experiments/            隔离验证（Wasm / 安装包 / 捕获 / PDF / NSH / 插件 UI）
 ├── config/architecture.toml 成员登记与依赖允许清单
@@ -85,6 +85,12 @@ flowchart TD
     QusorSDK["sdk/qusor-sdk（独立 Workspace）"] --> ExtAPI
     PluginVocab["plugins/vocab（独立 Workspace）"] --> QusorSDK
     PluginVocab --> ExtAPI
+    PluginNotes["plugins/notes（独立 Workspace）"] --> QusorSDK
+    PluginNotes --> ExtAPI
+    PluginLibrary["plugins/library（独立 Workspace）"] --> QusorSDK
+    PluginLibrary --> ExtAPI
+    PluginReader["plugins/reader（独立 Workspace）"] --> QusorSDK
+    PluginReader --> ExtAPI
 ```
 
 > [!NOTE]
@@ -121,7 +127,7 @@ Core API、文档版本、ReaderAnchor 与持久化 Schema 均独立版本化。
 
 插件化是正式基座要求，见 [插件架构与验证计划](extensions.md)。扩展提供能力，Core 持有知识；外部选段经统一 `CaptureDraft` 成为本地不可变快照，外部回跳单独表达能力等级。
 
-第一阶段支持第三方独立包闭环及受限执行能力；按 2026-11-14 用户拍板（1A/2A/3A），第一方功能可随应用同构编译或内置打包但必须走同一公开 SDK / `Capability` 契约并受边界脚本守卫（[ADR 0003](adr/0003-plugin-first-delivery.md) · [ADR 0053](adr/0053-runtime-budgets-abi-and-platforms.md)），桌面与 Android 支持签名 `.qpk` 动态安装、iOS 与 Web 仅支持随包审核内置及纯声明式插件，插件 UI 采用声明式原生 UI 树协议 + `ControlledSurfaceRef` + `ui.slot`（[ADR 0052](adr/0052-plugin-ui-protocol.md) Accepted）。当前生产协议已实现 Host API 0.1–0.7（0.1 策略基础、0.2 Reader Surface、0.3 组件草稿、0.4 `notes.read`、0.5 `vocab`、0.6–0.7 `library` 与 `ui.slot`）及累积兼容演进方案（[ADR 0049](adr/0049-cumulative-host-api-and-capability-evolution.md) Accepted，第二部分为下一阶段正交演进规划）；`sdk/qusor-sdk` 与首个真实 Rust Wasm 声明式 UI 插件 `plugins/vocab` 已落位（经 `PluginSlotHost` 与 `PluginSlotView` 接入），其余功能迁出、正式外部 SDK 发行与六端隔离运行器仍待完成。
+第一阶段支持第三方独立包闭环及受限执行能力；按 2026-11-14 用户拍板（1A/2A/3A），第一方功能可随应用同构编译或内置打包但必须走同一公开 SDK / `Capability` 契约并受边界脚本守卫（[ADR 0003](adr/0003-plugin-first-delivery.md) · [ADR 0053](adr/0053-runtime-budgets-abi-and-platforms.md)），桌面与 Android 支持签名 `.qpk` 动态安装、iOS 与 Web 仅支持随包审核内置及纯声明式插件，插件 UI 采用声明式原生 UI 树协议 + `ControlledSurfaceRef` + `ui.slot`（[ADR 0052](adr/0052-plugin-ui-protocol.md) Accepted）。当前生产协议已实现 Host API 0.1–0.8（0.1 策略基础、0.2 Reader Surface、0.3 组件草稿、0.4 `notes.read`、0.5 `vocab`、0.6–0.7 `library` 与 `ui.slot`、0.8 命名空间正交能力与 `ExtensionRouter`）（[ADR 0049](adr/0049-cumulative-host-api-and-capability-evolution.md) · [ADR 0056](adr/0056-orthogonal-host-api-and-full-plugin-migration.md) Accepted）；`sdk/qusor-sdk` 与四个第一方真实 Rust Wasm 声明式 UI 插件 `plugins/{vocab,notes,library,reader}` 均已落位（经 `PluginSlotHost`、`PluginSlotView` 与 `ControlledDocumentSurface` 接入，`legacy_plugin_bypass` 归零），正式外部 SDK 发行与六端隔离运行器仍待完成。
 
 ## 工程策略
 
@@ -182,13 +188,14 @@ Core API、文档版本、ReaderAnchor 与持久化 Schema 均独立版本化。
 | 0046 | [Library Host API 0.6](adr/0046-library-host-api-0-6.md) | Accepted | 定义 0.6 `library.read`/`capture.propose` 与文字层浏览提交 wire |
 | 0047 | [原生 PDF 导入与页图阅读](adr/0047-native-pdf-import-and-page-images.md) | Accepted | 接通原生 PDF 导入、LRU 页图缓存、页图选文与 0.7 保存范围高亮 |
 | 0048 | [文档治理与单一状态源](adr/0048-doc-governance.md) | Accepted | 确立 ADR 只记决策、单一 `docs/status.md`、`AGENTS.md` 瘦身与脚本校验 |
-| 0049 | [Host API 累积版本兼容与正交能力演进方案](adr/0049-cumulative-host-api-and-capability-evolution.md) | Accepted | 0.1–0.7 能力/贡献点累积向后兼容与统一会话协商（已落基座）；第二部分正交能力、独立 Semver 与扩展点路由为下一阶段演进规划 |
+| 0049 | [Host API 累积版本兼容与正交能力演进方案](adr/0049-cumulative-host-api-and-capability-evolution.md) | Accepted | 0.1–0.7 能力/贡献点累积向后兼容与统一会话协商；第二部分正交能力、独立 Semver 与扩展点路由已在 0.8 落地（见 ADR 0056） |
 | 0050 | [拆分存储端口与增量事务持久化](adr/0050-split-storage-ports-and-incremental-transactions.md) | Accepted | 三组六端口拆分、SQLite schema v6 索引迁移、单 writer/单事务不变式与非 Unix 完整端口/无泄露结构化错误 |
 | 0051 | [应用壳止血边界与功能迁出准备](adr/0051-app-shell-boundary.md) | Accepted | 应用壳写死标识清理、可信 Core 服务门面与只减不增边界守卫、`contributions.tsx` 机械拆分与已确认迁出顺序（词汇 → 笔记 → 资料库/阅读） |
 | 0052 | [插件 UI 协议与受控原生槽位路线](adr/0052-plugin-ui-protocol.md) | Accepted | 2026-11-14 用户拍板选定候选 A（3A）：声明式原生 UI 树/Patch + `ControlledSurfaceRef` + `ui.slot` |
 | 0053 | [运行时预算配置化、插件 ABI 演进与六端执行策略](adr/0053-runtime-budgets-abi-and-platforms.md) | Accepted | Host 注入 MiB 级预算、流式与长驻会话、WIT/Component ABI、`qusor dev` 调试门禁、`runtime-process` 桌面专职定位及已拍板 1A/2A 策略 |
 | 0054 | [Core 分层清理与命名演进路线](adr/0054-core-layering-and-naming.md) | Accepted | 统一 `core-api` 错误基元、下沉归档/outbox/index_job 核验至 `learning-ports::archive`，确立 `learning-application`（`knowledge`/`session`/`study`）三层及渐进拆分为 `knowledge-*`/`study-*` 的迁移路线 |
 | 0055 | [生命周期简化与扩展端口解耦](adr/0055-lifecycle-and-port-decoupling.md) | Accepted | 抽出仅依 `extension-api` 的 `crates/extension-ports` 消除 `extension-store` 依赖倒置；新增 `preserve_grants`/`upgrade_package` 同权升级保留授权与 `enable_intent`、扩权清除重授；将 `runtime-process` 收敛为桌面原生 helper/外部 MCP 监督 |
+| 0056 | [Host API 0.8 正交能力路由与第一方全工作区插件迁出](adr/0056-orthogonal-host-api-and-full-plugin-migration.md) | Accepted | 落地 Host API 0.8 正交能力与 `ExtensionRouter`、清理全部 `#[deprecated]` 存储调用，并将 `vocab`/`notes`/`library`/`reader` 全量迁出为 Wasm `ui.slot` 插件（`legacy_plugin_bypass` 归零） |
 <!-- ADR-INDEX-END -->
 
 ## 相关研究

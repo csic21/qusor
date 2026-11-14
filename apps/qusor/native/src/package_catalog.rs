@@ -222,7 +222,7 @@ mod tests {
         assert_eq!(workspaces.len(), 4);
         assert!(workspaces.iter().any(|workspace| {
             workspace.id == "org.qusor.notes.workspace"
-                && workspace.kind == "notes_workspace"
+                && workspace.kind == "ui_slot"
                 && workspace.title == "想法"
         }));
         assert!(workspaces.iter().any(|workspace| {
@@ -232,12 +232,12 @@ mod tests {
         }));
         assert!(workspaces.iter().any(|workspace| {
             workspace.id == "org.qusor.reader.preview.workspace"
-                && workspace.kind == "reader_workspace"
+                && workspace.kind == "ui_slot"
                 && workspace.package == "org.qusor.reader.preview"
         }));
         assert!(workspaces.iter().any(|workspace| {
             workspace.id == "org.qusor.library.workspace"
-                && workspace.kind == "library_workspace"
+                && workspace.kind == "ui_slot"
                 && workspace.package == "org.qusor.library"
         }));
     }

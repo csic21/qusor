@@ -1,8 +1,8 @@
 # ADR 0049: Host API 累积版本兼容与正交能力演进方案
 
 - 日期：2026-11-14
-- 状态：Accepted（第一部分已随基座合入；第二部分为下一阶段演进规划）
-- 关联：[2026-11-14 架构评审报告](../reviews/2026-11-14-architecture-review.md)、[插件扩展架构](../extensions.md)、[ADR 0003](0003-plugin-first-delivery.md)、[ADR 0004](0004-headless-extension-policy.md)、[ADR 0038](0038-capability-composition.md)、[ADR 0046](0046-library-host-api-0-6.md)、[ADR 0052](0052-plugin-ui-protocol.md)、[ADR 0053](0053-runtime-budgets-abi-and-platforms.md)、[extension-api](../../../crates/extension-api/src/lib.rs)、[extension-host](../../../crates/extension-host/src/lib.rs)、[capability-composition](../../../crates/capability-composition/src/lib.rs)
+- 状态：Accepted（第一部分与第二部分 Host API `0.8` 正交能力及 `ExtensionRouter` 均已落位，见 [ADR 0056](0056-orthogonal-host-api-and-full-plugin-migration.md)）
+- 关联：[2026-11-14 架构评审报告](../reviews/2026-11-14-architecture-review.md)、[插件扩展架构](../extensions.md)、[ADR 0003](0003-plugin-first-delivery.md)、[ADR 0004](0004-headless-extension-policy.md)、[ADR 0038](0038-capability-composition.md)、[ADR 0046](0046-library-host-api-0-6.md)、[ADR 0052](0052-plugin-ui-protocol.md)、[ADR 0053](0053-runtime-budgets-abi-and-platforms.md)、[ADR 0056](0056-orthogonal-host-api-and-full-plugin-migration.md)、[extension-api](../../../crates/extension-api/src/lib.rs)、[extension-host](../../../crates/extension-host/src/lib.rs)、[capability-composition](../../../crates/capability-composition/src/lib.rs)
 
 ## 背景
 

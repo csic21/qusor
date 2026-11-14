@@ -19,15 +19,8 @@ def make_clean_app(root: Path) -> None:
     host_fns = "\n".join(
         f"pub(crate) fn {name}() {{}}" for name in sorted(FROZEN_CORE_FACADE_HOST_FNS)
     )
-    legacy_fns = "\n".join(
-        f"    pub(crate) fn {name}() {{}}" for name in sorted(FROZEN_LEGACY_BYPASS_FNS)
-    )
     (src / "core_facade.rs").write_text(
-        f"use learning_application::KnowledgeApplication;\n"
-        f"{host_fns}\n"
-        f"pub(crate) mod legacy_plugin_bypass {{\n"
-        f"{legacy_fns}\n"
-        f"}}\n",
+        f"use learning_application::KnowledgeApplication;\n{host_fns}\n",
         encoding="utf-8",
     )
     (src / "vault.rs").write_text(
@@ -42,11 +35,7 @@ def make_clean_app(root: Path) -> None:
     )
     (root / "apps" / "qusor" / "shell").mkdir(parents=True)
     (root / "apps" / "qusor" / "shell" / "catalog.tsx").write_text(
-        "const workspaceRenderers = {\n"
-        "  notes_workspace: () => null,\n"
-        "  reader_workspace: () => null,\n"
-        "  library_workspace: () => null,\n"
-        "};\n",
+        "export function refreshWorkspaceCatalog() { return true; }\n",
         encoding="utf-8",
     )
 
@@ -74,10 +63,8 @@ class CheckAppBoundaryTest(unittest.TestCase):
             make_clean_app(root)
             facade = root / "apps" / "qusor" / "native" / "src" / "core_facade.rs"
             facade.write_text(
-                facade.read_text(encoding="utf-8").replace(
-                    "pub(crate) mod legacy_plugin_bypass {",
-                    "pub(crate) mod legacy_plugin_bypass {\n    pub(crate) fn extra_bypass() {}",
-                ),
+                facade.read_text(encoding="utf-8")
+                + "\npub(crate) mod legacy_plugin_bypass {\n    pub(crate) fn extra_bypass() {}\n}\n",
                 encoding="utf-8",
             )
             violations = check_app_boundary(root)

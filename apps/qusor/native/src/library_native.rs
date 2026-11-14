@@ -7,7 +7,6 @@ use core_api::{
         MAX_EPUB_CHAPTER_BYTES, MAX_EPUB_CHAPTERS, MAX_EPUB_HREF_BYTES, MAX_EPUB_TITLE_BYTES,
         MAX_EPUB_TOC_DEPTH, MAX_EPUB_TOC_ENTRIES,
     },
-    knowledge::Provenance,
 };
 use extension_api::{
     ApiError, Capability, ErrorCode, Resource, SUPPORTED_HOST_APIS,
@@ -15,7 +14,6 @@ use extension_api::{
     orthogonal::{CapabilityId, STANDARD_ORTHOGONAL_CAPABILITIES},
 };
 use extension_host::{Grant, Host, OrthogonalGrant, Session};
-use learning_application::epub_library::{EpubSelectionRange, MAX_EPUB_TEXT_CHUNK};
 use nsh_core::prelude::*;
 use qusor_app_bridges::library_bridge::LibraryReadBridge;
 use serde_json::{Value, json};
@@ -31,15 +29,9 @@ pub(crate) struct LibraryRuntime {
     session: Session,
     store: VaultStore,
     bridge: LibraryReadBridge<VaultStore>,
-    provenance: Provenance,
 }
 
 impl LibraryRuntime {
-    #[cfg(test)]
-    pub(crate) fn mount(store: VaultStore) -> Result<Self, String> {
-        Self::mount_for_package(store, "org.qusor.library")
-    }
-
     pub(crate) fn mount_for_package(store: VaultStore, package_id: &str) -> Result<Self, String> {
         let verified = package_catalog::verify(package_id)?;
         Self::mount_verified(store, verified)
@@ -106,20 +98,12 @@ impl LibraryRuntime {
         let session = host
             .open_negotiated_session(installation, &SUPPORTED_HOST_APIS)
             .map_err(text)?;
-        let installation_id = i64::try_from(installation.sequence()).map_err(text)?;
-        let provenance = Provenance {
-            package_id: verified.manifest().package_id.clone(),
-            publisher_id: verified.manifest().publisher_id.clone(),
-            package_digest: verified.digest().to_string(),
-            installation_id,
-        };
         let bridge = core_facade::new_library_bridge(&store);
         Ok(Self {
             host,
             session,
             store,
             bridge,
-            provenance,
         })
     }
 
@@ -330,151 +314,6 @@ impl LibraryRuntime {
             let _ = sys;
             Ok(json!({ "document_id": document_id, "toc": [] }))
         }
-    }
-
-    fn delete_document(&mut self, document_id: i64, format: &str) -> Result<Value, String> {
-        match format {
-            "pdf" => {
-                core_facade::legacy_plugin_bypass::delete_pdf_document(&self.store, document_id)
-                    .map_err(text)?
-            }
-            "epub" => {
-                core_facade::legacy_plugin_bypass::delete_epub_document(&self.store, document_id)
-                    .map_err(text)?
-            }
-            _ => return Err("unknown document format".into()),
-        }
-        Ok(json!({
-            "deleted": true,
-            "document_id": document_id,
-            "format": format,
-        }))
-    }
-
-    fn epub_page(&self, cursor: String, limit: u16) -> Result<Value, String> {
-        let after = (!cursor.is_empty()).then_some(cursor.as_str());
-        let page_limit = usize::from(limit).clamp(1, MAX_LIBRARY_PAGE.into());
-        let page =
-            core_facade::legacy_plugin_bypass::epub_documents_page(&self.store, after, page_limit)
-                .map_err(text)?;
-        let items = page
-            .documents
-            .into_iter()
-            .map(|doc| {
-                json!({
-                    "document_id": doc.document_id,
-                    "commit_rev": doc.commit_rev,
-                    "title": doc.title,
-                    "author": doc.author,
-                    "original_sha256": doc.original_sha256,
-                    "original_bytes": doc.original_bytes,
-                    "extraction_revision": doc.extraction_revision,
-                    "chapter_count": doc.chapter_count,
-                })
-            })
-            .collect::<Vec<_>>();
-        Ok(json!({
-            "items": items,
-            "next_cursor": page.next_cursor,
-        }))
-    }
-
-    fn epub_toc(&self, document_id: i64) -> Result<Value, String> {
-        let toc =
-            core_facade::legacy_plugin_bypass::epub_toc(&self.store, document_id).map_err(text)?;
-        Ok(json!({
-            "document_id": document_id,
-            "toc": toc,
-        }))
-    }
-
-    fn epub_chapter(&self, document_id: i64, chapter_index: u32) -> Result<Value, String> {
-        let mut offset = 0usize;
-        let mut title = String::new();
-        let mut href = String::new();
-        let mut full_text = String::new();
-        loop {
-            let chunk = core_facade::legacy_plugin_bypass::epub_chapter_text(
-                &self.store,
-                document_id,
-                chapter_index,
-                offset,
-                MAX_EPUB_TEXT_CHUNK,
-            )
-            .map_err(text)?;
-            if offset == 0 {
-                title = chunk.title;
-                href = chunk.href;
-                full_text.reserve(chunk.total_bytes.min(MAX_EPUB_CHAPTER_BYTES));
-            }
-            full_text.push_str(&chunk.text);
-            if full_text.len() > MAX_EPUB_CHAPTER_BYTES {
-                return Err("EPUB chapter text exceeds maximum read budget".into());
-            }
-            match chunk.next_offset {
-                Some(next) if next > offset => offset = next,
-                _ => break,
-            }
-        }
-        Ok(json!({
-            "document_id": document_id,
-            "chapter_index": chapter_index,
-            "title": title,
-            "href": href,
-            "text": full_text,
-        }))
-    }
-
-    fn epub_saved_selections(&self, document_id: i64, chapter_index: u32) -> Result<Value, String> {
-        let ranges = core_facade::legacy_plugin_bypass::epub_saved_selections(
-            &self.store,
-            document_id,
-            chapter_index,
-        )
-        .map_err(text)?;
-        let serialized = ranges
-            .into_iter()
-            .map(|r| {
-                json!({
-                    "capture_id": r.capture_id,
-                    "start": r.start,
-                    "end": r.end,
-                })
-            })
-            .collect::<Vec<_>>();
-        Ok(json!({
-            "document_id": document_id,
-            "chapter_index": chapter_index,
-            "ranges": serialized,
-        }))
-    }
-
-    fn capture_epub_selection(
-        &mut self,
-        document_id: i64,
-        chapter_index: u32,
-        start: u32,
-        end: u32,
-        note: String,
-        operation_id: String,
-    ) -> Result<Value, String> {
-        let receipt = core_facade::legacy_plugin_bypass::capture_epub_selection(
-            &self.store,
-            &operation_id,
-            EpubSelectionRange {
-                document_id,
-                chapter_index,
-                start: u64::from(start),
-                end: u64::from(end),
-            },
-            &self.provenance,
-            &note,
-        )
-        .map_err(text)?;
-        Ok(json!({
-            "capture_id": receipt.capture_id,
-            "commit_rev": receipt.commit_rev,
-        }))
     }
 }
 
@@ -834,80 +673,9 @@ impl LibraryHost {
         }
     }
 
-    /// Delete a PDF or EPUB document and its saved captures from Core.
-    pub fn delete_document(sys: System, document_id: i64, format: String) -> String {
-        match runtime::with_library(&sys, |library| {
-            library.delete_document(document_id, &format)
-        }) {
-            Ok(value) => json!({"ok": true, "value": value}).to_string(),
-            Err(error) => json!({"ok": false, "error": error}).to_string(),
-        }
-    }
-
     /// Import a user-selected EPUB book into the local Core in a background worker thread.
     pub fn import_epub(sys: System, title: String, bytes: Vec<u8>) -> Later<String> {
         Later::new(import_epub_async(&sys, title, bytes))
-    }
-
-    /// One newest-first page of EPUB metadata in the current vault.
-    pub fn epub_page(sys: System, cursor: String, limit: u16) -> String {
-        match runtime::with_library(&sys, |library| library.epub_page(cursor, limit)) {
-            Ok(value) => json!({"ok": true, "value": value}).to_string(),
-            Err(error) => json!({"ok": false, "error": error}).to_string(),
-        }
-    }
-
-    /// Table of contents entries for an imported EPUB book.
-    pub fn epub_toc(sys: System, document_id: i64) -> String {
-        match runtime::with_library(&sys, |library| library.epub_toc(document_id)) {
-            Ok(value) => json!({"ok": true, "value": value}).to_string(),
-            Err(error) => json!({"ok": false, "error": error}).to_string(),
-        }
-    }
-
-    /// Full extracted plain text and title of one EPUB chapter.
-    pub fn epub_chapter(sys: System, document_id: i64, chapter_index: u32) -> String {
-        match runtime::with_library(&sys, |library| {
-            library.epub_chapter(document_id, chapter_index)
-        }) {
-            Ok(value) => json!({"ok": true, "value": value}).to_string(),
-            Err(error) => json!({"ok": false, "error": error}).to_string(),
-        }
-    }
-
-    /// Saved scalar ranges in one EPUB chapter for highlights.
-    pub fn epub_saved_selections(sys: System, document_id: i64, chapter_index: u32) -> String {
-        match runtime::with_library(&sys, |library| {
-            library.epub_saved_selections(document_id, chapter_index)
-        }) {
-            Ok(value) => json!({"ok": true, "value": value}).to_string(),
-            Err(error) => json!({"ok": false, "error": error}).to_string(),
-        }
-    }
-
-    /// Capture the selected scalar range in an EPUB chapter into Core.
-    pub fn capture_epub_selection(
-        sys: System,
-        document_id: i64,
-        chapter_index: u32,
-        start: u32,
-        end: u32,
-        note: String,
-        operation_id: String,
-    ) -> String {
-        match runtime::with_library(&sys, |library| {
-            library.capture_epub_selection(
-                document_id,
-                chapter_index,
-                start,
-                end,
-                note,
-                operation_id,
-            )
-        }) {
-            Ok(value) => json!({"ok": true, "value": value}).to_string(),
-            Err(error) => json!({"ok": false, "error": error}).to_string(),
-        }
     }
 }
 
@@ -915,6 +683,14 @@ impl LibraryHost {
 mod tests {
     use super::*;
     use crate::notes_native::NotesRuntime;
+    use extension_api::{
+        HOST_API_V0_8,
+        notes::NoteField,
+        orthogonal::{
+            CORE_KNOWLEDGE_PROTOCOL, CoreKnowledgeOperation, CoreKnowledgeRequest,
+            CoreKnowledgeResult, DocumentFormat,
+        },
+    };
     use std::{
         fs,
         io::{Cursor, Write},
@@ -1011,70 +787,150 @@ mod tests {
         assert_eq!(imported["author"], "Ada");
         assert_eq!(imported["chapter_count"], 1);
 
-        let mut library = LibraryRuntime::mount(store.clone()).unwrap();
-        let page = library.epub_page(String::new(), 10).unwrap();
-        assert_eq!(page["items"].as_array().unwrap().len(), 1);
-        assert_eq!(page["items"][0]["document_id"], document_id);
+        let mut library =
+            LibraryRuntime::mount_for_package(store.clone(), "org.qusor.library").unwrap();
+        let mut ortho = core_facade::new_orthogonal_bridge(&store);
+        let provenance = core_api::knowledge::Provenance {
+            package_id: "org.qusor.library".into(),
+            publisher_id: "org.qusor".into(),
+            package_digest: "a".repeat(64),
+            installation_id: 1,
+        };
+        let vault_resource = Resource::Vault {
+            vault_id: store.vault_id().to_owned(),
+        };
+        let mut call_lib = |req_id: &str, operation: CoreKnowledgeOperation| {
+            let req = CoreKnowledgeRequest {
+                protocol_version: CORE_KNOWLEDGE_PROTOCOL,
+                api_version: HOST_API_V0_8,
+                request_id: req_id.into(),
+                operation,
+            };
+            let permit = library
+                .host
+                .authorize_core_knowledge(&library.session, &req, vault_resource.clone())
+                .unwrap();
+            library
+                .host
+                .dispatch_orthogonal(permit, |_ctx| Ok(ortho.respond(&req, &provenance)))
+                .unwrap()
+                .result
+        };
 
-        let toc = library.epub_toc(document_id).unwrap();
-        assert_eq!(toc["toc"].as_array().unwrap().len(), 1);
-        assert_eq!(toc["toc"][0]["title"], "Chapter One");
+        let CoreKnowledgeResult::DocumentsPage { documents, .. } = call_lib(
+            "lib-1",
+            CoreKnowledgeOperation::DocumentsPage {
+                format: Some(DocumentFormat::Epub),
+                cursor: None,
+                limit: 10,
+            },
+        ) else {
+            panic!("expected DocumentsPage");
+        };
+        assert_eq!(documents.len(), 1);
+        assert_eq!(documents[0].document_id, document_id);
 
-        let chapter = library.epub_chapter(document_id, 0).unwrap();
-        let text = chapter["text"].as_str().unwrap();
+        let CoreKnowledgeResult::DocumentToc { entries, .. } = call_lib(
+            "lib-2",
+            CoreKnowledgeOperation::DocumentToc {
+                format: DocumentFormat::Epub,
+                document_id,
+            },
+        ) else {
+            panic!("expected DocumentToc");
+        };
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].title, "Chapter One");
+
+        let CoreKnowledgeResult::DocumentChunk { text, .. } = call_lib(
+            "lib-3",
+            CoreKnowledgeOperation::DocumentChunk {
+                format: DocumentFormat::Epub,
+                document_id,
+                section_index: 0,
+                offset: 0,
+                max_bytes: 2048,
+            },
+        ) else {
+            panic!("expected DocumentChunk");
+        };
         assert!(text.contains("First EPUB quote for notes."));
 
         let start = text.find("First EPUB quote").unwrap();
         let scalar_start = text[..start].chars().count() as u32;
         let scalar_end = scalar_start + "First EPUB quote".chars().count() as u32;
-        let captured = library
-            .capture_epub_selection(
+        let CoreKnowledgeResult::CaptureCreated { capture_id, .. } = call_lib(
+            "lib-4",
+            CoreKnowledgeOperation::CaptureEpubSelection {
+                operation_id: "epub-cap-1".into(),
                 document_id,
-                0,
-                scalar_start,
-                scalar_end,
-                "Initial EPUB note".into(),
-                "epub-cap-1".into(),
-            )
-            .unwrap();
-        let capture_id = captured["capture_id"].as_i64().unwrap();
+                chapter_index: 0,
+                start: scalar_start,
+                end: scalar_end,
+                quote: "First EPUB quote".into(),
+                note: "Initial EPUB note".into(),
+            },
+        ) else {
+            panic!("expected CaptureCreated");
+        };
 
-        let selections = library.epub_saved_selections(document_id, 0).unwrap();
-        assert_eq!(selections["ranges"].as_array().unwrap().len(), 1);
-        assert_eq!(selections["ranges"][0]["capture_id"], capture_id);
-        assert_eq!(selections["ranges"][0]["start"], scalar_start);
-        assert_eq!(selections["ranges"][0]["end"], scalar_end);
+        let CoreKnowledgeResult::SavedSelections { ranges, .. } = call_lib(
+            "lib-5",
+            CoreKnowledgeOperation::SavedSelections {
+                format: DocumentFormat::Epub,
+                document_id,
+                section_index: 0,
+            },
+        ) else {
+            panic!("expected SavedSelections");
+        };
+        assert_eq!(ranges.len(), 1);
+        assert_eq!(ranges[0].capture_id, capture_id);
+        assert_eq!(ranges[0].start, scalar_start);
+        assert_eq!(ranges[0].end, scalar_end);
 
-        let mut notes = NotesRuntime::mount(store).unwrap();
-        let epub_notes = notes.epub_notes_page(String::new(), 10).unwrap();
-        assert_eq!(epub_notes["notes"].as_array().unwrap().len(), 1);
-        assert_eq!(epub_notes["notes"][0]["capture_id"], capture_id);
-        assert_eq!(epub_notes["notes"][0]["note_preview"], "Initial EPUB note");
+        let _notes = NotesRuntime::mount_for_package(store, "org.qusor.notes").unwrap();
+        let CoreKnowledgeResult::NoteUpdated { .. } = call_lib(
+            "lib-6",
+            CoreKnowledgeOperation::UpdateCaptureNote {
+                format: DocumentFormat::Epub,
+                capture_id,
+                note: "Edited EPUB note".into(),
+            },
+        ) else {
+            panic!("expected NoteUpdated");
+        };
+        let CoreKnowledgeResult::NoteBody(body) = call_lib(
+            "lib-7",
+            CoreKnowledgeOperation::NoteBody {
+                format: DocumentFormat::Epub,
+                capture_id,
+                field: NoteField::Note,
+                offset: 0,
+                max_bytes: 1024,
+            },
+        ) else {
+            panic!("expected NoteBody");
+        };
+        assert_eq!(body.text, "Edited EPUB note");
 
-        let updated = notes
-            .update_note(capture_id, "epub".into(), "Edited EPUB note".into())
-            .unwrap();
-        assert_eq!(updated["updated"], true);
-
-        let body = notes.epub_body(capture_id, "note".into(), 0, 1024).unwrap();
-        assert_eq!(body["text"], "Edited EPUB note");
-
-        let deleted_note = notes.delete_note(capture_id, "epub".into()).unwrap();
-        assert_eq!(deleted_note["deleted"], true);
-        assert!(
-            notes.epub_notes_page(String::new(), 10).unwrap()["notes"]
-                .as_array()
-                .unwrap()
-                .is_empty()
-        );
-
-        let deleted_doc = library.delete_document(document_id, "epub").unwrap();
-        assert_eq!(deleted_doc["deleted"], true);
-        assert!(
-            library.epub_page(String::new(), 10).unwrap()["items"]
-                .as_array()
-                .unwrap()
-                .is_empty()
-        );
+        let CoreKnowledgeResult::CaptureDeleted { .. } = call_lib(
+            "lib-8",
+            CoreKnowledgeOperation::DeleteCapture {
+                format: DocumentFormat::Epub,
+                capture_id,
+            },
+        ) else {
+            panic!("expected CaptureDeleted");
+        };
+        let CoreKnowledgeResult::DocumentDeleted { .. } = call_lib(
+            "lib-9",
+            CoreKnowledgeOperation::DeleteDocument {
+                format: DocumentFormat::Epub,
+                document_id,
+            },
+        ) else {
+            panic!("expected DocumentDeleted");
+        };
     }
 }

@@ -295,9 +295,7 @@ fn parse_container_rootfile(xml: &str) -> Result<String, String> {
     let mut fallback = None;
     for token in tokenize_xml(xml) {
         if let XmlToken::Start {
-            local_name,
-            attrs,
-            ..
+            local_name, attrs, ..
         } = token
             && local_name == "rootfile"
             && let Some(full_path) = attr_value(&attrs, "full-path")
@@ -452,10 +450,10 @@ fn extract_toc(
             .as_deref()
             .and_then(|id| package.manifest.get(id))
             .or_else(|| {
-                package
-                    .manifest
-                    .values()
-                    .find(|item| item.media_type.eq_ignore_ascii_case("application/x-dtbncx+xml"))
+                package.manifest.values().find(|item| {
+                    item.media_type
+                        .eq_ignore_ascii_case("application/x-dtbncx+xml")
+                })
             });
         if let Some(ncx) = ncx_item {
             let ncx_xml = read_zip_utf8(archive, &ncx.href, MAX_ENTRY_RAW_BYTES)?;
@@ -856,7 +854,10 @@ fn decode_single_entity(entity: &str) -> Option<char> {
         "rdquo" => Some('\u{201D}'),
         _ if entity.starts_with('#') => {
             let digits = &entity[1..];
-            let code = if let Some(hex) = digits.strip_prefix('x').or_else(|| digits.strip_prefix('X')) {
+            let code = if let Some(hex) = digits
+                .strip_prefix('x')
+                .or_else(|| digits.strip_prefix('X'))
+            {
                 u32::from_str_radix(hex, 16).ok()?
             } else {
                 digits.parse::<u32>().ok()?
@@ -1105,10 +1106,7 @@ fn local_tag_name(full_name: &str) -> &str {
 }
 
 fn attr_value(attrs: &[(String, String)], key: &str) -> Option<String> {
-    attrs
-        .iter()
-        .find(|(k, _)| k == key)
-        .map(|(_, v)| v.clone())
+    attrs.iter().find(|(k, _)| k == key).map(|(_, v)| v.clone())
 }
 
 fn attr_value_any(attrs: &[(String, String)], keys: &[&str]) -> Option<String> {
@@ -1200,7 +1198,8 @@ mod tests {
   </body>
 </html>"#;
 
-        let ch2 = r#"<html><body><p>Second chapter &mdash; &#8212; &#x4E2D;&#x6587;.</p></body></html>"#;
+        let ch2 =
+            r#"<html><body><p>Second chapter &mdash; &#8212; &#x4E2D;&#x6587;.</p></body></html>"#;
 
         let bytes = build_zip(&[
             ("META-INF/container.xml", container),
@@ -1325,13 +1324,18 @@ mod tests {
         let err = parse_epub(&traversal_bytes).unwrap_err();
         assert!(err.contains("traversal"), "unexpected error: {err}");
 
-        let container_ok = r#"<container><rootfiles><rootfile full-path="content.opf"/></rootfiles></container>"#;
+        let container_ok =
+            r#"<container><rootfiles><rootfile full-path="content.opf"/></rootfiles></container>"#;
         let opf_traversal = r#"<package><manifest><item id="c1" href="sub/../evil.xhtml" media-type="application/xhtml+xml"/></manifest><spine><itemref idref="c1"/></spine></package>"#;
         let manifest_traversal = build_zip(&[
             ("META-INF/container.xml", container_ok),
             ("content.opf", opf_traversal),
         ]);
-        assert!(parse_epub(&manifest_traversal).unwrap_err().contains("traversal"));
+        assert!(
+            parse_epub(&manifest_traversal)
+                .unwrap_err()
+                .contains("traversal")
+        );
 
         let mut manifest_items = String::new();
         let mut spine_items = String::new();
@@ -1367,7 +1371,8 @@ mod tests {
     fn rejects_oversized_chapter_text_and_empty_input() {
         assert!(parse_epub(&[]).is_err());
 
-        let container_ok = r#"<container><rootfiles><rootfile full-path="content.opf"/></rootfiles></container>"#;
+        let container_ok =
+            r#"<container><rootfiles><rootfile full-path="content.opf"/></rootfiles></container>"#;
         let opf = r#"<package><manifest><item id="c1" href="big.xhtml" media-type="application/xhtml+xml"/></manifest><spine><itemref idref="c1"/></spine></package>"#;
         let big_body = "a".repeat(MAX_CHAPTER_TEXT_BYTES + 1);
         let big_html = format!("<html><body><p>{big_body}</p></body></html>");

@@ -123,7 +123,10 @@ pub struct DocumentReport {
 
 fn bookmark_page_index(bookmark: &PdfBookmark<'_>) -> Option<u32> {
     if let Some(dest) = bookmark.destination() {
-        return dest.page_index().ok().and_then(|idx| u32::try_from(idx).ok());
+        return dest
+            .page_index()
+            .ok()
+            .and_then(|idx| u32::try_from(idx).ok());
     }
     match bookmark.action() {
         Some(PdfAction::LocalDestination(local)) => local

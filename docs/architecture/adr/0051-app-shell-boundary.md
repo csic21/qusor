@@ -2,7 +2,7 @@
 
 - 日期：2026-11-14
 - 状态：Accepted
-- 关联：[2026-11-14 架构评审报告](../reviews/2026-11-14-architecture-review.md)、[ADR 0003](0003-plugin-first-delivery.md)、[目录架构](../workspace-layout.md)、[插件架构](../extensions.md)
+- 关联：[2026-11-14 架构评审报告](../reviews/2026-11-14-architecture-review.md)、[ADR 0003](0003-plugin-first-delivery.md)、[ADR 0056](0056-orthogonal-host-api-and-full-plugin-migration.md)、[目录架构](../workspace-layout.md)、[插件架构](../extensions.md)
 
 ## 背景
 
@@ -52,8 +52,8 @@
 
 将 [contributions.tsx](../../../apps/qusor/contributions.tsx) 保留为兼容导出入口，按目录边界纯机械拆分为：
 
-- 共享应用壳：[apps/qusor/shell/](../../../apps/qusor/shell/catalog.tsx)（`catalog.tsx`、`entries.tsx`、`editorial.tsx`、`opener.ts`）。
-- 业务工作区：[apps/qusor/features/library/](../../../apps/qusor/features/library/LibraryWorkspace.tsx)、[apps/qusor/features/notes/](../../../apps/qusor/features/notes/NotesWorkspace.tsx)、[apps/qusor/features/reader/](../../../apps/qusor/features/reader/ReadingWorkspace.tsx)、`apps/qusor/features/vocab/VocabWorkspace.tsx`（阶段二已迁出）。
+- 共享应用壳：[apps/qusor/shell/](../../../apps/qusor/shell/catalog.tsx)（`catalog.tsx`、`entries.tsx`、`editorial.tsx`、`opener.ts`、`PluginSlotView.tsx`、[ControlledDocumentSurface.tsx](../../../apps/qusor/shell/ControlledDocumentSurface.tsx)）。
+- 业务工作区：原临时拆分在 `apps/qusor/features/{vocab,notes,library,reader}/*Workspace.tsx` 的四个工作区已按序全部迁出为独立 Wasm 插件（[plugins/vocab](../../../plugins/vocab/Cargo.toml)、[plugins/notes](../../../plugins/notes/Cargo.toml)、[plugins/library](../../../plugins/library/Cargo.toml)、[plugins/reader](../../../plugins/reader/Cargo.toml)，详见 [ADR 0056](0056-orthogonal-host-api-and-full-plugin-migration.md)）。
 
 拆分后显性保留的 4 处跨功能直接依赖（后续迁出前必须通过 Host 事件、扩展动作或应用壳上下文接口替换）：
 
@@ -86,6 +86,6 @@
 - 应用壳所有 Core 旁路集中暴露在单一模块内，并由 CI/本地检查脚本锁定基线，防止后续迭代继续在壳内叠加直调与硬编码工作区类型。
 - 前端四个功能工作区与壳层物理分离，跨功能耦合点被明确标注为可追踪的迁出清单。
 
-### 代价与局限
+### 代价与后续收口
 
-- `legacy_plugin_bypass` 内的 16 个直调函数与 TSX 侧 4 处跨功能调用仍待按“词汇（Vocab）→ 笔记（Notes）→ 资料库/阅读（Library/Reader）”顺序基于声明式原生 UI 协议（[ADR 0052](0052-plugin-ui-protocol.md)）逐步清零并迁出应用壳。
+- 本 ADR 冻结的 16 个 `legacy_plugin_bypass` 直调函数与 3 个内置 `workspaceRenderers` 已在阶段三随四个工作区全量迁出而彻底清零并删除（`FROZEN_LEGACY_BYPASS_FNS = 0`、`FROZEN_WORKSPACE_RENDERER_KINDS = 0`，见 [ADR 0056](0056-orthogonal-host-api-and-full-plugin-migration.md)）。

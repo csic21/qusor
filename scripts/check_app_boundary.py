@@ -45,27 +45,9 @@ FROZEN_CORE_FACADE_HOST_FNS = frozenset({
     "import_wordbook",
 })
 
-FROZEN_LEGACY_BYPASS_FNS = frozenset({
-    "delete_pdf_document",
-    "delete_epub_document",
-    "epub_documents_page",
-    "epub_toc",
-    "epub_chapter_text",
-    "epub_saved_selections",
-    "capture_epub_selection",
-    "epub_notes_page",
-    "epub_note_body",
-    "update_pdf_capture_note",
-    "update_epub_capture_note",
-    "delete_pdf_capture",
-    "delete_epub_capture",
-})
+FROZEN_LEGACY_BYPASS_FNS: frozenset[str] = frozenset()
 
-FROZEN_WORKSPACE_RENDERER_KINDS = frozenset({
-    "notes_workspace",
-    "reader_workspace",
-    "library_workspace",
-})
+FROZEN_WORKSPACE_RENDERER_KINDS: frozenset[str] = frozenset()
 
 DIRECT_CORE_RE = re.compile(r"\b(?:KnowledgeApplication|StudyApplication)\b")
 VAULT_ID_RE = re.compile(r'"qusor-vault"')
@@ -130,25 +112,29 @@ def iter_app_source_files(app_root: Path) -> list[tuple[str, Path]]:
 def check_core_facade_freeze(rel: str, text: str) -> list[str]:
     violations: list[str] = []
     mod_match = RUST_LEGACY_MOD_RE.search(text)
-    if not mod_match:
-        return [f"{rel}: missing `pub(crate) mod legacy_plugin_bypass`"]
-
-    host_part = text[: mod_match.start()]
-    legacy_part = text[mod_match.end() :]
+    if mod_match:
+        host_part = text[: mod_match.start()]
+        legacy_part = text[mod_match.end() :]
+        legacy_fns = set(RUST_PUB_CRATE_FN_RE.findall(legacy_part))
+        extra_legacy = sorted(legacy_fns - FROZEN_LEGACY_BYPASS_FNS)
+        if extra_legacy:
+            violations.append(
+                f"{rel}: new legacy_plugin_bypass function(s) forbidden (baseline frozen): {extra_legacy}"
+            )
+        elif not FROZEN_LEGACY_BYPASS_FNS:
+            violations.append(
+                f"{rel}: `legacy_plugin_bypass` module must be removed once all bypass functions are migrated"
+            )
+    else:
+        if FROZEN_LEGACY_BYPASS_FNS:
+            return [f"{rel}: missing `pub(crate) mod legacy_plugin_bypass`"]
+        host_part = text
 
     host_fns = set(RUST_PUB_CRATE_FN_RE.findall(host_part))
-    legacy_fns = set(RUST_PUB_CRATE_FN_RE.findall(legacy_part))
-
     extra_host = sorted(host_fns - FROZEN_CORE_FACADE_HOST_FNS)
     if extra_host:
         violations.append(
             f"{rel}: unapproved functions added to core_facade host section: {extra_host}"
-        )
-
-    extra_legacy = sorted(legacy_fns - FROZEN_LEGACY_BYPASS_FNS)
-    if extra_legacy:
-        violations.append(
-            f"{rel}: new legacy_plugin_bypass function(s) forbidden (baseline frozen): {extra_legacy}"
         )
 
     return violations

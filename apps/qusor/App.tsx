@@ -15,12 +15,10 @@ import { Button, Command, Dialog, Menu, MenuItem, Tab, Tabs } from "nsh/base";
 import { titleBar } from "nsh/desktop";
 import { BackHandler } from "nsh/mobile";
 import {
-    captureNotesEvidence,
     bootWorkspaceCatalog,
     entries,
     pluginPackages,
     pluginWorkspaces,
-    refreshNotes,
     setPluginWorkspaceOpener,
     setWorkspacePackageEnabled,
     Diagram,
@@ -145,7 +143,6 @@ function openPluginWorkspace(id: string) {
     library.set(false);
     inspector.set(false);
     searchOpen.set(false);
-    if (workspace.role === "notes_workspace") refreshNotes();
 }
 function openWorkspaceOrLibrary(role: string, preferredTitle?: string) {
     if (!openPluginWorkspaceByRole(role, preferredTitle)) openLibrary();
@@ -747,7 +744,7 @@ function MobileHome() {
                         subtitle="导入与阅读书籍文档，支持选文摘录"
                         icon="book"
                         onPress={() =>
-                            openWorkspaceOrLibrary("library_workspace")
+                            openWorkspaceOrLibrary("ui_slot", "资料库")
                         }
                     />
                     <MobileHomeCard
@@ -763,7 +760,7 @@ function MobileHome() {
                         subtitle="随时记录灵感与整理摘录片段"
                         icon="pen"
                         onPress={() =>
-                            openWorkspaceOrLibrary("notes_workspace")
+                            openWorkspaceOrLibrary("ui_slot", "想法")
                         }
                     />
                     <MobileHomeCard
@@ -1950,10 +1947,12 @@ void (async () => {
         } catch (_) {
             // Older hosts expose the evidence switch only through NotesHost.
         }
+        let notesDir = "";
         if (!target) {
             const notes = JSON.parse(await NotesHost.evidence());
             if (!notes.ok || !notes.value?.active) return;
             target = String(notes.value.target ?? "notes");
+            notesDir = String(notes.value.dir ?? "");
         }
         setTimeout(() => {
             if (target === "vocab") {
@@ -1966,11 +1965,13 @@ void (async () => {
                 }
                 return;
             }
-            if (!openPluginWorkspaceByRole("notes_workspace")) return;
-            void (async () => {
-                await new Promise((resolve) => setTimeout(resolve, 700));
-                await captureNotesEvidence();
-            })();
+            if (!openPluginWorkspaceByRole("ui_slot", "想法")) return;
+            if (notesDir) {
+                void (async () => {
+                    await new Promise((resolve) => setTimeout(resolve, 700));
+                    await NotesHost.capture(`${notesDir}/slot.png`);
+                })();
+            }
         }, 500);
     } catch (_) {
         // No native host (headless tests) or no evidence mode.

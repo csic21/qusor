@@ -15,11 +15,11 @@ qusor/
 │   ├── learning-application/    knowledge / session / study 三层用例与交互会话状态机
 │   ├── extension-package/       有界签名容器与发布者键绑定校验
 │   ├── extension-runtime-api/   Host 侧无授权副作用执行端口与预算
-│   ├── extension-api/           Host API 0.1–0.7 JSON 策略协议、声明式 UI 契约、manifest 投影与校验
+│   ├── extension-api/           Host API 0.1–0.8 JSON 策略协议、正交能力契约、声明式 UI 契约、manifest v1/v2 投影与校验
 │   ├── extension-ports/         持久安装/授权/恢复纯端口（仅依赖 extension-api）
-│   └── extension-host/          安装元数据、授权、会话、生命周期、UI 槽位状态机与贡献查询
+│   └── extension-host/          安装元数据、授权、会话、生命周期、UI 槽位状态机、ExtensionRouter 与贡献查询
 ├── adapters/             SQLite/CAS、插件持久内核、Wasmi 执行与进程身份适配器
-├── plugins/              独立功能包（vocab 已为真实 Rust wasm32 + 声明式原生 UI 插件；notes / library / reader 仍待按序迁出）
+├── plugins/              独立功能包（vocab / notes / library / reader 均已为真实 Rust wasm32 + 声明式原生 UI 插件）
 ├── sdk/                  公共契约的发行、绑定与作者入口（sdk/qusor-sdk 已落位，尚未正式外部发行）
 ├── experiments/          独立验证 Workspace，不属于生产 Workspace
 ├── config/               成员登记与依赖允许清单
@@ -66,8 +66,11 @@ qusor/
 | `adapters/runtime-process/` | 已落位：仅用于桌面原生 helper / 外部 MCP 进程身份、父死守卫与清理 | 普通插件统一走 `runtime-wasm`；其他平台明确 `Unsupported`（[ADR 0053](adr/0053-runtime-budgets-abi-and-platforms.md) · [ADR 0055](adr/0055-lifecycle-and-port-decoupling.md)） |
 | `adapters/nsh/`、`adapters/platform/` | 贡献 UI、Surface、平台资源与安全存储 | NSH bridge/输入/资源门槛通过 |
 | `adapters/pdf/`、`adapters/epub/` | 解析、渲染和选区的受控服务 | 对应格式实验通过 |
-| `sdk/qusor-sdk/` | 已落位：独立插件作者 SDK crate（`qusor-sdk`，仅依 `extension-api`、`serde`、`serde_json`，可编译至 `wasm32-unknown-unknown`） | 登记于 [依赖策略](../../config/architecture.toml) `[sdk.qusor-sdk.packages.qusor-sdk]`；提供 FFI 垫片、`VocabClient`、`SlotPlugin`/`export_slot_plugin!` 与语义 `UiTree` 构造器 |
+| `sdk/qusor-sdk/` | 已落位：独立插件作者 SDK crate（`qusor-sdk`，仅依 `extension-api`、`serde`、`serde_json`，可编译至 `wasm32-unknown-unknown`） | 登记于 [依赖策略](../../config/architecture.toml) `[sdk.qusor-sdk.packages.qusor-sdk]`；提供 FFI 垫片、`VocabClient`、`OrthogonalKnowledgeClient`、`SlotPlugin`/`export_slot_plugin!` 与语义 `UiTree` 构造器 |
 | `plugins/vocab/` | 已落位：首个真实 Rust `cdylib` `wasm32` + 声明式原生 UI 插件（`qusor-vocab`，`host_api` 0.7、`ui_slot` 贡献） | 登记于 [依赖策略](../../config/architecture.toml) `[plugins.vocab.packages.qusor-vocab]`，经 `export_sdk.py` 仓外导出隔离构建；`[apps.qusor.packages.qusor-app-native]` 已允许 `runtime-wasm` 与 `extension-runtime-api` 供通用 `PluginSlotHost` 承载 |
+| `plugins/notes/` | 已落位：想法与笔记独立 Rust `cdylib` `wasm32` + 声明式原生 UI 插件（`qusor-notes`，`manifest_version: 2`、`host_api` 0.8、`ui_slot` 贡献） | 登记于 [依赖策略](../../config/architecture.toml) `[plugins.notes.packages.qusor-notes]`，通过 Host 0.8 `notes.read` 与 `core.knowledge.read`/`core.knowledge.write` 承载 PDF/EPUB 想法分页、全文分块、编辑与删除（[ADR 0056](adr/0056-orthogonal-host-api-and-full-plugin-migration.md)） |
+| `plugins/library/` | 已落位：资料库独立 Rust `cdylib` `wasm32` + 声明式原生 UI 插件（`qusor-library`，`manifest_version: 2`、`host_api` 0.8、`ui_slot` 贡献） | 登记于 [依赖策略](../../config/architecture.toml) `[plugins.library.packages.qusor-library]`，通过 Host 0.8 正交协议与 `ControlledSurfaceRef` 承载 PDF/EPUB 书架、删除、阅读面板、摘录与收词（[ADR 0056](adr/0056-orthogonal-host-api-and-full-plugin-migration.md)） |
+| `plugins/reader/` | 已落位：独立阅读器 Rust `cdylib` `wasm32` + 声明式原生 UI 插件（`qusor-reader`，`manifest_version: 2`、`host_api` 0.8、`ui_slot` 贡献） | 登记于 [依赖策略](../../config/architecture.toml) `[plugins.reader.packages.qusor-reader]`，通过 `ControlledSurfaceRef`（`ReaderDocument`）与 Host 0.8 正交协议承载 PDF/EPUB 阅读、目录跳章与已存摘录浏览（[ADR 0056](adr/0056-orthogonal-host-api-and-full-plugin-migration.md)） |
 
 领域和应用服务不按插件名称复制。来源、版本、幂等与审核只有一份权威实现，插件通过公开能力组合它们。
 

@@ -258,7 +258,7 @@ fn packaged_host_initializers_read_one_migrated_core() {
     assert!(workspaces.iter().any(|workspace| {
         workspace["id"] == "org.qusor.notes.workspace"
             && workspace["title"] == "想法"
-            && workspace["kind"] == "notes_workspace"
+            && workspace["kind"] == "ui_slot"
     }));
     assert!(workspaces.iter().any(|workspace| {
         workspace["id"] == "org.qusor.vocab.workspace"
@@ -268,12 +268,12 @@ fn packaged_host_initializers_read_one_migrated_core() {
     assert!(workspaces.iter().any(|workspace| {
         workspace["id"] == "org.qusor.reader.preview.workspace"
             && workspace["title"] == "阅读"
-            && workspace["kind"] == "reader_workspace"
+            && workspace["kind"] == "ui_slot"
     }));
     assert!(workspaces.iter().any(|workspace| {
         workspace["id"] == "org.qusor.library.workspace"
             && workspace["title"] == "资料库"
-            && workspace["kind"] == "library_workspace"
+            && workspace["kind"] == "ui_slot"
     }));
     let library = value(qusor_app_native::library_native::LibraryHost::page(
         system.clone(),
