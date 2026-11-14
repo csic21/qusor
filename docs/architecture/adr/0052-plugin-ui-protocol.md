@@ -1,8 +1,8 @@
-# ADR 0052：插件 UI 协议与受控原生槽位路线（Proposed）
+# ADR 0052：插件 UI 协议与受控原生槽位路线
 
 - 日期：2026-11-14
-- 状态：Proposed
-- 关联：P1-4、C-07、C-09、C-12、C-15、C-18、F-EXT-01/03/04/05/06、F-UX-01/02、[ADR 0023](0023-public-reader-surface.md)、[ADR 0028](0028-extensible-native-workspace.md)、[ADR 0038](0038-capability-composition.md)、[ADR 0042](0042-native-only-plugin-ui.md)、[插件 UI 协议设计](../plugin-ui-protocol.md)、[隔离实验结果](../../../experiments/plugin-ui/RESULTS.md)
+- 状态：Accepted
+- 关联：P1-4、C-07、C-09、C-12、C-15、C-18、F-EXT-01/03/04/05/06、F-UX-01/02、[ADR 0023](0023-public-reader-surface.md)、[ADR 0028](0028-extensible-native-workspace.md)、[ADR 0038](0038-capability-composition.md)、[ADR 0042](0042-native-only-plugin-ui.md)、[ADR 0051](0051-app-shell-boundary.md)、[插件 UI 协议设计](../plugin-ui-protocol.md)、[隔离实验结果](../../../experiments/plugin-ui/RESULTS.md)
 
 ## 背景
 
@@ -28,15 +28,15 @@
 
 ## 决定
 
-**建议采纳选项 A 作为 QUSOR 插件 UI 主协议路线；本 ADR 当前保持 `Proposed`，待用户对「插件 UI 路线」正式拍板后再进入生产 `extension-api` 与 `apps/qusor` 装配。**
+**用户于 2026-11-14 正式拍板选定候选 A（3A：声明式原生 UI 树协议 + 受控宿主槽位）作为 QUSOR 插件 UI 主协议路线，并确定应用壳业务功能迁出顺序为 `词汇（Vocab）→ 笔记（Notes）→ 资料库/阅读（Library/Reader）`（[ADR 0051](0051-app-shell-boundary.md)）。**
 
-推荐选项 A 的主要依据：
+选定候选 A（声明式原生 UI 树 / `UiPatch` + `ControlledSurfaceRef` + `ui.slot`）的核心依据：
 
-1. **六端安全模型一致**：不依赖浏览器同源 `iframe` 执行第三方代码，满足 C-15 全六端同等边界。
+1. **六端安全模型一致**：不依赖浏览器同源 `iframe` 执行第三方代码，满足 C-15 全六端同等边界与 2A 平台合规策略（[ADR 0053](0053-runtime-budgets-abi-and-platforms.md)）。
 2. **iOS 审核与进程面风险最小**：UI 契约只传输纯数据描述与受控宿主句柄，不动态下发独立第三方可执行界面脚本或字节码，同时避免多 QuickJS VM 膨胀。
-3. **单一插件工具链与正交治理**：第三方插件统一围绕 Wasm + `qusor-sdk` 开发与签名分发，并通过 `capability-composition`、`extension-api` 与 `ControlledSurfaceRef` 保持区域可控、可替换、可回滚与可卸载。
+3. **单一插件工具链与正交治理**：第三方插件统一围绕 Wasm + `qusor-sdk` 开发与签名分发，第一方按 1A 走同一公开契约，并通过 `capability-composition`、`extension-api` 与 `ControlledSurfaceRef` 保持区域可控、可替换、可回滚与可卸载。
 
-隔离原型已在 [experiments/plugin-ui](../../../experiments/plugin-ui/RESULTS.md) 完成核心 Schema、校验器、原子补丁与组合桥接实现及本机无界面验证，生产代码尚未改动。
+隔离原型（[experiments/plugin-ui](../../../experiments/plugin-ui/RESULTS.md)）作为生产晋升依据进入 `extension-api::ui`、`extension-host::ui` 与宿主通用声明式渲染器实现。
 
 ## 后果
 
@@ -50,4 +50,4 @@
 
 - 宿主层需维护声明式组件白名单到 NSH 原生组件及 `nsh/base` 的映射渲染器，并在未来逐步扩展复杂容器与虚拟化列表能力。
 - 第一方现有工作台 UI（`apps/qusor/contributions.tsx`）拆分为独立功能插件时，需迁移至声明式协议或通过受控 `ControlledSurfaceRef` 保留宿主内置高复杂度视图（如 PDF 页图）。
-- 若用户最终拍板选择选项 B，须将桌面 `AppView` 的 `ui_sets` 隔离、嵌套桥接与 Web 端安全模型列为前置阻塞项另行立项解决。
+- 候选 B 不作为通用插件 UI 路线采纳；若未来在纯原生局部实验场景重新评估子 `AppView`，须单独立项解决 `ui_sets` 隔离、嵌套焦点与 Web 安全断层并不得破坏既有公开契约。
