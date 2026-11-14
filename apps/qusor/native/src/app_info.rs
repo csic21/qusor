@@ -13,9 +13,10 @@
 
 use crate::core_facade;
 use core_api::{
-    knowledge::{ArchiveV2, validate_archive},
+    knowledge::ArchiveV2,
     vocab::{StudyArchive, validate_archive as validate_study_archive},
 };
+use learning_ports::archive::validate_archive;
 use nsh_core::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -222,7 +223,8 @@ fn export_backup_with_store(
     sys: &System,
     store: crate::vault::VaultStore,
 ) -> Result<Value, String> {
-    let (knowledge, study) = core_facade::export_backup_archives(&store).map_err(|e| e.to_string())?;
+    let (knowledge, study) =
+        core_facade::export_backup_archives(&store).map_err(|e| e.to_string())?;
     let now = now_ms();
     let payload = CombinedBackup {
         format: Some(BACKUP_FORMAT.into()),
@@ -419,8 +421,8 @@ impl AppInfo {
     pub fn share_backup(sys: System, path: String) -> String {
         answer((|| {
             let dir = backup_dir(&sys)?;
-            let canonical_dir = fs::canonicalize(&dir)
-                .map_err(|_| "尚未找到导出备份目录".to_string())?;
+            let canonical_dir =
+                fs::canonicalize(&dir).map_err(|_| "尚未找到导出备份目录".to_string())?;
             let canonical_file = fs::canonicalize(PathBuf::from(&path))
                 .map_err(|_| "找不到要分享的备份文件".to_string())?;
             if !canonical_file.starts_with(&canonical_dir) || !canonical_file.is_file() {
@@ -505,7 +507,6 @@ mod tests {
     }
 
     use crate::vault::VaultStore;
-    use learning_application::{KnowledgeApplication, study::StudyApplication};
     use core_api::{
         contract::{
             CaptureDraft, ExternalReturn, NORMALIZATION, PROTOCOL_VERSION, SourceDescriptor,
@@ -514,6 +515,7 @@ mod tests {
         knowledge::Provenance,
         vocab::{NewWord, StudyRating, WordbookSeed},
     };
+    use learning_application::{KnowledgeApplication, study::StudyApplication};
     use std::sync::atomic::{AtomicU64, Ordering};
 
     static NEXT_TEST: AtomicU64 = AtomicU64::new(0);
@@ -576,7 +578,12 @@ mod tests {
         let src_store = VaultStore::open_app(&src_dir.0.join("data")).unwrap();
         src_store.ensure_starter_wordbook().unwrap();
 
-        seed_knowledge_capture(&src_store, "op-backup-1", "Backup quote text", "My backup note");
+        seed_knowledge_capture(
+            &src_store,
+            "op-backup-1",
+            "Backup quote text",
+            "My backup note",
+        );
 
         let mut study_app = StudyApplication::new(src_store.clone());
         let book = study_app
@@ -597,7 +604,13 @@ mod tests {
             )
             .unwrap();
         let queue = study_app
-            .queue("qusor-vault", book.id, 1_767_225_601_000, 1_767_225_600_000, 10)
+            .queue(
+                "qusor-vault",
+                book.id,
+                1_767_225_601_000,
+                1_767_225_600_000,
+                10,
+            )
             .unwrap();
         let card_id = queue.cards[0].card.id;
         study_app
@@ -632,7 +645,10 @@ mod tests {
             .export_all()
             .unwrap();
         assert_eq!(restored_knowledge.text_entries.len(), 1);
-        assert_eq!(restored_knowledge.text_entries[0].record.user_note, "My backup note");
+        assert_eq!(
+            restored_knowledge.text_entries[0].record.user_note,
+            "My backup note"
+        );
 
         let restored_study = StudyApplication::new(dst_store).export_study().unwrap();
         assert_eq!(restored_study.wordbooks.len(), 2);
@@ -661,8 +677,7 @@ mod tests {
         src_sys.data_dir = Some(src_dir.0.join("data"));
         let src_store = VaultStore::open_app(&src_dir.0.join("data")).unwrap();
         seed_knowledge_capture(&src_store, "op-src", "Source quote", "Source note");
-        let backup_json = export_backup_with_store(&src_sys, src_store)
-            .unwrap()["json"]
+        let backup_json = export_backup_with_store(&src_sys, src_store).unwrap()["json"]
             .as_str()
             .unwrap()
             .to_string();

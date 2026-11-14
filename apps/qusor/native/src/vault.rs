@@ -5,12 +5,27 @@
 //! access, and exposes the existing persistence ports without changing their
 //! contracts. Plugins never receive this handle or a database path.
 use core_api::{
-    knowledge::{ArchiveV2, KnowledgeError, KnowledgeErrorCode},
+    contract::CaptureDraft,
+    epub_contract::EpubSnapshot,
+    knowledge::{
+        ArchiveV2, CaptureRecord, CommitEntry, EpubDocumentReceipt, EpubReceipt, EpubTocRecord,
+        KnowledgeError, KnowledgeErrorCode, PdfCaptureRecord, PdfDocumentReceipt,
+        PdfDocumentRecord, PdfReceipt, Provenance, Receipt,
+    },
+    pdf_compound::PdfCompoundDraft,
+    pdf_contract::{PdfDraft, PdfSnapshot},
     vocab::{
-        CardSchedule, NewWord, ReviewEntry, ReviewGuard, StudyArchive, Wordbook, WordbookSeed,
+        CardSchedule, NewWord, ReviewEntry, ReviewGuard, StudyArchive, StudyCard, Wordbook,
+        WordbookSeed,
     },
 };
-use learning_ports::{CommitPlan, KnowledgeStore, StudyStore};
+use learning_ports::{
+    EpubCaptureWithVault, EpubChapterLookup, EpubDocumentsPageData, EpubNotesPageData,
+    EpubSavedSelectionsLookup, KnowledgeArchive, KnowledgeCommand, KnowledgeQuery, OperationLookup,
+    PdfCaptureWithVault, PdfDocumentsPageData, PdfNotesPageData, PdfPageTextLookup,
+    PdfSavedSelectionsLookup, StudyArchivePort, StudyCommand, StudyDeckCounts, StudyQuery,
+    StudyQueueData, StudyReviewContext,
+};
 use nsh_core::prelude::*;
 use std::{
     fs,
@@ -194,17 +209,256 @@ fn starter_wordbook() -> WordbookSeed {
     }
 }
 
-impl KnowledgeStore for VaultStore {
-    fn snapshot(&self) -> core_api::knowledge::Result<ArchiveV2> {
-        self.with_store(|store| store.snapshot())
+impl KnowledgeQuery for VaultStore {
+    fn text_capture(&self, id: i64) -> core_api::knowledge::Result<Option<CaptureRecord>> {
+        self.with_store(|store| store.core().text_capture(id))
     }
 
-    fn commit(&mut self, plan: CommitPlan) -> core_api::knowledge::Result<()> {
-        self.with_store(|store| store.commit(plan))
+    fn text_receipt_by_operation(&self, op: &str) -> core_api::knowledge::Result<Option<Receipt>> {
+        self.with_store(|store| store.core().text_receipt_by_operation(op))
     }
 
-    fn restore(&mut self, archive: &ArchiveV2) -> core_api::knowledge::Result<()> {
-        self.with_store(|store| store.restore(archive))
+    fn commit_by_operation(&self, op: &str) -> core_api::knowledge::Result<Option<CommitEntry>> {
+        self.with_store(|store| store.core().commit_by_operation(op))
+    }
+
+    fn pdf_document(&self, id: i64) -> core_api::knowledge::Result<Option<PdfDocumentRecord>> {
+        self.with_store(|store| store.core().pdf_document(id))
+    }
+
+    fn pdf_document_receipt_by_operation(
+        &self,
+        op: &str,
+    ) -> core_api::knowledge::Result<Option<PdfDocumentReceipt>> {
+        self.with_store(|store| store.core().pdf_document_receipt_by_operation(op))
+    }
+
+    fn pdf_capture(&self, id: i64) -> core_api::knowledge::Result<Option<PdfCaptureRecord>> {
+        self.with_store(|store| store.core().pdf_capture(id))
+    }
+
+    fn pdf_capture_with_vault(
+        &self,
+        id: i64,
+    ) -> core_api::knowledge::Result<Option<PdfCaptureWithVault>> {
+        self.with_store(|store| store.core().pdf_capture_with_vault(id))
+    }
+
+    fn pdf_capture_by_operation(
+        &self,
+        op: &str,
+    ) -> core_api::knowledge::Result<OperationLookup<PdfCaptureWithVault>> {
+        self.with_store(|store| store.core().pdf_capture_by_operation(op))
+    }
+
+    fn pdf_documents_page(
+        &self,
+        vault: &str,
+        after: Option<(i64, i64)>,
+        limit: usize,
+    ) -> core_api::knowledge::Result<PdfDocumentsPageData> {
+        self.with_store(|store| store.core().pdf_documents_page(vault, after, limit))
+    }
+
+    fn pdf_page_text(
+        &self,
+        vault: &str,
+        document_id: i64,
+        page_index: u32,
+    ) -> core_api::knowledge::Result<PdfPageTextLookup> {
+        self.with_store(|store| store.core().pdf_page_text(vault, document_id, page_index))
+    }
+
+    fn pdf_saved_selections(
+        &self,
+        vault: &str,
+        document_id: i64,
+        page_index: u32,
+    ) -> core_api::knowledge::Result<PdfSavedSelectionsLookup> {
+        self.with_store(|store| {
+            store
+                .core()
+                .pdf_saved_selections(vault, document_id, page_index)
+        })
+    }
+
+    fn pdf_notes_page(
+        &self,
+        vault: &str,
+        document_id: Option<i64>,
+        after: Option<(i64, i64)>,
+        limit: usize,
+    ) -> core_api::knowledge::Result<PdfNotesPageData> {
+        self.with_store(|store| {
+            store
+                .core()
+                .pdf_notes_page(vault, document_id, after, limit)
+        })
+    }
+
+    fn read_original_pdf(&self, id: i64) -> core_api::knowledge::Result<Vec<u8>> {
+        self.with_store(|store| store.core().read_original_pdf(id))
+    }
+
+    fn epub_documents_page(
+        &self,
+        vault: &str,
+        after: Option<(i64, i64)>,
+        limit: usize,
+    ) -> core_api::knowledge::Result<EpubDocumentsPageData> {
+        self.with_store(|store| store.core().epub_documents_page(vault, after, limit))
+    }
+
+    fn epub_chapter_text(
+        &self,
+        vault: &str,
+        document_id: i64,
+        chapter_index: u32,
+    ) -> core_api::knowledge::Result<EpubChapterLookup> {
+        self.with_store(|store| {
+            store
+                .core()
+                .epub_chapter_text(vault, document_id, chapter_index)
+        })
+    }
+
+    fn epub_toc(
+        &self,
+        vault: &str,
+        document_id: i64,
+    ) -> core_api::knowledge::Result<Option<Vec<EpubTocRecord>>> {
+        self.with_store(|store| store.core().epub_toc(vault, document_id))
+    }
+
+    fn epub_saved_selections(
+        &self,
+        vault: &str,
+        document_id: i64,
+        chapter_index: u32,
+    ) -> core_api::knowledge::Result<EpubSavedSelectionsLookup> {
+        self.with_store(|store| {
+            store
+                .core()
+                .epub_saved_selections(vault, document_id, chapter_index)
+        })
+    }
+
+    fn epub_notes_page(
+        &self,
+        vault: &str,
+        document_id: Option<i64>,
+        after: Option<(i64, i64)>,
+        limit: usize,
+    ) -> core_api::knowledge::Result<EpubNotesPageData> {
+        self.with_store(|store| {
+            store
+                .core()
+                .epub_notes_page(vault, document_id, after, limit)
+        })
+    }
+
+    fn epub_capture_with_vault(
+        &self,
+        id: i64,
+    ) -> core_api::knowledge::Result<Option<EpubCaptureWithVault>> {
+        self.with_store(|store| store.core().epub_capture_with_vault(id))
+    }
+}
+
+impl KnowledgeCommand for VaultStore {
+    fn commit_text_capture(
+        &mut self,
+        op: &str,
+        vault: &str,
+        draft: &CaptureDraft,
+        origin: &Provenance,
+        user_note: &str,
+    ) -> core_api::knowledge::Result<Receipt> {
+        self.with_store(|store| {
+            store
+                .core_mut()
+                .commit_text_capture(op, vault, draft, origin, user_note)
+        })
+    }
+
+    fn import_pdf_document(
+        &mut self,
+        op: &str,
+        vault: &str,
+        title: &str,
+        original: &[u8],
+        snapshot: &PdfSnapshot,
+    ) -> core_api::knowledge::Result<PdfDocumentReceipt> {
+        self.with_store(|store| {
+            store
+                .core_mut()
+                .import_pdf_document(op, vault, title, original, snapshot)
+        })
+    }
+
+    fn capture_pdf(
+        &mut self,
+        op: &str,
+        document_id: i64,
+        draft: &PdfDraft,
+        origin: &Provenance,
+        user_note: &str,
+    ) -> core_api::knowledge::Result<PdfReceipt> {
+        self.with_store(|store| {
+            store
+                .core_mut()
+                .capture_pdf(op, document_id, draft, origin, user_note)
+        })
+    }
+
+    fn capture_pdf_compound(
+        &mut self,
+        op: &str,
+        document_id: i64,
+        draft: &PdfCompoundDraft,
+        origin: &Provenance,
+        user_note: &str,
+    ) -> core_api::knowledge::Result<PdfReceipt> {
+        self.with_store(|store| {
+            store
+                .core_mut()
+                .capture_pdf_compound(op, document_id, draft, origin, user_note)
+        })
+    }
+
+    fn import_epub(
+        &mut self,
+        op: &str,
+        vault: &str,
+        snapshot: &EpubSnapshot,
+    ) -> core_api::knowledge::Result<EpubDocumentReceipt> {
+        self.with_store(|store| store.core_mut().import_epub(op, vault, snapshot))
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn capture_epub_selection(
+        &mut self,
+        op: &str,
+        vault: &str,
+        document_id: i64,
+        chapter_index: u32,
+        start: u64,
+        end: u64,
+        origin: &Provenance,
+        user_note: &str,
+    ) -> core_api::knowledge::Result<EpubReceipt> {
+        self.with_store(|store| {
+            store.core_mut().capture_epub_selection(
+                op,
+                vault,
+                document_id,
+                chapter_index,
+                start,
+                end,
+                origin,
+                user_note,
+            )
+        })
     }
 
     fn update_pdf_capture_note(
@@ -213,7 +467,11 @@ impl KnowledgeStore for VaultStore {
         capture_id: i64,
         note: &str,
     ) -> core_api::knowledge::Result<()> {
-        self.with_store(|store| store.update_pdf_capture_note(vault, capture_id, note))
+        self.with_store(|store| {
+            store
+                .core_mut()
+                .update_pdf_capture_note(vault, capture_id, note)
+        })
     }
 
     fn delete_pdf_capture(
@@ -221,7 +479,7 @@ impl KnowledgeStore for VaultStore {
         vault: &str,
         capture_id: i64,
     ) -> core_api::knowledge::Result<()> {
-        self.with_store(|store| store.delete_pdf_capture(vault, capture_id))
+        self.with_store(|store| store.core_mut().delete_pdf_capture(vault, capture_id))
     }
 
     fn delete_pdf_document(
@@ -229,7 +487,7 @@ impl KnowledgeStore for VaultStore {
         vault: &str,
         document_id: i64,
     ) -> core_api::knowledge::Result<()> {
-        self.with_store(|store| store.delete_pdf_document(vault, document_id))
+        self.with_store(|store| store.core_mut().delete_pdf_document(vault, document_id))
     }
 
     fn update_epub_capture_note(
@@ -238,7 +496,11 @@ impl KnowledgeStore for VaultStore {
         capture_id: i64,
         note: &str,
     ) -> core_api::knowledge::Result<()> {
-        self.with_store(|store| store.update_epub_capture_note(vault, capture_id, note))
+        self.with_store(|store| {
+            store
+                .core_mut()
+                .update_epub_capture_note(vault, capture_id, note)
+        })
     }
 
     fn delete_epub_capture(
@@ -246,7 +508,7 @@ impl KnowledgeStore for VaultStore {
         vault: &str,
         capture_id: i64,
     ) -> core_api::knowledge::Result<()> {
-        self.with_store(|store| store.delete_epub_capture(vault, capture_id))
+        self.with_store(|store| store.core_mut().delete_epub_capture(vault, capture_id))
     }
 
     fn delete_epub_document(
@@ -254,22 +516,104 @@ impl KnowledgeStore for VaultStore {
         vault: &str,
         document_id: i64,
     ) -> core_api::knowledge::Result<()> {
-        self.with_store(|store| store.delete_epub_document(vault, document_id))
+        self.with_store(|store| store.core_mut().delete_epub_document(vault, document_id))
     }
 }
 
-impl StudyStore for VaultStore {
-    fn study_snapshot(&self) -> core_api::knowledge::Result<StudyArchive> {
-        self.with_store(|store| store.study_snapshot())
+impl KnowledgeArchive for VaultStore {
+    fn is_empty(&self) -> core_api::knowledge::Result<bool> {
+        self.with_store(|store| store.core().is_empty())
     }
 
+    fn snapshot(&self) -> core_api::knowledge::Result<ArchiveV2> {
+        self.with_store(|store| store.core().snapshot())
+    }
+
+    fn restore(&mut self, archive: &ArchiveV2) -> core_api::knowledge::Result<()> {
+        self.with_store(|store| store.core_mut().restore(archive))
+    }
+}
+
+impl StudyQuery for VaultStore {
+    fn study_decks(
+        &self,
+        vault: &str,
+        now_ms: i64,
+    ) -> core_api::knowledge::Result<Vec<StudyDeckCounts>> {
+        self.with_store(|store| store.core().study_decks(vault, now_ms))
+    }
+
+    fn wordbook_cards(
+        &self,
+        vault: &str,
+        wordbook_id: i64,
+        limit: usize,
+        offset: usize,
+    ) -> core_api::knowledge::Result<Vec<StudyCard>> {
+        self.with_store(|store| {
+            store
+                .core()
+                .wordbook_cards(vault, wordbook_id, limit, offset)
+        })
+    }
+
+    fn study_queue(
+        &self,
+        vault: &str,
+        wordbook_id: i64,
+        now_ms: i64,
+        day_start_ms: i64,
+        limit: usize,
+        daily_new_limit: u32,
+    ) -> core_api::knowledge::Result<StudyQueueData> {
+        self.with_store(|store| {
+            store.core().study_queue(
+                vault,
+                wordbook_id,
+                now_ms,
+                day_start_ms,
+                limit,
+                daily_new_limit,
+            )
+        })
+    }
+
+    fn card_review_context(
+        &self,
+        vault: &str,
+        card_id: i64,
+        operation_id: &str,
+    ) -> core_api::knowledge::Result<StudyReviewContext> {
+        self.with_store(|store| {
+            store
+                .core()
+                .card_review_context(vault, card_id, operation_id)
+        })
+    }
+
+    fn study_remaining_counts(
+        &self,
+        wordbook_id: i64,
+        now_ms: i64,
+        day_start_ms: i64,
+        daily_new_limit: u32,
+    ) -> core_api::knowledge::Result<(u32, u32)> {
+        self.with_store(|store| {
+            store
+                .core()
+                .study_remaining_counts(wordbook_id, now_ms, day_start_ms, daily_new_limit)
+        })
+    }
+}
+
+impl StudyCommand for VaultStore {
     fn ensure_wordbook(
         &mut self,
         vault: &str,
         seed: &WordbookSeed,
         now_ms: i64,
     ) -> core_api::knowledge::Result<Wordbook> {
-        self.with_store(|store| store.ensure_wordbook(vault, seed, now_ms))
+        self.with_store(|store| store.core_mut().ensure_wordbook(vault, seed, now_ms))
     }
 
     fn commit_review(
@@ -278,11 +622,7 @@ impl StudyStore for VaultStore {
         schedule: &CardSchedule,
         review: &ReviewEntry,
     ) -> core_api::knowledge::Result<ReviewEntry> {
-        self.with_store(|store| store.commit_review(guard, schedule, review))
-    }
-
-    fn restore_study(&mut self, archive: &StudyArchive) -> core_api::knowledge::Result<()> {
-        self.with_store(|store| store.restore_study(archive))
+        self.with_store(|store| store.core_mut().commit_review(guard, schedule, review))
     }
 
     fn delete_wordbook(
@@ -290,7 +630,17 @@ impl StudyStore for VaultStore {
         vault: &str,
         wordbook_id: i64,
     ) -> core_api::knowledge::Result<()> {
-        self.with_store(|store| store.delete_wordbook(vault, wordbook_id))
+        self.with_store(|store| store.core_mut().delete_wordbook(vault, wordbook_id))
+    }
+}
+
+impl StudyArchivePort for VaultStore {
+    fn study_snapshot(&self) -> core_api::knowledge::Result<StudyArchive> {
+        self.with_store(|store| store.core().study_snapshot())
+    }
+
+    fn restore_study(&mut self, archive: &StudyArchive) -> core_api::knowledge::Result<()> {
+        self.with_store(|store| store.core_mut().restore_study(archive))
     }
 }
 
@@ -320,8 +670,8 @@ impl LegacyArchives {
             }
             let store = SqliteStore::open(&path)
                 .map_err(|error| format!("cannot read legacy Core {name}: {error}"))?;
-            let next_knowledge = store.snapshot().map_err(text)?;
-            let next_study = store.study_snapshot().map_err(text)?;
+            let next_knowledge = KnowledgeArchive::snapshot(&store).map_err(text)?;
+            let next_study = StudyArchivePort::study_snapshot(&store).map_err(text)?;
             drop(store);
             if !knowledge_is_empty(&next_knowledge) {
                 merge_once(&mut knowledge, next_knowledge, "captured knowledge")?;
@@ -372,10 +722,10 @@ fn migrate_legacy(data_dir: &Path, core: &Path, legacy: LegacyArchives) -> Resul
     };
     let mut store = SqliteStore::open(&staging).map_err(text)?;
     if let Some(knowledge) = &legacy.knowledge {
-        store.restore(knowledge).map_err(text)?;
+        KnowledgeArchive::restore(&mut store, knowledge).map_err(text)?;
     }
     if let Some(study) = &legacy.study {
-        store.restore_study(study).map_err(text)?;
+        StudyArchivePort::restore_study(&mut store, study).map_err(text)?;
     }
     drop(store);
     fs::rename(&staging, core).map_err(text)?;

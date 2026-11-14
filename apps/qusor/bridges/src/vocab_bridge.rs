@@ -17,17 +17,17 @@ use extension_api::{
     },
 };
 use learning_application::study::StudyApplication;
-use learning_ports::StudyStore;
+use learning_ports::{StudyCommand, StudyQuery};
 
 /// One trusted vocabulary backend bound to the same vault as its Host.
-pub struct VocabBridge<S: StudyStore> {
+pub struct VocabBridge<S: StudyQuery + StudyCommand> {
     app: StudyApplication<S>,
     vault: String,
     now_ms: i64,
     day_start_ms: i64,
 }
 
-impl<S: StudyStore> VocabBridge<S> {
+impl<S: StudyQuery + StudyCommand> VocabBridge<S> {
     pub fn new(
         app: StudyApplication<S>,
         vault: impl Into<String>,
