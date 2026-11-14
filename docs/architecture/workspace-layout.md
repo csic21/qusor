@@ -19,8 +19,8 @@ qusor/
 │   ├── extension-ports/         持久安装/授权/恢复纯端口（仅依赖 extension-api）
 │   └── extension-host/          安装元数据、授权、会话、生命周期、UI 槽位状态机与贡献查询
 ├── adapters/             SQLite/CAS、插件持久内核、Wasmi 执行与进程身份适配器
-├── plugins/              独立功能包（vocab / notes / library / reader 预览切片）
-├── sdk/                  公共契约的发行、绑定与作者入口（尚未正式发行）
+├── plugins/              独立功能包（vocab 已为真实 Rust wasm32 + 声明式原生 UI 插件；notes / library / reader 仍待按序迁出）
+├── sdk/                  公共契约的发行、绑定与作者入口（sdk/qusor-sdk 已落位，尚未正式外部发行）
 ├── experiments/          独立验证 Workspace，不属于生产 Workspace
 ├── config/               成员登记与依赖允许清单
 ├── scripts/              工程边界、原生 UI 与文档检查
@@ -66,6 +66,8 @@ qusor/
 | `adapters/runtime-process/` | 已落位：仅用于桌面原生 helper / 外部 MCP 进程身份、父死守卫与清理 | 普通插件统一走 `runtime-wasm`；其他平台明确 `Unsupported`（[ADR 0053](adr/0053-runtime-budgets-abi-and-platforms.md) · [ADR 0055](adr/0055-lifecycle-and-port-decoupling.md)） |
 | `adapters/nsh/`、`adapters/platform/` | 贡献 UI、Surface、平台资源与安全存储 | NSH bridge/输入/资源门槛通过 |
 | `adapters/pdf/`、`adapters/epub/` | 解析、渲染和选区的受控服务 | 对应格式实验通过 |
+| `sdk/qusor-sdk/` | 已落位：独立插件作者 SDK crate（`qusor-sdk`，仅依 `extension-api`、`serde`、`serde_json`，可编译至 `wasm32-unknown-unknown`） | 登记于 [依赖策略](../../config/architecture.toml) `[sdk.qusor-sdk.packages.qusor-sdk]`；提供 FFI 垫片、`VocabClient`、`SlotPlugin`/`export_slot_plugin!` 与语义 `UiTree` 构造器 |
+| `plugins/vocab/` | 已落位：首个真实 Rust `cdylib` `wasm32` + 声明式原生 UI 插件（`qusor-vocab`，`host_api` 0.7、`ui_slot` 贡献） | 登记于 [依赖策略](../../config/architecture.toml) `[plugins.vocab.packages.qusor-vocab]`，经 `export_sdk.py` 仓外导出隔离构建；`[apps.qusor.packages.qusor-app-native]` 已允许 `runtime-wasm` 与 `extension-runtime-api` 供通用 `PluginSlotHost` 承载 |
 
 领域和应用服务不按插件名称复制。来源、版本、幂等与审核只有一份权威实现，插件通过公开能力组合它们。
 
@@ -127,7 +129,7 @@ F-EXT-01/03/04/05/06 是全部插件的 SDK、Host、包管理和贡献接口要
 
 正式插件只能依赖发行 SDK 和允许的纯计算依赖。开发期若用本地 SDK，必须是完整导出工件且通过仓库外构建；禁止依赖主仓库 Core/Host/application/storage/NSH 私有源码，主程序也不得静态链接功能插件。
 
-当前 Host 策略 wire 权威源是 [extension-api](../../crates/extension-api/README.md) 的 DTO/schema/契约测试。捕获/来源/锚点权威源为 [core-api](../../crates/core-api/README.md)。SDK 从公开源生成/校验发行工件，版本可对应；不复制一份任意漂移的协议。尚无发布 SDK，目录说明不算发行完成。
+当前 Host 策略 wire 权威源是 [extension-api](../../crates/extension-api/README.md) 的 DTO/schema/契约测试。捕获/来源/锚点权威源为 [core-api](../../crates/core-api/README.md)。作者 SDK crate [qusor-sdk](../../sdk/qusor-sdk/Cargo.toml) 已落位并支持通过导出脚本做仓外隔离构建与签名打包（如 [qusor-vocab](../../plugins/vocab/Cargo.toml)），不复制第二套协议；正式外部 SDK 发行与 `qusor dev` CLI 仍在后续。
 
 跨插件通过 Host 能力发现/路由和 Core 规范数据协作，不导入对方代码或共享私有数据库；缺可选提供者时显示不可用，循环调用有预算。插件 ID、版本和发布者绑定独立于目录/显示名。
 

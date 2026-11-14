@@ -24,8 +24,8 @@ Cargo workspace（根生产成员）
 
 独立 Workspace 与治理目录
 ├── apps/qusor/             生产应用独立 Workspace（provider / bridges / android-jni / native）
-├── plugins/                独立功能包（vocab / notes / library / reader 样例，当前仍缺独立 UI 协议）
-├── sdk/                    公开契约发行入口（尚未正式发行）
+├── plugins/                独立功能包（vocab 已落位真实 Rust wasm32 + 声明式 UI 插件；notes / library / reader 仍待按序迁出）
+├── sdk/                    公开契约发行与作者 SDK（qusor-sdk 已落位并支持仓外导出构建；完整外部发行与 qusor dev CLI 待完善）
 ├── experiments/            隔离验证（Wasm / 安装包 / 捕获 / PDF / NSH / 插件 UI）
 ├── config/architecture.toml 成员登记与依赖允许清单
 ├── scripts/                架构边界、原生 UI 与文档检查
@@ -48,6 +48,8 @@ flowchart TD
     AppNative --> ExtPkg["extension-package"]
     AppNative --> LearnApp["learning-application"]
     AppNative --> LearnPorts["learning-ports"]
+    AppNative --> RuntimeAPI["extension-runtime-api"]
+    AppNative --> RuntimeWasm["runtime-wasm"]
     AppNative --> Sqlite["storage-sqlite"]
 
     Bridges --> CoreAPI
@@ -79,6 +81,10 @@ flowchart TD
     ExtStore --> ExtPorts
     ExtStore --> ExtPkg
     ExtStore --> RuntimeAPI
+
+    QusorSDK["sdk/qusor-sdk（独立 Workspace）"] --> ExtAPI
+    PluginVocab["plugins/vocab（独立 Workspace）"] --> QusorSDK
+    PluginVocab --> ExtAPI
 ```
 
 > [!NOTE]
@@ -115,7 +121,7 @@ Core API、文档版本、ReaderAnchor 与持久化 Schema 均独立版本化。
 
 插件化是正式基座要求，见 [插件架构与验证计划](extensions.md)。扩展提供能力，Core 持有知识；外部选段经统一 `CaptureDraft` 成为本地不可变快照，外部回跳单独表达能力等级。
 
-第一阶段支持第三方独立包闭环及受限执行能力；按 2026-11-14 用户拍板（1A/2A/3A），第一方功能可随应用同构编译或内置打包但必须走同一公开 SDK / `Capability` 契约并受边界脚本守卫（[ADR 0003](adr/0003-plugin-first-delivery.md) · [ADR 0053](adr/0053-runtime-budgets-abi-and-platforms.md)），桌面与 Android 支持签名 `.qpk` 动态安装、iOS 与 Web 仅支持随包审核内置及纯声明式插件，插件 UI 采用声明式原生 UI 树协议 + `ControlledSurfaceRef` + `ui.slot`（[ADR 0052](adr/0052-plugin-ui-protocol.md) Accepted）。当前生产协议已实现 Host API 0.1–0.7（0.1 策略基础、0.2 Reader Surface、0.3 组件草稿、0.4 `notes.read`、0.5 `vocab`、0.6–0.7 `library`）及累积兼容演进方案（[ADR 0049](adr/0049-cumulative-host-api-and-capability-evolution.md) Accepted，第二部分为下一阶段正交演进规划）；仓库外生产 SDK 发行与六端隔离运行器仍待完成。
+第一阶段支持第三方独立包闭环及受限执行能力；按 2026-11-14 用户拍板（1A/2A/3A），第一方功能可随应用同构编译或内置打包但必须走同一公开 SDK / `Capability` 契约并受边界脚本守卫（[ADR 0003](adr/0003-plugin-first-delivery.md) · [ADR 0053](adr/0053-runtime-budgets-abi-and-platforms.md)），桌面与 Android 支持签名 `.qpk` 动态安装、iOS 与 Web 仅支持随包审核内置及纯声明式插件，插件 UI 采用声明式原生 UI 树协议 + `ControlledSurfaceRef` + `ui.slot`（[ADR 0052](adr/0052-plugin-ui-protocol.md) Accepted）。当前生产协议已实现 Host API 0.1–0.7（0.1 策略基础、0.2 Reader Surface、0.3 组件草稿、0.4 `notes.read`、0.5 `vocab`、0.6–0.7 `library` 与 `ui.slot`）及累积兼容演进方案（[ADR 0049](adr/0049-cumulative-host-api-and-capability-evolution.md) Accepted，第二部分为下一阶段正交演进规划）；`sdk/qusor-sdk` 与首个真实 Rust Wasm 声明式 UI 插件 `plugins/vocab` 已落位（经 `PluginSlotHost` 与 `PluginSlotView` 接入），其余功能迁出、正式外部 SDK 发行与六端隔离运行器仍待完成。
 
 ## 工程策略
 
