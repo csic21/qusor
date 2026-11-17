@@ -35,9 +35,9 @@
 ```sh
 python3 experiments/nsh-reader/native-workbench/prepare.py --size 1280x820 --build-only
 cd experiments/nsh-reader/native-workbench
-../target/nsh/target/debug/nsh test tests/notes-workspace.test.tsx
+../../../.build/cargo-target/debug/nsh test tests/notes-workspace.test.tsx
 # real macOS window renders for the evidence screenshots
-../target/nsh/target/debug/nsh test tests/notes-workspace-visual.test.tsx --target macos
+../../../.build/cargo-target/debug/nsh test tests/notes-workspace-visual.test.tsx --target macos
 ```
 
 ## 真实 Core 模式（headless 与实窗均已通过）
@@ -72,15 +72,15 @@ headless 模块测试证明普通包 + 公开 wire + 真实 Core 的分页/正�
 ```sh
 python3 experiments/nsh-reader/native-workbench/prepare.py --size 1280x820 --evidence vocab
 cd experiments/nsh-reader/native-workbench
-../target/nsh/target/debug/nsh check App.tsx
-../target/nsh/target/debug/nsh test tests/vocab-workspace.test.tsx
+../../../.build/cargo-target/debug/nsh check App.tsx
+../../../.build/cargo-target/debug/nsh test tests/vocab-workspace.test.tsx
 ```
 
 注：本目录补了根 `tsconfig.json`（`extends ./.nsh/tsconfig.json`），否则固定 NSH CLI 的 `nsh check` 会因缺 tsconfig 失败；顺带修正了想法工作区既有 `note.full` 的严格类型错误。
 
 ## 复现
 
-沿用 `../target/nsh` 的固定 CLI 和 native-host，不引入依赖，不升级 NSH：
+沿用 `.build/cargo-target` 里的固定 CLI 和 native-host，不引入依赖，不升级 NSH：
 
 ```sh
 python3 experiments/nsh-reader/native-workbench/prepare.py --size 1280x820

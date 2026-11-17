@@ -7,6 +7,7 @@ import {
     setColorScheme,
     signal,
     Text,
+    untracked,
     View,
     windowSize,
 } from "nsh";
@@ -43,6 +44,13 @@ import {
     UpdateDialog,
     updateOpen,
 } from "./update";
+import {
+    resolveSourceReturn,
+    sourceReturnLabel,
+    type PluginNavigation,
+    type PluginOpenResult,
+    type SourceReturn,
+} from "./shell/opener";
 
 // The shell branches by generic contribution role; identities remain fixtures.
 const active = signal("overview"),
@@ -63,6 +71,21 @@ const pluginOrigin = signal<{
     inspector: boolean;
     navigationScope: string;
 } | null>(null);
+const pluginNavigation = signal<PluginNavigation | null>(null);
+const sourceReturn = signal<SourceReturn | null>(null);
+const pluginNotice = signal("");
+let launchTokenSequence = 0;
+function nextLaunchToken() {
+    launchTokenSequence += 1;
+    return `source-${Date.now()}-${launchTokenSequence}`;
+}
+function clearPluginNavigation() {
+    pluginNavigation.set(null);
+    sourceReturn.set(null);
+}
+function clearPluginNotice() {
+    pluginNotice.set("");
+}
 function showSearch() {
     query.set("");
     searchOpen.set(true);
@@ -95,6 +118,8 @@ function openEntry(id: string) {
     if (!opened().includes(id)) opened.set([...opened(), id]);
     activePlugin.set("");
     pluginOrigin.set(null);
+    clearPluginNavigation();
+    clearPluginNotice();
     active.set(id);
     library.set(false);
     designPreview.set(true);
@@ -107,6 +132,8 @@ function openMobileHome() {
         activePlugin.set("");
         pluginOrigin.set(null);
     }
+    clearPluginNavigation();
+    clearPluginNotice();
     library.set(false);
     inspector.set(false);
     designPreview.set(false);
@@ -116,7 +143,12 @@ function openMobileHome() {
     if (narrow()) sidebar.set(false);
 }
 function openLibrary() {
-    if (activePlugin()) closePluginWorkspace();
+    if (activePlugin()) {
+        activePlugin.set("");
+        pluginOrigin.set(null);
+    }
+    clearPluginNavigation();
+    clearPluginNotice();
     library.set(true);
     inspector.set(false);
     navigationScope.set("space");
@@ -126,9 +158,28 @@ function openLibrary() {
 function currentPlugin() {
     return allWorkspaces().find((workspace) => workspace.id === activePlugin());
 }
-function openPluginWorkspace(id: string) {
+function restorePluginOrigin() {
+    const origin = pluginOrigin();
+    if (origin) {
+        active.set(origin.active);
+        library.set(origin.library);
+        sidebar.set(origin.sidebar);
+        inspector.set(origin.inspector);
+        navigationScope.set(origin.navigationScope);
+    }
+    pluginOrigin.set(null);
+    pluginNavigation.set(null);
+    sourceReturn.set(null);
+}
+function openPluginWorkspace(
+    id: string,
+    navigation: PluginNavigation | null = null,
+    returnTo: SourceReturn | null = null,
+): PluginOpenResult {
     const workspace = allWorkspaces().find((candidate) => candidate.id === id);
-    if (!workspace) return;
+    if (!workspace) {
+        return { ok: false, error: "未找到可用的插件工作区。" };
+    }
     if (narrow()) sidebar.set(false);
     if (!activePlugin()) {
         pluginOrigin.set({
@@ -139,13 +190,22 @@ function openPluginWorkspace(id: string) {
             navigationScope: navigationScope(),
         });
     }
+    if (!navigation) {
+        clearPluginNavigation();
+    } else {
+        sourceReturn.set(returnTo);
+    }
+    pluginNavigation.set(navigation);
     activePlugin.set(id);
     library.set(false);
     inspector.set(false);
     searchOpen.set(false);
+    clearPluginNotice();
+    return { ok: true, workspaceId: workspace.id };
 }
 function openWorkspaceOrLibrary(role: string, preferredTitle?: string) {
-    if (!openPluginWorkspaceByRole(role, preferredTitle)) openLibrary();
+    const result = openPluginWorkspaceByRole(role, preferredTitle);
+    if (!result.ok) openLibrary();
 }
 function allWorkspaces() {
     return pluginWorkspaces();
@@ -155,7 +215,7 @@ function togglePluginPackage(packageId: string, enabled: boolean) {
     if (!setWorkspacePackageEnabled(packageId, enabled)) return;
     if (!enabled && activePackage === packageId) closePluginWorkspace();
 }
-function openPluginWorkspaceByRole(role: string, preferredTitle?: string) {
+function findPluginWorkspaceByRole(role: string, preferredTitle?: string) {
     const workspace =
         (preferredTitle
             ? pluginWorkspaces().find(
@@ -165,22 +225,135 @@ function openPluginWorkspaceByRole(role: string, preferredTitle?: string) {
               )
             : undefined) ??
         pluginWorkspaces().find((candidate) => candidate.role === role);
-    if (!workspace) return false;
-    openPluginWorkspace(workspace.id);
-    return true;
+    return workspace;
 }
-setPluginWorkspaceOpener(openPluginWorkspaceByRole);
-function closePluginWorkspace() {
-    activePlugin.set("");
-    const origin = pluginOrigin();
-    if (origin) {
-        active.set(origin.active);
-        library.set(origin.library);
-        sidebar.set(origin.sidebar);
-        inspector.set(origin.inspector);
-        navigationScope.set(origin.navigationScope);
+function openPluginWorkspaceByRole(
+    role: string,
+    preferredTitle?: string,
+): PluginOpenResult {
+    const workspace = findPluginWorkspaceByRole(role, preferredTitle);
+    if (!workspace) {
+        return { ok: false, error: "未找到可用的插件工作区。" };
     }
-    pluginOrigin.set(null);
+    return openPluginWorkspace(workspace.id);
+}
+function openPluginWorkspaceWithNavigation(
+    navigation: PluginNavigation,
+): PluginOpenResult {
+    const reader = findPluginWorkspaceByRole("ui_slot", "阅读");
+    if (!reader) {
+        return {
+            ok: false,
+            error: "未找到可用的阅读插件，原文未打开。",
+        };
+    }
+    return openPluginWorkspace(reader.id, navigation, null);
+}
+function openPluginWorkspaceFromShell(
+    role: string,
+    navigation?: PluginNavigation | null,
+): PluginOpenResult {
+    if (navigation) return openPluginWorkspaceWithNavigation(navigation);
+    return openPluginWorkspaceByRole(role);
+}
+setPluginWorkspaceOpener(openPluginWorkspaceFromShell);
+function handleOpenSource(navigation: PluginNavigation): PluginOpenResult {
+    const sourceWorkspace = currentPlugin();
+    if (!sourceWorkspace) {
+        return { ok: false, error: "未找到来源工作区，原文未打开。" };
+    }
+    const reader = findPluginWorkspaceByRole("ui_slot", "阅读");
+    if (!reader) {
+        return {
+            ok: false,
+            error: "未找到可用的阅读插件，原文未打开。",
+        };
+    }
+    return openPluginWorkspace(
+        reader.id,
+        {
+            ...navigation,
+            launch_token: nextLaunchToken(),
+        },
+        {
+            workspaceId: sourceWorkspace.id,
+            title: sourceWorkspace.title,
+            navigation: pluginNavigation(),
+        },
+    );
+}
+function closePluginWorkspace() {
+    const returnTo = sourceReturn();
+    if (returnTo) {
+        const resolution = resolveSourceReturn(
+            returnTo,
+            allWorkspaces(),
+            pluginOrigin(),
+        );
+        if (resolution.ok && resolution.kind === "workspace") {
+            const sourceWorkspace = allWorkspaces().find(
+                (workspace) => workspace.id === resolution.workspaceId,
+            );
+            if (!sourceWorkspace) {
+                pluginNotice.set("来源工作区已失效，仍停留在当前工作区。");
+                return;
+            }
+            const previousPlugin = activePlugin();
+            const previousNavigation = pluginNavigation();
+            const previousSource = sourceReturn();
+            const result = openPluginWorkspace(
+                resolution.workspaceId,
+                resolution.navigation,
+            );
+            if (!result.ok) {
+                activePlugin.set(previousPlugin);
+                pluginNavigation.set(previousNavigation);
+                sourceReturn.set(previousSource);
+                pluginNotice.set(result.error);
+            } else {
+                sourceReturn.set(null);
+                clearPluginNotice();
+            }
+            return;
+        }
+        if (resolution.ok && resolution.kind === "origin") {
+            activePlugin.set("");
+            restorePluginOrigin();
+            clearPluginNotice();
+            return;
+        }
+        pluginNotice.set(
+            "来源工作区已失效，且没有可返回的功能列表或产品设计入口。",
+        );
+        return;
+    }
+    activePlugin.set("");
+    restorePluginOrigin();
+    clearPluginNotice();
+}
+function reconcilePluginWorkspaces(workspaces: { id: string }[]) {
+    const ids = new Set(workspaces.map((workspace) => workspace.id));
+    const openPluginId = activePlugin();
+    if (openPluginId && !ids.has(openPluginId)) {
+        const origin = pluginOrigin();
+        activePlugin.set("");
+        if (origin) {
+            restorePluginOrigin();
+            pluginNotice.set("当前工作区已失效，已返回进入前页面。");
+        } else {
+            pluginNavigation.set(null);
+            sourceReturn.set(null);
+            pluginNotice.set(
+                "当前工作区已失效，且没有可返回的功能列表或产品设计入口。",
+            );
+        }
+        return;
+    }
+    const returnTo = sourceReturn();
+    if (returnTo && !ids.has(returnTo.workspaceId)) {
+        sourceReturn.set(null);
+        pluginNotice.set("来源工作区已失效，仍停留在当前工作区。");
+    }
 }
 function current() {
     return entries.find((e) => e.id === active());
@@ -1580,13 +1753,23 @@ function HostToolbar() {
                     <If when={currentPlugin()}>
                         <Tool
                             label={
-                                pluginOrigin()?.library
+                                sourceReturn()
+                                    ? sourceReturnLabel(
+                                          sourceReturn(),
+                                          "返回来源",
+                                      )
+                                    : pluginOrigin()?.library
                                     ? "返回功能列表"
                                     : `返回产品设计 · ${current()?.title ?? "概览"}`
                             }
                             icon="back"
                             text={
-                                pluginOrigin()?.library
+                                sourceReturn()
+                                    ? sourceReturnLabel(
+                                          sourceReturn(),
+                                          "返回来源",
+                                      )
+                                    : pluginOrigin()?.library
                                     ? "返回功能"
                                     : "返回产品设计"
                             }
@@ -1640,9 +1823,23 @@ function HostToolbar() {
                 <If when={narrow()}>
                     <If when={currentPlugin()}>
                         <Tool
-                            label="返回"
+                            label={
+                                sourceReturn()
+                                    ? sourceReturnLabel(
+                                          sourceReturn(),
+                                          "返回来源",
+                                      )
+                                    : "返回"
+                            }
                             icon="back"
-                            text="返回"
+                            text={
+                                sourceReturn()
+                                    ? sourceReturnLabel(
+                                          sourceReturn(),
+                                          "返回来源",
+                                      )
+                                    : "返回"
+                            }
                             size="touch"
                             onPress={closePluginWorkspace}
                         />
@@ -1711,6 +1908,14 @@ function HostToolbar() {
     );
 }
 function App() {
+    let lastWorkspaceSignature = "";
+    effect(() => {
+        const workspaces = pluginWorkspaces();
+        const signature = workspaces.map((workspace) => workspace.id).join("\n");
+        if (signature === lastWorkspaceSignature) return;
+        lastWorkspaceSignature = signature;
+        untracked(() => reconcilePluginWorkspaces(workspaces));
+    });
     effect(() => {
         BackHandler.on("press", () => {
             if (updateOpen()) {
@@ -1869,6 +2074,38 @@ function App() {
                     </View>
                     <Rule />
                 </If>
+                <If when={pluginNotice()}>
+                    <View
+                        accessibilityLabel="工作区提示"
+                        style={{
+                            flexShrink: 0,
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 8,
+                            paddingHorizontal: 12,
+                            paddingVertical: 8,
+                            backgroundColor: ink("surface-danger"),
+                        }}
+                    >
+                        <Glyph name="info" size={14} color={ink("text-danger")} />
+                        <View style={{ flex: 1, minWidth: 0 }}>
+                            <Text
+                                style={{
+                                    fontSize: 12,
+                                    lineHeight: 18,
+                                    color: ink("text-danger"),
+                                }}
+                            >
+                                {pluginNotice()}
+                            </Text>
+                        </View>
+                        <Tool
+                            label="关闭提示"
+                            icon="close"
+                            onPress={clearPluginNotice}
+                        />
+                    </View>
+                </If>
                 <View style={{ flex: 1, flexDirection: "row", minHeight: 0 }}>
                     <View style={{ flex: 1, minWidth: 0 }}>
                         <If when={!activePlugin() && library()}>
@@ -1896,6 +2133,11 @@ function App() {
                                 >
                                     {workspace().render({
                                         compact: narrow(),
+                                        navigation:
+                                            activePlugin() === workspace().id
+                                                ? pluginNavigation()
+                                                : null,
+                                        onOpenSource: handleOpenSource,
                                     })}
                                 </If>
                             )}
@@ -1956,7 +2198,7 @@ void (async () => {
         }
         setTimeout(() => {
             if (target === "vocab") {
-                if (!openPluginWorkspaceByRole("ui_slot", "背单词")) return;
+                if (!openPluginWorkspaceByRole("ui_slot", "背单词").ok) return;
                 if (vocabDir) {
                     void (async () => {
                         await new Promise((resolve) => setTimeout(resolve, 700));
@@ -1965,7 +2207,7 @@ void (async () => {
                 }
                 return;
             }
-            if (!openPluginWorkspaceByRole("ui_slot", "想法")) return;
+            if (!openPluginWorkspaceByRole("ui_slot", "想法").ok) return;
             if (notesDir) {
                 void (async () => {
                     await new Promise((resolve) => setTimeout(resolve, 700));

@@ -65,9 +65,9 @@ wsl.exe -d Ubuntu --cd /workspace/qusor --exec bash -lc 'python3 experiments/nsh
 首次获取公开源码；已有固定 checkout 可通过 --source 指定，不覆盖已有目录：
 
 ```sh
-git clone --no-checkout --depth 1 --filter=blob:none https://github.com/longbridge/nsh.git experiments/nsh-reader/target/nsh
-git -C experiments/nsh-reader/target/nsh fetch --depth 1 origin 913fd76e1f8434ec6cdf248f4476c1ebe08af19f
-git -C experiments/nsh-reader/target/nsh checkout --detach 913fd76e1f8434ec6cdf248f4476c1ebe08af19f
+git clone --no-checkout --depth 1 --filter=blob:none https://github.com/longbridge/nsh.git third_party/nsh
+git -C third_party/nsh fetch --depth 1 origin 913fd76e1f8434ec6cdf248f4476c1ebe08af19f
+git -C third_party/nsh checkout --detach 913fd76e1f8434ec6cdf248f4476c1ebe08af19f
 python3 experiments/nsh-reader/preflight.py --output experiments/nsh-reader/target/preflight.json
 python3 experiments/nsh-reader/preflight.py --cargo-check --output experiments/nsh-reader/target/compile-preflight.json
 ```
@@ -102,7 +102,7 @@ python3 experiments/nsh-reader/preflight.py --profile native --cargo-check --out
 指定编译路径的 [329 项 Cargo 声明许可清单](evidence/linux-native-dependencies.tsv) 来自下列离线命令，按名称/版本去重。它覆盖 normal/build 依赖，不是发布包 SBOM 或许可证审批；系统库、捆绑资源、默认 feature、CLI/应用包及其他平台仍须单独核查：
 
 ```sh
-cd experiments/nsh-reader/target/nsh
+cd third_party/nsh
 export RUSTUP_TOOLCHAIN=1.97.1
 cargo fetch --locked --target x86_64-unknown-linux-gnu --offline
 cargo tree -p nsh-platform-linux --no-default-features --features js,webview \
@@ -113,11 +113,13 @@ cargo tree -p nsh-platform-linux --no-default-features --features js,webview \
 在这些工具已准备好的环境中，先重跑 preflight，再按 [上游混合示例](https://github.com/longbridge/nsh/blob/913fd76e1f8434ec6cdf248f4476c1ebe08af19f/examples/rust-exports/README.md) 执行：
 
 ```sh
-cd experiments/nsh-reader/target/nsh
+cd third_party/nsh
 export RUSTUP_TOOLCHAIN=1.97.1
 cargo fetch --locked --target x86_64-unknown-linux-gnu
 cargo check -p nsh-platform-linux --no-default-features --features js,webview --locked --offline
 cargo build -p nsh-cli --locked --offline
+# 上游只把可执行文件上两级当作检出根，示例 run/package 使用检出内 target/debug/nsh。
+# QUSOR 活入口的 CLI 在仓库根 .build/cargo-target/debug/nsh，见 docs/development.md。
 CARGO_NET_OFFLINE=true ./target/debug/nsh run examples/rust-exports --target linux
 CARGO_NET_OFFLINE=true ./target/debug/nsh package examples/rust-exports --target linux --out ../packaged-rust-exports --run
 ```

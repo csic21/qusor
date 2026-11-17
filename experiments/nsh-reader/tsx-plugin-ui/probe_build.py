@@ -10,11 +10,14 @@ import hashlib
 import json
 import shutil
 import subprocess
+import sys
 import tempfile
 
 BASE = Path(__file__).resolve().parent
-ROOT = BASE.parents[2]
-CLI = ROOT / "experiments/nsh-reader/target/nsh/target/debug/nsh"
+ROOT = BASE.parents[3]
+sys.path.insert(0, str(ROOT / "scripts"))
+from build_layout import nsh_cli
+CLI = nsh_cli()
 
 
 def digest(path):

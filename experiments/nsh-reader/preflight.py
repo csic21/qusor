@@ -17,9 +17,10 @@ import signal
 import subprocess
 import sys
 
-NSH_SHA = "913fd76e1f8434ec6cdf248f4476c1ebe08af19f"
 RUST_TOOLCHAIN = "1.97.1"
 BASE = Path(__file__).resolve().parent
+sys.path.insert(0, str(BASE.parent.parent / "scripts"))
+from build_layout import NSH_SHA, NSH_SRC
 SOURCE_FILES = (
     "Cargo.toml", "Cargo.lock", "rust-toolchain.toml",
     "crates/nsh-platform-linux/Cargo.toml",
@@ -240,7 +241,7 @@ def collect(source: Path, cargo_check: bool, profile: str = "native", native_pre
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, default=BASE / "target/nsh")
+    parser.add_argument("--source", type=Path, default=NSH_SRC)
     parser.add_argument("--output", type=Path, help="Optional JSON evidence file; stdout always receives the report.")
     parser.add_argument("--cargo-check", action="store_true", help="Attempt bounded offline check in pinned upstream workspace.")
     parser.add_argument("--profile", choices=tuple(PROFILES), default="native",

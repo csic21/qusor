@@ -307,6 +307,7 @@ mod tests {
             generation: 1,
             api_version: Some(HOST_API_V0_8),
             compact,
+            navigation: None,
         }
     }
 

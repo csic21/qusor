@@ -6,7 +6,7 @@
 
 本次读取[官方发布](https://github.com/longbridge/nsh/releases)、[近期提交](https://github.com/longbridge/nsh/commits/main/)、[Linux后端文档](https://github.com/longbridge/nsh/blob/bba76ef739135dbdaa0147e2533c75e814beb61f/docs/dev/linux.md)。发布页显示stable v0.4.0、nightly f81b965；近期检索首项为 [bba76ef](https://github.com/longbridge/nsh/commit/bba76ef739135dbdaa0147e2533c75e814beb61f)（tooltip转发），另有 [df35720](https://github.com/longbridge/nsh/commit/df35720fede134fa98b080a4f19ec51360b725b1)（分平台运行组件安装）、[3b4f2ab](https://github.com/longbridge/nsh/commit/3b4f2abfe4dfc4f346b73877dd9036d04674ead4)（Android提交时结束composition）及 [0fd4712](https://github.com/longbridge/nsh/commit/0fd4712887c4154368a0c9abaed6571fd217bfe8)（超高聚焦view滚动）。这些提交摘要没有给出本项目所需的mount释放回执证明，不据此升级或关闭门槛。
 
-下文实际追踪的本地NSH仍为固定 [913fd76e1f8434ec6cdf248f4476c1ebe08af19f](https://github.com/longbridge/nsh/tree/913fd76e1f8434ec6cdf248f4476c1ebe08af19f)，根目录为 `experiments/nsh-reader/target/nsh`。上游链接固定到该SHA；本地行号仅对应这份源码。后续若要增加backend observer，须在独立副本/工作树留存base SHA、补丁、锁与工件，不能悄悄修改已封存pin后沿用旧资格。
+下文实际追踪的本地NSH仍为固定 [913fd76e1f8434ec6cdf248f4476c1ebe08af19f](https://github.com/longbridge/nsh/tree/913fd76e1f8434ec6cdf248f4476c1ebe08af19f)，根目录为 `third_party/nsh`。上游链接固定到该SHA；本地行号仅对应这份源码。后续若要增加backend observer，须在独立副本/工作树留存base SHA、补丁、锁与工件，不能悄悄修改已封存pin后沿用旧资格。
 
 ## 当前信号能证明什么
 

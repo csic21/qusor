@@ -9,7 +9,9 @@ use core_api::{
     knowledge::Provenance,
     pdf_contract::{PDF_NORMALIZATION, PDF_TEXT_UNIT, PdfDraft, PdfSnapshot},
 };
-use extension_api::ui::{PLUGIN_UI_PROTOCOL, UiAction, UiBudgets, UiEventEnvelope, UiTree};
+use extension_api::ui::{
+    PLUGIN_UI_PROTOCOL, UiAction, UiBudgets, UiComponent, UiEventEnvelope, UiNode, UiTree,
+};
 use learning_application::{KnowledgeApplication, epub_library::EpubSelectionRange};
 use nsh_core::prelude::System;
 use qusor_app_native::{
@@ -29,6 +31,14 @@ const PDF_TEXT: &str = "Local-first storage keeps user notes independent.";
 const EPUB_TEXT: &str = "Alpha Orthogonal capabilities decouple read from write.";
 
 struct Scratch(PathBuf);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct SeededNotes {
+    pdf_document_id: i64,
+    pdf_capture_id: i64,
+    epub_document_id: i64,
+    epub_capture_id: i64,
+}
 
 impl Scratch {
     fn new() -> Self {
@@ -51,6 +61,27 @@ impl Drop for Scratch {
 
 fn parse_json(raw: String) -> Value {
     serde_json::from_str(&raw).unwrap()
+}
+
+fn decode_tree(response: &Value) -> UiTree {
+    let bytes = serde_json::to_vec(&response["value"]["tree"]).unwrap();
+    UiTree::from_slice_with_budgets(&bytes, UiBudgets::default()).unwrap()
+}
+
+fn has_button_action(node: &UiNode, node_id: &str, label: &str, action_id: &str) -> bool {
+    let hit = node.id == node_id
+        && matches!(
+            &node.component,
+            UiComponent::Button {
+                label: button_label,
+                action_id: button_action,
+                ..
+            } if button_label == label && button_action == action_id
+        );
+    hit || node
+        .children
+        .iter()
+        .any(|child| has_button_action(child, node_id, label, action_id))
 }
 
 fn envelope(
@@ -138,7 +169,7 @@ fn pdf_snapshot(original: &[u8]) -> PdfSnapshot {
     .unwrap()
 }
 
-fn seed_pdf_and_epub_captures(data_dir: &std::path::Path) -> (i64, i64) {
+fn seed_pdf_and_epub_captures(data_dir: &std::path::Path) -> SeededNotes {
     let mut app = KnowledgeApplication::new(SqliteStore::open(data_dir.join("core")).unwrap());
     let provenance = Provenance {
         package_id: "org.qusor.notes".into(),
@@ -212,13 +243,20 @@ fn seed_pdf_and_epub_captures(data_dir: &std::path::Path) -> (i64, i64) {
         )
         .unwrap();
 
-    (pdf_cap.capture_id, epub_cap.capture_id)
+    SeededNotes {
+        pdf_document_id: pdf_doc.document_id,
+        pdf_capture_id: pdf_cap.capture_id,
+        epub_document_id: epub_doc.document_id,
+        epub_capture_id: epub_cap.capture_id,
+    }
 }
 
 #[test]
 fn real_notes_wasm_plugin_queries_updates_deletes_and_persists_to_sqlite() {
     let scratch = Scratch::new();
-    let (pdf_cap_id, epub_cap_id) = seed_pdf_and_epub_captures(&scratch.0);
+    let seeded = seed_pdf_and_epub_captures(&scratch.0);
+    let pdf_cap_id = seeded.pdf_capture_id;
+    let epub_cap_id = seeded.epub_capture_id;
 
     let mut system = System::default();
     system.data_dir = Some(scratch.0.clone());
@@ -292,7 +330,8 @@ fn real_notes_wasm_plugin_queries_updates_deletes_and_persists_to_sqlite() {
         ),
     ));
     assert_eq!(selected_epub["ok"], true, "{selected_epub}");
-    let selected_text = selected_epub["value"]["tree"].to_string();
+    let selected_epub_tree = decode_tree(&selected_epub);
+    let selected_text = serde_json::to_string(&selected_epub_tree).unwrap();
     assert!(
         selected_text.contains("Orthogonal capabilities decouple read from write."),
         "{selected_text}"
@@ -300,6 +339,18 @@ fn real_notes_wasm_plugin_queries_updates_deletes_and_persists_to_sqlite() {
     assert!(
         selected_text.contains("Initial EPUB note"),
         "{selected_text}"
+    );
+    assert!(
+        has_button_action(
+            &selected_epub_tree.root,
+            "detail_open_source_btn",
+            "打开原文",
+            &format!(
+                "open_source:epub:{}:0:{}",
+                seeded.epub_document_id, seeded.epub_capture_id
+            ),
+        ),
+        "EPUB detail should expose the exact open-source action: {selected_text}"
     );
 
     // 4. Edit draft and submit UpdateCaptureNote -> persists into SQLite Core.
@@ -353,6 +404,20 @@ fn real_notes_wasm_plugin_queries_updates_deletes_and_persists_to_sqlite() {
         ),
     ));
     assert_eq!(selected_pdf["ok"], true, "{selected_pdf}");
+    let selected_pdf_tree = decode_tree(&selected_pdf);
+    let selected_pdf_text = serde_json::to_string(&selected_pdf_tree).unwrap();
+    assert!(
+        has_button_action(
+            &selected_pdf_tree.root,
+            "detail_open_source_btn",
+            "打开原文",
+            &format!(
+                "open_source:pdf:{}:0:{}",
+                seeded.pdf_document_id, seeded.pdf_capture_id
+            ),
+        ),
+        "PDF detail should expose the exact open-source action: {selected_pdf_text}"
+    );
 
     let ask_delete = parse_json(PluginSlotHost::dispatch_event(
         system.clone(),

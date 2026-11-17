@@ -196,6 +196,7 @@ Core API、文档版本、ReaderAnchor 与持久化 Schema 均独立版本化。
 | 0054 | [Core 分层清理与命名演进路线](adr/0054-core-layering-and-naming.md) | Accepted | 统一 `core-api` 错误基元、下沉归档/outbox/index_job 核验至 `learning-ports::archive`，确立 `learning-application`（`knowledge`/`session`/`study`）三层及渐进拆分为 `knowledge-*`/`study-*` 的迁移路线 |
 | 0055 | [生命周期简化与扩展端口解耦](adr/0055-lifecycle-and-port-decoupling.md) | Accepted | 抽出仅依 `extension-api` 的 `crates/extension-ports` 消除 `extension-store` 依赖倒置；新增 `preserve_grants`/`upgrade_package` 同权升级保留授权与 `enable_intent`、扩权清除重授；将 `runtime-process` 收敛为桌面原生 helper/外部 MCP 监督 |
 | 0056 | [Host API 0.8 正交能力路由与第一方全工作区插件迁出](adr/0056-orthogonal-host-api-and-full-plugin-migration.md) | Accepted | 落地 Host API 0.8 正交能力与 `ExtensionRouter`、清理全部 `#[deprecated]` 存储调用，并将 `vocab`/`notes`/`library`/`reader` 全量迁出为 Wasm `ui.slot` 插件（`legacy_plugin_bypass` 归零） |
+| 0057 | [共享 NSH 构建缓存](adr/0057-shared-nsh-build-cache.md) | Accepted | 唯一 NSH 检出在 third_party/nsh；2026-11-17 起 `[build] target-dir` 把未设环境变量的 Cargo 产物写入 `.build/cargo-target`，进程级 `CARGO_TARGET_DIR` 仍优先；不并入根 Workspace |
 <!-- ADR-INDEX-END -->
 
 ## 相关研究

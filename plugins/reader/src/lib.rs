@@ -15,8 +15,8 @@ mod tests {
     use qusor_sdk::{
         CoreKnowledgeOperation, CoreKnowledgeRequest, CoreKnowledgeResponse, CoreKnowledgeResult,
         DocumentFormat, HOST_API_V0_8, HostTransport, KnowledgeDocumentSummary,
-        KnowledgeNoteSummary, KnowledgeSavedRange, KnowledgeTocEntry, SdkError, SlotPlugin,
-        SlotRenderContext, SlotUpdate,
+        KnowledgeNoteSummary, KnowledgeSavedRange, KnowledgeTocEntry, SdkError, SlotNavigation,
+        SlotPlugin, SlotRenderContext, SlotUpdate,
     };
     use std::cell::RefCell;
 
@@ -29,6 +29,8 @@ mod tests {
         selections: RefCell<Vec<SavedSelectionRecord>>,
         notes: RefCell<Vec<KnowledgeNoteSummary>>,
         seen_ops: RefCell<Vec<CoreKnowledgeOperation>>,
+        documents_page_size: usize,
+        repeat_cursor: Option<String>,
     }
 
     impl FakeHost {
@@ -39,6 +41,8 @@ mod tests {
                 selections: RefCell::new(Vec::new()),
                 notes: RefCell::new(Vec::new()),
                 seen_ops: RefCell::new(Vec::new()),
+                documents_page_size: usize::MAX,
+                repeat_cursor: None,
             }
         }
 
@@ -139,6 +143,50 @@ mod tests {
                     },
                 ]),
                 seen_ops: RefCell::new(Vec::new()),
+                documents_page_size: usize::MAX,
+                repeat_cursor: None,
+            }
+        }
+
+        fn with_documents_page_size(mut self, size: usize) -> Self {
+            self.documents_page_size = size.max(1);
+            self
+        }
+
+        fn repeated_cursor(mut self, cursor: &str) -> Self {
+            self.repeat_cursor = Some(cursor.to_owned());
+            self
+        }
+
+        fn operations(&self) -> Vec<CoreKnowledgeOperation> {
+            self.seen_ops.borrow().clone()
+        }
+
+        fn clear_operations(&self) {
+            self.seen_ops.borrow_mut().clear();
+        }
+
+        fn remove_capture(&self, capture_id: i64) {
+            for (_, _, _, ranges) in self.selections.borrow_mut().iter_mut() {
+                ranges.retain(|range| range.capture_id != capture_id);
+            }
+            self.remove_note(capture_id);
+        }
+
+        fn remove_note(&self, capture_id: i64) {
+            self.notes
+                .borrow_mut()
+                .retain(|note| note.capture_id != capture_id);
+        }
+
+        fn move_note_section(&self, capture_id: i64, section_index: u32) {
+            for note in self
+                .notes
+                .borrow_mut()
+                .iter_mut()
+                .filter(|note| note.capture_id == capture_id)
+            {
+                note.section_index = section_index;
             }
         }
     }
@@ -149,17 +197,30 @@ mod tests {
                 .map_err(|err| SdkError::Serialize(err.to_string()))?;
             self.seen_ops.borrow_mut().push(req.operation.clone());
             let result = match req.operation {
-                CoreKnowledgeOperation::DocumentsPage { format, .. } => {
-                    let docs = self
+                CoreKnowledgeOperation::DocumentsPage { format, cursor, .. } => {
+                    let offset = cursor
+                        .as_deref()
+                        .and_then(|value| value.parse::<usize>().ok())
+                        .unwrap_or(0);
+                    let matching: Vec<KnowledgeDocumentSummary> = self
                         .documents
                         .borrow()
                         .iter()
                         .filter(|doc| format.is_none_or(|f| doc.format == f))
                         .cloned()
                         .collect();
+                    let end = offset
+                        .saturating_add(self.documents_page_size)
+                        .min(matching.len());
+                    let documents = matching.get(offset..end).unwrap_or(&[]).to_vec();
+                    let next_cursor = if end < matching.len() {
+                        Some(end.to_string())
+                    } else {
+                        self.repeat_cursor.clone()
+                    };
                     CoreKnowledgeResult::DocumentsPage {
-                        documents: docs,
-                        next_cursor: None,
+                        documents,
+                        next_cursor,
                     }
                 }
                 CoreKnowledgeOperation::DocumentToc {
@@ -252,7 +313,28 @@ mod tests {
             generation: 1,
             api_version: Some(HOST_API_V0_8),
             compact: false,
+            navigation: None,
         }
+    }
+
+    fn navigation_ctx(token: &str, payload: serde_json::Value) -> SlotRenderContext {
+        SlotRenderContext {
+            navigation: Some(SlotNavigation {
+                route: "source_capture".into(),
+                launch_token: token.into(),
+                payload,
+            }),
+            ..render_ctx()
+        }
+    }
+
+    fn valid_navigation() -> serde_json::Value {
+        serde_json::json!({
+            "format": "epub",
+            "document_id": 20,
+            "section_index": 1,
+            "capture_id": 102,
+        })
     }
 
     fn find_text(node: &UiNode, needle: &str) -> bool {
@@ -475,5 +557,351 @@ mod tests {
                 ControlledSurfaceKind::ReaderDocument
             ))
         );
+    }
+
+    #[test]
+    fn source_navigation_consumes_each_token_once_for_success_and_failure() {
+        let host = FakeHost::seeded();
+        let mut plugin = ReaderPlugin::default();
+
+        let success_ctx = navigation_ctx("launch-success", valid_navigation());
+        let first = plugin.render(&success_ctx, &host).unwrap();
+        first.validate(UiBudgets::default()).unwrap();
+        assert_eq!(
+            find_surface(&first.root).map(|(surface, _)| surface),
+            Some("reader-doc:focus-102:epub:20:1".to_owned())
+        );
+        assert!(!host.operations().is_empty());
+
+        host.clear_operations();
+        let repeated = plugin.render(&success_ctx, &host).unwrap();
+        repeated.validate(UiBudgets::default()).unwrap();
+        assert!(host.operations().is_empty());
+        assert_eq!(
+            find_surface(&repeated.root).map(|(surface, _)| surface),
+            Some("reader-doc:focus-102:epub:20:1".to_owned())
+        );
+
+        let mut invalid = valid_navigation();
+        invalid["capture_id"] = serde_json::json!(999);
+        let failure_ctx = navigation_ctx("launch-failure", invalid);
+        let first_failure = plugin.render(&failure_ctx, &host).unwrap();
+        first_failure.validate(UiBudgets::default()).unwrap();
+        assert!(find_text(&first_failure.root, "摘录 #999"));
+        assert_eq!(host.operations().len(), 3);
+
+        host.clear_operations();
+        let repeated_failure = plugin.render(&failure_ctx, &host).unwrap();
+        repeated_failure.validate(UiBudgets::default()).unwrap();
+        assert!(host.operations().is_empty());
+        assert!(find_text(&repeated_failure.root, "摘录 #999"));
+        assert_eq!(first_failure.root, repeated_failure.root);
+    }
+
+    #[test]
+    fn source_navigation_is_not_replayed_after_ordinary_transitions() {
+        let host = FakeHost::seeded();
+        let mut plugin = ReaderPlugin::default();
+        let navigation = navigation_ctx("launch-once", valid_navigation());
+
+        let tree = plugin.render(&navigation, &host).unwrap();
+        assert_eq!(
+            find_surface(&tree.root).map(|(surface, _)| surface),
+            Some("reader-doc:focus-102:epub:20:1".to_owned())
+        );
+
+        let SlotUpdate::Tree(switched) = plugin
+            .handle_event(
+                &event("reader_prev_btn", "prev_section", UiAction::Press),
+                &host,
+            )
+            .unwrap()
+        else {
+            panic!("expected tree");
+        };
+        assert_eq!(
+            find_surface(&switched.root).map(|(surface, _)| surface),
+            Some("reader-doc:epub:20:0".to_owned())
+        );
+
+        let _ = plugin
+            .handle_event(
+                &event("reader_back_btn", "back_to_shelf", UiAction::Press),
+                &host,
+            )
+            .unwrap();
+        let _ = plugin
+            .handle_event(
+                &event("reader_refresh_btn", "refresh_library", UiAction::Press),
+                &host,
+            )
+            .unwrap();
+        let _ = plugin
+            .handle_event(
+                &event("doc_item_epub_20", "open_doc:epub:20", UiAction::Press),
+                &host,
+            )
+            .unwrap();
+        host.clear_operations();
+
+        let repeated = plugin.render(&navigation, &host).unwrap();
+        assert!(host.operations().is_empty());
+        assert_eq!(
+            find_surface(&repeated.root).map(|(surface, _)| surface),
+            Some("reader-doc:epub:20:0".to_owned())
+        );
+    }
+
+    #[test]
+    fn source_navigation_finds_epub_with_unfiltered_page_and_keeps_shelf_filter() {
+        let host = FakeHost::seeded();
+        let mut plugin = ReaderPlugin::default();
+        plugin.render(&render_ctx(), &host).unwrap();
+        let _ = plugin
+            .handle_event(
+                &event(
+                    "reader_format_tabs",
+                    "filter_format",
+                    UiAction::TabChanged {
+                        tab_id: "pdf".into(),
+                    },
+                ),
+                &host,
+            )
+            .unwrap();
+        host.clear_operations();
+
+        let tree = plugin
+            .render(
+                &navigation_ctx("launch-unfiltered", valid_navigation()),
+                &host,
+            )
+            .unwrap();
+        assert_eq!(
+            find_surface(&tree.root).map(|(surface, _)| surface),
+            Some("reader-doc:focus-102:epub:20:1".to_owned())
+        );
+        let page_formats: Vec<Option<DocumentFormat>> = host
+            .operations()
+            .into_iter()
+            .filter_map(|operation| match operation {
+                CoreKnowledgeOperation::DocumentsPage { format, .. } => Some(format),
+                _ => None,
+            })
+            .collect();
+        assert!(!page_formats.is_empty());
+        assert!(page_formats.iter().all(Option::is_none));
+
+        let _ = plugin
+            .handle_event(
+                &event("reader_back_btn", "back_to_shelf", UiAction::Press),
+                &host,
+            )
+            .unwrap();
+        let SlotUpdate::Tree(shelf) = plugin
+            .handle_event(
+                &event("reader_refresh_btn", "refresh_library", UiAction::Press),
+                &host,
+            )
+            .unwrap()
+        else {
+            panic!("expected tree");
+        };
+        assert!(find_text(&shelf.root, "Rust Wasm Runtime"));
+        assert!(!find_text(&shelf.root, "Local First Architecture"));
+    }
+
+    #[test]
+    fn direct_open_document_uses_unfiltered_page_without_changing_shelf_filter() {
+        let host = FakeHost::seeded();
+        let mut plugin = ReaderPlugin::default();
+        plugin.render(&render_ctx(), &host).unwrap();
+        let _ = plugin
+            .handle_event(
+                &event(
+                    "reader_format_tabs",
+                    "filter_format",
+                    UiAction::TabChanged {
+                        tab_id: "pdf".into(),
+                    },
+                ),
+                &host,
+            )
+            .unwrap();
+        host.clear_operations();
+
+        let SlotUpdate::Tree(opened) = plugin
+            .handle_event(
+                &event("doc_item_epub_20", "open_doc:epub:20", UiAction::Press),
+                &host,
+            )
+            .unwrap()
+        else {
+            panic!("expected tree");
+        };
+        opened.validate(UiBudgets::default()).unwrap();
+        assert_eq!(
+            find_surface(&opened.root).map(|(surface, _)| surface),
+            Some("reader-doc:epub:20:0".to_owned())
+        );
+        let page_formats: Vec<Option<DocumentFormat>> = host
+            .operations()
+            .into_iter()
+            .filter_map(|operation| match operation {
+                CoreKnowledgeOperation::DocumentsPage { format, .. } => Some(format),
+                _ => None,
+            })
+            .collect();
+        assert!(!page_formats.is_empty());
+        assert!(page_formats.iter().all(Option::is_none));
+
+        let _ = plugin
+            .handle_event(
+                &event("reader_back_btn", "back_to_shelf", UiAction::Press),
+                &host,
+            )
+            .unwrap();
+        let SlotUpdate::Tree(shelf) = plugin
+            .handle_event(
+                &event("reader_refresh_btn", "refresh_library", UiAction::Press),
+                &host,
+            )
+            .unwrap()
+        else {
+            panic!("expected tree");
+        };
+        assert!(find_text(&shelf.root, "Rust Wasm Runtime"));
+        assert!(!find_text(&shelf.root, "Local First Architecture"));
+    }
+
+    #[test]
+    fn document_search_stops_on_unadvanced_and_repeated_cursors() {
+        let no_progress = FakeHost::seeded().repeated_cursor("loop");
+        let mut plugin = ReaderPlugin::default();
+        let missing = serde_json::json!({
+            "format": "epub",
+            "document_id": 999,
+            "section_index": 0,
+            "capture_id": 1,
+        });
+        plugin
+            .render(
+                &navigation_ctx("launch-loop", missing.clone()),
+                &no_progress,
+            )
+            .unwrap();
+        let loop_pages = no_progress
+            .operations()
+            .into_iter()
+            .filter(|operation| matches!(operation, CoreKnowledgeOperation::DocumentsPage { .. }))
+            .count();
+        assert_eq!(loop_pages, 2);
+
+        let repeated = FakeHost::seeded()
+            .with_documents_page_size(1)
+            .repeated_cursor("0");
+        let mut plugin = ReaderPlugin::default();
+        plugin
+            .render(&navigation_ctx("launch-repeat", missing), &repeated)
+            .unwrap();
+        let cursor_pages = repeated
+            .operations()
+            .into_iter()
+            .filter_map(|operation| match operation {
+                CoreKnowledgeOperation::DocumentsPage { cursor, .. } => Some(cursor),
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(
+            cursor_pages,
+            vec![None, Some("1".to_owned()), Some("0".to_owned())]
+        );
+    }
+
+    #[test]
+    fn refresh_reader_invalidates_focus_when_capture_or_note_is_gone() {
+        let host = FakeHost::seeded();
+        let mut plugin = ReaderPlugin::default();
+        let tree = plugin
+            .render(&navigation_ctx("launch-focus", valid_navigation()), &host)
+            .unwrap();
+        assert_eq!(
+            find_surface(&tree.root).map(|(surface, _)| surface),
+            Some("reader-doc:focus-102:epub:20:1".to_owned())
+        );
+
+        host.remove_capture(102);
+        let SlotUpdate::Tree(refreshed) = plugin
+            .handle_event(
+                &event("reader_view_refresh_btn", "refresh_reader", UiAction::Press),
+                &host,
+            )
+            .unwrap()
+        else {
+            panic!("expected tree");
+        };
+        refreshed.validate(UiBudgets::default()).unwrap();
+        assert_eq!(
+            find_surface(&refreshed.root).map(|(surface, _)| surface),
+            Some("reader-doc:epub:20:1".to_owned())
+        );
+        assert!(find_text(
+            &refreshed.root,
+            "摘录 #102 已不存在，已退出精确回源。"
+        ));
+
+        let host = FakeHost::seeded();
+        let mut plugin = ReaderPlugin::default();
+        plugin
+            .render(
+                &navigation_ctx("launch-focus-note", valid_navigation()),
+                &host,
+            )
+            .unwrap();
+        host.remove_note(102);
+        let SlotUpdate::Tree(refreshed) = plugin
+            .handle_event(
+                &event("reader_view_refresh_btn", "refresh_reader", UiAction::Press),
+                &host,
+            )
+            .unwrap()
+        else {
+            panic!("expected tree");
+        };
+        assert_eq!(
+            find_surface(&refreshed.root).map(|(surface, _)| surface),
+            Some("reader-doc:epub:20:1".to_owned())
+        );
+        assert!(find_text(
+            &refreshed.root,
+            "摘录 #102 已不存在，已退出精确回源。"
+        ));
+
+        let host = FakeHost::seeded();
+        let mut plugin = ReaderPlugin::default();
+        plugin
+            .render(
+                &navigation_ctx("launch-focus-section", valid_navigation()),
+                &host,
+            )
+            .unwrap();
+        host.move_note_section(102, 0);
+        let SlotUpdate::Tree(refreshed) = plugin
+            .handle_event(
+                &event("reader_view_refresh_btn", "refresh_reader", UiAction::Press),
+                &host,
+            )
+            .unwrap()
+        else {
+            panic!("expected tree");
+        };
+        assert_eq!(
+            find_surface(&refreshed.root).map(|(surface, _)| surface),
+            Some("reader-doc:epub:20:1".to_owned())
+        );
+        assert!(find_text(
+            &refreshed.root,
+            "摘录 #102 已不存在，已退出精确回源。"
+        ));
     }
 }

@@ -164,6 +164,7 @@ mod tests {
                     generation: 1,
                     api_version: Some(HOST_API_V0_7),
                     compact: false,
+                    navigation: None,
                 },
                 &host,
             )

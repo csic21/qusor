@@ -31,6 +31,27 @@ cargo test --manifest-path apps/qusor/native/Cargo.toml --lib --offline
 
 Cargo.lock 已纳入工程。当前配置变更需要重新生成锁文件时使用 cargo generate-lockfile --offline；不要为了绕过 --locked 检查忽略锁文件。
 
+## 构建缓存
+
+NSH 源码只有 `third_party/nsh` 这一份，固定 `913fd76e1f8434ec6cdf248f4476c1ebe08af19f`，不放在 `target/` 里。路径以 [scripts/build_layout.py](../scripts/build_layout.py) 为准。宿主 CLI 落在 `.build/cargo-target/debug/nsh`。
+
+[`.cargo/config.toml`](../.cargo/config.toml) 使用 `[build] target-dir = ".build/cargo-target"`。相对路径相对于放置 `.cargo` 的仓库根。未设置环境变量时，根 workspace 和 `apps/qusor` 的产物都进这个目录。进程里已经设置的 `CARGO_TARGET_DIR` 仍优先，仓库外作者构建和把该变量指到仓库外的脚本继续隔离。`[env] CARGO_TARGET_DIR` 不能让 Cargo 自己改产物目录，配置里不再保留它。显式指到同一目录仍然有效：
+
+```sh
+CARGO_TARGET_DIR="$(pwd)/.build/cargo-target" \
+  cargo build --locked -p nsh-cli --manifest-path third_party/nsh/Cargo.toml
+```
+
+上游 `crates/gpui/.cargo/config.toml` 写了 `target-dir = "../../target"`，会盖过根配置，所以编 GPUI 仍可能写回 `third_party/nsh/target`。上游 CLI 只把可执行文件的上两级当成检出根。`.build/cargo-target/debug/nsh` 不在 `third_party/nsh/target` 下面，所以它不会自己找到检出。生产应用是 Rust app，`nsh package` 与 `nsh test` 走应用自己的 workspace。Android 运行时由 `cargo xtask android` 写在 `third_party/nsh/target/android`，打包时把 `NSH_RUNTIME` 设为 `third_party/nsh/target`。清掉 `third_party/nsh/target` 之后，下次打 Android 包或编 GPUI 会再生成这里。
+
+本机默认只留宿主产物。交叉目标要显式 `--target`。回收用：
+
+```sh
+python3 scripts/clean_build_cache.py
+```
+
+`scripts/clean_build_cache.py` 默认只清 `.build/cargo-target` 的 `incremental` 和非宿主三元组，不删除 `third_party/nsh/target`。2026-11-17 已一次性删掉各 workspace 里带 Cargo 标记的旧 `target/`。下一次本机构建是冷构建，产物进入 `.build/cargo-target`。
+
 ## 独立插件执行实验
 
 用户已授权的 [Wasm 实验](../experiments/extension-wasm/README.md) 使用独立执行器和作者 Workspace。先分别以 cargo fetch --manifest-path <对应 Cargo.toml> --locked 准备缓存，再在 WSL 从根目录运行：
@@ -64,9 +85,9 @@ python3 plugins/vocab/build.py
 ```sh
 python3 experiments/nsh-reader/native-workbench/prepare.py --size 1280x820 --evidence vocab
 cd experiments/nsh-reader/native-workbench
-../target/nsh/target/debug/nsh check App.tsx
-../target/nsh/target/debug/nsh test tests/vocab-workspace.test.tsx
-../target/nsh/target/debug/nsh test tests/notes-workspace.test.tsx
+../../../.build/cargo-target/debug/nsh check App.tsx
+../../../.build/cargo-target/debug/nsh test tests/vocab-workspace.test.tsx
+../../../.build/cargo-target/debug/nsh test tests/notes-workspace.test.tsx
 cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offline --test vocab_native
 cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offline --lib vocab_native
 ```
@@ -84,7 +105,7 @@ cargo test --manifest-path experiments/nsh-reader/native-host/Cargo.toml --offli
 ```sh
 python3 apps/qusor/prepare.py                     # 生成 notes/vocab 包与公钥到 native/assets
 cd apps/qusor && CARGO_PROFILE_RELEASE_STRIP=none \
-  ../experiments/nsh-reader/target/nsh/target/debug/nsh package --target macos --out /tmp/qusor-app-dist
+  ../../.build/cargo-target/debug/nsh package --target macos --out /tmp/qusor-app-dist
 ```
 
 `CARGO_PROFILE_RELEASE_STRIP=none` 是必需项：默认 `strip=debuginfo` 在固定基线上会产出畸形的 proc-macro dylib。发行清单与 GitHub Actions 流程见 [发行与更新](product/release-and-update.md)；`apps/qusor` 是独立 workspace，不在根 `cargo test --workspace` 范围内，需单独跑 `cargo check --manifest-path apps/qusor/native/Cargo.toml`。
@@ -98,7 +119,8 @@ export ANDROID_HOME="$HOME/Library/Android/sdk"
 export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018"
 export PATH="$JAVA_HOME/bin:$HOME/.cargo/bin:$ANDROID_HOME/platform-tools:/usr/bin:/bin:/usr/sbin:/sbin"
 export RUSTUP_TOOLCHAIN=stable
-../../experiments/nsh-reader/target/nsh/target/debug/nsh package \
+export NSH_RUNTIME="$(cd ../.. && pwd)/third_party/nsh/target"
+../../.build/cargo-target/debug/nsh package \
   --target android --abi arm64-v8a --out /tmp/qusor-android
 python3 package_android_pdfium.py /tmp/qusor-android/QUSOR.apk --abi arm64-v8a
 ```
@@ -109,7 +131,7 @@ PDF 导入与页图的 mac 真窗口回归：
 
 ```sh
 cd apps/qusor
-../../experiments/nsh-reader/target/nsh/target/debug/nsh test --target macos tests/pdf-import.test.tsx
+../../.build/cargo-target/debug/nsh test --target macos tests/pdf-import.test.tsx
 cargo test --manifest-path native/Cargo.toml --locked --offline
 ```
 
@@ -117,7 +139,7 @@ cargo test --manifest-path native/Cargo.toml --locked --offline
 
 ```sh
 cd apps/qusor
-../../experiments/nsh-reader/target/nsh/target/debug/nsh test tests/reading-position.test.tsx
+../../.build/cargo-target/debug/nsh test tests/reading-position.test.tsx
 ```
 
 该测试验证存储格式、损坏/越界值拒绝、页数变化失效、应用重开恢复和翻页写入；它不是 Core 阅读锚点、跨设备同步或导出资格。

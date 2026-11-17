@@ -22,6 +22,8 @@ import sys
 TARGETS = ("macos", "windows", "linux", "ios", "android", "web")
 BASE = Path(__file__).resolve().parent
 REPO_ROOT = BASE.parents[1]
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+from build_layout import CARGO_TARGET
 DEFAULT_APP = BASE / "dynamic-pdf"
 DEFAULT_OUTPUT = BASE / "target" / "platforms"
 HOST_TARGETS = {
@@ -217,10 +219,10 @@ def detect_tools(
             tools["nsh_source"] = "NSH_CLI"
         else:
             candidates = (
-                BASE / "target/nsh/target/debug/nsh",
-                BASE / "target/nsh/target/debug/nsh.exe",
-                BASE / "target/nsh/target/release/nsh",
-                BASE / "target/nsh/target/release/nsh.exe",
+                CARGO_TARGET / "debug" / "nsh",
+                CARGO_TARGET / "debug" / "nsh.exe",
+                CARGO_TARGET / "release" / "nsh",
+                CARGO_TARGET / "release" / "nsh.exe",
             )
             for candidate in candidates:
                 if is_file(candidate):

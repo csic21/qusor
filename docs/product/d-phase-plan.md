@@ -1,6 +1,6 @@
 # D 阶段实施计划：正式本地阅读闭环
 
-更新：2026-11-10。状态：D 阶段未完成；D0 的应用层读取契约（分页游标、正文分块、SQLite 重开）、公开 wire 与 `plugins/notes` 普通签名读取包已通过，工作区 UI/实窗/持久安装未接；`plugins/library`、`plugins/reader` 仍为规划。关联 F-LIB-01、F-READ-01/02/03、F-NOTE-01、F-SRC-01、F-DATA-01、F-EXT-01/03/04/05/06。
+更新：2026-11-15。状态：D 阶段仍未完成验收。四个第一方插件 `vocab`、`notes`、`library`、`reader` 均已成为真实 Rust `wasm32` + 声明式 UI `.qpk` 插件；Notes 已提供“打开原文”，Reader 已落位 `source_capture` 校验与焦点 Surface 导航源码。Reader 的 `source_capture` Wasm→SQLite Core 回源用例已在测试源码落位，但本轮未执行、无结果；Notes 点击“打开原文”→宿主解析→Reader 的完整链仍未覆盖。v0.3.1 构建、macOS 实窗、Android 模拟器与真机均待本轮回填，完整 D 阶段旅程尚未在冻结应用/插件工件上验收。关联 F-LIB-01、F-READ-01/02/03、F-NOTE-01、F-SRC-01、F-DATA-01、F-EXT-01/03/04/05/06。
 
 ## 目标旅程
 
@@ -13,21 +13,30 @@
 → 完整导出到空库并恢复
 ```
 
-第一条链先做普通文本 PDF；EPUB、长书分页、正式检索和其他平台另有门槛。实验工作区、Core 测试或签名包校验都只证明各自范围，不能代替普通身份安装后的完整旅程。
+第一条链先做普通文本 PDF；EPUB、长书分页、正式检索和其他平台另有门槛。Core 测试、插件单元测试、历史实窗和签名包校验都只证明各自范围，不能代替 v0.3.1 冻结产物上的完整旅程。
 
-## 已完成的本轮前置
+## 历史前置（D0 切片，不作为 v0.3.1 验收）
 
 | 增量 | 实际结果 | 未覆盖 |
 |---|---|---|
 | 公开想法读取能力与普通包 | 协议0.4、`notes.read` 与 `notes_workspace`、`notes-query-v1`（≤6条/页、标题/预览≤96 bytes、正文4–2048 bytes、整响应≤4 KiB）、Host vault 绑定与许可失效；wire与Host回归、真实 SQLite Core 适配器、`plugins/notes` 仓库外 SDK 构建的普通签名包（Host 安装/授权/启用 + Wasm 执行 + 真实 Core 分页）、`extension-store` 持久安装/重开/停用/卸载通过，见[ADR 0035](../architecture/adr/0035-notes-read-capability.md) 与[包记录](../../experiments/capture-core/evidence/notes-package/README.md) | 工作台真实 Core、实窗、生产安装界面与正文/编辑未接 |
 | 想法工作区 UI v1 | 原生工作台按[交互规格](../design/notes-workspace.md)实现列表/详情/范围/搜索/选取/右键原生菜单/复制/完整正文状态/窄窗；6 项 headless 交互测试、类型检查与 bundle 构建通过，实窗四张截图见[UI v1 记录](../../experiments/nsh-reader/evidence/notes-workspace-ui/README.md) | 工作台 `NotesHost` 原生桥已通过：UI 优先读本机 Core、失败回退样例并标注来源；应用内捕获 live 列表/详情/截断/完整正文，同一 Core 重启后逐字节相同；真实回源与编辑未接 |
-| 分页游标与正文分块 | 列表改为 keyset 分页（单页最多 200 条，游标绑定 vault/document 精确范围，分页期间新增想法不重排/不跳项）；正文按 Quote/Note 分块读取（4–16 KiB，UTF-8 边界安全，1 MiB 笔记可逐块还原）；应用层与真实 SQLite 重开通过，见 [ADR 0034](../architecture/adr/0034-note-read-model.md) | 公开 SDK wire、插件授权、分页 UI、精确高亮；每次查询仍读整库快照 |
+| 分页游标与正文分块 | 列表改为 keyset 分页（单页最多 200 条，游标绑定 vault/document 精确范围，分页期间新增想法不重排/不跳项）；正文按 Quote/Note 分块读取（4–16 KiB，UTF-8 边界安全，1 MiB 笔记可逐块还原）；应用层与真实 SQLite 重开通过，见 [ADR 0034](../architecture/adr/0034-note-read-model.md) | 精确高亮、回源失败路径与大库性能；每次查询仍读整库快照 |
 | 有界想法读取模型 | `learning-application` 可按 vault/document 倒序查询 PDF 想法；引文和想法各返回最多 512 UTF-8 bytes 预览，完整内容保持不可变 | 公开 SDK 能力、撤权/版本错误分类 |
 | SQLite 重开 | 真实 SQLite 保存长中文想法后关闭重开，列表恢复 capture、标题、页码与预览，完整 note 未截断 | 多平台耐久、超大资料库性能 |
 | 原生想法列表 | macOS AppKit 实验窗口真实列出 Core 中两条旧中文想法，并区分当前资料与其他资料 | 正式 notes 包、编辑旧想法、精确高亮、当前资料新建后的回源实窗 |
 | 统一工作台下钻 | 想法作为 `PluginWorkspace` 进入 `native-workbench`，宿主返回、插件自有导航、列表/详情和插件内返回已实窗通过 | 仍为窗口内 fixture；尚未接真实 Core/公开插件契约 |
 
 Core 读取证据见 [想法列表实窗记录](../../experiments/nsh-reader/evidence/notes-workspace/README.md)，布局集成证据见 [想法插件工作区记录](../../experiments/nsh-reader/evidence/native-notes-workspace/README.md)。
+
+## 当前落位与 v0.3.1 回源增量
+
+| 增量 | 源码事实 | 尚未验证 / 未完成 |
+|---|---|---|
+| 插件导航契约 | SDK 增加 `SlotNavigation { route, launch_token, payload }` 与 `SlotRenderContext.navigation`；Host mount 透传对象，非 object 导航被拒绝 | 当前源码构建待本轮回填；导航 schema 的兼容性与第三方插件使用 |
+| Notes 打开原文 | 想法详情生成 `open_source:{format}:{document_id}:{section_index}:{capture_id}`；宿主只接受 PDF/EPUB、正 document/capture ID 与非负安全整数节次 | Notes E2E 只断言动作 ID 存在，未真正点击；点击“打开原文”→宿主解析→Reader 完整链、跨格式筛选回源、去重、失败回滚与所有关闭/返回路径仍未覆盖 |
+| Reader 回源校验 | 仅接受 `route = source_capture`；校验非空 token、object payload、格式、document ID、u32 节次与节次范围，并要求 capture 同时存在于该节 saved selections 和文档笔记；相同 token 去重 | `source_capture` Wasm→SQLite Core 回源用例已在测试源码落位，本轮尚未执行、无结果；非空 quote 找不到时的精确失败路径、失败回滚与所有关闭路径仍未验证 |
+| Reader 焦点 Surface | 成功后生成 `reader-doc:focus-{capture_id}:{format}:{document_id}:{section_index}`，并标注 PDF 几何定位或 EPUB 字符区间 | 宿主 `ControlledDocumentSurface.tsx` 仍解析末尾三段且固定页图尺寸，不解析焦点编号、不绘制可见几何高亮；页面宽高比与严格请求 fence |
 
 ## 阶段与退出条件
 
@@ -43,7 +52,7 @@ Core 读取证据见 [想法列表实窗记录](../../experiments/nsh-reader/evi
 ### D1：正式 SDK 和普通包身份
 
 - 从权威契约导出 SDK：manifest/schema、读取能力、错误/版本规则、作者构建和验包工具。
-- library、reader、notes 使用独立 Workspace/lockfile，仓库外只凭 SDK 工件构建。
+- library、reader、notes 使用独立 Workspace/lockfile，仓库外只凭 SDK 工件构建；四个第一方插件已按该路径落位，v0.3.1 仍需回填本轮构建证据。
 - 普通签名包完成安装、授权、启用、更新失败恢复、停用和卸载；宿主二进制不重编译。
 - 第一方包与第三方使用同一贡献、权限和生命周期，不按包 ID 写业务分支。
 
@@ -53,7 +62,7 @@ Core 读取证据见 [想法列表实窗记录](../../experiments/nsh-reader/evi
 
 - `plugins/library`：导入、列表、标签/搜索、原件冻结与重开。
 - `plugins/reader`：PDF/EPUB 受控 Surface、目录、缩放、位置恢复、选区和标注。
-- `plugins/notes`：想法的创建、编辑、组织、引用与回源。
+- `plugins/notes`：想法的创建、编辑、组织、引用与回源；当前列表/编辑/删除及“打开原文”源码已落位。Reader 的 `source_capture` 回源用例已在测试源码落位，但本轮未执行；Notes 点击“打开原文”→宿主解析→Reader 完整链仍缺自动化证据，回源链也尚无实窗证据。
 - `apps/`：只做 composition root、插件安装/管理、可信权限/恢复和平台资源，不含阅读或笔记业务。
 - Host 提供受控文件、文档、Surface、选择、持久化授权和资源回收；Core 保存规范内容与事务。
 
@@ -63,19 +72,19 @@ Core 读取证据见 [想法列表实窗记录](../../experiments/nsh-reader/evi
 
 - 导入→阅读→选文→保存→关闭重开→从想法精确回源→完整导出/空库恢复。
 - 保存失败、歧义、缺原件、权限撤销、版本变化和结果未知都有可观察状态；只有 Core 回执算保存成功。
-- 至少一个桌面平台完成真实窗口、键盘/输入法、正常关闭、资源回收和发行包资格；其他声明平台分别留证。
+- 至少一个桌面平台完成真实窗口、键盘/输入法、正常关闭、资源回收和发行包资格；其他声明平台分别留证。v0.3.1 的 macOS ad hoc 未公证、Android debug keystore 与仅侧载限制不满足商店发行资格。
 
 退出证据：同一冻结应用/插件工件完成整条旅程，输入与恢复记录可复现；卸载 plugins/library/reader/notes 后，已保存规范内容仍可通过宿主通用入口查看和导出。
 
 ## 紧接的下一片
 
-1. 补 live 窗口的选取工具条、右键原生菜单与键盘逐项证据；再推进真实回源与编辑历史。
-2. 在真实窗口完成“当前资料新保存一条想法→关闭辅助区→列表刷新→打开所在页”，再补精确高亮与缺失来源状态。
-3. 之后才创建正式 library/reader 包 manifest 与构建入口；不提前用未验证 TS 草案冒充 SDK。
+1. 完成当前源码的插件/宿主构建与回归；执行已落位的 `source_capture` 用例并补齐完整链覆盖，包括 Notes 点击“打开原文”→宿主解析→Reader、合法/非法 token、格式/文档/节次/capture 不匹配、去重与失败回滚。
+2. 在真实窗口完成“想法详情→打开原文→Reader 定位→返回 Notes”并记录 PDF/EPUB 各自表现；在补齐可见几何高亮、宽高比和请求 fence 前不宣称精确视觉高亮。
+3. 分别完成 macOS 实窗、Android 模拟器与 Android 真机验收并留证；再评估商店签名/公证与其它平台发行资格。
 
 ### 公开读取能力的落地约束（2026-11-10 复核）
 
-0.4 已作为独立词表落地，0.1–0.3 保持原义：`notes.read` 加入后能力上限为 6；`notes-query-v1` 单次请求/响应仍为 4 KiB，页最多 6 条、标题/预览各 96 bytes、正文块 4–2048 bytes、offset 上限 16 MiB。范围由 Host 绑定 vault，guest 不自报；Host 只做策略与预算，Core 查询由可信后端适配器实现。工作台 UI 仍需把 fixture 换成这条真实链路，见下一片第 1 项。
+0.4 已作为独立词表落地，0.1–0.3 保持原义：`notes.read` 加入后能力上限为 6；`notes-query-v1` 单次请求/响应仍为 4 KiB，页最多 6 条、标题/预览各 96 bytes、正文块 4–2048 bytes、offset 上限 16 MiB。范围由 Host 绑定 vault，guest 不自报；Host 只做策略与预算，Core 查询由可信后端适配器实现。以上是历史契约事实；当前 Notes 已升级到 Host API 0.8，v0.3.1 回源链仍需按下一片补验证。
 
 该决定影响公开插件契约与兼容性，先留设计记录再实现；应用层分页与正文契约已由 [ADR 0034](../architecture/adr/0034-note-read-model.md) 固定。
 

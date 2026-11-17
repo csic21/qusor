@@ -297,6 +297,7 @@ mod tests {
                     generation: 1,
                     api_version: Some(HOST_API_V0_8),
                     compact: false,
+                    navigation: None,
                 },
                 &host,
             )
@@ -508,6 +509,7 @@ mod tests {
                     generation: 1,
                     api_version: Some(HOST_API_V0_8),
                     compact: true,
+                    navigation: None,
                 },
                 &host,
             )

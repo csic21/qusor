@@ -3,6 +3,7 @@ from pathlib import Path
 import json,shutil,subprocess,sys
 BASE=Path(__file__).resolve().parent;READER=BASE.parent;ROOT=READER.parent.parent
 sys.path.insert(0,str(BASE));import prepare,prepare_pdf,prepare_reader_package
+sys.path.insert(0,str(ROOT/'scripts'));from build_layout import CARGO_TARGET, nsh_cli
 sys.path.insert(0,str(ROOT/'experiments/capture-core'));from pdf_adapter import neutral_snapshot
 
 def main():
@@ -16,8 +17,8 @@ def main():
     for page in [0,1]:shutil.copyfile(READER/f'pdf-surface/assets/page-{page}.png',READER/f'plugin-surface/assets/page-{page}.png')
     helper=READER/'plugin-surface/.nsh/rust';helper.mkdir(parents=True,exist_ok=True)
     if not (helper/'Cargo.lock').exists():shutil.copyfile(READER/'pdf-surface/.nsh/rust/Cargo.lock',helper/'Cargo.lock')
-    env=prepare.runtime_environment(READER/'target/native-prefix');env.update(RUSTUP_TOOLCHAIN='1.97.1',CARGO_NET_OFFLINE='true',CARGO_TARGET_DIR=str(prepare.SOURCE/'target'))
-    subprocess.run([str(prepare.SOURCE/'target/debug/nsh'),'build',str(READER/'plugin-surface'),'-o',str(READER/'target/plugin-surface-bundle'),'--verbose'],env=env,check=True)
+    env=prepare.runtime_environment(READER/'target/native-prefix');env.update(RUSTUP_TOOLCHAIN='1.97.1',CARGO_NET_OFFLINE='true',CARGO_TARGET_DIR=str(CARGO_TARGET))
+    subprocess.run([str(nsh_cli()),'build',str(READER/'plugin-surface'),'-o',str(READER/'target/plugin-surface-bundle'),'--verbose'],env=env,check=True)
     # The probe adds only already-qualified Core/package/runtime dependencies.
     if prepare.registry_drift(prepare.SOURCE/'Cargo.lock',BASE/'Cargo.lock',ROOT/'experiments/pdf-provider/Cargo.lock',ROOT/'Cargo.lock',ROOT/'experiments/extension-package/Cargo.lock'):raise ValueError('unqualified host dependency lock drift')
     if prepare.registry_drift(prepare.SOURCE/'Cargo.lock',helper/'Cargo.lock',ROOT/'experiments/pdf-provider/Cargo.lock',ROOT/'Cargo.lock',ROOT/'experiments/extension-package/Cargo.lock'):raise ValueError('unqualified helper dependency lock drift')

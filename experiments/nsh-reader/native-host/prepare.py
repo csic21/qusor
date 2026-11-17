@@ -17,12 +17,13 @@ import tomllib
 BASE = Path(__file__).resolve().parent
 READER = BASE.parent
 ROOT = READER.parent.parent
-SOURCE = READER / "target/nsh"
-SHA = "913fd76e1f8434ec6cdf248f4476c1ebe08af19f"
+sys.path.insert(0, str(ROOT / "scripts"))
+from build_layout import CARGO_TARGET, NSH_SHA, NSH_SRC, nsh_cli
+SOURCE = NSH_SRC
+SHA = NSH_SHA
 LOCK_SHA = "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b"
 sys.path.insert(0, str(READER))
 from native_prefix import runtime_environment
-sys.path.insert(0, str(ROOT / "scripts"))
 from check_architecture import validate_graph
 
 
@@ -65,7 +66,7 @@ def prepare(*, native_binary=None):
         raise ValueError("NSH lockfile mismatch")
     env = runtime_environment(READER / "target/native-prefix")
     env.update(RUSTUP_TOOLCHAIN="1.97.1", CARGO_NET_OFFLINE="true",
-               CARGO_TARGET_DIR=str(SOURCE / "target"))
+               CARGO_TARGET_DIR=str(CARGO_TARGET))
     # Native links are large; preserve an explicit caller override, otherwise
     # avoid simultaneous linker working sets exhausting this validation host.
     env.setdefault("CARGO_BUILD_JOBS", "1")
@@ -98,7 +99,7 @@ def prepare(*, native_binary=None):
                     env, logs / "native-probe-cli-build.log", cwd=SOURCE),
                 run(build,
                     env, logs / "native-probe-build.log"),
-                run([str(SOURCE / "target/debug/nsh"), "build", str(SOURCE / "examples/rust-exports"),
+                run([str(nsh_cli()), "build", str(SOURCE / "examples/rust-exports"),
                      "-o", str(READER / "target/native-bundle"), "--verbose"],
                     env, logs / "native-probe-bundle.log")]
     drift = {"probe": registry_drift(SOURCE / "Cargo.lock", BASE / "Cargo.lock", ROOT / "experiments/pdf-provider/Cargo.lock", ROOT / "Cargo.lock", ROOT / "experiments/extension-package/Cargo.lock"),

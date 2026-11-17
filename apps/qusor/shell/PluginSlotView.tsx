@@ -2,12 +2,17 @@ import { effect, Picker, signal, View, type JSX } from "nsh";
 import { LibraryHost, PluginSlotHost } from "qusor/pdf-surface";
 import { Copy, ink, Tool } from "../ui";
 import { ControlledDocumentSurface } from "./ControlledDocumentSurface";
+import { DeclarativeUiRenderer } from "./DeclarativeUiRenderer";
 import {
-    DeclarativeUiRenderer,
     PLUGIN_UI_PROTOCOL,
     type UiEventEnvelope,
     type UiTree,
-} from "./DeclarativeUiRenderer";
+} from "./ui_types";
+import {
+    parseOpenSourceAction,
+    type PluginNavigation,
+    type PluginOpenResult,
+} from "./plugin_navigation";
 
 const MAX_IMPORT_BYTES = 16 * 1024 * 1024;
 
@@ -15,6 +20,8 @@ export interface PluginSlotViewProps {
     contributionId: string;
     title: string;
     compact?: boolean;
+    navigation: PluginNavigation | null;
+    onOpenSource: (navigation: PluginNavigation) => PluginOpenResult;
 }
 
 interface MountSlotPayload {
@@ -70,7 +77,9 @@ export function PluginSlotView(props: PluginSlotViewProps): JSX.Element {
     const busy = signal<boolean>(false);
     const error = signal<string>("");
     const importStatus = signal<string>("");
-    let disposed = false;
+    let mountRequest = 0;
+    let eventRequest = 0;
+    let importRequest = 0;
 
     const releaseMount = (id: string) => {
         if (!id) return;
@@ -81,44 +90,74 @@ export function PluginSlotView(props: PluginSlotViewProps): JSX.Element {
         }
     };
 
-    const mountSlot = async () => {
+    const mountSlot = async (
+        contributionId: string,
+        navigation: PluginNavigation | null,
+        compact: boolean,
+    ) => {
+        const request = ++mountRequest;
+        eventRequest += 1;
+        importRequest += 1;
         const previousMount = mountId();
         if (previousMount) {
             mountId.set("");
             releaseMount(previousMount);
         }
+        mountId.set("");
+        generation.set(0);
+        tree.set(null);
+        busy.set(false);
+        importStatus.set("");
         loading.set(true);
         error.set("");
         try {
             const hostAny = PluginSlotHost as any;
-            const raw =
-                typeof hostAny.mountSlotCompact === "function"
+            const raw = navigation
+                ? typeof hostAny.mountSlotCompactWithNavigation === "function"
                     ? await Promise.resolve(
-                          hostAny.mountSlotCompact(
-                              props.contributionId,
-                              Boolean(props.compact),
+                          hostAny.mountSlotCompactWithNavigation(
+                              contributionId,
+                              compact,
+                              JSON.stringify(navigation),
                           ),
                       )
-                    : await Promise.resolve(
-                          PluginSlotHost.mountSlot(props.contributionId),
-                      );
-            if (disposed) return;
+                    : (() => {
+                          throw new Error(
+                              "当前宿主不支持带导航的插件槽位装载。",
+                          );
+                      })()
+                : typeof hostAny.mountSlotCompact === "function"
+                  ? await Promise.resolve(
+                        hostAny.mountSlotCompact(
+                            contributionId,
+                            compact,
+                        ),
+                    )
+                  : await Promise.resolve(
+                        PluginSlotHost.mountSlot(contributionId),
+                    );
             const response = parseEnvelope<MountSlotPayload>(raw);
             if (!response.ok || !response.value) {
-                error.set(response.error ?? "无法装载插件槽位。");
-                tree.set(null);
+                if (request === mountRequest) {
+                    error.set(response.error ?? "无法装载插件槽位。");
+                    tree.set(null);
+                }
+                return;
+            }
+            if (request !== mountRequest) {
+                releaseMount(response.value.mount_id);
                 return;
             }
             mountId.set(response.value.mount_id);
             generation.set(response.value.generation);
             tree.set(response.value.tree);
         } catch (err) {
-            if (!disposed) {
+            if (request === mountRequest) {
                 error.set(errorMessage(err));
                 tree.set(null);
             }
         } finally {
-            if (!disposed) {
+            if (request === mountRequest) {
                 loading.set(false);
             }
         }
@@ -127,8 +166,45 @@ export function PluginSlotView(props: PluginSlotViewProps): JSX.Element {
     const handleEvent = (envelope: UiEventEnvelope) => {
         const currentMount = mountId();
         if (!currentMount || busy()) return;
+        const request = ++eventRequest;
         busy.set(true);
         error.set("");
+        if (
+            Array.isArray(envelope.action_id) ||
+            typeof envelope.action_id !== "string"
+        ) {
+            error.set("插件事件动作无效，已阻止处理。");
+            busy.set(false);
+            return;
+        }
+        const actionId = envelope.action_id;
+        if (actionId.startsWith("open_source:")) {
+            const parsed = parseOpenSourceAction(actionId);
+            if (!parsed.ok) {
+                error.set(parsed.error);
+                busy.set(false);
+                return;
+            }
+            try {
+                const result = props.onOpenSource(parsed.navigation);
+                if (result && !result.ok) {
+                    error.set(result.error);
+                }
+            } catch (err) {
+                error.set(errorMessage(err));
+            } finally {
+                busy.set(false);
+            }
+            return;
+        }
+        if (
+            actionId === "open_source" ||
+            actionId.startsWith("open_source")
+        ) {
+            error.set("插件请求了无效的原文跳转动作，已阻止跳转。");
+            busy.set(false);
+            return;
+        }
         void (async () => {
             try {
                 const raw = await Promise.resolve(
@@ -137,7 +213,7 @@ export function PluginSlotView(props: PluginSlotViewProps): JSX.Element {
                         JSON.stringify(envelope),
                     ),
                 );
-                if (disposed) return;
+                if (request !== eventRequest) return;
                 const response = parseEnvelope<DispatchEventPayload>(raw);
                 if (!response.ok || !response.value) {
                     error.set(response.error ?? "插件事件分发失败。");
@@ -146,11 +222,11 @@ export function PluginSlotView(props: PluginSlotViewProps): JSX.Element {
                 generation.set(response.value.generation);
                 tree.set(response.value.tree);
             } catch (err) {
-                if (!disposed) {
+                if (request === eventRequest) {
                     error.set(errorMessage(err));
                 }
             } finally {
-                if (!disposed) {
+                if (request === eventRequest) {
                     busy.set(false);
                 }
             }
@@ -159,7 +235,10 @@ export function PluginSlotView(props: PluginSlotViewProps): JSX.Element {
 
     const importNativeDocument = async (format: "pdf" | "epub") => {
         if (busy()) return;
+        const request = ++importRequest;
+        busy.set(true);
         importStatus.set("");
+        let refreshEnvelope: UiEventEnvelope | null = null;
         try {
             const picked = await Picker.pickFiles({
                 multiple: false,
@@ -169,6 +248,7 @@ export function PluginSlotView(props: PluginSlotViewProps): JSX.Element {
                         : { name: "EPUB 书籍", extensions: ["epub"] },
                 ],
             });
+            if (request !== importRequest) return;
             if (picked.length === 0) return;
             const file = picked[0].file;
             if (file.size > MAX_IMPORT_BYTES) {
@@ -177,12 +257,13 @@ export function PluginSlotView(props: PluginSlotViewProps): JSX.Element {
                 );
                 return;
             }
-            busy.set(true);
             const bytes = new Uint8Array(await file.arrayBuffer());
+            if (request !== importRequest) return;
             const raw =
                 format === "pdf"
                     ? await LibraryHost.importPdf(file.name, bytes)
                     : await LibraryHost.importEpub(file.name, bytes);
+            if (request !== importRequest) return;
             const res = JSON.parse(raw);
             if (!res?.ok) {
                 importStatus.set(
@@ -193,29 +274,42 @@ export function PluginSlotView(props: PluginSlotViewProps): JSX.Element {
             importStatus.set(`已导入《${file.name}》`);
             const currentMount = mountId();
             if (currentMount) {
-                handleEvent({
+                refreshEnvelope = {
                     protocol_version: PLUGIN_UI_PROTOCOL,
                     mount_id: currentMount,
                     generation: generation(),
                     node_id: "library_refresh_btn",
                     action_id: "refresh_library",
                     action: { kind: "press" },
-                });
+                };
             }
         } catch (err) {
-            importStatus.set(`导入失败：${errorMessage(err)}`);
+            if (request === importRequest) {
+                importStatus.set(`导入失败：${errorMessage(err)}`);
+            }
         } finally {
-            busy.set(false);
+            if (request === importRequest) {
+                busy.set(false);
+                if (refreshEnvelope) handleEvent(refreshEnvelope);
+            }
         }
     };
 
     effect(() => {
-        void mountSlot();
+        const contributionId = props.contributionId;
+        const navigation = props.navigation;
+        const compact = Boolean(props.compact);
+        void mountSlot(contributionId, navigation, compact);
         return () => {
-            disposed = true;
+            mountRequest += 1;
+            eventRequest += 1;
+            importRequest += 1;
             const currentMount = mountId();
+            mountId.set("");
+            tree.set(null);
+            generation.set(0);
+            busy.set(false);
             if (currentMount) {
-                mountId.set("");
                 releaseMount(currentMount);
             }
         };
@@ -307,7 +401,13 @@ export function PluginSlotView(props: PluginSlotViewProps): JSX.Element {
                                 <Tool
                                     label={`重新装载${props.title}`}
                                     text="重试装载"
-                                    onPress={() => void mountSlot()}
+                                    onPress={() =>
+                                        void mountSlot(
+                                            props.contributionId,
+                                            props.navigation,
+                                            Boolean(props.compact),
+                                        )
+                                    }
                                 />
                             </View>
                         </View>
@@ -346,7 +446,13 @@ export function PluginSlotView(props: PluginSlotViewProps): JSX.Element {
                                 <Tool
                                     label="重新同步插件状态"
                                     text="重载"
-                                    onPress={() => void mountSlot()}
+                                    onPress={() =>
+                                        void mountSlot(
+                                            props.contributionId,
+                                            props.navigation,
+                                            Boolean(props.compact),
+                                        )
+                                    }
                                 />
                             </View>
                         ) : null}

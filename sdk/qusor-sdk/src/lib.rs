@@ -618,8 +618,17 @@ impl<'a> OrthogonalKnowledgeClient<'a> {
     }
 }
 
+/// Host-supplied routing intent when mounting a `ui_slot` contribution.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct SlotNavigation {
+    pub route: String,
+    pub launch_token: String,
+    pub payload: serde_json::Value,
+}
+
 /// Host-supplied context when rendering a `ui_slot` contribution.
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct SlotRenderContext {
     pub contribution_id: String,
@@ -627,6 +636,7 @@ pub struct SlotRenderContext {
     pub generation: u64,
     pub api_version: Option<ApiVersion>,
     pub compact: bool,
+    pub navigation: Option<SlotNavigation>,
 }
 
 /// Result returned by [`SlotPlugin::handle_event`]: either a full [`UiTree`] or a [`UiPatch`].
@@ -912,6 +922,7 @@ mod tests {
                     generation: 1,
                     api_version: Some(HOST_API_V0_7),
                     compact: false,
+                    navigation: None,
                 },
                 &DefaultTransport,
             )

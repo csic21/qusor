@@ -1,7 +1,10 @@
 import { signal } from "nsh";
 import { CompositionHost } from "qusor/pdf-surface";
 import { PluginSlotView } from "./PluginSlotView";
-import { type PluginPackage, type PluginWorkspace } from "./opener";
+import {
+    type PluginPackage,
+    type PluginWorkspace,
+} from "./opener";
 
 const installedWorkspaces = signal<PluginWorkspace[]>([]);
 const installedPackages = signal<PluginPackage[]>([]);
@@ -35,6 +38,8 @@ function applyWorkspaceCatalog(value: any) {
                         contributionId={contributionId}
                         title={contributionTitle}
                         compact={props.compact}
+                        navigation={props.navigation}
+                        onOpenSource={props.onOpenSource}
                     />
                 ),
             });

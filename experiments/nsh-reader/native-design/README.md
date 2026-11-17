@@ -34,7 +34,7 @@ python3 experiments/nsh-reader/native-design/run.py --size 390x844
 
 ```sh
 cd experiments/nsh-reader/native-design
-../target/nsh/target/debug/nsh check App.tsx
+../../../.build/cargo-target/debug/nsh check App.tsx
 ```
 
 脚本生成独立的 `org.qusor.designpreview` 应用，放于被忽略的 `target/native-design/`，不替换现有阅读预览。生成后的应用可双击重开；启动器始终指定本样例 bundle，避免误连默认开发服务器。启动收据、原生日志、编译 bundle 和应用均在该目录中。关闭已有样例后再运行脚本，避免并行样例混淆。

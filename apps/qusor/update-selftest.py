@@ -38,7 +38,9 @@ from pathlib import Path
 
 APP = Path(__file__).resolve().parent
 ROOT = APP.parents[1]
-NSH = ROOT / "experiments/nsh-reader/target/nsh/target/debug/nsh"
+sys.path.insert(0, str(ROOT / "scripts"))
+from build_layout import nsh_cli
+NSH = nsh_cli()
 KEYS = ROOT / ".local" / "keys"
 CONFIG = APP / "nsh.json"
 WORK = Path("/tmp/qusor-update-selftest")

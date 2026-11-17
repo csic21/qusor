@@ -20,8 +20,10 @@ import tomllib
 
 BASE = Path(__file__).resolve().parent
 ROOT = BASE.parent.parent
-SOURCE = BASE / "target/nsh"
-SHA = "913fd76e1f8434ec6cdf248f4476c1ebe08af19f"
+sys.path.insert(0, str(ROOT / "scripts"))
+from build_layout import CARGO_TARGET, NSH_SHA, NSH_SRC, nsh_cli
+SOURCE = NSH_SRC
+SHA = NSH_SHA
 LOCK_SHA = "3495ffc4a1fd150bb583e069afcb5b4f2d389dbfb5f8b1c942279eaf9e80414b"
 
 
@@ -50,7 +52,7 @@ def prepare():
     if subprocess.check_output(["git", "-C", str(SOURCE), "status", "--porcelain", "--untracked-files=no"]):
         raise RuntimeError("NSH tracked source has changes")
     env = dict(os.environ, RUSTUP_TOOLCHAIN="1.97.1", CARGO_BUILD_JOBS="1",
-               CARGO_TARGET_DIR=str(SOURCE / "target"))
+               CARGO_TARGET_DIR=str(CARGO_TARGET))
     arch = "aarch64" if platform.machine() in ("arm64", "aarch64") else "x86_64"
     sys.path.insert(0, str(ROOT / "experiments/pdf-provider"))
     import prepare_runtime
@@ -96,7 +98,7 @@ def prepare():
     helper.mkdir(parents=True, exist_ok=True)
     if not (helper / "Cargo.lock").exists():
         shutil.copyfile(SOURCE / "Cargo.lock", helper / "Cargo.lock")
-    cli = SOURCE / "target/debug/nsh"
+    cli = nsh_cli()
     subprocess.run([str(cli), "build", str(BASE / "dynamic-pdf"), "-o",
                     str(BASE / "target/dynamic-pdf-bundle")], env=env, check=True)
     normalize_helper_paths(helper)
@@ -109,7 +111,7 @@ def prepare():
     # Fixed synthetic fixtures only, generated after the asset-free app bundle.
     source = ROOT / "experiments/pdf-provider/fixtures/text-two-pages.pdf"
     with tempfile.TemporaryDirectory(prefix="macos-static-fixture-", dir=BASE / "target") as temporary:
-        report = json.loads(subprocess.check_output([str(SOURCE / "target/debug/qusor-pdf-provider-probe"),
+        report = json.loads(subprocess.check_output([str(CARGO_TARGET / "debug" / "qusor-pdf-provider-probe"),
             "inspect", str(library), str(source), str(Path(temporary) / "render")], env=env))["report"]
     sys.path.insert(0, str(ROOT / "experiments/capture-core"))
     from pdf_adapter import neutral_snapshot
@@ -117,7 +119,7 @@ def prepare():
     (test_resources / "report.json").write_text(json.dumps(report))
     (test_resources / "snapshot.json").write_text(json.dumps(neutral_snapshot(report)))
     shutil.copyfile(source, test_resources / "original.pdf")
-    paths = [SOURCE / "target/debug/qusor-nsh-dynamic-pdf-probe",
+    paths = [CARGO_TARGET / "debug" / "qusor-nsh-dynamic-pdf-probe",
              BASE / "target/dynamic-pdf-bundle/bundle.nshc", resources / "reader.package",
              resources / "editor-a.package"]
     record = {"platform": "macos", "target": target, "nsh_commit": SHA, "built": True,

@@ -6,6 +6,9 @@ import subprocess
 
 HERE=Path(__file__).resolve().parent
 READER=HERE.parent
+import sys
+sys.path.insert(0,str(READER.parent.parent/'scripts'))
+from build_layout import nsh_cli
 
 def main():
     target=READER/'target/dynamic-ui-typecheck';target.mkdir(parents=True,exist_ok=True)
@@ -18,7 +21,7 @@ def main():
     config=json.loads((HERE/'nsh.json').read_text());config.pop('rust',None)
     (target/'nsh.json').write_text(json.dumps(config))
     (target/'tsconfig.json').write_text(json.dumps({'extends':'./.nsh/tsconfig.json','compilerOptions':{'paths':{'nsh':['./.nsh/types/nsh/index.d.ts'],'nsh/*':['./.nsh/types/nsh/*.d.ts'],'qusor/pdf-surface':['./native-pdf.d.ts'],'*':['./.nsh/types/*.d.ts']}}},indent=2)+'\n')
-    command=[str(READER/'target/nsh/target/debug/nsh'),'check',str(target/'App.tsx')]
+    command=[str(nsh_cli()),'check',str(target/'App.tsx')]
     result=subprocess.run(command,text=True,capture_output=True)
     (target/'check.log').write_text(result.stdout+result.stderr)
     print(result.stdout+result.stderr,end='')

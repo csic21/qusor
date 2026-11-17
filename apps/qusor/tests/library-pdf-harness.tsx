@@ -39,6 +39,8 @@ function App() {
                         contributionId="org.qusor.library.workspace"
                         title="资料库"
                         compact={false}
+                        navigation={null}
+                        onOpenSource={() => {}}
                     />
                 ) : (
                     <View />

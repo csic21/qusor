@@ -570,6 +570,20 @@ impl NotesPlugin {
         };
 
         let mut action_buttons = vec![
+            ui::button(
+                "detail_open_source_btn",
+                "打开原文",
+                format!(
+                    "open_source:{}:{}:{}:{}",
+                    format_slug(sel.format),
+                    sel.document_id,
+                    sel.section_index,
+                    sel.capture_id
+                ),
+                false,
+                false,
+                false,
+            ),
             ui::button("save_note_btn", "保存想法", "save_note", true, false, false),
             ui::button(
                 "reset_draft_btn",

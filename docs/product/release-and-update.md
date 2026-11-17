@@ -1,6 +1,6 @@
 # 发行、自动更新与移动端交付
 
-2026-11-12；关联 C-17、C-15、F-PLAT-01/02、F-DATA-01；承接 [跨平台结果](../../experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md) 与 [ADR 0033](../architecture/adr/0033-cross-platform-runtime.md)。状态：生产应用、本机自动更新、GitHub Actions 的 macOS draft 构建以及 Android debug APK/模拟器启动已验证；draft 尚未公开为 latest，Developer ID/公证、Android 商店签名与其它平台发行仍未完成。
+更新：2026-11-15；关联 C-17、C-15、F-PLAT-01/02、F-DATA-01；承接 [跨平台结果](../../experiments/nsh-reader/CROSS_PLATFORM_RESULTS.md) 与 [ADR 0033](../architecture/adr/0033-cross-platform-runtime.md)。当前版本为 `0.3.1`/`build 4`。状态：发布流水线已限定为 macOS ad hoc 与 Android arm64 debug keystore 两个目标，均仅侧载；v0.3.1 构建、macOS 实窗及 Android 模拟器/真机尚未验证。Developer ID/公证、Android 商店签名与其它平台发行仍未完成。
 
 ## 用户决定（2026-11-11）
 
@@ -12,18 +12,26 @@
 
 2026-11-11 同日执行：公开前隐私检查通过后，仓库已由 private 转为 public（`https://github.com/csic21/qusor`），历史已按下列规则重写。此后 `releases/latest/download/` 可免认证读取，自动更新的更新源前提成立。
 
-2026-11-12 首次云端发行验收：Release workflow [run 43142491761](https://github.com/csic21/qusor/actions/runs/43142491761) 在 `main@62a82e6` 成功完成 macOS 打包、签名清单与 draft 创建，draft 的 `targetCommitish` 固定为该 SHA。draft `v0.1.0` 含 21,786,549 字节的 arm64 归档、`latest.json` 与 `latest.json.sig`；清单大小/SHA-256、Ed25519 域隔离签名、ad hoc code signature 和实际窗口启动均已复核。此前 run 42995272099 的空 `*.zip` glob 失败已由后续提交修复。详见 [GitHub draft Release 验收](../../experiments/nsh-reader/evidence/github-release/README.md)。
+历史验收（2026-11-12，`v0.1.0`）：Release workflow [run 43142491761](https://github.com/csic21/qusor/actions/runs/43142491761) 在 `main@62a82e6` 完成当时的 macOS 打包、签名清单与 draft 创建，draft 的 `targetCommitish` 固定为该 SHA。draft `v0.1.0` 含 21,786,549 字节的 arm64 归档、`latest.json` 与 `latest.json.sig`；当时清单大小/SHA-256、Ed25519 域隔离签名、ad hoc code signature 和窗口启动已复核。该记录只证明历史 `v0.1.0` 切片，不代表 `0.3.1` 的构建、产物或运行。详见 [GitHub draft Release 验收](../../experiments/nsh-reader/evidence/github-release/README.md)。
 
-## 现状（2026-11-12 核对）
+## 现状（2026-11-15 核对）
 
 | 能力 | 当前状态 | 证据 |
 |---|---|---|
 | 更新接线 | **已接线**：`apps/qusor/nsh.json` 有 `version`/`build`/`updater.github`；应用有更新面板（侧栏入口、检查/下载/安装、不能自替换时打开下载页）；本机回环自测走通检查→下载→替换→重启，见[更新记录](../../experiments/nsh-reader/evidence/app-update/README.md)。实验目录的 `nsh.json` 仍无这些字段 | `apps/qusor/nsh.json`、`apps/qusor/update.tsx`、`apps/qusor/native/src/app_info.rs` |
-| 版本号 | 应用为 `0.1.0`/`build 1`；已创建 draft `v0.1.0`，尚未发布 | [Release 验收](../../experiments/nsh-reader/evidence/github-release/record.json) |
-| 更新签名密钥 | 更新公钥已内置；私钥保存在本机 `.local/keys` 与 GitHub secret `NSH_UPDATE_KEY`，未提交。draft 清单已用该密钥签名并由独立 OpenSSL 复算通过 | 同左 |
-| 打包 | 生产入口使用 `nsh package --target macos`，产出 ad hoc `QUSOR.app` 和归档；实验目录仍有早期自建 Preview 包装 | `apps/qusor`、[Release 验收](../../experiments/nsh-reader/evidence/github-release/README.md) |
-| CI | `foundation.yml` 三 OS Core/库任务通过；`release.yml` 的 macOS package 与 publish 在 run 43142491761 首次完整通过并创建固定 SHA 的 draft | run 43142491761；[平台缺口](../../adapters/extension-store/tests/platform_profile.rs) |
-| 移动端 | 5 个 target 的库交叉编译通过；另有 Android arm64 debug APK 在 API 36 模拟器实际安装、启动并完成手机布局/返回键；空学习库播种 12 词入门词书，真实 Core 评分与重启恢复通过 | [Android APK/界面记录](../../experiments/nsh-reader/evidence/android-package-launch/README.md) |
+| 版本号 | `apps/qusor/nsh.json` 当前为 `0.3.1`/`build 4`，是发布流水线的唯一版本源；历史 draft `v0.1.0` 不作为当前版本证据 | `apps/qusor/nsh.json`、[发布说明](../releases/v0.3.1.md) |
+| 更新签名密钥 | 更新公钥已内置；私钥保存在本机 `.local/keys` 与 GitHub secret `NSH_UPDATE_KEY`，未提交。历史 draft 清单曾用该密钥签名并由独立 OpenSSL 复算通过；v0.3.1 清单未验 | 同左 |
+| 打包 | 生产入口按 `nsh package --target macos` 打包 ad hoc `QUSOR.app`；该链路只在实际执行时成立，当前 `0.3.1` 产物待本轮回填 | `apps/qusor`、`.github/workflows/release.yml` |
+| CI | `foundation.yml` 三 OS Core/库任务与历史 `release.yml` 的 macOS draft 均有通过记录；当前 `release.yml` 只打包 macOS 与 Android arm64，v0.3.1 尚未执行 | `foundation.yml`、`release.yml`、run 43142491761 |
+| 移动端 | 历史 Android debug APK 曾在 API 36 模拟器安装、启动并操作；该记录不属于 v0.3.1，且没有真机证据 | [Android APK/界面记录](../../experiments/nsh-reader/evidence/android-package-launch/README.md) |
+
+## 发布流水线契约（2026-11-15）
+
+- 版本源：`apps/qusor/nsh.json` 的 `version` 是唯一版本源；Release 标题与 tag `v<version>` 必须一致。
+- 发布说明：必须存在非空的 `docs/releases/v<version>.md`，缺失或只含空白时流水线失败，不回退到占位文本。
+- 清单说明：`latest.json.notes` 去除空白后必须非空，否则发布失败。
+- 产物：由本次运行实际生成的归档组装更新清单；未匹配到归档时失败，不把 glob 字面量当作平台路径。
+- 矩阵：当前只有 `macos-latest` 的 macOS 目标与 `ubuntu-latest` 的 Android arm64-v8a 目标；Linux、Windows、iOS 未启用。
 
 ### CI 失败根因与处理（2026-11-11）
 
@@ -49,7 +57,7 @@
 
 ## 目标形态
 
-新增 `apps/qusor`（生产入口，当前 `apps/` 只有目录约定）：
+`apps/qusor` 已是生产入口和目标形态的实现记录：
 
 - `nsh.json`：`id`、`name`、`version`、`build`、`icon`、`theme`、`root`/`rust`、`updater`。
 - 入口 `App.tsx` + 现有 `experiments/nsh-reader/native-host` crate（已有 `#[native_module("qusor/pdf-surface")]`）。把 `workbench_main.rs` 里的进程内初始化（数据目录、Core 打开、插件安装/授权、PDF 库路径）迁进 native module 的初始化路径。
@@ -59,11 +67,11 @@
 ## 流水线设计（GitHub Actions）
 
 - 触发：`push` tag `v*`；`workflow_dispatch` 手动。PR 仍只跑 Core 测试，不打包。
-- 矩阵：`macos-latest`（arm64）、`windows-latest`（x86_64）、`ubuntu-latest`（x86_64）。
-- 步骤：checkout → 按固定 SHA clone NSH 源码 → 按固定摘要准备 PDFium → `CARGO_PROFILE_RELEASE_STRIP=none nsh package --target <os>` → 归档 → `nsh update-manifest --key` → 创建 draft Release（人工核对后发布）。
+- 当前矩阵：`macos-latest` 产出 macOS 归档，`ubuntu-latest` 产出 Android arm64-v8a APK；其它平台在各自打包与运行验证通过前不加入。
+- 步骤：checkout → 按固定 SHA clone NSH 源码 → 构建 NSH CLI（Android 另构建 arm64-v8a 运行时）→ `prepare.py` 生成随包插件 → 按平台打包 → 以 `docs/releases/v<version>.md` 生成并签名 `latest.json` → 创建 Release。
 - 密钥：`NSH_UPDATE_KEY` 存仓库 secret；`root`/`release` 密钥在启用 OTA 前生成，`root.secret` 离线保存。
 - 缓存：NSH 源码、Cargo target、PDFium 工件。私有仓库 Action 分钟数有限，公开后免费。
-- 移动端：Android 用 ubuntu runner + NDK + 调试 keystore 出 APK；iOS 用 macOS runner + Xcode 出模拟器 `.app`；设备 `.ipa` 需证书与描述文件。
+- 移动端：Android 用 ubuntu runner、NDK 与 debug keystore 出 arm64-v8a APK；iOS 不在当前矩阵内，设备 `.ipa` 仍需证书与描述文件。
 
 参考实现见固定 NSH 的 [App Updates](https://github.com/longbridge/nsh/blob/913fd76e1f8434ec6cdf248f4476c1ebe08af19f/website/docs/app-updates.md) 与 [OTA Updates](https://github.com/longbridge/nsh/blob/913fd76e1f8434ec6cdf248f4476c1ebe08af19f/website/docs/ota-updates.md)（其中含 GitHub Actions 示例）。
 
@@ -73,10 +81,10 @@
 
 | 平台 | 现在能产出 | 仍缺 |
 |---|---|---|
-| macOS | ad hoc 签名 `.app` | Developer ID 签名 + notarize；否则用户需手动放行 |
+| macOS | ad hoc 签名 `.app` | Developer ID 签名 + notarize；其它 Mac 可能被 Gatekeeper 拦截 |
 | Windows | 目录 / `.zip` | MSVC 构建与实窗；当前 store 测试仍失败 |
 | Linux | 目录 / `.tar.gz` | GTK 依赖与实窗复验 |
-| Android | 调试签名 arm64 APK；API 36 模拟器已安装、启动并操作手机布局与返回键；空学习库安装自编入门词书，真实 Core 评分与重启恢复通过，系统文件选择器导入 JSON 词书后重开仍在 | 真机/平板、商店签名与渠道、公开插件导入能力、PDF/IME/选文、性能与耗电 |
+| Android | debug keystore 签名的 arm64-v8a APK | 商店签名与渠道、v0.3.1 模拟器与真机、平板、PDF/IME/选文、性能与耗电 |
 | iOS | 模拟器 `.app` | Apple 账号、设备 `.ipa`、真机与 TestFlight/商店 |
 | Web | 静态站点 | 浏览器宿主、持久存储与真实阅读流程 |
 
@@ -144,18 +152,19 @@ cd apps/qusor && CARGO_PROFILE_RELEASE_STRIP=none \
 
 ## 未验证范围
 
-- draft `v0.1.0` 已创建但未发布，GitHub 的 `releases/latest` 不提供 draft；更新私钥已在 `.local/keys`（未提交），仓库 secret `NSH_UPDATE_KEY` 已配置并完成云端签名。仓库可见性已于 2026-11-11 转为 public。
-- 应用内更新在本机回环源上通过；已发布 GitHub Releases 源的在线拉取、拒绝路径与其它平台未验证。
-- 上述 CI 失败修复未在远端重跑，Windows 缺口未修。
+- 历史 draft `v0.1.0` 已创建但未发布，GitHub 的 `releases/latest` 不提供 draft。更新私钥保存位置与云端签名配置不构成 v0.3.1 发布验证。
+- v0.3.1 尚未打包或运行；应用内更新只在历史 `0.1.0` 回环源上通过，未证明当前版本。
+- 已发布 GitHub Releases 源的在线拉取、签名错误/应用 ID 不符/旧清单/篡改归档等拒绝路径、下载中断恢复与只读安装位置跳转未验证。
+- Windows/Linux 替换、iOS/Android 商店语义、Android v0.3.1 模拟器/真机与 macOS v0.3.1 实窗均未验证。
 
 ## 实施顺序
 
-1. ~~修 Windows store 测试（或显式标记平台跳过并记录缺口），让 CI 恢复绿。~~ 已完成：Windows 任务显式固定拒绝路径，run 42987643346 三 OS 通过；Windows 能力缺口保留。
-2. ~~新建 `apps/qusor` 入口，跑通 `nsh package --target macos` 实窗。~~ 已完成（ad hoc `.app`，见下方“生产应用首次打包”）。
-3. ~~写 `version`/`build`/`updater`/图标，本地用 `nsh update-manifest` 与本地 HTTP 自测一次更新流程。~~ 更新 UI 与本地回环自测已实现，实测结果见下方“应用内自动更新本机实测”。
-4. ~~加发版 workflow，先 `workflow_dispatch` 出 draft Release。~~ 已完成：run 43142491761 的 macOS draft 与产物验收通过，且 draft 固定到源码 SHA。
-5. 仓库已转 public；人工复核 draft 后发布，并用公开 `releases/latest/download` 验证真实在线更新。**首个发布必须已内置 updater 配置**，否则已装版本收不到自动更新。
-6. 再推进 Android/iOS 打包与真机资格。
+1. 历史：Windows store 测试以显式拒绝路径恢复 CI 绿；Windows 私有存储/文件能力仍未实现。
+2. 历史：`apps/qusor` 已建立，`nsh package --target macos` 曾在 `v0.1.0` 工作树产出 ad hoc `.app`。
+3. 历史：更新 UI 与本地回环更新已在 `0.1.0`→`0.1.1` 自测通过。
+4. 历史：`release.yml` 曾在 run 43142491761 创建固定 SHA 的 `v0.1.0` draft。
+5. 当前：完成 `0.3.1`/`build 4` 的构建与发布说明校验，再分别做 macOS 实窗、Android 模拟器与真机验收；发布说明须满足上述版本源与非空检查。
+6. 后续：人工复核 Release 后发布，并用公开 `releases/latest/download` 验证在线更新；首个包必须已内置 updater 配置。
 
 ## 关键约束与风险
 

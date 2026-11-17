@@ -5,7 +5,18 @@ import sys
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-SKIP = {".git", "target", "__pycache__", "node_modules", ".local", ".nsh"}
+SKIP = {
+    ".git",
+    "target",
+    "__pycache__",
+    "node_modules",
+    ".local",
+    ".nsh",
+    # Upstream checkout and Cargo output are not this repo's docs. The
+    # checkout used to live under target/, which this walk already skipped.
+    "third_party",
+    ".build",
+}
 LINK = re.compile(r"(?<!!)\[[^\]]+\]\((<[^>]+>|[^)\n]+)\)")
 FENCED_CODE = re.compile(r"(?ms)^\x60\x60\x60.*?^\x60\x60\x60[ \t]*$")
 INLINE_CODE = re.compile(r"`[^`\n]+`")

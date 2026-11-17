@@ -10,6 +10,10 @@ from pathlib import Path
 import plistlib
 import shlex
 import subprocess
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from build_layout import CARGO_TARGET, nsh_cli
 
 
 def bundle_hash(path: Path) -> str:
@@ -30,8 +34,8 @@ def main() -> None:
     experiment = here.parent
     cache = experiment / "target/native-design"
     cache.mkdir(parents=True, exist_ok=True)
-    native = experiment / "target/nsh/target/debug/qusor-nsh-native-host-probe"
-    cli = native.with_name("nsh")
+    native = CARGO_TARGET / "debug" / "qusor-nsh-native-host-probe"
+    cli = nsh_cli()
     if not native.is_file() or not cli.is_file():
         raise SystemExit("先按 ../README.md 准备固定 NSH CLI 与默认 native-host；本脚本不安装或构建 Rust。")
     bundle_dir = cache / "bundle"

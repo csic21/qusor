@@ -8,8 +8,9 @@ use qusor_sdk::ui_builder as ui;
 use qusor_sdk::{
     DocumentFormat, HostTransport, KnowledgeDocumentSummary, KnowledgeNoteSummary,
     KnowledgeSavedRange, KnowledgeTocEntry, MAX_KNOWLEDGE_PAGE, OrthogonalKnowledgeClient,
-    SlotPlugin, SlotRenderContext, SlotUpdate,
+    SlotNavigation, SlotPlugin, SlotRenderContext, SlotUpdate,
 };
+use std::collections::{HashSet, VecDeque};
 
 const MAX_RENDERED_TOC_ITEMS: usize = 80;
 const MAX_RENDERED_SECTION_ITEMS: usize = 16;
@@ -60,6 +61,13 @@ pub struct ReaderPlugin {
     documents: Vec<KnowledgeDocumentSummary>,
     next_cursor: Option<String>,
     view: ReaderView,
+    consumed_navigations: VecDeque<NavigationRecord>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct NavigationRecord {
+    token: String,
+    error: Option<String>,
 }
 
 #[derive(Default)]
@@ -76,6 +84,8 @@ struct ActiveReadingState {
     saved_ranges: Vec<KnowledgeSavedRange>,
     doc_notes: Vec<KnowledgeNoteSummary>,
     show_toc: bool,
+    focus_capture_id: Option<i64>,
+    focus_notice: Option<String>,
 }
 
 impl ReaderPlugin {
@@ -134,22 +144,9 @@ impl ReaderPlugin {
         document_id: i64,
         host: &dyn HostTransport,
     ) -> Option<String> {
-        if !self
-            .documents
-            .iter()
-            .any(|doc| doc.format == format && doc.document_id == document_id)
-            && let Some(err) = self.load_documents(host, true)
-        {
-            return Some(err);
-        }
-
-        let Some(document) = self
-            .documents
-            .iter()
-            .find(|doc| doc.format == format && doc.document_id == document_id)
-            .cloned()
-        else {
-            return Some(format!("未找到文档 {}:{}", format_tag(format), document_id));
+        let document = match self.find_document(format, document_id, host) {
+            Ok(document) => document,
+            Err(err) => return Some(err),
         };
 
         let toc_req = self.next_req_id("reader-toc");
@@ -192,8 +189,193 @@ impl ReaderPlugin {
             saved_ranges,
             doc_notes,
             show_toc,
+            focus_capture_id: None,
+            focus_notice: None,
         });
         error
+    }
+
+    fn apply_source_navigation(
+        &mut self,
+        navigation: &SlotNavigation,
+        host: &dyn HostTransport,
+    ) -> Option<String> {
+        if navigation.route != "source_capture" {
+            return Some(format!("不支持的插件导航路由：{}", navigation.route));
+        }
+        if navigation.launch_token.trim().is_empty() {
+            return Some("回源导航缺少启动令牌。".to_owned());
+        }
+        if self
+            .consumed_navigations
+            .iter()
+            .any(|record| record.token == navigation.launch_token)
+        {
+            return None;
+        }
+
+        let result = self.apply_source_navigation_once(navigation, host);
+        self.remember_navigation(&navigation.launch_token, result.as_deref());
+        result
+    }
+
+    fn apply_source_navigation_once(
+        &mut self,
+        navigation: &SlotNavigation,
+        host: &dyn HostTransport,
+    ) -> Option<String> {
+        let Some(payload) = navigation.payload.as_object() else {
+            return Some("回源导航载荷必须是 JSON object。".to_owned());
+        };
+        let Some(format_raw) = payload.get("format").and_then(|value| value.as_str()) else {
+            return Some("回源导航缺少 format。".to_owned());
+        };
+        let format = match format_raw {
+            "pdf" => DocumentFormat::Pdf,
+            "epub" => DocumentFormat::Epub,
+            _ => return Some(format!("不支持的回源格式：{format_raw}")),
+        };
+        let Some(document_id) = payload.get("document_id").and_then(json_i64) else {
+            return Some("回源导航缺少有效 document_id。".to_owned());
+        };
+        let Some(section_index) = payload.get("section_index").and_then(json_u32) else {
+            return Some("回源导航缺少有效 section_index。".to_owned());
+        };
+        let Some(capture_id) = payload.get("capture_id").and_then(json_i64) else {
+            return Some("回源导航缺少有效 capture_id。".to_owned());
+        };
+
+        let document = match self.find_document(format, document_id, host) {
+            Ok(document) => document,
+            Err(err) => return Some(err),
+        };
+        if section_index >= document.section_count {
+            return Some(format!(
+                "回源节次 {section_index} 超出文档范围（共 {} 节）。",
+                document.section_count
+            ));
+        }
+
+        let toc_req = self.next_req_id("reader-toc");
+        let toc = match OrthogonalKnowledgeClient::with_transport(host).document_toc(
+            &toc_req,
+            format,
+            document_id,
+        ) {
+            Ok(entries) => entries,
+            Err(err) => return Some(err.to_string()),
+        };
+
+        let sel_req = self.next_req_id("reader-sel");
+        let saved_ranges = match OrthogonalKnowledgeClient::with_transport(host).saved_selections(
+            &sel_req,
+            format,
+            document_id,
+            section_index,
+        ) {
+            Ok(ranges) => ranges,
+            Err(err) => return Some(err.to_string()),
+        };
+        if !saved_ranges
+            .iter()
+            .any(|range| range.capture_id == capture_id)
+        {
+            return Some(format!(
+                "摘录 #{capture_id} 不在 {} 第 {} 节的已保存高亮中。",
+                format_label(format),
+                section_index.saturating_add(1)
+            ));
+        }
+
+        let doc_notes = match self.fetch_document_notes(format, document_id, host) {
+            Ok(notes) => notes,
+            Err(err) => return Some(err),
+        };
+        if !doc_notes
+            .iter()
+            .any(|note| note.capture_id == capture_id && note.section_index == section_index)
+        {
+            return Some(format!(
+                "摘录 #{capture_id} 不存在于{}第 {} 节的笔记中。",
+                format_label(format),
+                section_index.saturating_add(1)
+            ));
+        }
+
+        let show_toc = !self.compact && !toc.is_empty();
+        self.view = ReaderView::Reading(ActiveReadingState {
+            document,
+            section_index,
+            toc,
+            saved_ranges,
+            doc_notes,
+            show_toc,
+            focus_capture_id: Some(capture_id),
+            focus_notice: None,
+        });
+        None
+    }
+
+    fn remember_navigation(&mut self, token: &str, error: Option<&str>) {
+        if self
+            .consumed_navigations
+            .iter()
+            .any(|record| record.token == token)
+        {
+            return;
+        }
+        self.consumed_navigations.push_back(NavigationRecord {
+            token: token.to_owned(),
+            error: error.map(str::to_owned),
+        });
+    }
+
+    fn navigation_error(&self, token: &str) -> Option<Option<String>> {
+        self.consumed_navigations
+            .iter()
+            .find(|record| record.token == token)
+            .map(|record| record.error.clone())
+    }
+
+    fn find_document(
+        &mut self,
+        format: DocumentFormat,
+        document_id: i64,
+        host: &dyn HostTransport,
+    ) -> Result<KnowledgeDocumentSummary, String> {
+        if let Some(document) = self
+            .documents
+            .iter()
+            .find(|doc| doc.format == format && doc.document_id == document_id)
+            .cloned()
+        {
+            return Ok(document);
+        }
+
+        let mut cursor: Option<String> = None;
+        let mut seen_cursors = HashSet::new();
+        loop {
+            let req_id = self.next_req_id("reader-find-doc");
+            let page = OrthogonalKnowledgeClient::with_transport(host)
+                .documents_page(&req_id, None, cursor.as_deref(), MAX_KNOWLEDGE_PAGE)
+                .map_err(|err| err.to_string())?;
+            if let Some(document) = page
+                .documents
+                .iter()
+                .find(|doc| doc.format == format && doc.document_id == document_id)
+                .cloned()
+            {
+                return Ok(document);
+            }
+            let Some(next) = page.next_cursor else {
+                break;
+            };
+            if cursor.as_deref() == Some(next.as_str()) || !seen_cursors.insert(next.clone()) {
+                break;
+            }
+            cursor = Some(next);
+        }
+        Err(format!("未找到文档 {}:{}", format_tag(format), document_id))
     }
 
     fn fetch_document_notes(
@@ -256,6 +438,7 @@ impl ReaderPlugin {
                     }
                 }
             }
+            invalidate_stale_focus(state);
         }
         error
     }
@@ -286,9 +469,17 @@ impl ReaderPlugin {
             ReaderView::Reading(state) => state.document.section_count.saturating_sub(1),
             ReaderView::Shelf => return None,
         };
-        let clamped = target_index.min(max_index);
+        if target_index > max_index {
+            return Some(format!(
+                "目标节次 {} 超出范围（共 {} 节）。",
+                target_index.saturating_add(1),
+                max_index.saturating_add(1)
+            ));
+        }
         if let ReaderView::Reading(state) = &mut self.view {
-            state.section_index = clamped;
+            state.section_index = target_index;
+            state.focus_capture_id = None;
+            state.focus_notice = None;
         }
         self.refresh_active_section(host)
     }
@@ -457,6 +648,13 @@ impl ReaderPlugin {
         ui::ui_tree(self.revision, root)
     }
 
+    fn build_navigation_tree(&mut self, error: Option<&str>) -> UiTree {
+        match self.view {
+            ReaderView::Shelf => self.build_shelf_tree(error),
+            ReaderView::Reading(_) => self.build_reading_tree(error),
+        }
+    }
+
     fn build_reading_tree(&mut self, error: Option<&str>) -> UiTree {
         self.revision = self.revision.saturating_add(1).max(1);
         let ReaderView::Reading(ref state) = self.view else {
@@ -542,10 +740,20 @@ impl ReaderPlugin {
 
         let progress = ui::progress("reader_section_progress", current_display, total_sections);
 
-        let surface_id = format!(
-            "reader-doc:{tag}:{}:{}",
-            state.document.document_id, state.section_index
-        );
+        let surface_id = match state.focus_capture_id {
+            Some(capture_id) => format!(
+                "reader-doc:focus-{capture_id}:{tag}:{}:{}",
+                state.document.document_id, state.section_index
+            ),
+            None => format!(
+                "reader-doc:{tag}:{}:{}",
+                state.document.document_id, state.section_index
+            ),
+        };
+        let surface_heading = match state.focus_capture_id {
+            Some(capture_id) => format!("精确回源 · 高亮 #{capture_id}"),
+            None => "受控原生阅读视口".to_owned(),
+        };
         let surface_card = ui::card(
             "reader_surface_card",
             SpacingScale::Sm,
@@ -558,7 +766,7 @@ impl ReaderPlugin {
                     vec![
                         ui::text(
                             "reader_surface_heading",
-                            "受控原生阅读视口",
+                            surface_heading,
                             TypographyRole::BodyStrong,
                             SemanticToken::TextPrimary,
                         ),
@@ -720,6 +928,9 @@ impl ReaderPlugin {
         if let Some(message) = error {
             root_children.push(error_card("reader_view_error", message));
         }
+        if let Some(detail) = focus_notice(state) {
+            root_children.push(error_card("reader_focus_notice", &detail));
+        }
         root_children.push(body);
 
         let root = ui::scroll(
@@ -743,6 +954,12 @@ impl SlotPlugin for ReaderPlugin {
         host: &dyn HostTransport,
     ) -> Result<UiTree, String> {
         self.compact = ctx.compact;
+        if let Some(navigation) = ctx.navigation.as_ref() {
+            let error = self
+                .apply_source_navigation(navigation, host)
+                .or_else(|| self.navigation_error(&navigation.launch_token).flatten());
+            return Ok(self.build_navigation_tree(error.as_deref()));
+        }
         match self.view {
             ReaderView::Shelf => {
                 let err = self.load_documents(host, true);
@@ -878,8 +1095,59 @@ fn parse_doc_target(raw: &str) -> Result<(DocumentFormat, i64), String> {
     Ok((format, doc_id))
 }
 
+fn json_i64(value: &serde_json::Value) -> Option<i64> {
+    let number = value.as_i64()?;
+    (number > 0).then_some(number)
+}
+
+fn json_u32(value: &serde_json::Value) -> Option<u32> {
+    let number = value.as_u64()?;
+    u32::try_from(number).ok()
+}
+
 fn same_doc(a: &KnowledgeDocumentSummary, b: &KnowledgeDocumentSummary) -> bool {
     a.format == b.format && a.document_id == b.document_id
+}
+
+fn invalidate_stale_focus(state: &mut ActiveReadingState) {
+    let Some(capture_id) = state.focus_capture_id else {
+        return;
+    };
+    let range_still_exists = state
+        .saved_ranges
+        .iter()
+        .any(|range| range.capture_id == capture_id);
+    let note_still_exists = state
+        .doc_notes
+        .iter()
+        .any(|note| note.capture_id == capture_id && note.section_index == state.section_index);
+    if range_still_exists && note_still_exists {
+        return;
+    }
+    state.focus_capture_id = None;
+    state.focus_notice = Some(format!("摘录 #{capture_id} 已不存在，已退出精确回源。"));
+}
+
+fn focus_notice(state: &ActiveReadingState) -> Option<String> {
+    let Some(capture_id) = state.focus_capture_id else {
+        return state.focus_notice.clone();
+    };
+    if state.document.format == DocumentFormat::Pdf {
+        return Some(format!("PDF 几何高亮已锁定摘录 #{capture_id}。"));
+    }
+    Some(
+        match state
+            .saved_ranges
+            .iter()
+            .find(|range| range.capture_id == capture_id)
+        {
+            Some(range) => format!(
+                "EPUB 摘录 #{capture_id} 已定位到字符区间 {}..{}；EPUB 暂不支持原生几何高亮。",
+                range.start, range.end
+            ),
+            None => format!("EPUB 摘录 #{capture_id} 已定位。"),
+        },
+    )
 }
 
 fn format_tag(format: DocumentFormat) -> &'static str {

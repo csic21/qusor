@@ -14,6 +14,9 @@ import shutil
 import subprocess
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from build_layout import CARGO_TARGET, nsh_cli
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -31,13 +34,13 @@ def main() -> None:
     here = Path(__file__).resolve().parent
     root = here.parents[2]
     cache = here.parent / "target/native-workbench"
-    host_binary = here.parent / "target/nsh/target/debug/qusor-nsh-workbench-host"
-    cli = here.parent / "target/nsh/target/debug/nsh"
+    host_binary = CARGO_TARGET / "debug" / "qusor-nsh-workbench-host"
+    cli = nsh_cli()
     if not cli.is_file():
         raise SystemExit("先按 ../README.md 准备固定 NSH CLI 与 native-host")
     cache.mkdir(parents=True, exist_ok=True)
     env = dict(os.environ, RUSTUP_TOOLCHAIN="1.97.1", CARGO_NET_OFFLINE="true",
-               CARGO_TARGET_DIR=str(here.parent / "target/nsh/target"))
+               CARGO_TARGET_DIR=str(CARGO_TARGET))
     subprocess.run(["cargo", "build", "--manifest-path", str(here.parent / "native-host/Cargo.toml"),
                     "--offline", "--bin", "qusor-nsh-workbench-host"], env=env, check=True)
     bundle_dir = cache / "bundle"
@@ -54,11 +57,11 @@ def main() -> None:
     shutil.copyfile(root / "plugins/notes/target/notes.qpk", cache / "notes.package")
     (cache / "notes-key.txt").write_text(proof["publisher_key"] + "\n")
     # Seed a real Core database with Chinese saved notes for the window.
-    seed = root / "experiments/capture-core/target/debug/seed_workbench_notes"
+    seed = CARGO_TARGET / "debug" / "seed_workbench_notes"
     if not seed.is_file():
         subprocess.run(["cargo", "build", "--manifest-path",
                         str(root / "experiments/capture-core/Cargo.toml"),
-                        "--offline", "--bin", "seed_workbench_notes"], check=True)
+                        "--offline", "--bin", "seed_workbench_notes"], env=env, check=True)
     core = cache / "core"
     shutil.rmtree(core, ignore_errors=True)
     subprocess.run([str(seed), str(core), str(cache / "seed.json")], check=True)
@@ -69,11 +72,11 @@ def main() -> None:
     shutil.copyfile(root / "plugins/vocab/target/vocab.qpk", cache / "vocab.package")
     (cache / "vocab-key.txt").write_text(vocab_proof["publisher_key"] + "\n")
     # Seed a real Core database with two synthetic wordbooks.
-    vocab_seed = root / "experiments/capture-core/target/debug/seed_workbench_vocab"
+    vocab_seed = CARGO_TARGET / "debug" / "seed_workbench_vocab"
     if not vocab_seed.is_file():
         subprocess.run(["cargo", "build", "--manifest-path",
                         str(root / "experiments/capture-core/Cargo.toml"),
-                        "--offline", "--bin", "seed_workbench_vocab"], check=True)
+                        "--offline", "--bin", "seed_workbench_vocab"], env=env, check=True)
     vocab_core = cache / "core-vocab"
     shutil.rmtree(vocab_core, ignore_errors=True)
     subprocess.run([str(vocab_seed), str(vocab_core), str(cache / "vocab-seed.json")], check=True)

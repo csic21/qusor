@@ -3,6 +3,7 @@ from pathlib import Path
 import hashlib,json,os,shutil,subprocess,sys
 HERE=Path(__file__).resolve().parent;BASE=HERE.parent;ROOT=BASE.parent.parent
 sys.path.insert(0,str(BASE/'native-host'));import prepare as native_prepare,prepare_reader_package
+sys.path.insert(0,str(ROOT/'scripts'));from build_layout import CARGO_TARGET, nsh_cli
 
 def digest(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 def prepare_editor_package(resources):
@@ -34,11 +35,11 @@ def main():
     if any(p.suffix in {'.pdf','.png','.ppm'} or p.name in {'report.json','snapshot.json'} for p in resources.iterdir()):raise ValueError('dynamic resources must not contain a document or frame fixture')
     helper=HERE/'.nsh/rust';helper.mkdir(parents=True,exist_ok=True)
     if not (helper/'Cargo.lock').exists():shutil.copyfile(BASE/'plugin-surface/.nsh/rust/Cargo.lock',helper/'Cargo.lock')
-    env=native_prepare.runtime_environment(BASE/'target/native-prefix');env.update(RUSTUP_TOOLCHAIN='1.97.1',CARGO_NET_OFFLINE='true',CARGO_TARGET_DIR=str(native_prepare.SOURCE/'target'))
-    subprocess.run([str(native_prepare.SOURCE/'target/debug/nsh'),'build',str(HERE),'-o',str(BASE/'target/dynamic-pdf-bundle'),'--verbose'],env=env,check=True)
+    env=native_prepare.runtime_environment(BASE/'target/native-prefix');env.update(RUSTUP_TOOLCHAIN='1.97.1',CARGO_NET_OFFLINE='true',CARGO_TARGET_DIR=str(CARGO_TARGET))
+    subprocess.run([str(nsh_cli()),'build',str(HERE),'-o',str(BASE/'target/dynamic-pdf-bundle'),'--verbose'],env=env,check=True)
     drift=native_prepare.registry_drift(native_prepare.SOURCE/'Cargo.lock',helper/'Cargo.lock',ROOT/'experiments/pdf-provider/Cargo.lock',ROOT/'Cargo.lock',ROOT/'experiments/extension-package/Cargo.lock')
     if drift:raise ValueError({'unqualified_helper_registry_drift':drift})
-    artifacts=[native_prepare.SOURCE/'target/debug/qusor-nsh-dynamic-pdf-probe',BASE/'target/dynamic-pdf-bundle/bundle.nshc',resources/'reader.package']
+    artifacts=[CARGO_TARGET/'debug'/'qusor-nsh-dynamic-pdf-probe',BASE/'target/dynamic-pdf-bundle/bundle.nshc',resources/'reader.package']
     record={'artifacts':{str(p.relative_to(ROOT)):digest(p) for p in artifacts},'author_proof':proof,'editor_author_proof':editor_proof,'helper_registry_drift':drift,'document_resources':[],'local_gtk_schema_sha256':digest(schemas/'gschemas.compiled'),'qualification_requires_post_build_fixtures':True}
     (BASE/'target/dynamic-pdf-preparation.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2));return record
 if __name__=='__main__':main()

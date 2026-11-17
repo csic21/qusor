@@ -6,6 +6,8 @@ READER=BASE.parent
 ROOT=READER.parent.parent
 sys.path.insert(0,str(BASE))
 import prepare
+sys.path.insert(0,str(ROOT/'scripts'))
+from build_layout import CARGO_TARGET, nsh_cli
 
 def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def png(ppm,output,width,height):
@@ -20,12 +22,12 @@ def png(ppm,output,width,height):
 def main():
     prep=prepare.prepare()
     env=prepare.runtime_environment(READER/'target/native-prefix')
-    env.update(RUSTUP_TOOLCHAIN='1.97.1',CARGO_NET_OFFLINE='true',CARGO_TARGET_DIR=str(prepare.SOURCE/'target'))
+    env.update(RUSTUP_TOOLCHAIN='1.97.1',CARGO_NET_OFFLINE='true',CARGO_TARGET_DIR=str(CARGO_TARGET))
     provider=ROOT/'experiments/pdf-provider'
-    subprocess.run(['cargo','build','--manifest-path',str(provider/'Cargo.toml'),'--locked','--offline'],check=True)
+    subprocess.run(['cargo','build','--manifest-path',str(provider/'Cargo.toml'),'--locked','--offline'],env=env,check=True)
     output=READER/'target/pdf-surface-resources';output.mkdir(parents=True,exist_ok=True)
     temp=Path(tempfile.mkdtemp(prefix='pdf-render-',dir=READER/'target'))
-    command=[str(provider/'target/debug/qusor-pdf-provider-probe'),'inspect',str(provider/'target/pdfium/lib/libpdfium.so'),str(provider/'fixtures/text-two-pages.pdf'),str(temp)]
+    command=[str(CARGO_TARGET/'debug'/'qusor-pdf-provider-probe'),'inspect',str(provider/'target/pdfium/lib/libpdfium.so'),str(provider/'fixtures/text-two-pages.pdf'),str(temp)]
     report=json.loads(subprocess.check_output(command))['report']
     (output/'report.json').write_text(json.dumps(report))
     (READER/'pdf-surface/frame.ts').write_text('export const reportDigest = '+json.dumps(digest(output/'report.json'))+';\n')
@@ -40,7 +42,7 @@ def main():
     shutil.rmtree(temp)
     helper=READER/'pdf-surface/.nsh/rust';helper.mkdir(parents=True,exist_ok=True)
     if not (helper/'Cargo.lock').exists():shutil.copyfile(prepare.SOURCE/'Cargo.lock',helper/'Cargo.lock')
-    subprocess.run([str(prepare.SOURCE/'target/debug/nsh'),'build',str(READER/'pdf-surface'),'-o',str(READER/'target/pdf-surface-bundle'),'--verbose'],env=env,check=True)
+    subprocess.run([str(nsh_cli()),'build',str(READER/'pdf-surface'),'-o',str(READER/'target/pdf-surface-bundle'),'--verbose'],env=env,check=True)
     drifts=prepare.registry_drift(prepare.SOURCE/'Cargo.lock',helper/'Cargo.lock',provider/'Cargo.lock',ROOT/'Cargo.lock',ROOT/'experiments/extension-package/Cargo.lock')
     if drifts:raise ValueError({'registry_lock_drift':drifts})
     evidence={'preparation':prep,'inspect_command':command,'report_sha256':digest(output/'report.json'),'original_sha256':report['original_sha256'],'frame_report_sha256':report['extraction_sha256'],'resources':resources,'registry_lock_drift':drifts}

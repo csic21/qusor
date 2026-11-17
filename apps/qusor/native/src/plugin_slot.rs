@@ -53,6 +53,7 @@ enum SlotCommand {
         contribution_id: String,
         store: VaultStore,
         compact: bool,
+        navigation: Option<Value>,
         reply: SyncSender<Result<Value, String>>,
     },
     DispatchEvent {
@@ -104,6 +105,7 @@ impl SlotManager {
         contribution_id: &str,
         store: VaultStore,
         compact: bool,
+        navigation: Option<Value>,
     ) -> Result<Value, String> {
         let (verified, contribution) = package_catalog::find_ui_slot(contribution_id)?;
         let manifest = verified.manifest().clone();
@@ -155,6 +157,7 @@ impl SlotManager {
             "generation": generation,
             "api_version": api_version,
             "compact": compact,
+            "navigation": navigation,
         }))
         .map_err(text)?;
 
@@ -471,9 +474,15 @@ fn spawn_actor() -> Result<Sender<SlotCommand>, String> {
                         contribution_id,
                         store,
                         compact,
+                        navigation,
                         reply,
                     } => {
-                        let _ = reply.send(manager.mount(&contribution_id, store, compact));
+                        let _ = reply.send(manager.mount(
+                            &contribution_id,
+                            store,
+                            compact,
+                            navigation,
+                        ));
                     }
                     SlotCommand::DispatchEvent {
                         mount_id,
@@ -554,7 +563,12 @@ fn runtime_budgets() -> RuntimeBudgets {
     }
 }
 
-fn mount_slot_inner(sys: &System, contribution_id: &str, compact: bool) -> Result<Value, String> {
+fn mount_slot_inner(
+    sys: &System,
+    contribution_id: &str,
+    compact: bool,
+    navigation: Option<Value>,
+) -> Result<Value, String> {
     runtime::ensure_contribution_active(sys, contribution_id)?;
     let store = runtime::core_handle(sys)?;
     let (reply_tx, reply_rx) = mpsc::sync_channel(1);
@@ -562,6 +576,7 @@ fn mount_slot_inner(sys: &System, contribution_id: &str, compact: bool) -> Resul
         contribution_id: contribution_id.to_owned(),
         store,
         compact,
+        navigation,
         reply: reply_tx,
     })?;
     reply_rx
@@ -612,13 +627,32 @@ pub struct PluginSlotHost;
 impl PluginSlotHost {
     /// Mount any active verified package contribution of kind `ui_slot`.
     pub fn mount_slot(sys: System, contribution_id: String) -> String {
-        answer(mount_slot_inner(&sys, &contribution_id, false))
+        answer(mount_slot_inner(&sys, &contribution_id, false, None))
     }
 
     /// Mount any active verified package contribution of kind `ui_slot` with an
     /// explicit `compact` viewport hint passed to the plugin `render_slot` entrypoint.
     pub fn mount_slot_compact(sys: System, contribution_id: String, compact: bool) -> String {
-        answer(mount_slot_inner(&sys, &contribution_id, compact))
+        answer(mount_slot_inner(&sys, &contribution_id, compact, None))
+    }
+
+    /// Mount a slot with a validated opaque navigation object passed through to
+    /// the plugin's render context. The host does not interpret routes or payloads.
+    pub fn mount_slot_compact_with_navigation(
+        sys: System,
+        contribution_id: String,
+        compact: bool,
+        navigation_json: String,
+    ) -> String {
+        let navigation = match serde_json::from_str::<Value>(&navigation_json) {
+            Ok(value @ Value::Object(_)) => Ok(Some(value)),
+            Ok(_) => Err("navigation must be a JSON object".to_string()),
+            Err(err) => Err(format!("invalid navigation JSON: {err}")),
+        };
+        answer(match navigation {
+            Ok(navigation) => mount_slot_inner(&sys, &contribution_id, compact, navigation),
+            Err(err) => Err(err),
+        })
     }
 
     /// Forward a generation-fenced `UiEventEnvelope` JSON payload to a mounted slot.

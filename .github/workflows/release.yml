@@ -77,23 +77,26 @@ jobs:
           fi
       - name: Clone the fixed NSH baseline
         run: |
-          git clone --filter=blob:none https://github.com/longbridge/nsh.git experiments/nsh-reader/target/nsh
-          git -C experiments/nsh-reader/target/nsh checkout "$NSH_SHA"
+          git clone --filter=blob:none https://github.com/longbridge/nsh.git third_party/nsh
+          git -C third_party/nsh checkout "$NSH_SHA"
       - name: Cache the NSH CLI build
         uses: actions/cache@v4
         with:
-          path: experiments/nsh-reader/target/nsh/target
+          path: .build/cargo-target
           key: nsh-cli-${{ runner.os }}-${{ matrix.target }}-${{ env.NSH_SHA }}
       - name: Build the NSH CLI
         env:
           CARGO_BUILD_JOBS: "1"
-        run: cargo build --locked -p nsh-cli --manifest-path experiments/nsh-reader/target/nsh/Cargo.toml
+          # Cargo reads this from the process environment. The repo
+          # [env] entry does not move cargo's own target directory.
+          CARGO_TARGET_DIR: ${{ github.workspace }}/.build/cargo-target
+        run: cargo build --locked -p nsh-cli --manifest-path third_party/nsh/Cargo.toml
       - name: Build the NSH Android runtime (arm64-v8a)
         if: matrix.target == 'android'
         env:
           RUSTUP_TOOLCHAIN: stable
         run: cargo xtask android --release --abi arm64-v8a
-        working-directory: experiments/nsh-reader/target/nsh
+        working-directory: third_party/nsh
       - name: Fetch locked dependencies
         # The plugin builders compile their signer offline against the SDK, so
         # the registry has to hold every lock entry before prepare.py runs.
@@ -105,16 +108,17 @@ jobs:
       - name: Package the app (macOS)
         if: matrix.target == 'macos'
         run: |
-          "$GITHUB_WORKSPACE/experiments/nsh-reader/target/nsh/target/debug/nsh" package \
+          "$GITHUB_WORKSPACE/.build/cargo-target/debug/nsh" package \
             --target macos --out dist
         working-directory: apps/qusor
       - name: Package the app (Android arm64-v8a)
         if: matrix.target == 'android'
         env:
           RUSTUP_TOOLCHAIN: stable
-          NSH_RUNTIME: ${{ github.workspace }}/experiments/nsh-reader/target/nsh/target
+          # xtask writes <checkout>/target/android and does not honor CARGO_TARGET_DIR.
+          NSH_RUNTIME: ${{ github.workspace }}/third_party/nsh/target
         run: |
-          "$GITHUB_WORKSPACE/experiments/nsh-reader/target/nsh/target/debug/nsh" package \
+          "$GITHUB_WORKSPACE/.build/cargo-target/debug/nsh" package \
             --target android --abi arm64-v8a --out dist
           python3 package_android_pdfium.py dist/QUSOR.apk --abi arm64-v8a
           version="$(python3 -c 'import json; print(json.load(open("nsh.json"))["version"])')"
@@ -150,19 +154,22 @@ jobs:
           merge-multiple: true
       - name: Clone the fixed NSH baseline
         run: |
-          git clone --filter=blob:none https://github.com/longbridge/nsh.git experiments/nsh-reader/target/nsh
-          git -C experiments/nsh-reader/target/nsh checkout "$NSH_SHA"
+          git clone --filter=blob:none https://github.com/longbridge/nsh.git third_party/nsh
+          git -C third_party/nsh checkout "$NSH_SHA"
       - name: Cache the NSH CLI build
         uses: actions/cache@v4
         with:
-          path: experiments/nsh-reader/target/nsh/target
+          path: .build/cargo-target
           key: nsh-cli-${{ runner.os }}-${{ env.NSH_SHA }}
           restore-keys: |
             nsh-cli-${{ runner.os }}-
       - name: Build the NSH CLI
         env:
           CARGO_BUILD_JOBS: "1"
-        run: cargo build --locked -p nsh-cli --manifest-path experiments/nsh-reader/target/nsh/Cargo.toml
+          # Cargo reads this from the process environment. The repo
+          # [env] entry does not move cargo's own target directory.
+          CARGO_TARGET_DIR: ${{ github.workspace }}/.build/cargo-target
+        run: cargo build --locked -p nsh-cli --manifest-path third_party/nsh/Cargo.toml
       - name: Write the update key
         env:
           UPDATE_KEY: ${{ secrets.NSH_UPDATE_KEY }}
@@ -173,9 +180,22 @@ jobs:
           fi
           mkdir -p "$RUNNER_TEMP/keys"
           printf '%s\n' "$UPDATE_KEY" > "$RUNNER_TEMP/keys/update.secret"
+      # Release contract: apps/qusor/nsh.json is the only version source.
+      # The matching docs/releases/v<version>.md is required; a missing or
+      # whitespace-only file must fail here, never fall back to placeholder text.
       - name: Write the update manifest
         run: |
-          printf 'See the release notes for this version.\n' > "$RUNNER_TEMP/notes.md"
+          version="$(python3 -c 'import json; print(json.load(open("apps/qusor/nsh.json"))["version"])')"
+          if [ -z "$version" ]; then
+            echo "apps/qusor/nsh.json names no version" >&2
+            exit 1
+          fi
+          notes_file="docs/releases/v${version}.md"
+          if [ ! -f "$notes_file" ] || ! grep -q '[^[:space:]]' "$notes_file"; then
+            echo "release notes are missing or blank: $notes_file" >&2
+            exit 1
+          fi
+          cp "$notes_file" "$RUNNER_TEMP/notes.md"
           # Only the archives this run produced: an unmatched glob reaches the CLI
           # as a literal path and names no platform.
           shopt -s nullglob
@@ -184,7 +204,7 @@ jobs:
             echo "no archive to describe" >&2
             exit 1
           fi
-          experiments/nsh-reader/target/nsh/target/debug/nsh update-manifest \
+          .build/cargo-target/debug/nsh update-manifest \
             "${archives[@]}" \
             --entry apps/qusor \
             --notes "$RUNNER_TEMP/notes.md" \
@@ -208,9 +228,13 @@ jobs:
           fi
           notes="$(python3 - <<'PY_SH'
           import json
-          print(json.load(open("dist/latest.json")).get("notes") or "See the release notes for this version.")
+          print((json.load(open("dist/latest.json")).get("notes") or "").strip())
           PY_SH
           )"
+          if [ -z "$notes" ]; then
+            echo "dist/latest.json contains blank release notes" >&2
+            exit 1
+          fi
           printf '%s\n' "$notes" > "$RUNNER_TEMP/release-notes.md"
           shopt -s nullglob
           assets=(dist/*.tar.gz dist/*.zip dist/*.ipa dist/*.apk)

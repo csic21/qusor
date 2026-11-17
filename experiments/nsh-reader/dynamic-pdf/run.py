@@ -3,6 +3,7 @@ from pathlib import Path
 import argparse,hashlib,os,platform,plistlib,subprocess,sys
 HERE=Path(__file__).resolve().parent;BASE=HERE.parent;ROOT=BASE.parent.parent
 sys.path.insert(0,str(BASE));from native_prefix import runtime_environment
+sys.path.insert(0,str(ROOT/'scripts'));from build_layout import CARGO_TARGET
 
 def macos_app(executable):
     """Give this locally built native executable an immutable, inspectable app identity."""
@@ -33,7 +34,7 @@ def launch(data,log=None,picker_dir=None):
         raise RuntimeError('reader runtime profile has not yet passed qualification on this platform')
     env.update(QUSOR_READER_RESOURCES=str(BASE/'target/dynamic-pdf-resources'),QUSOR_READER_DATA=str(data),QUSOR_PDF_LIBRARY=str(library))
     if picker_dir:env['QUSOR_DYNAMIC_PICKER_DIR']=str(Path(picker_dir).resolve())
-    executable=BASE/'target/nsh/target/debug/qusor-nsh-dynamic-pdf-probe'
+    executable=CARGO_TARGET/'debug'/'qusor-nsh-dynamic-pdf-probe'
     if sys.platform=='darwin':executable=macos_app(executable)
     command=[str(executable),'--bundle',str(BASE/'target/dynamic-pdf-bundle/bundle.nshc'),'--trace','--app-id','org.qusor.nativeprobe','--data-dir',str(data/'ui'),'--window-size','1000x1000']
     if sys.platform=='darwin':command+=['--name','QUSOR 阅读预览']
